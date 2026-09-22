@@ -28,6 +28,6 @@ jobs:
       - name: Install, build and test frontend
         working-directory: frontend
         run: |
-          npm ci
+          npm install
           npm run build
           npm test -- --ci
