@@ -1,0 +1,10 @@
+package com.adotaaqui.model.enums;
+
+public enum ConvivenciaAnimal {
+    NAO_TENHO_OUTROS_ANIMAIS_EM_CASA,
+    SIM_GATOS,
+    SIM_CACHORROS,
+    SIM_GATOS_E_CACHORROS,
+    SIM_OUTRAS_ESPECIES,
+    PREFIRO_RESPONDER_DIRETAMENTE_AO_PROTETOR
+}

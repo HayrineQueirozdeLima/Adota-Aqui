@@ -4,11 +4,17 @@ Plataforma de adoção de animais — projeto final da Trilha Dev. Full Stack 20
 
 ## Tecnologias
 
-- Front-end: React + Tailwind
-- Back-end: Spring Boot + PostgreSQL
-- Autenticação: JWT + BCrypt
+- Front-end: React + Vite + Tailwind
+- Back-end: Spring Boot + Spring Security (JWT + BCrypt)
+- Banco de dados: PostgreSQL, com versionamento de schema via Flyway
 
 ## Como rodar localmente
+
+### Pré-requisitos
+
+- Java 17+ e Maven
+- Node.js 20+
+- PostgreSQL com um banco chamado `adota_aqui`
 
 ### Back-end
 
@@ -17,7 +23,9 @@ cd backend
 mvn spring-boot:run
 ```
 
-Requer um PostgreSQL local com um banco `adota_aqui` criado, ou as variáveis de ambiente `DB_USERNAME` e `DB_PASSWORD` configuradas.
+Na primeira execução o Flyway cria as tabelas automaticamente a partir de
+`src/main/resources/db/migration`. As credenciais do banco podem ser
+definidas pelas variáveis de ambiente `DB_URL`, `DB_USERNAME` e `DB_PASSWORD`.
 
 ### Front-end
 
@@ -30,7 +38,7 @@ npm run dev
 ## Testes
 
 ```bash
-# back-end
+# back-end (usa banco H2 em memória, não precisa de PostgreSQL)
 cd backend && mvn test
 
 # front-end

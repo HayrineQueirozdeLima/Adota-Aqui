@@ -11,18 +11,21 @@ import jakarta.persistence.Table;
 import java.util.UUID;
 
 @Entity
-@Table(name = "usuario")
-public class Usuario {
+@Table(name = "abrigo")
+public class Abrigo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, unique = true, length = 11)
-    private String cpf;
+    @Column(nullable = false, unique = true, length = 14)
+    private String cnpj;
 
     @Column(nullable = false, length = 150)
     private String nome;
+
+    @Column(name = "razao_social", nullable = false, length = 200)
+    private String razaoSocial;
 
     @Column(nullable = false, unique = true, length = 150)
     private String email;
@@ -37,19 +40,19 @@ public class Usuario {
     @Embedded
     private Endereco endereco;
 
-    public Usuario() {
+    public Abrigo() {
     }
 
     public UUID getId() {
         return id;
     }
 
-    public String getCpf() {
-        return cpf;
+    public String getCnpj() {
+        return cnpj;
     }
 
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
+    public void setCnpj(String cnpj) {
+        this.cnpj = cnpj;
     }
 
     public String getNome() {
@@ -58,6 +61,14 @@ public class Usuario {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public String getRazaoSocial() {
+        return razaoSocial;
+    }
+
+    public void setRazaoSocial(String razaoSocial) {
+        this.razaoSocial = razaoSocial;
     }
 
     public String getEmail() {
