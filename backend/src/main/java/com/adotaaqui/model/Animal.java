@@ -101,6 +101,10 @@ public class Animal {
     @OneToMany(mappedBy = "animal", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Vacina> vacinas = new ArrayList<>();
 
+    // UC05: remover o animal remove também os interesses recebidos por ele
+    @OneToMany(mappedBy = "animal", cascade = CascadeType.REMOVE)
+    private List<Interesse> interesses = new ArrayList<>();
+
     public Animal() {
     }
 
@@ -277,5 +281,9 @@ public class Animal {
 
     public List<Vacina> getVacinas() {
         return vacinas;
+    }
+
+    public List<Interesse> getInteresses() {
+        return interesses;
     }
 }
