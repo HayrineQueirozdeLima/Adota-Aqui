@@ -20,29 +20,38 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.Check;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+// É o registro de "fulano quer adotar este animal", junto com as respostas da triagem.
+// Liga um Usuario (o candidato) a um Animal.
 @Entity
 @Table(name = "interesse")
+// RF10: toda descontinuação precisa de motivo. Está aqui no banco e também no método validarMotivo().
+@Check(constraints = "status_andamento <> 'DESCONTINUADO' OR motivo_descontinuacao IS NOT NULL")
 public class Interesse {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
-    private LocalDateTime data;
+    // Preenchida sozinha na hora em que o interesse é criado
+    @Column(name = "data_hora", nullable = false)
+    private LocalDateTime dataHora;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status_andamento", nullable = false, length = 20)
     private StatusInteresse statusAndamento = StatusInteresse.PENDENTE;
 
-    @Column(name = "motivo_descontinuacao", length = 500)
+    @Column(name = "motivo_descontinuacao", length = 255)
     private String motivoDescontinuacao;
 
     // ----- Triagem (RF15) -----
+    // Todas são obrigatórias. Em quase todas a pessoa pode marcar
+    // "prefiro responder diretamente ao protetor", menos no momento de contato.
+    // O tamanho das colunas é 60 porque o maior valor tem 41 letras.
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 60)
@@ -83,8 +92,8 @@ public class Interesse {
 
     @PrePersist
     private void aoCriar() {
-        if (data == null) {
-            data = LocalDateTime.now();
+        if (dataHora == null) {
+            dataHora = LocalDateTime.now();
         }
         validarMotivo();
     }
@@ -94,7 +103,6 @@ public class Interesse {
         validarMotivo();
     }
 
-    // RF10: toda descontinuação exige motivo
     private void validarMotivo() {
         if (statusAndamento == StatusInteresse.DESCONTINUADO
                 && (motivoDescontinuacao == null || motivoDescontinuacao.isBlank())) {
@@ -106,8 +114,8 @@ public class Interesse {
         return id;
     }
 
-    public LocalDateTime getData() {
-        return data;
+    public LocalDateTime getDataHora() {
+        return dataHora;
     }
 
     public StatusInteresse getStatusAndamento() {

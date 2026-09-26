@@ -10,6 +10,8 @@ import jakarta.persistence.Table;
 
 import java.util.UUID;
 
+// ONG ou abrigo (CNPJ). É uma conta só por instituição, e os funcionários
+// usam o mesmo login. Foi uma simplificação combinada pra caber no prazo.
 @Entity
 @Table(name = "abrigo")
 public class Abrigo {
@@ -18,23 +20,25 @@ public class Abrigo {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    // É com o CNPJ que o abrigo faz login (RF03). Não pode ser editado depois (RF17).
     @Column(nullable = false, unique = true, length = 14)
     private String cnpj;
 
-    @Column(nullable = false, length = 150)
+    // Nome institucional, é o que aparece na listagem de animais
+    @Column(nullable = false, length = 120)
     private String nome;
 
-    @Column(name = "razao_social", nullable = false, length = 200)
+    @Column(name = "razao_social", nullable = false, length = 150)
     private String razaoSocial;
 
-    @Column(nullable = false, unique = true, length = 150)
+    @Column(nullable = false, unique = true, length = 120)
     private String email;
 
     @Column(nullable = false, length = 20)
     private String telefone;
 
-    // Guarda apenas o hash BCrypt, nunca a senha em texto puro (RNF02)
-    @Column(nullable = false, length = 100)
+    // Hash do BCrypt, nunca a senha em texto puro (RNF02)
+    @Column(name = "senha_hash", nullable = false, length = 60)
     private String senha;
 
     @Embedded
