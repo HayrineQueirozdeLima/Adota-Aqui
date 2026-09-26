@@ -8,10 +8,11 @@ import java.util.UUID;
 
 public interface AbrigoRepository extends JpaRepository<Abrigo, UUID> {
 
-    // RF03: login do Abrigo pelo CNPJ
+    // Login do Abrigo (RF03)
     Optional<Abrigo> findByCnpj(String cnpj);
 
     boolean existsByCnpj(String cnpj);
 
+    // Mesma regra do UsuarioRepository: e-mail único entre usuarios E abrigos
     boolean existsByEmail(String email);
 }

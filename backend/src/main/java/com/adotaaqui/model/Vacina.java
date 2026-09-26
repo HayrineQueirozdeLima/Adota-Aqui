@@ -13,6 +13,8 @@ import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.UUID;
 
+// Histórico de vacinação do animal. Vacina não existe sozinha: sempre pertence
+// a um animal, e some junto quando o animal é removido.
 @Entity
 @Table(name = "vacina")
 public class Vacina {
@@ -21,11 +23,13 @@ public class Vacina {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 80)
     private String nome;
 
+    // 1 ou mais
     private Integer dose;
 
+    // Não pode ser data futura (quem confere é o service)
     @Column(name = "data_aplicacao")
     private LocalDate dataAplicacao;
 

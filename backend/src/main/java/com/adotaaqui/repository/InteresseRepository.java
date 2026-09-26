@@ -12,11 +12,15 @@ public interface InteresseRepository extends JpaRepository<Interesse, UUID> {
 
     List<Interesse> findByAnimalId(UUID animalId);
 
+    // "Meus interesses" do candidato
     List<Interesse> findByUsuarioId(UUID usuarioId);
 
-    // RF10: ao aprovar um interesse, os demais pendentes/em contato do mesmo animal são descontinuados
+    // Quando o protetor aprova um interesse, os outros PENDENTE e EM_CONTATO
+    // do mesmo animal são descontinuados (RF10). É esse método que acha eles.
     List<Interesse> findByAnimalIdAndStatusAndamentoIn(UUID animalId, Collection<StatusInteresse> status);
 
+    // Evita interesse duplicado: a pessoa não pode ter dois interesses ativos
+    // (PENDENTE ou EM_CONTATO) no mesmo animal
     boolean existsByUsuarioIdAndAnimalIdAndStatusAndamentoIn(UUID usuarioId, UUID animalId,
                                                              Collection<StatusInteresse> status);
 }
