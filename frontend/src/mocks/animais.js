@@ -1,0 +1,36 @@
+// Dados de exemplo, no mesmo formato do GET /api/animais (docs/api.md)
+//Quando a API estiver no ar, as telas passam a buscar da API e este arquivo deixa de ser usado
+export const animaisExemplo = [
+    {
+        id: '9b2e4f10-1c3d-4a5b-8e7f-6a5b4c3d2e1f',
+        nome: 'Mel',
+        especie: 'CAO',
+        raca: 'SRD_CAO',
+        racaNome: 'Sem raça definida',
+        sexo: 'FEMEA',
+        porte: 'MEDIO',
+        peso: 14,
+        castrado: true,
+        energia: 'MAIS_ANIMADO',
+        convivencia: { crianca: 'CONVIVE_BEM', gato: 'NAO_TESTADO', cao: 'CONVIVE_BEM' },
+        statusAdocao: 'DISPONIVEL',
+        fotoCapa: null,
+        protetor: { nome: 'Instituto Quatro Patas', cidade: 'Santo André', estado: 'SP' },
+    },
+    {
+        id: '2c7d9e11-4f5a-4b6c-9d8e-1f2a3b4c5d6e',
+        nome: 'Tobias',
+        especie: 'GATO',
+        raca: 'SIAMES',
+        racaNome: 'Siamês',
+        sexo: 'MACHO',
+        porte: 'PEQUENO',
+        peso: 4.5,
+        castrado: false,
+        energia: 'MAIS_CALMO',
+        convivencia: { crianca: 'NAO_TESTADO', gato: 'CONVIVE_BEM', cao: 'NAO_CONVIVE_BEM' },
+        statusAdocao: 'DISPONIVEL',
+        fotoCapa: null,
+        protetor: { nome: 'Marina Prado', cidade: 'Porto Velho', estado: 'RO' },
+    },
+];
