@@ -1,3 +1,70 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Cores do projeto, iguais às variáveis do Figma (página "01 · Fundamentos").
+   O nome é o mesmo do Figma, trocando a barra por hífen (acao/terracota vira --acao-terracota)
+   Se precisar mudar uma cor, muda só aqui, que o site inteiro acompanha. */
+:root {
+  --fundo-pagina: #fffcf5;
+  --fundo-superficie: #ffffff;
+  --fundo-marca: #4a2d73;
+
+  --marca-roxo: #4a2d73;
+  --marca-roxo-suave: #eae5f1;
+
+  --acao-terracota: #c1502e;
+
+  --texto-principal: #292929;
+  --texto-secundario: #5f5f5f;
+  --texto-terciario: #707070;
+
+  --borda-sutil: #e4e1da;
+  --borda-forte: #c9c5bc;
+
+  --status-disponivel-fundo: #e0eeea;
+  --status-disponivel-texto: #0f5443;
+  --status-atencao-fundo: #f4ebd8;
+  --status-atencao-texto: #7c5e20;
+  --status-erro-fundo: #f4e8e7;
+  --status-erro-texto: #8e3229;
+  --status-neutro-fundo: #f0efec;
+  --status-neutro-texto: #5f5f5f;
+}
+
+/* Tema escuro: mesmos nomes, outros valores.
+   Por enquanto só liga se alguém colocar a classe "tema-escuro" no <html>.
+   O botão de trocar o tema fica pra depois, se der tempo. */
+.tema-escuro {
+  --fundo-pagina: #292929;
+  --fundo-superficie: #363636;
+  --fundo-marca: #4a2d73;
+
+  --marca-roxo: #9c87c9;
+  --marca-roxo-suave: #4c4856;
+
+  --acao-terracota: #c1502e;
+
+  --texto-principal: #fffcf5;
+  --texto-secundario: #b8b5af;
+  --texto-terciario: #9a968f;
+
+  --borda-sutil: #3f3f3e;
+  --borda-forte: #575654;
+
+  --status-disponivel-fundo: #2e4640;
+  --status-disponivel-texto: #5fbfa0;
+  --status-atencao-fundo: #5b4f38;
+  --status-atencao-texto: #e0bc6e;
+  --status-erro-fundo: #523836;
+  --status-erro-texto: #d98077;
+  --status-neutro-fundo: #4a4a49;
+  --status-neutro-texto: #b7b5b0;
+}
+
+/* Fundo e texto padrão do site inteiro */
+body {
+  background-color: var(--fundo-pagina);
+  color: var(--texto-principal);
+  font-family: "Source Sans 3", system-ui, sans-serif;
+}
