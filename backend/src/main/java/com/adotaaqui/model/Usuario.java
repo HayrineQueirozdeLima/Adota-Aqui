@@ -10,6 +10,8 @@ import jakarta.persistence.Table;
 
 import java.util.UUID;
 
+// Pessoa física (CPF). A mesma conta serve pra adotar e pra cadastrar um animal
+// que a pessoa resgatou por conta própria, não tem "tipo de usuário" separado.
 @Entity
 @Table(name = "usuario")
 public class Usuario {
@@ -18,20 +20,22 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    // É com o CPF que a pessoa faz login (RF03). Não pode ser editado depois (RF17).
     @Column(nullable = false, unique = true, length = 11)
     private String cpf;
 
-    @Column(nullable = false, length = 150)
+    @Column(nullable = false, length = 120)
     private String nome;
 
-    @Column(nullable = false, unique = true, length = 150)
+    @Column(nullable = false, unique = true, length = 120)
     private String email;
 
     @Column(nullable = false, length = 20)
     private String telefone;
 
-    // Guarda apenas o hash BCrypt, nunca a senha em texto puro (RNF02)
-    @Column(nullable = false, length = 100)
+    // Aqui fica o hash do BCrypt, NUNCA a senha em texto puro (RNF02).
+    // E a senha nunca volta em resposta nenhuma da API, por isso sempre usem DTO.
+    @Column(name = "senha_hash", nullable = false, length = 60)
     private String senha;
 
     @Embedded

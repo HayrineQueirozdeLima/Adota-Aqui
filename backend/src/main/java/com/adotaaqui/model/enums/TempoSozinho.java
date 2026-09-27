@@ -1,7 +1,7 @@
 package com.adotaaqui.model.enums;
 
 public enum TempoSozinho {
-    NAO_FICARA_SOZINHO_EM_CASA,
+    O_ANIMAL_NAO_FICARA_SOZINHO_EM_CASA,
     ATE_2_HORAS,
     ATE_4_HORAS,
     ATE_8_HORAS,

@@ -47,6 +47,20 @@ cd frontend && npm test
 
 ## Estrutura do projeto
 
-- `backend/` — API REST (Spring Boot)
-- `frontend/` — interface web (React)
-- `docs/` — requisitos, diagramas e atas
+- `backend/` — API REST (Spring Boot). Tem um README próprio explicando as pastas
+- `frontend/` — interface web (React). Também tem README próprio
+- `docs/` — contrato da API, requisitos, diagramas e atas
+
+## Chegou agora? Começa por aqui
+
+1. Leia o README da sua parte (`backend/README.md` ou `frontend/README.md`).
+2. Leia o `docs/api.md`. É o combinado entre front e back.
+3. Abra o GitHub Projects, filtre pela sprint atual e pelo seu squad e escolha uma issue.
+
+## Como a gente trabalha
+
+- A `main` é a versão estável. Ninguém faz commit direto nela.
+- Cada tarefa ganha uma branch própria, criada a partir da `dev`: `feature/nome-da-tarefa` (ou `fix/...` pra correção).
+- Terminou? Abre um pull request **para a `dev`**, com `Closes #número-da-issue` na descrição. Assim a issue fecha sozinha quando o PR entra.
+- O PR só entra com o CI verde e pelo menos uma pessoa aprovando.
+- Mudou um endpoint? Atualiza o `docs/api.md` no mesmo PR.
