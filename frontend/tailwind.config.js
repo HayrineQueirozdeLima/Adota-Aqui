@@ -17,11 +17,13 @@ export default {
         },
         acao: {
           terracota: 'var(--acao-terracota)',
+          'terracota-texto': 'var(--acao-terracota-texto)',
         },
         texto: {
           principal: 'var(--texto-principal)',
           secundario: 'var(--texto-secundario)',
           terciario: 'var(--texto-terciario)',
+          'sobre-marca': 'var(--texto-sobre-marca)',
         },
         borda: {
           sutil: 'var(--borda-sutil)',
@@ -44,6 +46,7 @@ export default {
       },
       // Os estilos de texto do Figma, com tamanho, altura da linha e espaçamento
       fontSize: {
+        card: ['20px', { lineHeight: '1.25' }],
         display: ['32px', { lineHeight: '1.12', letterSpacing: '-0.02em' }],
         secao: ['24px', { lineHeight: '1.2', letterSpacing: '-0.02em' }],
         subtitulo: ['21px', { lineHeight: '1.3', letterSpacing: '-0.01em' }],

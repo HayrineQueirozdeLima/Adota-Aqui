@@ -30,6 +30,9 @@
   --status-erro-texto: #8e3229;
   --status-neutro-fundo: #f0efec;
   --status-neutro-texto: #5f5f5f;
+
+  --texto-sobre-marca: #ffffff;
+  --acao-terracota-texto: #ffffff;
 }
 
 /* Tema escuro: mesmos nomes, outros valores.
@@ -60,6 +63,9 @@
   --status-erro-texto: #d98077;
   --status-neutro-fundo: #4a4a49;
   --status-neutro-texto: #b7b5b0;
+
+  --texto-sobre-marca: #ffffff;
+  --acao-terracota-texto: #ffffff;
 }
 
 /* Fundo e texto padrão do site inteiro */
