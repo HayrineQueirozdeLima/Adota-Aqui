@@ -26,19 +26,20 @@ src/
 
 As rotas que cada tela vai ter estão no documento de diagramas (seção "Tabela de rotas").
 
-## Cores
+## Cores e textos
 
-As cores do projeto já estão no `tailwind.config.js`. Use as classes, nunca o código hexadecimal solto no meio do código:
+As cores e os estilos de texto são os mesmos do Figma (página "Fundamentos").
+O nome da classe é o nome do Figma, trocando a barra por hífen:
 
-| Classe | Cor | Uso |
-| --- | --- | --- |
-| `roxo` | #4A2D73 | marca. Nunca como fundo de botão |
-| `terracota` | #C1502E | botão principal |
-| `ouro` | #C99A3D | detalhes e selos secundários |
-| `pinho` | #16785F | selo de "disponível" |
-| `vermelho` | #A63D35 | erro e urgência |
+- `acao/terracota` → `bg-acao-terracota`, `text-acao-terracota`
+- `texto/principal` → `text-texto-principal`
+- `borda/sutil` → `border-borda-sutil`
 
-Exemplo: `className="bg-terracota text-white"`.
+Fontes: `font-titulo` (Outfit) e `font-corpo` (Source Sans 3).
+Tamanhos: `text-display`, `text-secao`, `text-subtitulo`, `text-item`, `text-botao`,
+`text-campo`, `text-overline`, `text-corpo`, `text-compacto`, `text-legenda`.
+
+Nunca use código hexadecimal no meio do código. Se precisar de uma cor que não existe, fala com o time de design primeiro.
 
 ## Alguns combinados com a API
 
