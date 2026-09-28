@@ -59,8 +59,13 @@ cd frontend && npm test
 
 ## Como a gente trabalha
 
-- A `main` é a versão estável. Ninguém faz commit direto nela.
-- Cada tarefa ganha uma branch própria, criada a partir da `dev`: `feature/nome-da-tarefa` (ou `fix/...` pra correção).
-- Terminou? Abre um pull request **para a `dev`**, com `Closes #número-da-issue` na descrição. Assim a issue fecha sozinha quando o PR entra.
+- A `dev` é a branch padrão: é onde o trabalho do time se junta.
+- A `main` é a versão estável, a que vai ser apresentada. Ela só recebe a `dev`,
+  por Pull Request, no fim de cada sprint.
+- Ninguém faz push direto na `main` nem na `dev`. As duas são protegidas.
+- Cada tarefa ganha uma branch própria, criada a partir da `dev`:
+  `feature/nome-da-tarefa` (ou `fix/...` pra correção).
+- Terminou? Abre um Pull Request para a `dev`, com `Closes #número-da-issue` na descrição.
+  Quando o PR entra, a issue fecha sozinha.
 - O PR só entra com o CI verde e pelo menos uma pessoa aprovando.
 - Mudou um endpoint? Atualiza o `docs/api.md` no mesmo PR.
