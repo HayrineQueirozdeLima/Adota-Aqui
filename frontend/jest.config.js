@@ -5,4 +5,6 @@ export default {
   moduleNameMapper: {
     '\\.(svg|png|jpg|jpeg|webp)$': '<rootDir>/tests/__mocks__/arquivo.js',
   },
+  // entra na cobertura todo o src, menos o que não tem lógica ainda pra testar
+  collectCoverageFrom: ['src/**/*.{js,jsx}', '!src/main.jsx', '!src/mocks/**'],
 };
