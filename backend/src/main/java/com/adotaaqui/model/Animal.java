@@ -1,6 +1,9 @@
 package com.adotaaqui.model;
 
+import com.adotaaqui.model.enums.Especie;
 import com.adotaaqui.model.enums.NivelEnergia;
+import com.adotaaqui.model.enums.Porte;
+import com.adotaaqui.model.enums.Raca;
 import com.adotaaqui.model.enums.SexoAnimal;
 import com.adotaaqui.model.enums.StatusAdocao;
 import com.adotaaqui.model.enums.StatusConvivencia;
@@ -18,9 +21,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderColumn;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.Check;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -29,30 +34,40 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "animal")
+// Regra do xor: o animal tem que ter exatamente um dono, ou usuario_id ou abrigo_id.
+// Deixei no banco também, além do Java, pra ninguém conseguir gravar errado nem por fora do sistema.
+@Check(constraints = "(usuario_id IS NOT NULL AND abrigo_id IS NULL) OR (usuario_id IS NULL AND abrigo_id IS NOT NULL)")
 public class Animal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, length = 30)
-    private String especie;
-
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 80)
     private String nome;
 
-    @Column(nullable = false, length = 60)
-    private String raca;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private Especie especie;
 
-    @Column(nullable = false, length = 20)
-    private String porte;
+    // A raça tem que ser da mesma espécie (ex.: nada de gato LABRADOR).
+    // Quem barra isso é o service, usando raca.pertenceA(especie), e responde 400.
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 40)
+    private Raca raca;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private SexoAnimal sexo;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Porte porte;
+
+    // Em kg. É o único campo opcional do cadastro (RF04).
     private Double peso;
 
+    // Convivência: se o protetor não sabe, fica NAO_TESTADO
     @Enumerated(EnumType.STRING)
     @Column(name = "convivencia_crianca", nullable = false, length = 20)
     private StatusConvivencia convivenciaCrianca = StatusConvivencia.NAO_TESTADO;
@@ -69,27 +84,31 @@ public class Animal {
     @Column(nullable = false, length = 20)
     private NivelEnergia energia;
 
+    // O RF04 fala em "idade", mas a gente guarda a data de nascimento estimada,
+    // porque idade muda com o tempo e a data não. O front pode perguntar a idade e converter.
     @Column(name = "data_nasc_estimada", nullable = false)
     private LocalDate dataNascEstimada;
 
     @Column(name = "is_castrado", nullable = false)
     private Boolean castrado = false;
 
-    // RF04: breve descrição da trajetória do animal
-    @Column(nullable = false, length = 500)
+    // A trajetória do animal (resgate, como ele é etc.)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String historia;
 
-    // RF16: o banco guarda somente as URLs das imagens
+    // Só as URLs das fotos ficam no banco, as imagens em si ficam no S3 (RF16).
+    // A ordem importa: a primeira foto da lista é a capa.
     @ElementCollection
-    @CollectionTable(name = "animal_pictures", joinColumns = @JoinColumn(name = "animal_id"))
+    @CollectionTable(name = "animal_foto", joinColumns = @JoinColumn(name = "animal_id"))
+    @OrderColumn(name = "ordem")
     @Column(name = "url", nullable = false, length = 500)
-    private List<String> pictures = new ArrayList<>();
+    private List<String> fotos = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status_adocao", nullable = false, length = 20)
     private StatusAdocao statusAdocao = StatusAdocao.DISPONIVEL;
 
-    // Protetor responsável: Usuario OU Abrigo, nunca os dois ({xor})
+    // Quem cadastrou o animal (o "protetor"): um desses dois fica preenchido e o outro fica nulo
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
@@ -98,11 +117,12 @@ public class Animal {
     @JoinColumn(name = "abrigo_id")
     private Abrigo abrigo;
 
+    // Remover o animal apaga junto as vacinas e os interesses dele (UC05 FA03).
+    // As fotos já vão junto sozinhas, porque são @ElementCollection.
     @OneToMany(mappedBy = "animal", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Vacina> vacinas = new ArrayList<>();
 
-    // UC05: remover o animal remove também os interesses recebidos por ele
-    @OneToMany(mappedBy = "animal", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "animal", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Interesse> interesses = new ArrayList<>();
 
     public Animal() {
@@ -118,7 +138,8 @@ public class Animal {
         }
     }
 
-    // RF14: o estado do animal é herdado do protetor que o cadastrou
+    // O animal não tem estado próprio, ele "herda" o estado de quem cadastrou (RF14).
+    // É isso que a listagem compara com o estado do Usuario logado.
     public String getEstado() {
         Endereco endereco = null;
         if (usuario != null) {
@@ -129,6 +150,8 @@ public class Animal {
         return endereco != null ? endereco.getEstado() : null;
     }
 
+    // Use estes dois métodos em vez de mexer direto na lista,
+    // assim a vacina já fica ligada ao animal certo.
     public void adicionarVacina(Vacina vacina) {
         vacina.setAnimal(this);
         vacinas.add(vacina);
@@ -143,14 +166,6 @@ public class Animal {
         return id;
     }
 
-    public String getEspecie() {
-        return especie;
-    }
-
-    public void setEspecie(String especie) {
-        this.especie = especie;
-    }
-
     public String getNome() {
         return nome;
     }
@@ -159,20 +174,20 @@ public class Animal {
         this.nome = nome;
     }
 
-    public String getRaca() {
+    public Especie getEspecie() {
+        return especie;
+    }
+
+    public void setEspecie(Especie especie) {
+        this.especie = especie;
+    }
+
+    public Raca getRaca() {
         return raca;
     }
 
-    public void setRaca(String raca) {
+    public void setRaca(Raca raca) {
         this.raca = raca;
-    }
-
-    public String getPorte() {
-        return porte;
-    }
-
-    public void setPorte(String porte) {
-        this.porte = porte;
     }
 
     public SexoAnimal getSexo() {
@@ -181,6 +196,14 @@ public class Animal {
 
     public void setSexo(SexoAnimal sexo) {
         this.sexo = sexo;
+    }
+
+    public Porte getPorte() {
+        return porte;
+    }
+
+    public void setPorte(Porte porte) {
+        this.porte = porte;
     }
 
     public Double getPeso() {
@@ -247,12 +270,12 @@ public class Animal {
         this.historia = historia;
     }
 
-    public List<String> getPictures() {
-        return pictures;
+    public List<String> getFotos() {
+        return fotos;
     }
 
-    public void setPictures(List<String> pictures) {
-        this.pictures = pictures;
+    public void setFotos(List<String> fotos) {
+        this.fotos = fotos;
     }
 
     public StatusAdocao getStatusAdocao() {
