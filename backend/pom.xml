@@ -90,6 +90,36 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+
+                        <!-- Mede a cobertura dos testes (meta do curso: 70%).
+                 O relatório fica em target/site/jacoco/index.html depois do mvn verify -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.15</version>
+                <configuration>
+                    <!-- Fica de fora o que não tem lógica pra testar (ver docs/plano-de-testes.md) -->
+                    <excludes>
+                        <exclude>com/adotaaqui/AdotaAquiApplication.class</exclude>
+                        <exclude>com/adotaaqui/dto/**</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>preparar-agente</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>gerar-relatorio</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
