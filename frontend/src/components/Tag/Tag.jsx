@@ -5,7 +5,7 @@ const variantes = {
   neutro: "bg-status-neutro-fundo text-status-neutro-texto",
   atencao: "bg-status-atencao-fundo text-status-atencao-texto",
   erro: "bg-status-erro-fundo text-status-erro-texto",
-  destaque_roxo: "bg-marca-roxo-suave text-marca-roxo",
+  destaqueRoxo: "bg-marca-roxo-suave text-marca-roxo",
 };
 
 export default function Tag({ variante = "neutro", children }) {

@@ -16,7 +16,7 @@ export const convivencias = {
 export const corDaConvivencia = {
     CONVIVE_BEM: 'disponivel',
     NAO_CONVIVE_BEM: 'atencao',
-    NAO_TESTADO: 'destaque_roxo',
+    NAO_TESTADO: 'destaqueRoxo',
 };
 
 // Algumas palavras mudam conforme o sexo do animal: 
