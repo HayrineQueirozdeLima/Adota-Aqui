@@ -458,6 +458,7 @@ Usado nas respostas de `GET /api/animais/{id}`, `POST /api/animais` e `PUT /api/
   "nome": "Paçoca",
   "especie": "CAO",
   "raca": "SRD_CAO",
+  "racaNome": "Sem raça definida",
   "sexo": "FEMEA",
   "porte": "MEDIO",
   "peso": 12.5,
@@ -507,6 +508,7 @@ Usado nas respostas de `GET /api/animais/{id}`, `POST /api/animais` e `PUT /api/
 | `ehMeu`                   | `true` se quem está logado é o protetor deste animal. O front usa para mostrar "Editar" e "Remover"                                                                                                                                                                |
 | `podeDemonstrarInteresse` | `true` só quando: a conta é Usuario, o animal está `DISPONIVEL`, o animal é do mesmo estado do Usuario, o Usuario não é o protetor e ainda não tem interesse ativo nele. O front mostra o botão "Demonstrar interesse" com base neste campo, sem repetir as regras |
 | `meuInteresse`            | Para Usuario logado com interesse neste animal: `{ "id": "...", "statusAndamento": "PENDENTE" }`. Nos demais casos, `null`. O front troca o botão por "Desistir da adoção" quando o interesse está `PENDENTE` ou `EM_CONTATO` (UC07, passo 6)                      |
+| `racaNome`                | Nome da raça pronto pra exibir na tela. Assim o front não precisa guardar a lista das raças                                                                                                                                                                        |
 
 ---
 
@@ -594,6 +596,8 @@ Exemplo: `GET /api/animais?especie=GATO&porte=PEQUENO&convivenciaCrianca=CONVIVE
 ]
 ```
 
+A listagem traz peso, castração, convivência, energia e status porque o card da vitrine mostra tudo isso (ver o Figma).
+
 Nenhum animal encontrado: `200 OK` com `[]`. O front exibe "Nenhum animal disponível no seu estado no momento" (sem filtros, UC06 FA01) ou "Nenhum resultado encontrado com essas informações" (com filtros, UC06 FA02).
 
 **Erros:** `400` valor de filtro inválido (ex.: `porte=ENORME`) · `401` token enviado, porém inválido ou expirado.
@@ -621,7 +625,7 @@ Devolve o perfil completo de um animal.
 Lista os animais cadastrados pela conta logada, com qualquer status.
 **Acesso:** Autenticado · **Origem:** UC05 (passo 1)
 
-**Saída — `200 OK`:** lista no mesmo formato de `GET /api/animais`, acrescido de `statusAdocao` em cada item.
+**Saída — `200 OK`:** lista no mesmo formato de `GET /api/animais`, mas com os animais de qualquer status (`DISPONIVEL` e `ADOTADO`).
 
 **Erros:** `401` sem token ou token inválido.
 
