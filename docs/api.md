@@ -458,6 +458,7 @@ Usado nas respostas de `GET /api/animais/{id}`, `POST /api/animais` e `PUT /api/
   "nome": "Paçoca",
   "especie": "CAO",
   "raca": "SRD_CAO",
+  "racaNome": "Sem raça definida",
   "sexo": "FEMEA",
   "porte": "MEDIO",
   "peso": 12.5,
