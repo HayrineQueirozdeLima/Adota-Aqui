@@ -2,29 +2,30 @@ package com.adotaaqui.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 
 public class EnderecoDto {
 
     @NotBlank(message = "O CEP é obrigatório")
-    @Size(min = 8, max = 8, message = "O CEP deve ter 8 dígitos")
+    @Pattern(regexp = "[0-9]{8}", message = "O CEP deve ter 8 dígitos numéricos")
     private String cep;
 
     @NotBlank(message = "O estado é obrigatório")
-    @Size(min = 2, max = 2, message = "O estado deve ter 2 letras")
+    @Pattern(regexp = "[A-Z]{2}", message = "O estado deve ter 2 letras")
     private String estado;
 
     @NotBlank(message = "A cidade é obrigatória")
-    @Size(max = 100, message = "A cidade deve ter no máximo 100 caracteres")
+    @Size(max = 80, message = "A cidade deve ter no máximo 80 caracteres")
     private String cidade;
 
-    @Size(max = 150, message = "O logradouro deve ter no máximo 150 caracteres")
+    @Size(max = 120, message = "O logradouro deve ter no máximo 120 caracteres")
     private String logradouro;
 
     @NotBlank(message = "O número é obrigatório")
     @Size(max = 10, message = "O número deve ter no máximo 10 caracteres")
     private String numero;
 
-    @Size(max = 100, message = "O bairro deve ter no máximo 100 caracteres")
+    @Size(max = 80, message = "O bairro deve ter no máximo 80 caracteres")
     private String bairro;
 
     public String getCep() {

@@ -1,5 +1,7 @@
 package com.adotaaqui.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.constraints.NotBlank;
 
 public class LoginRequest {
@@ -8,6 +10,7 @@ public class LoginRequest {
     private String documento;
 
     @NotBlank(message = "A senha é obrigatória")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String senha;
 
     public String getDocumento() {

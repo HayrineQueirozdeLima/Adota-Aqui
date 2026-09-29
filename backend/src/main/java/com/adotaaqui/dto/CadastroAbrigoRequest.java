@@ -1,5 +1,7 @@
 package com.adotaaqui.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -7,6 +9,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;  // vamos usar jakarta pra não precisar validar os campos do dto na mão.
 
 public class CadastroAbrigoRequest {
 
@@ -14,27 +17,30 @@ public class CadastroAbrigoRequest {
     private String cnpj;
 
     @NotBlank(message = "O nome é obrigatório")
-    @Size(max = 150, message = "O nome deve ter no máximo 150 caracteres")
+    @Size(max = 120, message = "O nome deve ter no máximo 120 caracteres")
     private String nome;
 
     @NotBlank(message = "A razão social é obrigatória")
-    @Size(max = 200, message = "A razão social deve ter no máximo 200 caracteres")
+    @Size(max = 150, message = "A razão social deve ter no máximo 150 caracteres")
     private String razaoSocial;
 
     @NotBlank(message = "O e-mail é obrigatório")
     @Email(message = "E-mail inválido")
-    @Size(max = 150, message = "O e-mail deve ter no máximo 150 caracteres")
+    @Size(max = 120, message = "O e-mail deve ter no máximo 120 caracteres")
     private String email;
 
     @NotBlank(message = "O telefone é obrigatório")
     @Size(max = 20, message = "O telefone deve ter no máximo 20 caracteres")
+    @Pattern(regexp = "[0-9]{10,11}", message = "O telefone deve conter DDD e número, com 10 ou 11 dígitos")
     private String telefone;
 
     @NotBlank(message = "A senha é obrigatória")
     @Size(min = 8, max = 72, message = "A senha deve ter entre 8 e 72 caracteres")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String senha;
 
     @NotBlank(message = "A confirmação de senha é obrigatória")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String confirmacaoSenha;
 
     public String getConfirmacaoSenha() { return confirmacaoSenha; }
