@@ -23,6 +23,15 @@ public class ErroSegurancaHandler {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         objectMapper.writeValue(response.getWriter(),
-                ErroResponse.de(status.value(), status.getReasonPhrase(), mensagem));
+                ErroResponse.de(status.value(), nomeDoErro(status), mensagem));
+    }
+
+    // Mesmos nomes do GlobalExceptionHandler, pra todo erro da API vir em português
+    private String nomeDoErro(HttpStatus status) {
+        return switch (status) {
+            case UNAUTHORIZED -> "Não autorizado";
+            case FORBIDDEN -> "Acesso negado";
+            default -> status.getReasonPhrase();
+        };
     }
 }

@@ -122,7 +122,7 @@ class AutenticacaoIntegrationTest {
 
     @Test
     void rejeitaTokenInvalidoOuExpiradoInclusiveNoLogin() throws Exception {
-        String expirado = jwt.gerarToken(UUID.randomUUID(), TipoConta.USUARIO, CPF, Instant.now().minusSeconds(60));
+        String expirado = jwt.gerarToken(UUID.randomUUID(), TipoConta.USUARIO, Instant.now().minusSeconds(60));
         for (String token : new String[]{"invalido", expirado}) {
             mvc.perform(get("/api/teste-autenticacao").header("Authorization", "Bearer " + token))
                     .andExpect(status().isUnauthorized()).andExpect(jsonPath("status").value(401));
@@ -130,6 +130,14 @@ class AutenticacaoIntegrationTest {
                             .contentType(MediaType.APPLICATION_JSON).content("{}"))
                     .andExpect(status().isUnauthorized()).andExpect(jsonPath("status").value(401));
         }
+    }
+
+    @Test
+    void tokenNaoLevaCpfNemCnpj() throws Exception {
+        JsonNode cadastro = cadastrar(false);
+        var claims = jwt.extrairClaims(cadastro.path("token").asText());
+        assertThat(claims).doesNotContainKey("documento");
+        assertThat(claims.values()).doesNotContain(CPF);
     }
 
     @Test

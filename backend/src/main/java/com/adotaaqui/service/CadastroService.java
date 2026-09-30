@@ -54,7 +54,7 @@ public class CadastroService {
         usuario.setEndereco(toEndereco(request.getEndereco()));
 
         usuarioRepository.save(usuario);
-        return autenticacaoService.montarResposta(usuario.getId(), TipoConta.USUARIO, cpf, usuario.getNome());
+        return autenticacaoService.montarResposta(usuario.getId(), TipoConta.USUARIO, usuario.getNome());
     }
 
     @Transactional
@@ -79,7 +79,7 @@ public class CadastroService {
         abrigo.setEndereco(toEndereco(request.getEndereco()));
 
         abrigoRepository.save(abrigo);
-        return autenticacaoService.montarResposta(abrigo.getId(), TipoConta.ABRIGO, cnpj, abrigo.getNome());
+        return autenticacaoService.montarResposta(abrigo.getId(), TipoConta.ABRIGO, abrigo.getNome());
     }
 
     // O e-mail precisa ser único entre as duas tabelas: uma mesma caixa de entrada

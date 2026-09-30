@@ -122,12 +122,14 @@ Todo erro (4xx e 5xx) responde no mesmo formato, para o front tratar todos do me
 ```
 
 | Campo       | Descrição                                                                                                                      |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------ | --- |
 | `status`    | Código HTTP                                                                                                                    |
 | `erro`      | Nome padrão do código                                                                                                          |
 | `mensagem`  | Texto pronto para exibir na tela, em português                                                                                 |
 | `campos`    | Presente só em erros de validação: um item por campo com problema. O front exibe cada mensagem embaixo do campo correspondente |
 | `timestamp` | Momento do erro                                                                                                                |
+| `erro`      | Nome do erro, em português (ex.: "Requisição inválida", "Não autorizado", "Conflito")                                          |
+| `timestamp` | Momento do erro, no fuso UTC (termina com `Z`)                                                                                 |     |
 
 ---
 
@@ -190,10 +192,12 @@ Autentica um Usuario (CPF) ou um Abrigo (CNPJ) e devolve o token.
   "token": "eyJhbGciOiJIUzI1NiJ9...",
   "tipoConta": "USUARIO",
   "id": "3f6c1a2e-8b4d-4c7a-9e1f-2a5b7c9d0e11",
-  "nome": "Maria Silva"
+  "nome": "Maria Silva",
+  "expiraEm": "2026-09-27T14:30:00Z"
 }
 ```
 
+`expiraEm` é o momento em que o token deixa de valer (UTC). O front pode usar esse campo pra levar a pessoa ao login antes de receber um 401.
 `tipoConta` é `USUARIO` ou `ABRIGO`. O front usa esse campo para decidir quais menus e botões exibir.
 
 **Erros**
@@ -235,19 +239,18 @@ Cria a conta de uma pessoa física e já a autentica.
 }
 ```
 
-| Campo                                    | Regra                                                                           |
-| ---------------------------------------- | ------------------------------------------------------------------------------- |
-| `nome`                                   | Obrigatório                                                                     |
-| `cpf`                                    | Obrigatório. 11 dígitos. Único no sistema                                       |
-| `telefone`                               | Obrigatório. DDD + número, somente dígitos                                      |
-| `email`                                  | Obrigatório. Formato de e-mail. Único no sistema (entre Usuarios **e** Abrigos) |
-| `senha`                                  | Obrigatório                                                                     |
-| `confirmacaoSenha`                       | Obrigatório. Deve ser igual a `senha`. Não é gravada                            |
-| `endereco.cep`                           | Obrigatório. 8 dígitos                                                          |
-| `endereco.numero`                        | Obrigatório. Aceita "s/n" e complemento                                         |
-| `endereco.logradouro`, `endereco.bairro` | Podem vir vazios (há CEPs sem logradouro)                                       |
-| `endereco.cidade`                        | Obrigatório                                                                     |
-| `endereco.estado`                        | Obrigatório. UF com 2 letras maiúsculas                                         |
+| Campo                                    | Regra                                                                        |
+| ---------------------------------------- | ---------------------------------------------------------------------------- |
+| `nome`                                   | Obrigatório                                                                  |
+| `cpf`                                    | Obrigatório. 11 dígitos, com dígitos verificadores válidos. Único no sistema |
+| `telefone`                               | Obrigatório. DDD + número: 10 ou 11 dígitos, somente números                 |
+| `senha`                                  | Obrigatório. De 8 a 72 caracteres                                            |
+| `confirmacaoSenha`                       | Obrigatório. Deve ser igual a `senha`. Não é gravada                         |
+| `endereco.cep`                           | Obrigatório. 8 dígitos                                                       |
+| `endereco.numero`                        | Obrigatório. Aceita "s/n" e complemento                                      |
+| `endereco.logradouro`, `endereco.bairro` | Podem vir vazios (há CEPs sem logradouro)                                    |
+| `endereco.cidade`                        | Obrigatório                                                                  |
+| `endereco.estado`                        | Obrigatório. UF com 2 letras maiúsculas                                      |
 
 O usuário digita só **CEP e número** (RF01). O front consulta o ViaCEP com o CEP digitado, preenche logradouro, bairro, cidade e estado, e envia o endereço completo. Ver [Pontos em aberto](#10-pontos-em-aberto).
 
@@ -271,6 +274,7 @@ Mesmo formato da resposta do login, porque o cadastro já autentica a conta (UC0
 | `400`  | Campos obrigatórios não preenchidos (com a lista em `campos`) | UC01 FA01               |
 | `400`  | CPF, CEP, telefone, e-mail ou UF em formato inválido          | RF01                    |
 | `400`  | `senha` e `confirmacaoSenha` diferentes                       | UC01 FA03               |
+| `400`  | CPF com dígitos verificadores inválidos                       | RF01                    |
 | `409`  | CPF já cadastrado                                             | UC01 FA02               |
 | `409`  | E-mail já usado por outra conta                               | UC01, regras de negócio |
 
@@ -305,11 +309,11 @@ Cria a conta de uma ONG ou abrigo e já a autentica.
 
 As regras dos campos são as mesmas do cadastro de Usuario, com estas diferenças:
 
-| Campo         | Regra                                                       |
-| ------------- | ----------------------------------------------------------- |
-| `nome`        | Obrigatório. Nome institucional (o que aparece na listagem) |
-| `razaoSocial` | Obrigatório                                                 |
-| `cnpj`        | Obrigatório. 14 dígitos. Único no sistema                   |
+| Campo         | Regra                                                                        |
+| ------------- | ---------------------------------------------------------------------------- |
+| `nome`        | Obrigatório. Nome institucional (o que aparece na listagem)                  |
+| `razaoSocial` | Obrigatório                                                                  |
+| `cnpj`        | Obrigatório. 14 dígitos, com dígitos verificadores válidos. Único no sistema |
 
 A conta do Abrigo é **única e compartilhada** entre os funcionários da instituição.
 
@@ -324,6 +328,7 @@ Mesmo formato do login, com `"tipoConta": "ABRIGO"`.
 | `400`  | Campos obrigatórios não preenchidos                   | UC02 FA01 |
 | `400`  | CNPJ, CEP, telefone, e-mail ou UF em formato inválido | RF02      |
 | `400`  | `senha` e `confirmacaoSenha` diferentes               | UC02 FA03 |
+| `400`  | CNPJ com dígitos verificadores inválidos              | RF02      |
 | `409`  | CNPJ ou e-mail já cadastrado                          | UC02 FA02 |
 
 ---
