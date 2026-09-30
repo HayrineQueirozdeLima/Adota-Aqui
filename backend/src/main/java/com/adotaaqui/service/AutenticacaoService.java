@@ -53,14 +53,14 @@ public class AutenticacaoService {
         Usuario usuario = usuarioRepository.findByCpf(cpf)
                 .orElseThrow(CredenciaisInvalidasException::new);
         conferirSenha(senha, usuario.getSenha());
-        return montarResposta(usuario.getId(), TipoConta.USUARIO, cpf, usuario.getNome());
+        return montarResposta(usuario.getId(), TipoConta.USUARIO, usuario.getNome());
     }
 
     private LoginResponse autenticarAbrigo(String cnpj, String senha) {
         Abrigo abrigo = abrigoRepository.findByCnpj(cnpj)
                 .orElseThrow(CredenciaisInvalidasException::new);
         conferirSenha(senha, abrigo.getSenha());
-        return montarResposta(abrigo.getId(), TipoConta.ABRIGO, cnpj, abrigo.getNome());
+        return montarResposta(abrigo.getId(), TipoConta.ABRIGO, abrigo.getNome());
     }
 
     private void conferirSenha(String senhaInformada, String hashArmazenado) {
@@ -69,9 +69,9 @@ public class AutenticacaoService {
         }
     }
 
-    LoginResponse montarResposta(UUID id, TipoConta tipoConta, String documento, String nome) {
+    LoginResponse montarResposta(UUID id, TipoConta tipoConta, String nome) {
         Instant expiraEm = jwtService.calcularExpiracao();
-        String token = jwtService.gerarToken(id, tipoConta, documento, expiraEm);
+        String token = jwtService.gerarToken(id, tipoConta, expiraEm);
         return new LoginResponse(token, tipoConta, id, nome, expiraEm);
     }
 }

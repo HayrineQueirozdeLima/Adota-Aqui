@@ -29,11 +29,13 @@ public class JwtService {
         this.expiracaoMs = expiracaoMs;
     }
 
-    public String gerarToken(UUID id, TipoConta tipoConta, String documento, Instant expiraEm) {
+    // Mudei o método para gerar o token: o token leva só o id (no subject) e o tipo de conta. 
+    // Bom evitar cpf e cnpj no nome, o JWT é assinado, mas NÃO é criptografado, então qualquer pessoa com o token consegue ler
+    // o conteúdo (é só colar no jwt.io), e o token fica salvo no navegador.
+    public String gerarToken(UUID id, TipoConta tipoConta, Instant expiraEm) {
         return Jwts.builder()
                 .subject(id.toString())
                 .claim(CLAIM_TIPO_CONTA, tipoConta.name())
-                .claim(CLAIM_DOCUMENTO, documento)
                 .issuedAt(Date.from(Instant.now()))
                 .expiration(Date.from(expiraEm))
                 .signWith(chave)
