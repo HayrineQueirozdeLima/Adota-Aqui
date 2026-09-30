@@ -1,5 +1,6 @@
 package com.adotaaqui.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import com.adotaaqui.security.JwtAuthenticationFilter;
 import com.adotaaqui.security.ErroSegurancaHandler;
 import org.springframework.http.HttpStatus;
@@ -24,9 +25,14 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final String[] origensPermitidas;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    // As origens vêm do application.properties (app.cors.origens).
+    // No deploy, a variável de ambiente CORS_ORIGENS recebe o endereço do Netlify.
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                          @Value("${app.cors.origens:http://localhost:5173}") String[] origensPermitidas) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.origensPermitidas = origensPermitidas;
     }
 
     // RNF02: as senhas são gravadas apenas como hash BCrypt
@@ -43,7 +49,14 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // Cadastro e login: qualquer pessoa
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/usuarios", "/api/abrigos").permitAll()
+                        // "Meus animais" precisa de login. Tem que vir antes da regra de baixo
+                        // pq o spring usa a primeira regra, e /api/animais/* também pegaria o /meus
+                        .requestMatchers(HttpMethod.GET, "/api/animais/meus").authenticated()
+                        // Vitrine, perfil do animal e raças: visitante também vê (RF07)
+                        .requestMatchers(HttpMethod.GET, "/api/animais", "/api/animais/*", "/api/racas").permitAll()
+                        .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, exception) ->
@@ -58,7 +71,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuracao = new CorsConfiguration();
         // Dev server do Vite
-        configuracao.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuracao.setAllowedOrigins(List.of(origensPermitidas));
         configuracao.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuracao.setAllowedHeaders(List.of("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
