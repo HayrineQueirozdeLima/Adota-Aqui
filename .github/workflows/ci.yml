@@ -15,8 +15,13 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Build backend
+      - name: Build e testes do backend
         run: mvn -B -f backend/pom.xml verify
+      - name: Guarda o relatório de cobertura do backend
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura-backend
+          path: backend/target/site/jacoco/
 
   frontend:
     runs-on: ubuntu-latest
@@ -25,9 +30,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Install, build and test frontend
+      - name: Instala, builda e testa o frontend
         working-directory: frontend
         run: |
           npm install
           npm run build
-          npm test -- --ci
+          npm run test:coverage -- --ci
+      - name: Guarda o relatório de cobertura do frontend
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura-frontend
+          path: frontend/coverage/lcov-report/
