@@ -10,6 +10,8 @@ import java.util.UUID;
 
 public interface InteresseRepository extends JpaRepository<Interesse, UUID> {
 
+    List<Interesse> findByUsuarioIdAndAnimalIdOrderByDataHoraDesc(UUID usuarioId, UUID animalId);
+
     List<Interesse> findByAnimalId(UUID animalId);
 
     // "Meus interesses" do candidato

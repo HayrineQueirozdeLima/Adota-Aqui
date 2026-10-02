@@ -6,12 +6,48 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import jakarta.validation.ConstraintViolationException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(RecursoNaoEncontradoException.class)
+    public ResponseEntity<ErroResponse> tratarNaoEncontrado(RecursoNaoEncontradoException ex) {
+        return erro(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(DadosInvalidosException.class)
+    public ResponseEntity<ErroResponse> tratarDadosInvalidos(DadosInvalidosException ex) {
+        return erro(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class,
+            MissingServletRequestParameterException.class, ConstraintViolationException.class})
+    public ResponseEntity<ErroResponse> tratarFormatoInvalido(Exception ex) {
+        return erro(HttpStatus.BAD_REQUEST, "Corpo ou parâmetros da requisição inválidos");
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErroResponse> tratarAcessoNegado(AccessDeniedException ex) {
+        return erro(HttpStatus.FORBIDDEN, "Acesso não permitido");
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErroResponse> tratarAutenticacao(AuthenticationException ex) {
+        return erro(HttpStatus.UNAUTHORIZED, "Autenticação necessária");
+    }
+
+    private ResponseEntity<ErroResponse> erro(HttpStatus status, String mensagem) {
+        return ResponseEntity.status(status).body(ErroResponse.de(status.value(), status.getReasonPhrase(), mensagem));
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErroResponse> tratarValidacao(MethodArgumentNotValidException ex) {

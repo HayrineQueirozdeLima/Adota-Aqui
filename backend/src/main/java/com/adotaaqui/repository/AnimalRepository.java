@@ -2,14 +2,22 @@ package com.adotaaqui.repository;
 
 import com.adotaaqui.model.Animal;
 import com.adotaaqui.model.enums.StatusAdocao;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-public interface AnimalRepository extends JpaRepository<Animal, UUID> {
+public interface AnimalRepository extends JpaRepository<Animal, UUID>, JpaSpecificationExecutor<Animal> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT a FROM Animal a WHERE a.id = :id")
+    Optional<Animal> findByIdParaAtualizacao(@Param("id") UUID id);
 
     // "Meus animais" (UC05): o protetor pode ser um Usuario ou um Abrigo
     List<Animal> findByUsuarioId(UUID usuarioId);
