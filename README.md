@@ -69,3 +69,10 @@ cd frontend && npm test
   Quando o PR entra, a issue fecha sozinha.
 - O PR só entra com o CI verde e pelo menos uma pessoa aprovando.
 - Mudou um endpoint? Atualiza o `docs/api.md` no mesmo PR.
+
+## No ar
+
+- Site: https://adota-aqui.netlify.app
+- API: https://adota-aqui-api.onrender.com
+
+A API "dorme" depois de 15 minutos sem uso. O primeiro acesso depois disso pode levar cerca de 1 minuto.
