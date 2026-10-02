@@ -17,7 +17,7 @@ final class AnimalMapper {
     static AnimalResponse completo(Animal animal, boolean ehMeu, boolean podeInteresse,
                                    InteresseResumoResponse interesse) {
         return new AnimalResponse(animal.getId(), animal.getNome(), animal.getEspecie(), animal.getRaca(),
-                animal.getSexo(), animal.getPorte(), animal.getPeso(), animal.getDataNascEstimada(),
+            animal.getRaca().getNome(), animal.getSexo(), animal.getPorte(), animal.getPeso(), animal.getDataNascEstimada(),
                 animal.getCastrado(), animal.getEnergia(), convivencia(animal), animal.getHistoria(),
                 List.copyOf(animal.getFotos()), animal.getVacinas().stream()
                     .map(v -> new VacinaResponse(v.getId(), v.getNome(), v.getDose(), v.getDataAplicacao())).toList(),
