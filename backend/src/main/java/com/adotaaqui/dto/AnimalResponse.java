@@ -16,6 +16,7 @@ public record AnimalResponse(
         String nome,
         Especie especie,
         Raca raca,
+        String racaNome,
         SexoAnimal sexo,
         Porte porte,
         Double peso,

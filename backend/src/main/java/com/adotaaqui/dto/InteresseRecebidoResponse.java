@@ -4,7 +4,7 @@ import com.adotaaqui.model.enums.StatusInteresse;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-// Essa parte vamos restringir apenas para o protetor do animal. Cuidar isso depois.
+/// Visto só pelo Protetor do animal. A restrição fica no Service
 public record InteresseRecebidoResponse(
         UUID id,
         LocalDateTime dataHora,

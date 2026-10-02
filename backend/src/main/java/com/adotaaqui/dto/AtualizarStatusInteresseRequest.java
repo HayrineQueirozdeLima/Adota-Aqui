@@ -4,7 +4,7 @@ import com.adotaaqui.model.enums.StatusInteresse;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-/** O Service valida transições e exige motivo ao descontinuar, conforme AGENTS.md. */
+/** O Service valida transições e exige motivo ao descontinuar, conforme o RF10 da ERS. */
 public class AtualizarStatusInteresseRequest {
 
     @NotNull(message = "O status de andamento é obrigatório")

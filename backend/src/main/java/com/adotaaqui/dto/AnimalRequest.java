@@ -16,6 +16,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.validator.constraints.URL;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.AssertTrue;
 
 /** Cadastro de animal. Protetor e status inicial são definidos pelo Service. */
 public class AnimalRequest {
@@ -24,7 +26,7 @@ public class AnimalRequest {
     @Size(max = 80, message = "Deve ter no máximo 80 caracteres")
     private String nome;
 
-    @NotNull(message = "O campo especie é obrigatório")
+    @NotNull(message = "O campo espécie é obrigatório")
     private Especie especie;
 
     @NotNull(message = "O campo raça é obrigatório")
@@ -166,6 +168,12 @@ public class AnimalRequest {
 
     public void setVacinas(List<VacinaRequest> vacinas) {
         this.vacinas = vacinas;
+    }
+
+    @JsonIgnore
+    @AssertTrue(message = "A raça não pertence à espécie informada")
+    public boolean isRacaDaEspecie() {
+        return raca == null || especie == null || raca.pertenceA(especie);
     }
 }
 
