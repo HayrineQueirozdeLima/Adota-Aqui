@@ -93,6 +93,15 @@ class DtoValidationTest {
     }
 
     @Test
+    void animalRecusaRacaDeOutraEspecie() throws Exception {
+        ObjectNode json = (ObjectNode) MAPPER.readTree(animal());
+        json.put("raca", "SIAMES");
+
+        assertThat(camposInvalidos(MAPPER.treeToValue(json, AnimalRequest.class)))
+                .contains("racaDaEspecie");
+    }
+
+    @Test
     void atualizacaoDoAnimalValidaCamposHerdadosEStatus() throws Exception {
         AtualizarAnimalRequest dto = MAPPER.readValue(animal(), AtualizarAnimalRequest.class);
         assertThat(camposInvalidos(dto)).containsExactly("statusAdocao");
