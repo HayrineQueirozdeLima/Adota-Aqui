@@ -72,7 +72,7 @@ cd frontend && npm test
 
 ## No ar
 
-- Site: https://adota-aqui.netlify.app
-- API: https://adota-aqui-api.onrender.com
+- Site: https://adotaaqui.netlify.app
+- API: https://adota-aqui.onrender.com
 
 A API "dorme" depois de 15 minutos sem uso. O primeiro acesso depois disso pode levar cerca de 1 minuto.
