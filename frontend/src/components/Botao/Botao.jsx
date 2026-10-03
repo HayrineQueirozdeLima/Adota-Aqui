@@ -9,6 +9,9 @@ const variantes = {
   // Por isso o foco dele é branco, e não roxo.
   contorno:
     "border-[1.5px] border-texto-sobre-marca text-texto-sobre-marca focus-visible:outline-texto-sobre-marca",
+  // Contorno roxo: ação secundária em fundo claro (ex.: "Cadastrar CPF", no login)
+  secundario:
+    "border-[1.5px] border-marca-roxo text-marca-roxo focus-visible:outline-marca-roxo",
 };
 
 // O que todo botão tem igual

@@ -1,13 +1,11 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "../Navbar/Navbar";
-
-// Por enquanto ninguém está logado
-// quando a issue do login criar o AuthContext, o usuario passa a vir de lá
-// Pra ver o topo logado, troque temporariamente por:
-// const usuario = { nome: "Marina Prado", tipoConta: "USUARIO" };
-const usuario = null;
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function Layout() {
+  // null quando é visitante; { id, nome, tipoConta } quando tem alguém logado
+  const { usuario } = useAuth();
+
   return (
     <>
       <Navbar usuario={usuario} />
