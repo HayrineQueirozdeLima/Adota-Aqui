@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CardAnimal from "../CardAnimal/CardAnimal";
+import Carregando from "../Carregando/Carregando";
 import FiltrosAnimais from "../FiltrosAnimais/FiltrosAnimais";
 import { useAuth } from "../../contexts/AuthContext";
 import { useValorAtrasado } from "../../hooks/useValorAtrasado";
@@ -87,14 +88,7 @@ export default function VitrineAnimais() {
 
   function mostrarResultado() {
     if (carregando) {
-      return (
-        <p
-          role="status"
-          className="py-10 text-center text-legenda text-texto-terciario"
-        >
-          Carregando animais...
-        </p>
-      );
+      return <Carregando texto="Carregando animais..." />;
     }
 
     if (erro) {

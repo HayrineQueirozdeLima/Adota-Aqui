@@ -23,6 +23,12 @@ export function listarAnimais(filtros = filtrosVazios, token = null) {
     return requisicao(`/api/animais${montarConsulta(filtros)}`, { token });
 }
 
+// GET /api/animais/{id}: o perfil completo de um animal
+// com token, a resposta diz o que a pessoa logada pode fazer (ehMeu, podeDemonstrarInteresse, meuInteresse)
+export function buscarAnimal(id, token = null) {
+    return requisicao(`/api/animais/${encodeURIComponent(id)}`, { token });
+}
+
 // GET /api/racas?especie=GATO
 export function listarRacas(especie) {
     return requisicao(`/api/racas${montarConsulta({ especie })}`);
