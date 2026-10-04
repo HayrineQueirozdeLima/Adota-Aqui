@@ -572,17 +572,17 @@ Lista os animais disponíveis para adoção, com filtros.
 
 **Filtros** (todos opcionais, combináveis, passados na URL)
 
-| Parâmetro            | Valores                                         |
-| -------------------- | ----------------------------------------------- |
-| `especie`            | `CAO`, `GATO`                                   |
-| `raca`               | Valor de uma raça (ver `GET /api/racas`)        |
-| `porte`              | `PEQUENO`, `MEDIO`, `GRANDE`                    |
-| `sexo`               | `FEMEA`, `MACHO`                                |
-| `cidade`             | Texto. Não diferencia maiúsculas de minúsculas  |
-| `convivenciaCrianca` | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO` |
-| `convivenciaGato`    | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO` |
-| `convivenciaCao`     | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO` |
-| `energia`            | `MAIS_ANIMADO`, `MAIS_CALMO`                    |
+| Parâmetro            | Valores                                                                                                  |
+| -------------------- | -------------------------------------------------------------------------------------------------------- |
+| `especie`            | `CAO`, `GATO`                                                                                            |
+| `raca`               | Valor de uma raça (ver `GET /api/racas`)                                                                 |
+| `porte`              | `PEQUENO`, `MEDIO`, `GRANDE`                                                                             |
+| `sexo`               | `FEMEA`, `MACHO`                                                                                         |
+| `cidade`             | Texto. Basta conter o que foi digitado ("porto" acha Porto Velho). Não diferencia maiúsculas nem acentos |
+| `convivenciaCrianca` | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                          |
+| `convivenciaGato`    | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                          |
+| `convivenciaCao`     | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                          |
+| `energia`            | `MAIS_ANIMADO`, `MAIS_CALMO`                                                                             |
 
 Exemplo: `GET /api/animais?especie=GATO&porte=PEQUENO&convivenciaCrianca=CONVIVE_BEM`
 
