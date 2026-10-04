@@ -1,5 +1,5 @@
 // Dados de exemplo, no mesmo formato do GET /api/animais (docs/api.md)
-//Quando a API estiver no ar, as telas passam a buscar da API e este arquivo deixa de ser usado
+// As telas buscam da API de verdade. Estes dados ficam pros testes: é o que a "API de mentira" deles devolve
 // ATENÇÃO:Mel e Tobias são usados nos testes do CardAnimal, então nao devem ser mudados sem ajustar os testes
 export const animaisExemplo = [
     {

@@ -1,6 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import App from "../src/App";
+import { simularApi } from "./utils/apiFalsa";
+
+// A Home tem a vitrine, que busca na API: os testes usam a API de mentira
+beforeEach(() => {
+  simularApi();
+});
 
 // O MemoryRouter é um roteador "de mentira": a gente escolhe em qual URL o teste começa
 test("abre a Home no endereço /", async () => {

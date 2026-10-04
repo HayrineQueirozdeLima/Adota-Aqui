@@ -1,0 +1,47 @@
+import { animaisExemplo } from "../../src/mocks/animais";
+import { racasExemplo } from "../../src/mocks/racas";
+
+// "API de mentira" pros testes: troca o fetch do navegador por uma função que responde na hora,
+// sem internet e sem back rodando. Assim o teste confere só o que é trabalho do front.
+
+// Imita a resposta do fetch
+export function resposta(status, corpo) {
+    return {
+        ok: status >= 200 && status < 300,
+        status,
+        json: async () => corpo,
+        text: async () => JSON.stringify(corpo),
+    };
+}
+
+// /api/racas devolve as raças de exemplo da espécie pedida.
+// /api/animais devolve os animais de exemplo, ou o que "responderAnimais" decidir
+// (recebe os parâmetros da busca e as opções do fetch, e devolve uma resposta)
+export function simularApi({ responderAnimais } = {}) {
+    global.fetch = jest.fn((url, opcoes = {}) => {
+        const endereco = new URL(url);
+        if (endereco.pathname === "/api/racas") {
+            const especie = endereco.searchParams.get("especie");
+            return Promise.resolve(resposta(200, racasExemplo[especie] ?? []));
+        }
+        const parametros = Object.fromEntries(endereco.searchParams);
+        const respostaAnimais = responderAnimais
+            ? responderAnimais(parametros, opcoes)
+            : resposta(200, animaisExemplo);
+        return Promise.resolve(respostaAnimais);
+    });
+}
+
+// Todas as buscas de animais feitas até agora, na ordem: [{ parametros, opcoes }]
+export function buscasDeAnimais() {
+    return fetch.mock.calls
+        .filter(([url]) => new URL(url).pathname === "/api/animais")
+        .map(([url, opcoes]) => ({
+            parametros: Object.fromEntries(new URL(url).searchParams),
+            opcoes,
+        }));
+}
+
+export function ultimaBuscaDeAnimais() {
+    return buscasDeAnimais().at(-1);
+}

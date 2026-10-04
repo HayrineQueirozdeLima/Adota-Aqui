@@ -1,6 +1,6 @@
 // Respostas de exemplo do GET /api/racas?especie=... (docs/api.md).
-// só tem as raças dos animais de exemplo
-// a lista completa virá no back (enum Raca)
+// só tem as raças dos animais de exemplo e é usada nos testes
+// a lista completa vem do back (enum Raca)
 export const racasExemplo = {
     CAO: [
         { valor: 'SRD_CAO', nome: 'Sem raça definida' },

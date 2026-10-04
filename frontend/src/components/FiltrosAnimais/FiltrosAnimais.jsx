@@ -25,9 +25,14 @@ export default function FiltrosAnimais({ filtros, aoMudar }) {
     if (!filtros.especie) return;
 
     let cancelado = false;
-    listarRacas(filtros.especie).then((lista) => {
-      if (!cancelado) setRacas(lista);
-    });
+    listarRacas(filtros.especie)
+      .then((lista) => {
+        if (!cancelado) setRacas(lista);
+      })
+      // se a API falhar, o filtro de raça fica só com "Raça" (qualquer uma) e a vitrine segue funcionando
+      .catch(() => {
+        if (!cancelado) setRacas([]);
+      });
 
     return () => {
       cancelado = true;

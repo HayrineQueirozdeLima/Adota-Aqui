@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import App from "../src/App";
+import { simularApi } from "./utils/apiFalsa";
 
 const CHAVE = "adotaaqui.sessao";
 
@@ -30,6 +31,11 @@ function abrir(endereco) {
     </MemoryRouter>,
   );
 }
+
+// A Home e a /animais têm a vitrine, que busca na API: os testes usam a API de mentira
+beforeEach(() => {
+  simularApi();
+});
 
 afterEach(() => {
   localStorage.clear();
