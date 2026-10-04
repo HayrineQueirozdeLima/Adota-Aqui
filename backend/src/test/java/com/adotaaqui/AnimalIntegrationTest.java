@@ -157,6 +157,22 @@ class AnimalIntegrationTest {
     }
 
     @Test
+    void filtroDeCidadeAceitaParteDoNomeSemLigarPraMaiusculaNemAcento() throws Exception {
+        String portoVelho = criar(conta(false, "RO"), corpo()).path("id").asText();
+        String saoPaulo = criar(conta(true, "SP"), corpo()).path("id").asText();
+
+        mvc.perform(get("/api/animais").param("cidade", "porto"))
+                .andExpect(jsonPath("$.length()").value(1)).andExpect(jsonPath("$[0].id").value(portoVelho));
+        mvc.perform(get("/api/animais").param("cidade", "VELHO"))
+                .andExpect(jsonPath("$.length()").value(1)).andExpect(jsonPath("$[0].id").value(portoVelho));
+        mvc.perform(get("/api/animais").param("cidade", "sao paulo"))
+                .andExpect(jsonPath("$.length()").value(1)).andExpect(jsonPath("$[0].id").value(saoPaulo));
+        // "o" aparece nas duas cidades
+        mvc.perform(get("/api/animais").param("cidade", "o"))
+                .andExpect(jsonPath("$.length()").value(2));
+    }
+
+    @Test
     void adotadoSoMudaStatusEPreservaVacinasEHistorico() throws Exception {
         Conta dono = conta(false, "RO");
         Conta candidato = conta(false, "RO");
