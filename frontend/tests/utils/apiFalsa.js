@@ -1,4 +1,4 @@
-import { animaisExemplo } from "../../src/mocks/animais";
+import { animaisExemplo, perfilExemplo } from "../../src/mocks/animais";
 import { racasExemplo } from "../../src/mocks/racas";
 
 // "API de mentira" pros testes: troca o fetch do navegador por uma função que responde na hora,
@@ -16,10 +16,19 @@ export function resposta(status, corpo) {
 
 // /api/racas devolve as raças de exemplo da espécie pedida.
 // /api/animais devolve os animais de exemplo, ou o que "responderAnimais" decidir
-// (recebe os parâmetros da busca e as opções do fetch, e devolve uma resposta)
-export function simularApi({ responderAnimais } = {}) {
+// (recebe os parâmetros da busca e as opções do fetch, e devolve uma resposta).
+// /api/animais/{id} devolve o perfil de exemplo, ou o que "responderAnimal" decidir
+// (recebe o id e as opções do fetch)
+export function simularApi({ responderAnimais, responderAnimal } = {}) {
     global.fetch = jest.fn((url, opcoes = {}) => {
         const endereco = new URL(url);
+        const perfil = endereco.pathname.match(/^\/api\/animais\/([^/]+)$/);
+        if (perfil) {
+            const id = decodeURIComponent(perfil[1]);
+            return Promise.resolve(
+                responderAnimal ? responderAnimal(id, opcoes) : resposta(200, { ...perfilExemplo, id }),
+            );
+        }
         if (endereco.pathname === "/api/racas") {
             const especie = endereco.searchParams.get("especie");
             return Promise.resolve(resposta(200, racasExemplo[especie] ?? []));
