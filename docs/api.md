@@ -773,7 +773,7 @@ Sem corpo. A confirmação ("os interesses recebidos também serão excluídos")
 Envia uma imagem para o armazenamento em nuvem e devolve a URL dela.
 **Acesso:** Autenticado · **Origem:** RF16
 
-É o único endpoint que **não** recebe JSON: a imagem vai como `multipart/form-data`, no campo `arquivo`, uma imagem por requisição.
+É o único endpoint que **não** recebe JSON: a imagem vai como `multipart/form-data`, no campo `arquivo`, uma imagem por requisição. Limite de 5 MB por imagem. O tipo é conferido pelo conteúdo do arquivo, não pelo nome.
 
 **Fluxo no formulário de animal:** para cada imagem escolhida, o front chama este endpoint, guarda a URL devolvida e, no fim, envia a lista de URLs no campo `fotos` do `POST` ou do `PUT` de animal.
 
@@ -781,7 +781,7 @@ Envia uma imagem para o armazenamento em nuvem e devolve a URL dela.
 
 ```json
 {
-  "url": "https://adota-aqui.s3.amazonaws.com/animais/tmp/abc123.jpg"
+  "url": "https://adota-aqui.s3.amazonaws.com/animais/abc123.jpg"
 }
 ```
 
@@ -792,8 +792,6 @@ Envia uma imagem para o armazenamento em nuvem e devolve a URL dela.
 | `400`  | Nenhum arquivo enviado, arquivo que não é imagem (aceitos: JPG, PNG, WEBP) ou maior que o limite |
 | `401`  | Sem token ou token inválido                                                                      |
 | `500`  | Falha ao enviar para o armazenamento                                                             |
-
-> Se o upload para o S3 não for implementado a tempo, este endpoint deixa de existir e o formulário passa a aceitar URLs de imagens já hospedadas, enviadas direto no campo `fotos`. O formato do animal não muda.
 
 ---
 

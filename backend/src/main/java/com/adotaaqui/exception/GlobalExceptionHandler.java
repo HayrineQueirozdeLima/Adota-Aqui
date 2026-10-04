@@ -19,6 +19,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -182,5 +183,11 @@ public class GlobalExceptionHandler {
             case UNSUPPORTED_MEDIA_TYPE -> "Envie o corpo em JSON (Content-Type: application/json)";
             default -> "Não foi possível processar a requisição";
         };
+    }
+
+    // Arquivo maior do que o servidor aceita receber (spring.servlet.multipart.max-file-size)
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErroResponse> tratarArquivoGrande(MaxUploadSizeExceededException ex) {
+        return responder(HttpStatus.BAD_REQUEST, "A imagem pode ter no máximo 5 MB");
     }
 }
