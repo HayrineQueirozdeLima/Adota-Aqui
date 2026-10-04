@@ -56,6 +56,15 @@ npm install
 npm run dev
 ```
 
+Sem configurar nada, o front chama o back rodando na sua máquina (`http://localhost:8080`).
+Pra usar a API que está no ar, crie o arquivo `frontend/.env.local` com esta linha:
+
+```
+VITE_API_URL=https://adota-aqui.onrender.com
+```
+
+Esse arquivo não vai pro GitHub (está no `.gitignore`). Depois de criar ou mudar, reinicie o `npm run dev`.
+
 ## Testes
 
 ```bash
@@ -63,3 +72,8 @@ npm test
 ```
 
 A meta do curso é **70% de cobertura**, então o teste vem junto com o componente.
+
+Os testes nunca chamam a API de verdade. Pra telas que buscam dados, use a "API de mentira"
+do `tests/utils/apiFalsa.js`: ela troca o `fetch` por respostas prontas (veja o `VitrineAnimais.test.jsx`).
+O teste confere o que é trabalho do front: mandar os parâmetros certos, mandar o token e mostrar
+a resposta. Filtrar e validar os dados é trabalho do back, e quem testa isso são os testes do back.
