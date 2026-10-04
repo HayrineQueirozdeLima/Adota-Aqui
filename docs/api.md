@@ -111,25 +111,38 @@ Todo erro (4xx e 5xx) responde no mesmo formato, para o front tratar todos do me
 ```json
 {
   "status": 400,
-  "erro": "Bad Request",
-  "mensagem": "Existem campos obrigatórios não preenchidos.",
+  "erro": "Requisição inválida",
+  "mensagem": "Existem campos preenchidos de forma incorreta",
   "campos": {
-    "nome": "O nome é obrigatório.",
-    "telefone": "O telefone deve conter somente números."
+    "nome": "O nome é obrigatório",
+    "porte": "Valor inválido. Use um destes: PEQUENO, MEDIO, GRANDE"
   },
-  "timestamp": "2026-09-26T14:30:00"
+  "timestamp": "2026-09-26T14:30:00Z"
 }
 ```
 
-| Campo       | Descrição                                                                                                                      |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------ | --- |
-| `status`    | Código HTTP                                                                                                                    |
-| `erro`      | Nome padrão do código                                                                                                          |
-| `mensagem`  | Texto pronto para exibir na tela, em português                                                                                 |
-| `campos`    | Presente só em erros de validação: um item por campo com problema. O front exibe cada mensagem embaixo do campo correspondente |
-| `timestamp` | Momento do erro                                                                                                                |
-| `erro`      | Nome do erro, em português (ex.: "Requisição inválida", "Não autorizado", "Conflito")                                          |
-| `timestamp` | Momento do erro, no fuso UTC (termina com `Z`)                                                                                 |     |
+| Campo       | Descrição                                                                                                                             |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `status`    | Código HTTP                                                                                                                           |
+| `erro`      | Nome do erro, em português (tabela abaixo)                                                                                            |
+| `mensagem`  | Texto pronto para exibir na tela, em português, dizendo o que corrigir                                                                |
+| `campos`    | Presente só quando o problema é em campos específicos: um item por campo. O front exibe cada mensagem embaixo do campo correspondente |
+| `timestamp` | Momento do erro, no fuso UTC (termina com `Z`)                                                                                        |
+
+Os nomes do campo `erro` saem todos do `ErroResponse` (back), para não ter um nome diferente em cada lugar:
+
+| Status | `erro`                | Quando acontece                                                                   |
+| ------ | --------------------- | --------------------------------------------------------------------------------- |
+| 400    | Requisição inválida   | Campo inválido, JSON quebrado, parâmetro ausente ou com valor que não existe      |
+| 401    | Não autorizado        | Sem token, token inválido ou vencido, CPF/CNPJ ou senha errados no login          |
+| 403    | Acesso negado         | Logado, mas sem permissão (ex.: editar animal de outra pessoa)                    |
+| 404    | Não encontrado        | O recurso não existe (ex.: animal removido) ou o endereço da API não existe       |
+| 405    | Método não permitido  | O endereço existe, mas não aceita esse método (ex.: `DELETE /api/racas`)          |
+| 409    | Conflito              | Regra de negócio (ex.: CPF ou e-mail já cadastrado, editar animal adotado)        |
+| 415    | Formato não suportado | O corpo não foi enviado como JSON                                                 |
+| 500    | Erro interno          | Falha inesperada. O detalhe técnico fica só no log do servidor, nunca na resposta |
+
+Quando um valor não existe na lista de opções (um enum, como `porte` ou `especie`), a mensagem já diz quais valores são aceitos.
 
 ---
 
