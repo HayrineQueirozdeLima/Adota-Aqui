@@ -62,6 +62,12 @@ public class GlobalExceptionHandler {
         return responder(HttpStatus.UNAUTHORIZED, "Autenticação necessária");
     }
 
+    // 403 com o motivo da regra de negócio (ex.: animal de outro estado, conta de abrigo)
+    @ExceptionHandler(AcessoNegadoException.class)
+    public ResponseEntity<ErroResponse> tratarAcessoNegadoComMotivo(AcessoNegadoException ex) {
+        return responder(HttpStatus.FORBIDDEN, ex.getMessage());
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErroResponse> tratarAcessoNegado(AccessDeniedException ex) {
         return responder(HttpStatus.FORBIDDEN, "Acesso não permitido");
