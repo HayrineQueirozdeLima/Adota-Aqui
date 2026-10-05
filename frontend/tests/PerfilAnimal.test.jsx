@@ -147,6 +147,86 @@ describe("o que cada pessoa pode fazer", () => {
     ).not.toBeInTheDocument();
   });
 
+  test("quem tem interesse em andamento pode desistir, e o perfil volta a oferecer o interesse", async () => {
+    entrarComo("USUARIO");
+    let desistiu = false;
+    simularApi({
+      responderAnimal: (id) =>
+        resposta(200, {
+          ...perfilExemplo,
+          id,
+          podeDemonstrarInteresse: desistiu,
+          meuInteresse: desistiu
+            ? null
+            : { id: "i1", statusAndamento: "PENDENTE" },
+        }),
+      responderDesistencia: () => {
+        desistiu = true;
+        return resposta(204, null);
+      },
+    });
+    abrir();
+    await esperarFicha();
+
+    fireEvent.click(screen.getByRole("button", { name: "Desistir da adoção" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Confirmar desistência" }),
+    );
+
+    expect(
+      await screen.findByRole("link", { name: "Quero conhecer Mel" }),
+    ).toBeInTheDocument();
+    const desistencia = fetch.mock.calls.find(
+      ([, opcoes]) => opcoes?.method === "DELETE",
+    );
+    expect(desistencia[0]).toBe("http://api.teste/api/interesses/i1");
+  });
+
+  test("se a desistência falhar, mostra a mensagem da API", async () => {
+    entrarComo("USUARIO");
+    simularApi({
+      responderAnimal: (id) =>
+        resposta(200, {
+          ...perfilExemplo,
+          id,
+          meuInteresse: { id: "i1", statusAndamento: "EM_CONTATO" },
+        }),
+      responderDesistencia: () =>
+        resposta(409, {
+          status: 409,
+          mensagem: "Não é possível desistir de um interesse já finalizado",
+        }),
+    });
+    abrir();
+    await esperarFicha();
+
+    fireEvent.click(screen.getByRole("button", { name: "Desistir da adoção" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Confirmar desistência" }),
+    );
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Não é possível desistir de um interesse já finalizado",
+    );
+  });
+
+  test("dá pra voltar atrás antes de confirmar a desistência", async () => {
+    entrarComo("USUARIO");
+    perfilCom({ meuInteresse: { id: "i1", statusAndamento: "PENDENTE" } });
+    abrir();
+    await esperarFicha();
+
+    fireEvent.click(screen.getByRole("button", { name: "Desistir da adoção" }));
+    fireEvent.click(screen.getByRole("button", { name: "Voltar" }));
+
+    expect(
+      screen.getByRole("button", { name: "Desistir da adoção" }),
+    ).toBeInTheDocument();
+    expect(
+      fetch.mock.calls.some(([, opcoes]) => opcoes?.method === "DELETE"),
+    ).toBe(false);
+  });
+
   test("o protetor que cadastrou vê o botão de editar", async () => {
     entrarComo("USUARIO");
     perfilCom({ ehMeu: true });
