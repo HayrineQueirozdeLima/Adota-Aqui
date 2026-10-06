@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import AvisoPagina from "../../components/AvisoPagina/AvisoPagina";
 import Botao from "../../components/Botao/Botao";
 import Carregando from "../../components/Carregando/Carregando";
 import GaleriaFotos from "../../components/GaleriaFotos/GaleriaFotos";
 import Tag from "../../components/Tag/Tag";
 import { useAuth } from "../../contexts/AuthContext";
 import { buscarAnimal } from "../../services/animais";
+import { desistirDoInteresse } from "../../services/interesses";
 import {
   artigoDefinido,
   convivencias,
@@ -76,30 +78,30 @@ export default function PerfilAnimal() {
 
   if (situacao === "nao-encontrado") {
     return (
-      <Aviso titulo="Animal não encontrado">
+      <AvisoPagina titulo="Animal não encontrado">
         <p>Ele pode já ter sido adotado, ou o endereço está errado.</p>
         <Botao para="/animais" className="mt-5">
           Ver animais disponíveis
         </Botao>
-      </Aviso>
+      </AvisoPagina>
     );
   }
 
   if (situacao === "erro") {
     return (
-      <Aviso titulo="Não foi possível carregar o animal" alerta>
+      <AvisoPagina titulo="Não foi possível carregar o animal" alerta>
         <p>Confira sua conexão e tente de novo.</p>
         <Botao onClick={tentarDeNovo} className="mt-5">
           Tentar de novo
         </Botao>
-      </Aviso>
+      </AvisoPagina>
     );
   }
 
-  return <Perfil animal={animal} usuario={usuario} />;
+  return <Perfil animal={animal} usuario={usuario} aoMudar={tentarDeNovo} />;
 }
 
-function Perfil({ animal, usuario }) {
+function Perfil({ animal, usuario, aoMudar }) {
   const {
     nome,
     especie,
@@ -215,7 +217,11 @@ function Perfil({ animal, usuario }) {
         </div>
 
         <aside className="flex flex-col gap-4">
-          <CartaoInteresse animal={animal} usuario={usuario} />
+          <CartaoInteresse
+            animal={animal}
+            usuario={usuario}
+            aoMudar={aoMudar}
+          />
           <p className="rounded-[16px] bg-status-atencao-fundo px-5 py-4 text-compacto text-status-atencao-texto">
             <strong>Guarda responsável é obrigatória.</strong> Maus-tratos e
             abandono são crimes no Brasil (Leis nº 9.605/1998 e nº 14.064/2020).
@@ -228,7 +234,7 @@ function Perfil({ animal, usuario }) {
 
 // O cartão da direita. O que aparece depende de quem está vendo, e quem decide
 // o que a pessoa pode fazer é a API (ehMeu, podeDemonstrarInteresse, meuInteresse)
-function CartaoInteresse({ animal, usuario }) {
+function CartaoInteresse({ animal, usuario, aoMudar }) {
   const {
     id,
     nome,
@@ -238,10 +244,31 @@ function CartaoInteresse({ animal, usuario }) {
     podeDemonstrarInteresse,
     meuInteresse,
   } = animal;
+  const { token, sair } = useAuth();
+  const [confirmandoDesistencia, setConfirmandoDesistencia] = useState(false);
+  const [desistindo, setDesistindo] = useState(false);
+  const [erroDesistencia, setErroDesistencia] = useState("");
   const a = artigoDefinido(sexo);
   const interesseAtivo =
     meuInteresse &&
     ["PENDENTE", "EM_CONTATO"].includes(meuInteresse.statusAndamento);
+
+  // UC07 FA01: o interesse é apagado e o perfil é buscado de novo (aí volta o "Quero conhecer")
+  async function desistir() {
+    setDesistindo(true);
+    setErroDesistencia("");
+    try {
+      await desistirDoInteresse(meuInteresse.id, token);
+      aoMudar();
+    } catch (erro) {
+      if (erro.status === 401) {
+        sair();
+        return;
+      }
+      setErroDesistencia(erro.message);
+      setDesistindo(false);
+    }
+  }
 
   function conteudo() {
     if (ehMeu) {
@@ -283,6 +310,43 @@ function CartaoInteresse({ animal, usuario }) {
           >
             Ver minhas candidaturas
           </Botao>
+
+          {confirmandoDesistencia ? (
+            <div className="rounded-[12px] border border-borda-sutil bg-fundo-pagina p-4">
+              <p className="font-titulo font-semibold text-texto-principal">
+                Desistir da adoção?
+              </p>
+              <p className="mt-1">
+                Seu interesse é apagado e o Protetor deixa de ver seus contatos.
+                Se mudar de ideia, dá pra demonstrar interesse de novo.
+              </p>
+              {erroDesistencia && (
+                <p role="alert" className="mt-2 text-status-erro-texto">
+                  {erroDesistencia}
+                </p>
+              )}
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Botao onClick={desistir} disabled={desistindo}>
+                  {desistindo ? "Desistindo..." : "Confirmar desistência"}
+                </Botao>
+                <Botao
+                  variante="secundario"
+                  onClick={() => setConfirmandoDesistencia(false)}
+                  disabled={desistindo}
+                >
+                  Voltar
+                </Botao>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirmandoDesistencia(true)}
+              className="self-start font-titulo font-semibold text-campo text-status-erro-texto underline"
+            >
+              Desistir da adoção
+            </button>
+          )}
         </>
       );
     }
@@ -365,22 +429,5 @@ function Secao({ titulo, children }) {
       </h2>
       <div className="mt-3.5">{children}</div>
     </section>
-  );
-}
-
-// Tela de "não encontrado" e de erro
-function Aviso({ titulo, alerta = false, children }) {
-  return (
-    <main className="px-5 py-12 md:px-14">
-      <div
-        role={alerta ? "alert" : undefined}
-        className="mx-auto max-w-[560px] rounded-[16px] border border-borda-sutil bg-fundo-superficie p-8 text-center text-texto-secundario"
-      >
-        <h1 className="mb-2 font-titulo text-subtitulo font-semibold text-texto-principal">
-          {titulo}
-        </h1>
-        {children}
-      </div>
-    </main>
   );
 }
