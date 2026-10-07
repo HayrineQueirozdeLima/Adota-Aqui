@@ -1,18 +1,21 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "../src/contexts/AuthContext";
+import { animaisExemplo } from "../src/mocks/animais";
 import { interessesRecebidosExemplo } from "../src/mocks/interesses";
 import InteressesRecebidos from "../src/pages/InteressesRecebidos/InteressesRecebidos";
+import { MOTIVO_PADRAO } from "../src/services/interesses";
 import { resposta, simularApi } from "./utils/apiFalsa";
 
-// Painel do protetor (UC08, RF10). A API de mentira guarda a lista e aplica as mudanças de status,
+// Painel do protetor (UC08, RF10). A API de mentira guarda as listas e aplica as mudanças de status
 // do mesmo jeito que o back: aprovar adota o animal e descontinua os outros interesses dele.
+// Nos exemplos: Mel tem Ana (pendente) e Bruno (em contato). Tobias já foi adotado por Carla,
+// e o interesse do Davi foi descontinuado.
 
 const CHAVE = "adotaaqui.sessao";
-const [ana, bruno, carla, davi] = interessesRecebidosExemplo;
+const [ana, , carla] = interessesRecebidosExemplo;
 const MEL = ana.animal;
 const TOBIAS = carla.animal;
-const MOTIVO_PADRAO = "Outro candidato foi aprovado para este animal.";
 
 function entrarComoAbrigo() {
   localStorage.setItem(
@@ -29,10 +32,16 @@ function entrarComoAbrigo() {
 
 // "recusarStatus" permite simular uma recusa da API no PATCH
 function simularPainel({ lista = interessesRecebidosExemplo, recusarStatus } = {}) {
-  let atual = lista.map((interesse) => ({ ...interesse }));
+  let interesses = lista.map((interesse) => ({ ...interesse }));
+  let animais = [
+    { ...animaisExemplo[0] },
+    { ...animaisExemplo[1], statusAdocao: "ADOTADO" },
+  ];
+
   simularApi({
     outras: (metodo, caminho, opcoes) => {
-      if (caminho === "/api/interesses/recebidos") return resposta(200, atual);
+      if (caminho === "/api/interesses/recebidos") return resposta(200, interesses);
+      if (caminho === "/api/animais/meus") return resposta(200, animais);
 
       const mudanca = caminho.match(/^\/api\/interesses\/([^/]+)\/status$/);
       if (!mudanca || metodo !== "PATCH") return undefined;
@@ -40,8 +49,9 @@ function simularPainel({ lista = interessesRecebidosExemplo, recusarStatus } = {
 
       const id = mudanca[1];
       const corpo = JSON.parse(opcoes.body);
-      const alvo = atual.find((interesse) => interesse.id === id);
-      atual = atual.map((interesse) => {
+      const alvo = interesses.find((interesse) => interesse.id === id);
+      const aprovou = corpo.statusAndamento === "APROVADO";
+      interesses = interesses.map((interesse) => {
         if (interesse.id === id) {
           return {
             ...interesse,
@@ -50,14 +60,19 @@ function simularPainel({ lista = interessesRecebidosExemplo, recusarStatus } = {
           };
         }
         const outroDoMesmoAnimal =
-          corpo.statusAndamento === "APROVADO" &&
+          aprovou &&
           interesse.animal.id === alvo.animal.id &&
           ["PENDENTE", "EM_CONTATO"].includes(interesse.statusAndamento);
         return outroDoMesmoAnimal
           ? { ...interesse, statusAndamento: "DESCONTINUADO", motivoDescontinuacao: MOTIVO_PADRAO }
           : interesse;
       });
-      return resposta(200, atual.find((interesse) => interesse.id === id));
+      if (aprovou) {
+        animais = animais.map((animal) =>
+          animal.id === alvo.animal.id ? { ...animal, statusAdocao: "ADOTADO" } : animal,
+        );
+      }
+      return resposta(200, interesses.find((interesse) => interesse.id === id));
     },
   });
 }
@@ -74,9 +89,14 @@ function abrir(endereco = "/interesses-recebidos") {
   );
 }
 
-// O cartão (li) de um candidato, pra procurar só dentro dele
-function cartao(nome) {
+// A linha (li) de um candidato, pra procurar só dentro dela
+function linha(nome) {
   return within(screen.getByRole("heading", { name: nome }).closest("li"));
+}
+
+// O cartão (section) de um animal
+function cartaoDoAnimal(nome) {
+  return within(screen.getByRole("region", { name: nome }));
 }
 
 async function esperarLista() {
@@ -97,46 +117,103 @@ afterEach(() => {
 });
 
 describe("lista", () => {
-  test("busca com o token e agrupa os candidatos por animal", async () => {
+  test("busca os interesses e os animais com o token", async () => {
     abrir();
     await esperarLista();
 
     const [[url, opcoes]] = chamadas("GET", "/api/interesses/recebidos");
     expect(url).toBe("http://api.teste/api/interesses/recebidos");
     expect(opcoes.headers.Authorization).toBe("Bearer token-de-teste");
-    expect(screen.getByRole("link", { name: "Mel" })).toHaveAttribute("href", `/animais/${MEL.id}`);
-    expect(screen.getByRole("link", { name: "Tobias" })).toBeInTheDocument();
-    expect(screen.getAllByText("2 interesses")).toHaveLength(2);
+    expect(chamadas("GET", "/api/animais/meus")[0][1].headers.Authorization).toBe("Bearer token-de-teste");
   });
 
-  test("mostra os contatos, o horário preferido e as respostas da triagem", async () => {
+  test("um cartão por animal, com os dados de Meus animais e o resumo dos interesses", async () => {
     abrir();
     await esperarLista();
-    const daAna = cartao("Ana Souza");
+    const mel = cartaoDoAnimal("Mel");
+    const tobias = cartaoDoAnimal("Tobias");
 
-    expect(daAna.getByText("Recebido em 06/10/2026")).toBeInTheDocument();
-    expect(daAna.getByRole("link", { name: "WhatsApp: (69) 98888-7777" })).toHaveAttribute(
+    expect(mel.getByRole("link", { name: "Mel" })).toHaveAttribute("href", `/animais/${MEL.id}`);
+    expect(mel.getByText("Disponível")).toBeInTheDocument();
+    expect(mel.getByText("Cão, sem raça definida, porte médio, 14 kg, em Santo André/SP")).toBeInTheDocument();
+    expect(mel.getByText("2 interesses, 1 em contato")).toBeInTheDocument();
+    expect(mel.getByText(/Ao aprovar um candidato, a Mel passa para Adotado/)).toBeInTheDocument();
+
+    expect(tobias.getByText("Adotado")).toBeInTheDocument();
+    expect(tobias.getByText("Histórico encerrado")).toBeInTheDocument();
+    expect(tobias.queryByText(/Ao aprovar um candidato/)).toBeNull();
+  });
+
+  test("no cartão, quem está em contato vem antes dos pendentes", async () => {
+    abrir();
+    await esperarLista();
+
+    const nomes = cartaoDoAnimal("Mel")
+      .getAllByRole("heading", { level: 3 })
+      .map((titulo) => titulo.textContent);
+    expect(nomes).toEqual(["Bruno Lima", "Ana Souza"]);
+  });
+
+  test("mostra os contatos, o melhor horário e o resumo da triagem", async () => {
+    abrir();
+    await esperarLista();
+    const daAna = linha("Ana Souza");
+
+    expect(daAna.getByText("Pendente")).toBeInTheDocument();
+    expect(daAna.getByRole("link", { name: "ana@example.com" })).toHaveAttribute("href", "mailto:ana@example.com");
+    expect(daAna.getByRole("link", { name: "WhatsApp (69) 98888-7777" })).toHaveAttribute(
       "href",
       "https://wa.me/5569988887777",
     );
-    expect(daAna.getByRole("link", { name: "ana@example.com" })).toHaveAttribute("href", "mailto:ana@example.com");
-    expect(daAna.getByText("Melhor horário para contato: Noite")).toBeInTheDocument();
-    expect(daAna.getByText("Casa com quintal")).toBeInTheDocument();
-    expect(daAna.getByText("Prefere responder na conversa")).toBeInTheDocument();
-    expect(daAna.getByText("Pendente")).toBeInTheDocument();
+    expect(daAna.getByText("Melhor horário: noite")).toBeInTheDocument();
+    expect(
+      daAna.getByText(/Triagem: Casa com quintal, sem crianças, até 4h sozinho, deixa com alguém nas viagens/),
+    ).toBeInTheDocument();
   });
 
   test("cada status mostra só as ações que a máquina de estados permite", async () => {
     abrir();
     await esperarLista();
 
-    expect(cartao("Ana Souza").getByRole("button", { name: "Marcar como em contato" })).toBeInTheDocument();
-    expect(cartao("Bruno Lima").queryByRole("button", { name: "Marcar como em contato" })).toBeNull();
-    expect(cartao("Bruno Lima").getByRole("button", { name: "Aprovar adoção" })).toBeInTheDocument();
-    expect(cartao("Carla Dias").queryByRole("button")).toBeNull();
-    expect(cartao("Carla Dias").getByText(/é quem vai cuidar de Tobias/)).toBeInTheDocument();
-    expect(cartao("Davi Rocha").queryByRole("button")).toBeNull();
-    expect(cartao("Davi Rocha").getByText(MOTIVO_PADRAO)).toBeInTheDocument();
+    expect(linha("Ana Souza").getByRole("button", { name: "Marcar em contato" })).toBeInTheDocument();
+    expect(linha("Ana Souza").getByRole("button", { name: "Descontinuar" })).toBeInTheDocument();
+    expect(linha("Ana Souza").queryByRole("button", { name: "Aprovar" })).toBeNull();
+
+    expect(linha("Bruno Lima").getByRole("button", { name: "Aprovar" })).toBeInTheDocument();
+    expect(linha("Bruno Lima").getByRole("button", { name: "Descontinuar" })).toBeInTheDocument();
+    expect(linha("Bruno Lima").queryByRole("button", { name: "Marcar em contato" })).toBeNull();
+
+    expect(linha("Carla Dias").getAllByRole("button").map((botao) => botao.textContent)).toEqual(["Ver detalhes"]);
+  });
+
+  test("ver detalhes abre a triagem completa", async () => {
+    abrir();
+    await esperarLista();
+
+    fireEvent.click(linha("Carla Dias").getByRole("button", { name: "Ver detalhes" }));
+
+    expect(linha("Carla Dias").getByText("02/10/2026")).toBeInTheDocument();
+    expect(linha("Carla Dias").getByText("Tipo de moradia")).toBeInTheDocument();
+    expect(linha("Carla Dias").getByRole("button", { name: "Esconder detalhes" })).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
+  });
+
+  test("os descontinuados ficam recolhidos e abrem pelo cartão do animal", async () => {
+    abrir();
+    await esperarLista();
+    const tobias = cartaoDoAnimal("Tobias");
+
+    expect(screen.queryByRole("heading", { name: "Davi Rocha" })).toBeNull();
+    expect(
+      tobias.getByText(/1 interesse descontinuado automaticamente quando esta adoção foi aprovada/),
+    ).toBeInTheDocument();
+
+    fireEvent.click(tobias.getByRole("button", { name: "Mostrar interesses descontinuados de Tobias" }));
+
+    expect(linha("Davi Rocha").getByText("Descontinuado")).toBeInTheDocument();
+    expect(linha("Davi Rocha").getByText(MOTIVO_PADRAO)).toBeInTheDocument();
   });
 
   test("sem interesses, explica e leva pra Meus animais", async () => {
@@ -171,11 +248,22 @@ describe("filtros", () => {
     abrir();
     await esperarLista();
 
-    fireEvent.click(screen.getByRole("button", { name: "Pendentes 1" }));
+    fireEvent.click(screen.getByRole("button", { name: "Pendente 1" }));
 
     expect(screen.getByRole("heading", { name: "Ana Souza" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Bruno Lima" })).toBeNull();
-    expect(screen.queryByRole("link", { name: "Tobias" })).toBeNull();
+    expect(screen.queryByRole("region", { name: "Tobias" })).toBeNull();
+  });
+
+  test("o filtro Descontinuado mostra os descontinuados direto, sem recolher", async () => {
+    abrir();
+    await esperarLista();
+
+    fireEvent.click(screen.getByRole("button", { name: "Descontinuado 1" }));
+
+    expect(linha("Davi Rocha").getByText(MOTIVO_PADRAO)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /interesses descontinuados de/ })).toBeNull();
+    expect(screen.queryByRole("region", { name: "Mel" })).toBeNull();
   });
 
   test("o animal pode vir no endereço, e dá pra trocar pela seleção", async () => {
@@ -201,14 +289,14 @@ describe("filtros", () => {
 });
 
 describe("ações", () => {
-  test("marcar como em contato manda o PATCH e atualiza a lista", async () => {
+  test("marcar em contato manda o PATCH e atualiza a lista", async () => {
     abrir();
     await esperarLista();
 
-    fireEvent.click(cartao("Ana Souza").getByRole("button", { name: "Marcar como em contato" }));
+    fireEvent.click(linha("Ana Souza").getByRole("button", { name: "Marcar em contato" }));
 
     expect(await screen.findByText("O interesse de Ana Souza foi marcado como em contato.")).toBeInTheDocument();
-    expect(await cartao("Ana Souza").findByText("Em contato")).toBeInTheDocument();
+    expect(await linha("Ana Souza").findByText("Em contato")).toBeInTheDocument();
     const [[url, opcoes]] = chamadas("PATCH", "/status");
     expect(url).toBe(`http://api.teste/api/interesses/${ana.id}/status`);
     expect(opcoes.headers.Authorization).toBe("Bearer token-de-teste");
@@ -216,19 +304,25 @@ describe("ações", () => {
     expect(chamadas("GET", "/api/interesses/recebidos")).toHaveLength(2);
   });
 
-  test("aprovar pede confirmação e descontinua os outros interesses do animal", async () => {
+  test("aprovar pede confirmação, adota o animal e recolhe os outros interesses", async () => {
     abrir();
     await esperarLista();
 
-    fireEvent.click(cartao("Ana Souza").getByRole("button", { name: "Aprovar adoção" }));
-    expect(screen.getByText("Aprovar Ana Souza para adotar Mel?")).toBeInTheDocument();
+    fireEvent.click(linha("Bruno Lima").getByRole("button", { name: "Aprovar" }));
+    expect(screen.getByText("Aprovar Bruno Lima para adotar Mel?")).toBeInTheDocument();
     expect(chamadas("PATCH", "/status")).toHaveLength(0);
 
     fireEvent.click(screen.getByRole("button", { name: "Confirmar aprovação" }));
 
-    expect(await screen.findByText(/Adoção de Mel aprovada para Ana Souza/)).toBeInTheDocument();
-    expect(await cartao("Ana Souza").findByText("Aprovado")).toBeInTheDocument();
-    expect(cartao("Bruno Lima").getByText("Descontinuado")).toBeInTheDocument();
+    expect(await screen.findByText(/Adoção de Mel aprovada para Bruno Lima/)).toBeInTheDocument();
+    expect(await linha("Bruno Lima").findByText("Aprovado")).toBeInTheDocument();
+    const mel = cartaoDoAnimal("Mel");
+    expect(mel.getByText("Adotado")).toBeInTheDocument();
+    expect(mel.getByText("Histórico encerrado")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Ana Souza" })).toBeNull();
+    expect(
+      mel.getByText(/1 interesse descontinuado automaticamente quando esta adoção foi aprovada/),
+    ).toBeInTheDocument();
     expect(JSON.parse(chamadas("PATCH", "/status")[0][1].body)).toEqual({ statusAndamento: "APROVADO" });
   });
 
@@ -236,10 +330,10 @@ describe("ações", () => {
     abrir();
     await esperarLista();
 
-    fireEvent.click(cartao("Ana Souza").getByRole("button", { name: "Aprovar adoção" }));
+    fireEvent.click(linha("Bruno Lima").getByRole("button", { name: "Aprovar" }));
     fireEvent.click(screen.getByRole("button", { name: "Voltar" }));
 
-    expect(cartao("Ana Souza").getByRole("button", { name: "Aprovar adoção" })).toBeInTheDocument();
+    expect(linha("Bruno Lima").getByRole("button", { name: "Aprovar" })).toBeInTheDocument();
     expect(chamadas("PATCH", "/status")).toHaveLength(0);
   });
 
@@ -247,36 +341,41 @@ describe("ações", () => {
     abrir();
     await esperarLista();
 
-    fireEvent.click(cartao("Bruno Lima").getByRole("button", { name: "Descontinuar" }));
-    fireEvent.click(cartao("Bruno Lima").getByRole("button", { name: "Confirmar" }));
+    fireEvent.click(linha("Ana Souza").getByRole("button", { name: "Descontinuar" }));
+    fireEvent.click(linha("Ana Souza").getByRole("button", { name: "Confirmar" }));
     expect(screen.getByText("Escreva o motivo. O candidato vai ver essa mensagem.")).toBeInTheDocument();
     expect(chamadas("PATCH", "/status")).toHaveLength(0);
 
-    const motivo = "Procuramos uma casa sem outros gatos.";
-    fireEvent.change(screen.getByLabelText("Por que você vai descontinuar o interesse de Bruno Lima?"), {
+    const motivo = "Procuramos uma casa com tela nas janelas.";
+    fireEvent.change(screen.getByLabelText("Por que você vai descontinuar o interesse de Ana Souza?"), {
       target: { value: motivo },
     });
-    fireEvent.click(cartao("Bruno Lima").getByRole("button", { name: "Confirmar" }));
+    fireEvent.click(linha("Ana Souza").getByRole("button", { name: "Confirmar" }));
 
-    expect(await screen.findByText("O interesse de Bruno Lima foi descontinuado.")).toBeInTheDocument();
-    expect(await cartao("Bruno Lima").findByText(motivo)).toBeInTheDocument();
+    expect(await screen.findByText("O interesse de Ana Souza foi descontinuado.")).toBeInTheDocument();
     expect(JSON.parse(chamadas("PATCH", "/status")[0][1].body)).toEqual({
       statusAndamento: "DESCONTINUADO",
       motivoDescontinuacao: motivo,
     });
+
+    // Sai da lista e fica recolhida no fim do cartão da Mel
+    const mel = cartaoDoAnimal("Mel");
+    expect(await mel.findByText(/^1 interesse descontinuado\./)).toBeInTheDocument();
+    fireEvent.click(mel.getByRole("button", { name: "Mostrar interesses descontinuados de Mel" }));
+    expect(linha("Ana Souza").getByText(motivo)).toBeInTheDocument();
   });
 
-  test("recusa da API aparece no cartão do candidato", async () => {
+  test("recusa da API aparece na linha do candidato", async () => {
     simularPainel({
       recusarStatus: resposta(409, { status: 409, mensagem: "Este animal já foi adotado" }),
     });
     abrir();
     await esperarLista();
 
-    fireEvent.click(cartao("Ana Souza").getByRole("button", { name: "Aprovar adoção" }));
+    fireEvent.click(linha("Bruno Lima").getByRole("button", { name: "Aprovar" }));
     fireEvent.click(screen.getByRole("button", { name: "Confirmar aprovação" }));
 
-    expect(await cartao("Ana Souza").findByRole("alert")).toHaveTextContent("Este animal já foi adotado");
+    expect(await linha("Bruno Lima").findByRole("alert")).toHaveTextContent("Este animal já foi adotado");
     expect(chamadas("GET", "/api/interesses/recebidos")).toHaveLength(1);
   });
 });

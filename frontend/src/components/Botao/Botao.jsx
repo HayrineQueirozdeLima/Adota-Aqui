@@ -12,6 +12,12 @@ const variantes = {
   // Contorno roxo: ação secundária em fundo claro (ex.: "Cadastrar CPF", no login)
   secundario:
     "border-[1.5px] border-marca-roxo text-marca-roxo focus-visible:outline-marca-roxo",
+  // Contorno vermelho: ação que encerra algo (ex.: "Descontinuar", no painel de interesses)
+  perigo:
+    "border-[1.5px] border-status-erro-texto text-status-erro-texto focus-visible:outline-status-erro-texto",
+  // Contorno cinza: ação discreta, que só mostra informação (ex.: "Ver detalhes")
+  neutro:
+    "border-[1.5px] border-borda-forte text-texto-secundario focus-visible:outline-marca-roxo",
 };
 
 // O que todo botão tem igual

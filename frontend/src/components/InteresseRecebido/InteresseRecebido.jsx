@@ -4,20 +4,26 @@ import Tag from "../Tag/Tag";
 import { useAuth } from "../../contexts/AuthContext";
 import { atualizarStatusInteresse } from "../../services/interesses";
 import { mascaraTelefone } from "../../utils/mascaras";
-import { formatarData } from "../../utils/rotulos";
-import { respostasDaTriagem } from "../../utils/triagem";
+import { formatarData, haQuantoTempo } from "../../utils/rotulos";
+import { respostasDaTriagem, resumoDaTriagem } from "../../utils/triagem";
 
 const LIMITE_DO_MOTIVO = 255;
 
-// Como cada status aparece pro protetor
+// Como cada status aparece pro protetor (cores do Figma: Interesses recebidos)
 const status = {
-  PENDENTE: { texto: "Pendente", variante: "atencao" },
-  EM_CONTATO: { texto: "Em contato", variante: "destaqueRoxo" },
+  PENDENTE: { texto: "Pendente", variante: "destaqueRoxo" },
+  EM_CONTATO: { texto: "Em contato", variante: "atencao" },
   APROVADO: { texto: "Aprovado", variante: "disponivel" },
   DESCONTINUADO: { texto: "Descontinuado", variante: "neutro" },
 };
 
-// Um candidato no painel do protetor (UC08): contatos, triagem e as ações que o status permite.
+const estiloDoLink =
+  "underline decoration-borda-forte underline-offset-2 hover:text-marca-roxo hover:decoration-marca-roxo";
+
+// Um candidato no painel do protetor (UC08): contatos, resumo da triagem e as ações que o status permite.
+//   Pendente: marcar em contato ou descontinuar
+//   Em contato: aprovar ou descontinuar
+//   Aprovado e Descontinuado: só ver os detalhes
 // Depois de qualquer mudança, avisa a página pelo aoMudar, e ela busca a lista de novo:
 // aprovar um interesse também muda os outros do mesmo animal.
 export default function InteresseRecebido({ interesse, aoMudar }) {
@@ -29,12 +35,15 @@ export default function InteresseRecebido({ interesse, aoMudar }) {
   const [erroMotivo, setErroMotivo] = useState("");
   const [erro, setErro] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [verDetalhes, setVerDetalhes] = useState(false);
   const idMotivo = useId();
+  const idDetalhes = useId();
 
   const respostas = respostasDaTriagem(triagem);
   const momentoContato = respostas.find((item) => item.campo === "momentoContato");
-  const demaisRespostas = respostas.filter((item) => item.campo !== "momentoContato");
+  const temMomentoContato = momentoContato.resposta !== "Não informado";
   const emAndamento = statusAndamento === "PENDENTE" || statusAndamento === "EM_CONTATO";
+  const telefone = mascaraTelefone(candidato.telefone);
 
   async function mudar(novoStatus, avisoDeSucesso) {
     setEnviando(true);
@@ -55,8 +64,7 @@ export default function InteresseRecebido({ interesse, aoMudar }) {
   }
 
   function descontinuar() {
-    const texto = motivo.trim();
-    if (!texto) {
+    if (!motivo.trim()) {
       setErroMotivo("Escreva o motivo. O candidato vai ver essa mensagem.");
       return;
     }
@@ -70,55 +78,93 @@ export default function InteresseRecebido({ interesse, aoMudar }) {
   }
 
   return (
-    <li className="rounded-[16px] border border-borda-sutil bg-fundo-superficie p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h3 className="font-titulo text-subtitulo font-semibold text-texto-principal">{candidato.nome}</h3>
-          <p className="text-legenda text-texto-terciario">Recebido em {formatarData(dataHora.slice(0, 10))}</p>
+    <li className="rounded-[12px] border border-borda-sutil bg-fundo-pagina px-4 py-[14px]">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-[10px]">
+            <h3 className="font-titulo text-item font-semibold text-texto-principal">{candidato.nome}</h3>
+            <Tag variante={status[statusAndamento].variante}>{status[statusAndamento].texto}</Tag>
+          </div>
+
+          <p className="mt-[5px] flex flex-wrap gap-x-4 gap-y-1 text-compacto text-texto-secundario">
+            <a href={`mailto:${candidato.email}`} className={estiloDoLink}>
+              {candidato.email}
+            </a>
+            <a
+              href={`https://wa.me/55${candidato.telefone}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`WhatsApp ${telefone}`}
+              className={estiloDoLink}
+            >
+              {telefone}
+            </a>
+            {temMomentoContato && <span>Melhor horário: {momentoContato.resposta.toLowerCase()}</span>}
+          </p>
+
+          <p className="mt-[5px] text-legenda text-texto-terciario">
+            Recebido {haQuantoTempo(dataHora)}. Triagem: {resumoDaTriagem(triagem)}
+          </p>
+
+          {statusAndamento === "DESCONTINUADO" && motivoDescontinuacao && (
+            <p className="mt-[5px] text-legenda text-texto-secundario">
+              <strong className="font-semibold">Motivo:</strong> {motivoDescontinuacao}
+            </p>
+          )}
         </div>
-        <Tag variante={status[statusAndamento].variante}>{status[statusAndamento].texto}</Tag>
+
+        {/* Ações. No celular, um botão embaixo do outro, ocupando a largura toda */}
+        {confirmando === null && (
+          <div className="flex flex-col gap-[9px] md:shrink-0 md:flex-row">
+            {statusAndamento === "PENDENTE" && (
+              <Botao
+                variante="secundario"
+                disabled={enviando}
+                onClick={() => mudar("EM_CONTATO", `O interesse de ${candidato.nome} foi marcado como em contato.`)}
+              >
+                {enviando ? "Salvando..." : "Marcar em contato"}
+              </Botao>
+            )}
+            {statusAndamento === "EM_CONTATO" && (
+              <Botao onClick={() => abrir("aprovar")} disabled={enviando}>
+                Aprovar
+              </Botao>
+            )}
+            {emAndamento && (
+              <Botao variante="perigo" onClick={() => abrir("descontinuar")} disabled={enviando}>
+                Descontinuar
+              </Botao>
+            )}
+            {!emAndamento && (
+              <Botao
+                variante="neutro"
+                aria-expanded={verDetalhes}
+                aria-controls={idDetalhes}
+                onClick={() => setVerDetalhes((atual) => !atual)}
+              >
+                {verDetalhes ? "Esconder detalhes" : "Ver detalhes"}
+              </Botao>
+            )}
+          </div>
+        )}
       </div>
 
-      <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-compacto">
-        <li>
-          <a
-            href={`https://wa.me/55${candidato.telefone}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-marca-roxo underline"
-          >
-            WhatsApp: {mascaraTelefone(candidato.telefone)}
-          </a>
-        </li>
-        <li>
-          <a href={`mailto:${candidato.email}`} className="text-marca-roxo underline">
-            {candidato.email}
-          </a>
-        </li>
-        {momentoContato && (
-          <li className="text-texto-secundario">Melhor horário para contato: {momentoContato.resposta}</li>
-        )}
-      </ul>
-
-      <dl className="mt-4 grid gap-x-5 gap-y-2 rounded-[12px] bg-fundo-pagina p-4 text-compacto sm:grid-cols-2">
-        {demaisRespostas.map(({ campo, pergunta, resposta }) => (
-          <div key={campo}>
-            <dt className="text-legenda text-texto-terciario">{pergunta}</dt>
-            <dd className="text-texto-principal">{resposta}</dd>
+      {verDetalhes && (
+        <dl
+          id={idDetalhes}
+          className="mt-3 grid gap-x-5 gap-y-2 rounded-[10px] bg-fundo-superficie p-4 text-compacto sm:grid-cols-2"
+        >
+          <div>
+            <dt className="text-legenda text-texto-terciario">Recebido em</dt>
+            <dd className="text-texto-principal">{formatarData(dataHora.slice(0, 10))}</dd>
           </div>
-        ))}
-      </dl>
-
-      {statusAndamento === "DESCONTINUADO" && motivoDescontinuacao && (
-        <p className="mt-3 text-compacto text-texto-secundario">
-          <strong>Motivo:</strong> {motivoDescontinuacao}
-        </p>
-      )}
-
-      {statusAndamento === "APROVADO" && (
-        <p className="mt-3 text-compacto text-texto-secundario">
-          Adoção aprovada: {candidato.nome} é quem vai cuidar de {animal.nome}.
-        </p>
+          {respostas.map(({ campo, pergunta, resposta }) => (
+            <div key={campo}>
+              <dt className="text-legenda text-texto-terciario">{pergunta}</dt>
+              <dd className="text-texto-principal">{resposta}</dd>
+            </div>
+          ))}
+        </dl>
       )}
 
       {erro && (
@@ -127,28 +173,8 @@ export default function InteresseRecebido({ interesse, aoMudar }) {
         </p>
       )}
 
-      {emAndamento && confirmando === null && (
-        <div className="mt-4 flex flex-wrap gap-2">
-          {statusAndamento === "PENDENTE" && (
-            <Botao
-              variante="secundario"
-              disabled={enviando}
-              onClick={() => mudar("EM_CONTATO", `O interesse de ${candidato.nome} foi marcado como em contato.`)}
-            >
-              Marcar como em contato
-            </Botao>
-          )}
-          <Botao onClick={() => abrir("aprovar")} disabled={enviando}>
-            Aprovar adoção
-          </Botao>
-          <Botao variante="secundario" onClick={() => abrir("descontinuar")} disabled={enviando}>
-            Descontinuar
-          </Botao>
-        </div>
-      )}
-
       {confirmando === "aprovar" && (
-        <div className="mt-4 rounded-[12px] border border-borda-sutil bg-fundo-pagina p-4">
+        <div className="mt-3 rounded-[12px] border border-borda-sutil bg-fundo-superficie p-4">
           <p className="font-titulo font-semibold text-texto-principal">
             Aprovar {candidato.nome} para adotar {animal.nome}?
           </p>
@@ -176,7 +202,7 @@ export default function InteresseRecebido({ interesse, aoMudar }) {
       )}
 
       {confirmando === "descontinuar" && (
-        <div className="mt-4 rounded-[12px] border border-borda-sutil bg-fundo-pagina p-4">
+        <div className="mt-3 rounded-[12px] border border-borda-sutil bg-fundo-superficie p-4">
           <label htmlFor={idMotivo} className="font-titulo font-semibold text-texto-principal">
             Por que você vai descontinuar o interesse de {candidato.nome}?
           </label>

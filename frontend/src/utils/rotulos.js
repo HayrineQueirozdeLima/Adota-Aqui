@@ -65,6 +65,22 @@ export function formatarData(dataDaApi) {
     return `${dia}/${mes}/${ano}`;
 }
 
+// Há quanto tempo algo aconteceu: "hoje", "há 1 dia", "há 5 dias". Depois de 30 dias, vira a data: "em 12/03/2026".
+// Compara só os dias do calendário, então o horário não muda o resultado
+export function haQuantoTempo(dataHora, agora = new Date()) {
+    const data = dataHora.slice(0, 10);
+    const [ano, mes, dia] = data.split('-').map(Number);
+    const umDia = 24 * 60 * 60 * 1000;
+    const dias = Math.round(
+        (Date.UTC(agora.getFullYear(), agora.getMonth(), agora.getDate()) - Date.UTC(ano, mes - 1, dia)) / umDia,
+    );
+
+    if (dias <= 0) return 'hoje';
+    if (dias === 1) return 'há 1 dia';
+    if (dias < 30) return `há ${dias} dias`;
+    return `em ${formatarData(data)}`;
+}
+
 // Idade a partir da data de nascimento estimada: "8 meses", "2 anos"
 export function idadeEstimada(dataNascimento, hoje = new Date()) {
     if (!dataNascimento) return null;

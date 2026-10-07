@@ -1,41 +1,46 @@
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import Botao from "../../components/Botao/Botao";
 import CampoSelecao from "../../components/CampoSelecao/CampoSelecao";
 import Carregando from "../../components/Carregando/Carregando";
 import Chip from "../../components/Chip/Chip";
-import InteresseRecebido from "../../components/InteresseRecebido/InteresseRecebido";
+import InteressesDoAnimal from "../../components/InteressesDoAnimal/InteressesDoAnimal";
 import { useAuth } from "../../contexts/AuthContext";
+import { listarMeusAnimais } from "../../services/animais";
 import { listarInteressesRecebidos } from "../../services/interesses";
 
 const filtrosDeStatus = [
   { valor: "", nome: "Todos" },
-  { valor: "PENDENTE", nome: "Pendentes" },
+  { valor: "PENDENTE", nome: "Pendente" },
   { valor: "EM_CONTATO", nome: "Em contato" },
-  { valor: "APROVADO", nome: "Aprovados" },
-  { valor: "DESCONTINUADO", nome: "Descontinuados" },
+  { valor: "APROVADO", nome: "Aprovado" },
+  { valor: "DESCONTINUADO", nome: "Descontinuado" },
 ];
 
-// Painel do protetor (UC08), em /interesses-recebidos. Vale pra Usuario e pra Abrigo.
+// Painel do protetor (UC08, Figma: Interesses recebidos), em /interesses-recebidos. Vale pra Usuario e pra Abrigo.
 // O filtro de animal fica no endereço (?animal=id): assim o "Ver interesses" de Meus animais
 // e do perfil já abre filtrado.
 export default function InteressesRecebidos() {
   const { token, sair } = useAuth();
   const [parametros, setParametros] = useSearchParams();
   const [interesses, setInteresses] = useState([]);
+  // Os animais da conta, com espécie, porte, cidade e status. O interesse só traz nome e foto
+  const [meusAnimais, setMeusAnimais] = useState([]);
   // "carregando" | "pronto" | "erro"
   const [situacao, setSituacao] = useState("carregando");
   const [statusEscolhido, setStatusEscolhido] = useState("");
   const [aviso, setAviso] = useState("");
-  // muda a cada alteração de status, pra buscar a lista de novo
+  // muda a cada alteração de status, pra buscar tudo de novo
   const [versao, setVersao] = useState(0);
 
   useEffect(() => {
     let cancelado = false;
-    listarInteressesRecebidos(token)
-      .then((lista) => {
+    // As duas buscas saem juntas, e a tela espera as duas
+    Promise.all([listarInteressesRecebidos(token), listarMeusAnimais(token)])
+      .then(([listaDeInteresses, listaDeAnimais]) => {
         if (cancelado) return;
-        setInteresses(lista);
+        setInteresses(listaDeInteresses);
+        setMeusAnimais(listaDeAnimais);
         setSituacao("pronto");
       })
       .catch((erro) => {
@@ -92,26 +97,33 @@ export default function InteressesRecebidos() {
     escolherAnimal("");
   }
 
-  // Agrupa por animal, mantendo a ordem da lista (mais recente primeiro)
-  const grupos = [];
-  visiveis.forEach((interesse) => {
-    const grupo = grupos.find((item) => item.animal.id === interesse.animal.id);
-    if (grupo) grupo.interesses.push(interesse);
-    else grupos.push({ animal: interesse.animal, interesses: [interesse] });
-  });
+  // Um cartão por animal que tem algum interesse visível, juntando os dados de Meus animais.
+  // Os animais com adoção encerrada vão pro fim
+  const grupos = animais
+    .filter((animal) => visiveis.some((interesse) => interesse.animal.id === animal.id))
+    .map((animal) => {
+      const dados = { ...animal, ...meusAnimais.find((item) => item.id === animal.id) };
+      const doGrupo = interesses.filter((interesse) => interesse.animal.id === animal.id);
+      const encerrado =
+        dados.statusAdocao === "ADOTADO" || doGrupo.some((interesse) => interesse.statusAndamento === "APROVADO");
+      return { animal: dados, interesses: doGrupo, encerrado };
+    })
+    .sort((a, b) => Number(a.encerrado) - Number(b.encerrado));
 
   return (
-    <main className="mx-auto w-full max-w-[1440px] px-5 py-6 md:px-14 md:py-8">
-      <h1 className="font-titulo text-secao font-semibold text-texto-principal">Interesses recebidos</h1>
-      <p className="mt-2 max-w-[760px] text-corpo text-texto-secundario">
-        Quem demonstrou interesse nos seus animais. Os contatos ficam visíveis para os dois lados, e a conversa, a
-        visita e a decisão acontecem fora do sistema. Quando decidir, aprove ou descontinue aqui.
-      </p>
+    <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-5 px-5 pb-9 pt-6 md:px-8 md:pt-[30px] lg:px-10">
+      <div>
+        <h1 className="font-titulo text-secao font-semibold text-texto-principal">Interesses recebidos</h1>
+        <p className="mt-2 text-corpo text-texto-secundario">
+          Os candidatos aparecem agrupados pelo animal. A entrevista, a visita e a decisão final são suas, fora do
+          sistema.
+        </p>
+      </div>
 
       {aviso && (
         <p
           role="status"
-          className="mt-5 rounded-[10px] bg-status-disponivel-fundo px-4 py-3 text-compacto text-status-disponivel-texto"
+          className="rounded-[10px] bg-status-disponivel-fundo px-4 py-3 text-compacto text-status-disponivel-texto"
         >
           {aviso}
         </p>
@@ -120,7 +132,7 @@ export default function InteressesRecebidos() {
       {situacao === "carregando" && <Carregando texto="Carregando interesses..." />}
 
       {situacao === "erro" && (
-        <div role="alert" className="mt-6 text-corpo text-texto-secundario">
+        <div role="alert" className="text-corpo text-texto-secundario">
           <p>Não foi possível carregar os interesses. Confira sua conexão e tente de novo.</p>
           <Botao onClick={tentarDeNovo} className="mt-3">
             Tentar de novo
@@ -129,7 +141,7 @@ export default function InteressesRecebidos() {
       )}
 
       {situacao === "pronto" && interesses.length === 0 && (
-        <div className="mt-6 rounded-[16px] border border-borda-sutil bg-fundo-superficie p-8 text-center">
+        <div className="rounded-[18px] border border-borda-sutil bg-fundo-superficie p-8 text-center">
           <p className="text-corpo text-texto-secundario">
             Você ainda não recebeu nenhum interesse. Quando alguém demonstrar interesse em um dos seus animais, ele
             aparece aqui.
@@ -142,7 +154,7 @@ export default function InteressesRecebidos() {
 
       {situacao === "pronto" && interesses.length > 0 && (
         <>
-          <div className="mt-5 flex flex-wrap items-end gap-4">
+          <div className="flex flex-wrap items-end gap-4">
             <div className="flex flex-wrap gap-2">
               {filtrosDeStatus.map(({ valor, nome }) => (
                 <Chip key={nome} ativo={statusEscolhido === valor} onClick={() => setStatusEscolhido(valor)}>
@@ -163,7 +175,7 @@ export default function InteressesRecebidos() {
           </div>
 
           {grupos.length === 0 ? (
-            <div className="mt-6 rounded-[16px] border border-borda-sutil bg-fundo-superficie p-8 text-center">
+            <div className="rounded-[18px] border border-borda-sutil bg-fundo-superficie p-8 text-center">
               <p className="text-corpo text-texto-secundario">
                 {animalSemInteresses
                   ? "Esse animal ainda não recebeu interesses."
@@ -174,38 +186,21 @@ export default function InteressesRecebidos() {
               </Botao>
             </div>
           ) : (
-            <div className="mt-6 flex flex-col gap-8">
-              {grupos.map(({ animal, interesses: doGrupo }) => (
-                <section key={animal.id} aria-labelledby={`animal-${animal.id}`}>
-                  <div className="mb-3 flex items-center gap-3">
-                    {animal.fotoCapa ? (
-                      <img src={animal.fotoCapa} alt="" className="size-12 shrink-0 rounded-[10px] object-cover" />
-                    ) : (
-                      <span aria-hidden="true" className="size-12 shrink-0 rounded-[10px] bg-marca-roxo-suave" />
-                    )}
-                    <div>
-                      <h2
-                        id={`animal-${animal.id}`}
-                        className="font-titulo text-subtitulo font-semibold text-texto-principal"
-                      >
-                        <Link to={`/animais/${animal.id}`} className="hover:underline">
-                          {animal.nome}
-                        </Link>
-                      </h2>
-                      <p className="text-legenda text-texto-terciario">
-                        {doGrupo.length === 1 ? "1 interesse" : `${doGrupo.length} interesses`}
-                      </p>
-                    </div>
-                  </div>
-                  <ul className="flex flex-col gap-3">
-                    {doGrupo.map((interesse) => (
-                      <InteresseRecebido key={interesse.id} interesse={interesse} aoMudar={aposMudanca} />
-                    ))}
-                  </ul>
-                </section>
-              ))}
-            </div>
+            grupos.map((grupo) => (
+              <InteressesDoAnimal
+                key={grupo.animal.id}
+                animal={grupo.animal}
+                interesses={grupo.interesses}
+                status={statusEscolhido}
+                aoMudar={aposMudanca}
+              />
+            ))
           )}
+
+          <p className="rounded-[18px] bg-status-atencao-fundo p-6 text-compacto text-status-atencao-texto">
+            <strong className="font-semibold">Descontinuar sempre pede um motivo.</strong> O registro fica no
+            histórico do interesse e não é apagado, mesmo se o animal voltar a ficar disponível depois.
+          </p>
         </>
       )}
     </main>
