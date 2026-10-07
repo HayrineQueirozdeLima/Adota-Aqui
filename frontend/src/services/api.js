@@ -13,16 +13,23 @@ export class ErroApi extends Error {
 // Todas as chamadas à API passam por aqui (monta o endereço, manda o token quando tem
 // e transforma a resposta de erro (docs/api.md, seção 4) num ErroApi)
 export async function requisicao(caminho, { metodo = 'GET', corpo, token } = {}) {
+    // Arquivo (FormData) vai como está, e o navegador monta o Content-Type sozinho, com o "boundary"
+    // que separa as partes. O resto vai como JSON
+    const ehArquivo = corpo instanceof FormData;
     const cabecalhos = {};
-    if (corpo !== undefined) cabecalhos['Content-Type'] = 'application/json';
+    if (corpo !== undefined && !ehArquivo) cabecalhos['Content-Type'] = 'application/json';
     if (token) cabecalhos.Authorization = `Bearer ${token}`;
+
+    let corpoDaRequisicao;
+    if (ehArquivo) corpoDaRequisicao = corpo;
+    else if (corpo !== undefined) corpoDaRequisicao = JSON.stringify(corpo);
 
     let resposta;
     try {
         resposta = await fetch(`${URL_API}${caminho}`, {
             method: metodo,
             headers: cabecalhos,
-            body: corpo === undefined ? undefined : JSON.stringify(corpo),
+            body: corpoDaRequisicao,
         });
     } catch {
         throw new ErroApi(
