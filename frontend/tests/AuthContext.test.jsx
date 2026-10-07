@@ -49,14 +49,18 @@ test("sem login, as telas de quem está logado mandam pro login", () => {
   ).toBeInTheDocument();
 });
 
-test("a sessão salva continua valendo depois de recarregar a página", () => {
+test("a sessão salva continua valendo depois de recarregar a página", async () => {
   salvarSessao(localStorage);
   abrir("/meus-animais");
 
   expect(
-    screen.getByRole("heading", { name: "Meus Animais" }),
+    screen.getByRole("heading", { name: "Meus animais" }),
   ).toBeInTheDocument();
   expect(screen.getByText("MP")).toBeInTheDocument();
+  // espera a lista chegar da API de mentira (vazia), pra tela terminar de carregar dentro do teste
+  expect(
+    await screen.findByText("Você ainda não cadastrou nenhum animal."),
+  ).toBeInTheDocument();
 });
 
 test("sessão com o token vencido é descartada", () => {

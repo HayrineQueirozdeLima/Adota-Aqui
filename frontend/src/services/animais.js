@@ -29,6 +29,26 @@ export function buscarAnimal(id, token = null) {
     return requisicao(`/api/animais/${encodeURIComponent(id)}`, { token });
 }
 
+// GET /api/animais/meus: os animais da conta logada, disponíveis e adotados (UC05)
+export function listarMeusAnimais(token) {
+    return requisicao('/api/animais/meus', { token });
+}
+
+// POST /api/animais: o protetor é a conta do token e todo animal nasce DISPONIVEL (UC04)
+export function cadastrarAnimal(dados, token) {
+    return requisicao('/api/animais', { metodo: 'POST', corpo: dados, token });
+}
+
+// PUT /api/animais/{id}: manda todos os campos, mais o statusAdocao (RF06, UC05)
+export function editarAnimal(id, dados, token) {
+    return requisicao(`/api/animais/${encodeURIComponent(id)}`, { metodo: 'PUT', corpo: dados, token });
+}
+
+// DELETE /api/animais/{id}: apaga junto as fotos, as vacinas e os interesses (UC05 FA03)
+export function removerAnimal(id, token) {
+    return requisicao(`/api/animais/${encodeURIComponent(id)}`, { metodo: 'DELETE', token });
+}
+
 // GET /api/racas?especie=GATO
 export function listarRacas(especie) {
     return requisicao(`/api/racas${montarConsulta({ especie })}`);

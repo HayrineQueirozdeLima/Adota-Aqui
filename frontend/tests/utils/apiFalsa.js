@@ -23,14 +23,33 @@ export function resposta(status, corpo) {
 // POST /api/animais/{id}/interesses devolve 201 com o interesse de exemplo, ou o que "responderInteresse"
 // decidir (recebe o id do animal, o corpo enviado e as opções do fetch)
 // DELETE /api/interesses/{id} devolve 204, ou o que "responderDesistencia" decidir
+// "outras" atende qualquer outra rota: recebe (método, caminho, opções do fetch) e devolve
+// uma resposta, ou undefined pra deixar as respostas padrão daqui de baixo cuidarem
+// POST /api/fotos devolve 201 com uma URL nova a cada foto (fotos.teste/animais/1.jpg, 2.jpg...)
 export function simularApi({
     responderAnimais,
     responderAnimal,
     responderInteresse,
     responderDesistencia,
+    outras,
 } = {}) {
+    let fotosEnviadas = 0;
     global.fetch = jest.fn((url, opcoes = {}) => {
         const endereco = new URL(url);
+        const metodo = opcoes.method ?? "GET";
+
+        const daOutra = outras?.(metodo, endereco.pathname, opcoes);
+        if (daOutra) return Promise.resolve(daOutra);
+
+        // vem antes do perfil: senão "meus" seria lido como o id de um animal
+        if (endereco.pathname === "/api/animais/meus") {
+            return Promise.resolve(resposta(200, []));
+        }
+
+        if (endereco.pathname === "/api/fotos" && metodo === "POST") {
+            fotosEnviadas += 1;
+            return Promise.resolve(resposta(201, { url: `https://fotos.teste/animais/${fotosEnviadas}.jpg` }));
+        }
 
         const novoInteresse = endereco.pathname.match(/^\/api\/animais\/([^/]+)\/interesses$/);
         if (novoInteresse) {
