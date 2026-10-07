@@ -77,3 +77,23 @@ export function idadeEstimada(dataNascimento, hoje = new Date()) {
     const anos = Math.floor(meses / 12);
     return `${anos} ${anos === 1 ? 'ano' : 'anos'}`;
 }
+
+// "Cão, sem raça definida, porte médio, 14 kg". Sem peso, a parte do peso some
+export function resumoDoAnimal({ especie, racaNome, porte, peso }) {
+    return [
+        especies[especie],
+        racaNome?.toLowerCase(),
+        portes[porte] && `porte ${portes[porte].toLowerCase()}`,
+        peso && `${peso.toLocaleString('pt-BR')} kg`,
+    ]
+        .filter(Boolean)
+        .join(', ');
+}
+
+// "2ª dose, aplicada em 12/03/2026". Funciona também com só a dose ou só a data
+export function descricaoDaVacina({ dose, dataAplicacao }) {
+    const texto = [dose && `${dose}ª dose`, dataAplicacao && `aplicada em ${formatarData(dataAplicacao)}`]
+        .filter(Boolean)
+        .join(', ');
+    return texto.charAt(0).toUpperCase() + texto.slice(1);
+}

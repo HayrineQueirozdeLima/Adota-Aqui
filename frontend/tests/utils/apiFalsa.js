@@ -46,6 +46,11 @@ export function simularApi({
             return Promise.resolve(resposta(200, []));
         }
 
+        // painel do protetor: por padrão, nenhum interesse recebido
+        if (endereco.pathname === "/api/interesses/recebidos") {
+            return Promise.resolve(resposta(200, []));
+        }
+
         if (endereco.pathname === "/api/fotos" && metodo === "POST") {
             fotosEnviadas += 1;
             return Promise.resolve(resposta(201, { url: `https://fotos.teste/animais/${fotosEnviadas}.jpg` }));

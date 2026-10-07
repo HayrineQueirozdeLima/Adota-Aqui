@@ -83,7 +83,7 @@ async function preencherTudo() {
   digitar("Raça", "SRD_GATO");
   digitar("Porte", "PEQUENO");
   digitar("Sexo", "MACHO");
-  digitar("Peso (kg) · opcional", "4,2");
+  digitar("Peso em kg (opcional)", "4,2");
   digitar("Nascimento estimado", "062024");
   escolherOpcao("Castrado", "Sim");
   escolherOpcao("Com cães", "Convive bem");
@@ -187,7 +187,7 @@ test("adiciona e remove vacinas, e o Enter adiciona sem enviar o formulário", a
   abrir();
   fireEvent.click(screen.getByRole("button", { name: "Adicionar vacina" }));
   digitar("Vacina", "V4");
-  digitar("Dose · opcional", "1");
+  digitar("Dose (opcional)", "1");
   fireEvent.keyDown(screen.getByLabelText("Vacina"), { key: "Enter" });
 
   expect(screen.getByText("V4")).toBeInTheDocument();

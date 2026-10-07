@@ -84,9 +84,13 @@ test("disponível tem Editar e Ver interesses; adotado tem Editar status", async
   expect(
     screen.getByRole("link", { name: "Editar status de Amora" }),
   ).toHaveAttribute("href", `/meus-animais/${amora.id}/editar`);
-  expect(screen.getAllByRole("link", { name: "Ver interesses" })).toHaveLength(
-    2,
+  // "Ver interesses" abre o painel já filtrado pelo animal
+  expect(screen.getByRole("link", { name: "Ver interesses em Mel" })).toHaveAttribute(
+    "href",
+    `/interesses-recebidos?animal=${mel.id}`,
   );
+  expect(screen.getByRole("link", { name: "Ver interesses em Tobias" })).toBeInTheDocument();
+  expect(screen.queryByRole("link", { name: "Ver interesses em Amora" })).not.toBeInTheDocument();
 });
 
 test("o filtro mostra só os adotados", async () => {

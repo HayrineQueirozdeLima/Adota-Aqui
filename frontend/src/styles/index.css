@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Cores do projeto, iguais às variáveis do Figma (página "01 · Fundamentos").
+/* Cores do projeto, iguais às variáveis do Figma (página de fundamentos).
    O nome é o mesmo do Figma, trocando a barra por hífen (acao/terracota vira --acao-terracota)
    Se precisar mudar uma cor, muda só aqui, que o site inteiro acompanha. */
 :root {

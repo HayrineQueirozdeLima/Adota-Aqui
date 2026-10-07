@@ -110,16 +110,16 @@ test("mostra o termo, as três partes da triagem e o resumo do animal", async ()
     screen.getByRole("heading", { name: "Compromisso e guarda responsável" }),
   ).toBeInTheDocument();
   expect(
-    screen.getByRole("heading", { name: "Parte 1 · Moradia e família" }),
+    screen.getByRole("heading", { name: "Parte 1: Moradia e família" }),
   ).toBeInTheDocument();
   expect(
-    screen.getByRole("heading", { name: "Parte 2 · Rotina" }),
+    screen.getByRole("heading", { name: "Parte 2: Rotina" }),
   ).toBeInTheDocument();
   expect(
-    screen.getByRole("heading", { name: "Parte 3 · Contato" }),
+    screen.getByRole("heading", { name: "Parte 3: Contato" }),
   ).toBeInTheDocument();
   expect(
-    screen.getByText("Protetor: Instituto Quatro Patas · Santo André/SP"),
+    screen.getByText("Protetor: Instituto Quatro Patas (Santo André/SP)"),
   ).toBeInTheDocument();
 });
 

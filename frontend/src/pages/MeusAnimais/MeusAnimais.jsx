@@ -6,7 +6,7 @@ import Chip from "../../components/Chip/Chip";
 import Tag from "../../components/Tag/Tag";
 import { useAuth } from "../../contexts/AuthContext";
 import { listarMeusAnimais } from "../../services/animais";
-import { especies, portes } from "../../utils/rotulos";
+import { resumoDoAnimal } from "../../utils/rotulos";
 
 // Meus animais (Figma: "Meus animais"), em /meus-animais: os animais da conta, de qualquer status
 export default function MeusAnimais() {
@@ -125,24 +125,12 @@ function ItemAnimal({ animal }) {
   const {
     id,
     nome,
-    especie,
-    racaNome,
-    porte,
-    peso,
     fotoCapa,
     statusAdocao,
     protetor,
   } = animal;
   const adotado = statusAdocao === "ADOTADO";
-  const descricao = [
-    especies[especie],
-    racaNome,
-    portes[porte],
-    peso && `${peso.toLocaleString("pt-BR")} kg`,
-    `${protetor.cidade}/${protetor.estado}`,
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  const descricao = `${resumoDoAnimal(animal)}, em ${protetor.cidade}/${protetor.estado}`;
 
   return (
     <li className="flex flex-wrap items-center gap-4 rounded-[16px] border border-borda-sutil bg-fundo-superficie p-4">
@@ -184,7 +172,9 @@ function ItemAnimal({ animal }) {
           </Botao>
         ) : (
           <>
-            <Botao para="/interesses-recebidos">Ver interesses</Botao>
+            <Botao para={`/interesses-recebidos?animal=${id}`} aria-label={`Ver interesses em ${nome}`}>
+              Ver interesses
+            </Botao>
             <Botao
               variante="secundario"
               para={`/meus-animais/${id}/editar`}

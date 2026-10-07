@@ -8,7 +8,7 @@ export default function GaleriaFotos({ nome, fotos }) {
     if (fotos.length === 0) {
         return (
             <div className="flex aspect-[4/3] items-center justify-center rounded-[16px] bg-marca-roxo-suave">
-                <span className="text-legenda text-texto-terciario">foto · {nome}</span>
+                <span className="text-legenda text-texto-terciario">Sem foto</span>
             </div>
         );
     }

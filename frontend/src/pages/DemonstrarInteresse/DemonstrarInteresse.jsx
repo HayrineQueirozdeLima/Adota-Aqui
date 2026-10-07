@@ -10,7 +10,7 @@ import { useFocoNoPrimeiroErro } from "../../hooks/useFocoNoPrimeiroErro";
 import { buscarAnimal } from "../../services/animais";
 import { demonstrarInteresse } from "../../services/interesses";
 import { mascaraTelefone } from "../../utils/mascaras";
-import { especies, portes } from "../../utils/rotulos";
+import { resumoDoAnimal } from "../../utils/rotulos";
 import { partesDaTriagem, triagemVazia } from "../../utils/triagem";
 
 // Demonstrar interesse (Figma: "Demonstrar interesse"), em /animais/:id/interesse.
@@ -395,15 +395,8 @@ function Caminho({ animal }) {
 }
 
 function ResumoAnimal({ animal }) {
-  const { nome, especie, racaNome, porte, peso, fotos, protetor } = animal;
-  const descricao = [
-    especies[especie],
-    racaNome,
-    portes[porte],
-    peso && `${peso.toLocaleString("pt-BR")} kg`,
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  const { nome, fotos, protetor } = animal;
+  const descricao = resumoDoAnimal(animal);
 
   return (
     <section className="rounded-[16px] border border-borda-sutil bg-fundo-superficie p-5">
@@ -432,7 +425,7 @@ function ResumoAnimal({ animal }) {
       </div>
       <hr className="my-4 border-borda-sutil" />
       <p className="text-legenda text-texto-terciario">
-        Protetor: {protetor.nome} · {protetor.cidade}/{protetor.estado}
+        Protetor: {protetor.nome} ({protetor.cidade}/{protetor.estado})
       </p>
     </section>
   );

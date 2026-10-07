@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Botao from "../Botao/Botao";
 import CampoTexto from "../CampoTexto/CampoTexto";
-import { formatarData } from "../../utils/rotulos";
+import { descricaoDaVacina } from "../../utils/rotulos";
 
 const vacinaVazia = { nome: "", dose: "", dataAplicacao: "" };
 
@@ -80,12 +80,7 @@ export default function ListaVacinas({
               </span>
               <span className="flex items-center gap-3">
                 <span className="text-legenda text-texto-terciario">
-                  {[
-                    vacina.dose && `${vacina.dose}ª dose`,
-                    formatarData(vacina.dataAplicacao),
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
+                  {descricaoDaVacina(vacina)}
                 </span>
                 {!desativado && (
                   <Botao
@@ -119,7 +114,7 @@ export default function ListaVacinas({
                 erro={erros.nome}
               />
               <CampoTexto
-                rotulo="Dose · opcional"
+                rotulo="Dose (opcional)"
                 type="number"
                 min="1"
                 inputMode="numeric"
@@ -129,7 +124,7 @@ export default function ListaVacinas({
                 erro={erros.dose}
               />
               <CampoTexto
-                rotulo="Data · opcional"
+                rotulo="Data (opcional)"
                 type="date"
                 max={hojeIso}
                 value={nova.dataAplicacao}

@@ -12,8 +12,8 @@ import {
   artigoDefinido,
   convivencias,
   corDaConvivencia,
+  descricaoDaVacina,
   especies,
-  formatarData,
   idadeEstimada,
   iniciais,
   portes,
@@ -194,12 +194,7 @@ function Perfil({ animal, usuario, aoMudar }) {
                       {vacina.nome}
                     </span>
                     <span className="text-legenda text-texto-terciario">
-                      {[
-                        vacina.dose && `${vacina.dose}ª dose`,
-                        formatarData(vacina.dataAplicacao),
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
+                      {descricaoDaVacina(vacina)}
                     </span>
                   </li>
                 ))}
@@ -283,7 +278,7 @@ function CartaoInteresse({ animal, usuario, aoMudar }) {
           </Botao>
           <Botao
             variante="secundario"
-            para="/interesses-recebidos"
+            para={`/interesses-recebidos?animal=${id}`}
             className="w-full"
           >
             Ver interesses recebidos
@@ -412,7 +407,7 @@ function CartaoInteresse({ animal, usuario, aoMudar }) {
             {protetor.nome}
           </p>
           <p className="text-legenda text-texto-terciario">
-            Protetor · {protetor.cidade}/{protetor.estado}
+            Protetor em {protetor.cidade}/{protetor.estado}
           </p>
         </div>
       </div>

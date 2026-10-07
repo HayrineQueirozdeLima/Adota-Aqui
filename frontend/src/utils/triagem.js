@@ -7,7 +7,7 @@ const prefiroResponder = { valor: PREFIRO_RESPONDER, nome: 'Prefiro responder di
 
 export const partesDaTriagem = [
     {
-        titulo: 'Parte 1 · Moradia e família',
+        titulo: 'Parte 1: Moradia e família',
         perguntas: [
             {
                 campo: 'moradia',
@@ -32,7 +32,7 @@ export const partesDaTriagem = [
         ],
     },
     {
-        titulo: 'Parte 2 · Rotina',
+        titulo: 'Parte 2: Rotina',
         perguntas: [
             {
                 campo: 'tempoSozinho',
@@ -70,7 +70,7 @@ export const partesDaTriagem = [
         ],
     },
     {
-        titulo: 'Parte 3 · Contato',
+        titulo: 'Parte 3: Contato',
         explicacao:
             'Esta pergunta não tem a opção de responder depois: é por ela que o Protetor sabe quando falar com você.',
         perguntas: [
@@ -92,3 +92,17 @@ export const partesDaTriagem = [
 export const triagemVazia = Object.fromEntries(
     partesDaTriagem.flatMap((parte) => parte.perguntas).map((pergunta) => [pergunta.campo, '']),
 );
+
+// As respostas da triagem como o protetor lê: [{ campo, pergunta, resposta }], na ordem das perguntas.
+// "Prefiro responder diretamente ao Protetor" vira um aviso de que o assunto fica pra conversa
+export function respostasDaTriagem(triagem) {
+    return partesDaTriagem
+        .flatMap((parte) => parte.perguntas)
+        .map(({ campo, legenda, opcoes }) => {
+            const valor = triagem?.[campo];
+            const opcao = opcoes.find((item) => item.valor === valor);
+            let resposta = opcao ? opcao.nome : 'Não informado';
+            if (valor === PREFIRO_RESPONDER) resposta = 'Prefere responder na conversa';
+            return { campo, pergunta: legenda, resposta };
+        });
+}
