@@ -1,4 +1,4 @@
-# Arquitetura — Adota Aqui
+# Arquitetura do Adota Aqui
 
 ## Visão geral
 

@@ -1,4 +1,4 @@
-# Contrato da API — Adota Aqui
+# Contrato da API do Adota Aqui
 
 Este documento define **todos os endpoints da API REST** do Adota Aqui: o que cada um recebe, o que devolve, quem pode acessar e quais erros pode retornar.
 
@@ -8,7 +8,7 @@ Ele é o acordo entre os squads:
 - o **Back End** implementa cada endpoint respeitando os formatos, os códigos de resposta e as regras daqui;
 - o squad de **Testes** usa as tabelas de erro como roteiro de casos de teste.
 
-Fontes: Especificação de Requisitos (RF01–RF17), Casos de Uso (UC01–UC10), DER lógico e dicionário de domínios (documento de diagramas). Quando este documento e os requisitos discordarem, **os requisitos valem** e este documento deve ser corrigido.
+Fontes: Especificação de Requisitos (RF01 a RF17), Casos de Uso (UC01 a UC10), DER lógico e dicionário de domínios (documento de diagramas). Quando este documento e os requisitos discordarem, **os requisitos valem** e este documento deve ser corrigido.
 
 ---
 
@@ -182,7 +182,7 @@ O depoimento (RF11, UC09) é opcional e não faz parte deste contrato. Se entrar
 ### POST /api/auth/login
 
 Autentica um Usuario (CPF) ou um Abrigo (CNPJ) e devolve o token.
-**Acesso:** Público · **Origem:** RF03, UC03
+**Acesso:** Público. **Origem:** RF03, UC03
 
 **Entrada**
 
@@ -198,7 +198,7 @@ Autentica um Usuario (CPF) ou um Abrigo (CNPJ) e devolve o token.
 | `documento` | Obrigatório. Somente números. 11 dígitos = CPF (Usuario); 14 dígitos = CNPJ (Abrigo) |
 | `senha`     | Obrigatório                                                                          |
 
-**Saída — `200 OK`**
+**Saída (`200 OK`)**
 
 ```json
 {
@@ -229,7 +229,7 @@ Autentica um Usuario (CPF) ou um Abrigo (CNPJ) e devolve o token.
 ### POST /api/usuarios
 
 Cria a conta de uma pessoa física e já a autentica.
-**Acesso:** Público · **Origem:** RF01, UC01
+**Acesso:** Público. **Origem:** RF01, UC01
 
 **Entrada**
 
@@ -267,7 +267,7 @@ Cria a conta de uma pessoa física e já a autentica.
 
 O usuário digita só **CEP e número** (RF01). O front consulta o ViaCEP com o CEP digitado, preenche logradouro, bairro, cidade e estado, e envia o endereço completo. Ver [Pontos em aberto](#10-pontos-em-aberto).
 
-**Saída — `201 Created`**
+**Saída (`201 Created`)**
 
 Mesmo formato da resposta do login, porque o cadastro já autentica a conta (UC01, passo 10):
 
@@ -296,7 +296,7 @@ Mesmo formato da resposta do login, porque o cadastro já autentica a conta (UC0
 ### POST /api/abrigos
 
 Cria a conta de uma ONG ou abrigo e já a autentica.
-**Acesso:** Público · **Origem:** RF02, UC02
+**Acesso:** Público. **Origem:** RF02, UC02
 
 **Entrada**
 
@@ -330,7 +330,7 @@ As regras dos campos são as mesmas do cadastro de Usuario, com estas diferença
 
 A conta do Abrigo é **única e compartilhada** entre os funcionários da instituição.
 
-**Saída — `201 Created`**
+**Saída (`201 Created`)**
 
 Mesmo formato do login, com `"tipoConta": "ABRIGO"`.
 
@@ -353,9 +353,9 @@ Os endpoints de perfil usam `me` no lugar do id: a API identifica a conta pelo t
 ### GET /api/usuarios/me
 
 Devolve os dados da conta do Usuario logado.
-**Acesso:** Somente Usuario · **Origem:** RF17, UC10
+**Acesso:** Somente Usuario. **Origem:** RF17, UC10
 
-**Saída — `200 OK`**
+**Saída (`200 OK`)**
 
 ```json
 {
@@ -377,14 +377,14 @@ Devolve os dados da conta do Usuario logado.
 
 O `cpf` vem na resposta para ser exibido na tela, mas não pode ser editado.
 
-**Erros:** `401` sem token ou token inválido · `403` conta do tipo Abrigo.
+**Erros:** `401` sem token ou token inválido; `403` conta do tipo Abrigo.
 
 ---
 
 ### PUT /api/usuarios/me
 
 Atualiza os dados editáveis da conta do Usuario logado.
-**Acesso:** Somente Usuario · **Origem:** RF17, UC10
+**Acesso:** Somente Usuario. **Origem:** RF17, UC10
 
 **Entrada** (todos os campos editáveis, mesmo os que não mudaram)
 
@@ -408,15 +408,15 @@ Atualiza os dados editáveis da conta do Usuario logado.
 - A senha é trocada em um endpoint próprio (`PATCH /api/usuarios/me/senha`).
 - Se o estado mudar, a listagem e a demonstração de interesse passam a usar o estado novo (RF14, UC10 FA06). O aviso sobre isso é exibido pelo front antes de salvar.
 
-**Saída — `200 OK`:** os dados atualizados, no mesmo formato do `GET /api/usuarios/me`.
+**Saída (`200 OK`):** os dados atualizados, no mesmo formato do `GET /api/usuarios/me`.
 
 **Erros**
 
 | Código | Quando                                            | Origem    |
 | ------ | ------------------------------------------------- | --------- |
 | `400`  | Campos obrigatórios vazios ou em formato inválido | UC10 FA01 |
-| `401`  | Sem token ou token inválido                       | —         |
-| `403`  | Conta do tipo Abrigo                              | —         |
+| `401`  | Sem token ou token inválido                       | -         |
+| `403`  | Conta do tipo Abrigo                              | -         |
 | `409`  | E-mail já usado por outra conta                   | UC10 FA02 |
 
 ---
@@ -424,7 +424,7 @@ Atualiza os dados editáveis da conta do Usuario logado.
 ### PATCH /api/usuarios/me/senha
 
 Troca a senha do Usuario logado.
-**Acesso:** Somente Usuario · **Origem:** RF17, UC10 FA03
+**Acesso:** Somente Usuario. **Origem:** RF17, UC10 FA03
 
 **Entrada**
 
@@ -436,7 +436,7 @@ Troca a senha do Usuario logado.
 }
 ```
 
-**Saída — `204 No Content`**
+**Saída (`204 No Content`)**
 
 **Erros**
 
@@ -445,16 +445,16 @@ Troca a senha do Usuario logado.
 | `400`  | Algum campo não preenchido                      | UC10 FA01 |
 | `400`  | Senha atual incorreta                           | UC10 FA04 |
 | `400`  | `novaSenha` e `confirmacaoNovaSenha` diferentes | UC10 FA05 |
-| `401`  | Sem token ou token inválido                     | —         |
+| `401`  | Sem token ou token inválido                     | -         |
 
 > A senha atual incorreta responde `400`, e não `401`. O token continua válido, e um `401` faria o front entender que a sessão expirou e deslogar a pessoa.
 
 ---
 
-### GET /api/abrigos/me · PUT /api/abrigos/me · PATCH /api/abrigos/me/senha
+### GET /api/abrigos/me, PUT /api/abrigos/me e PATCH /api/abrigos/me/senha
 
 Iguais aos endpoints de Usuario acima, para a conta do Abrigo logado.
-**Acesso:** Somente Abrigo · **Origem:** RF17, UC10
+**Acesso:** Somente Abrigo. **Origem:** RF17, UC10
 
 Diferenças:
 
@@ -536,13 +536,13 @@ Usado nas respostas de `GET /api/animais/{id}`, `POST /api/animais` e `PUT /api/
 ### GET /api/racas
 
 Lista as raças de uma espécie, para preencher o campo de raça nos formulários e nos filtros.
-**Acesso:** Público · **Origem:** RF04, RF07, dicionário de domínios
+**Acesso:** Público. **Origem:** RF04, RF07, dicionário de domínios
 
-**Parâmetro:** `especie` (obrigatório) — `CAO` ou `GATO`
+**Parâmetro:** `especie` (obrigatório): `CAO` ou `GATO`
 
 Exemplo: `GET /api/racas?especie=GATO`
 
-**Saída — `200 OK`**
+**Saída (`200 OK`)**
 
 ```json
 [
@@ -561,7 +561,7 @@ Exemplo: `GET /api/racas?especie=GATO`
 ### GET /api/animais
 
 Lista os animais disponíveis para adoção, com filtros.
-**Acesso:** Público · **Origem:** RF07, RF14, UC06
+**Acesso:** Público. **Origem:** RF07, RF14, UC06
 
 **Regras**
 
@@ -586,7 +586,7 @@ Lista os animais disponíveis para adoção, com filtros.
 
 Exemplo: `GET /api/animais?especie=GATO&porte=PEQUENO&convivenciaCrianca=CONVIVE_BEM`
 
-**Saída — `200 OK`**
+**Saída (`200 OK`)**
 
 ```json
 [
@@ -621,16 +621,16 @@ A listagem traz peso, castração, convivência, energia e status porque o card 
 
 Nenhum animal encontrado: `200 OK` com `[]`. O front exibe "Nenhum animal disponível no seu estado no momento" (sem filtros, UC06 FA01) ou "Nenhum resultado encontrado com essas informações" (com filtros, UC06 FA02).
 
-**Erros:** `400` valor de filtro inválido (ex.: `porte=ENORME`) · `401` token enviado, porém inválido ou expirado.
+**Erros:** `400` valor de filtro inválido (ex.: `porte=ENORME`); `401` token enviado, porém inválido ou expirado.
 
 ---
 
 ### GET /api/animais/{id}
 
 Devolve o perfil completo de um animal.
-**Acesso:** Público · **Origem:** UC06 (passos 5 e 6)
+**Acesso:** Público. **Origem:** UC06 (passos 5 e 6)
 
-**Saída — `200 OK`:** o [formato completo do animal](#formato-do-animal-resposta-completa).
+**Saída (`200 OK`):** o [formato completo do animal](#formato-do-animal-resposta-completa).
 
 **Erros**
 
@@ -644,9 +644,9 @@ Devolve o perfil completo de um animal.
 ### GET /api/animais/meus
 
 Lista os animais cadastrados pela conta logada, com qualquer status.
-**Acesso:** Autenticado · **Origem:** UC05 (passo 1)
+**Acesso:** Autenticado. **Origem:** UC05 (passo 1)
 
-**Saída — `200 OK`:** lista no mesmo formato de `GET /api/animais`, mas com os animais de qualquer status (`DISPONIVEL` e `ADOTADO`).
+**Saída (`200 OK`):** lista no mesmo formato de `GET /api/animais`, mas com os animais de qualquer status (`DISPONIVEL` e `ADOTADO`).
 
 **Erros:** `401` sem token ou token inválido.
 
@@ -655,7 +655,7 @@ Lista os animais cadastrados pela conta logada, com qualquer status.
 ### POST /api/animais
 
 Cadastra um animal para adoção. O protetor é a conta logada (Usuario ou Abrigo).
-**Acesso:** Autenticado · **Origem:** RF04, RF05, UC04
+**Acesso:** Autenticado. **Origem:** RF04, RF05, UC04
 
 **Entrada**
 
@@ -694,7 +694,7 @@ Cadastra um animal para adoção. O protetor é a conta logada (Usuario ou Abrig
 
 Não se envia `statusAdocao` nem o protetor: todo animal nasce `DISPONIVEL` (UC04, passo 9), e o protetor é a conta do token.
 
-**Saída — `201 Created`:** o [formato completo do animal](#formato-do-animal-resposta-completa).
+**Saída (`201 Created`):** o [formato completo do animal](#formato-do-animal-resposta-completa).
 
 **Erros**
 
@@ -710,7 +710,7 @@ Não se envia `statusAdocao` nem o protetor: todo animal nasce `DISPONIVEL` (UC0
 ### PUT /api/animais/{id}
 
 Atualiza um animal. Como é `PUT`, o corpo leva **todos** os campos, inclusive os que não mudaram.
-**Acesso:** Protetor do animal · **Origem:** RF06, UC05
+**Acesso:** Protetor do animal. **Origem:** RF06, UC05
 
 **Entrada:** a mesma do `POST /api/animais`, acrescida de `statusAdocao`:
 
@@ -732,18 +732,18 @@ Atualiza um animal. Como é `PUT`, o corpo leva **todos** os campos, inclusive o
 | `DISPONIVEL` | Alterar qualquer campo. O status continua `DISPONIVEL`: a passagem para `ADOTADO` acontece **só** pela aprovação de um interesse (RF10)                            |
 | `ADOTADO`    | Enviar `statusAdocao: "ADOTADO"` sem mudar mais nada, **ou** enviar `statusAdocao: "DISPONIVEL"` (devolução), podendo alterar os demais campos na mesma requisição |
 
-Na devolução (`ADOTADO` → `DISPONIVEL`), o interesse que resultou na adoção continua `APROVADO` no histórico (RF06). A confirmação "isso torna o animal disponível novamente" é exibida pelo front antes de enviar.
+Na devolução (de `ADOTADO` para `DISPONIVEL`), o interesse que resultou na adoção continua `APROVADO` no histórico (RF06). A confirmação "isso torna o animal disponível novamente" é exibida pelo front antes de enviar.
 
-**Saída — `200 OK`:** o [formato completo do animal](#formato-do-animal-resposta-completa).
+**Saída (`200 OK`):** o [formato completo do animal](#formato-do-animal-resposta-completa).
 
 **Erros**
 
 | Código | Quando                                                                    | Origem                  |
 | ------ | ------------------------------------------------------------------------- | ----------------------- |
 | `400`  | Campos obrigatórios vazios ou dados inválidos                             | UC05 FA01, FA02         |
-| `401`  | Sem token ou token inválido                                               | —                       |
+| `401`  | Sem token ou token inválido                                               | -                       |
 | `403`  | Quem pede não é o protetor do animal                                      | UC05, regras de negócio |
-| `404`  | O animal não existe                                                       | —                       |
+| `404`  | O animal não existe                                                       | -                       |
 | `409`  | Animal `ADOTADO` com outros campos alterados sem voltar para `DISPONIVEL` | RF06                    |
 | `409`  | Tentativa de mudar de `DISPONIVEL` para `ADOTADO` pelo `PUT`              | RF10                    |
 
@@ -752,11 +752,11 @@ Na devolução (`ADOTADO` → `DISPONIVEL`), o interesse que resultou na adoçã
 ### DELETE /api/animais/{id}
 
 Remove um animal definitivamente, junto com suas fotos, vacinas e interesses.
-**Acesso:** Protetor do animal · **Origem:** RF06, UC05 FA03
+**Acesso:** Protetor do animal. **Origem:** RF06, UC05 FA03
 
 Sem corpo. A confirmação ("os interesses recebidos também serão excluídos") é exibida pelo front antes de enviar.
 
-**Saída — `204 No Content`**
+**Saída (`204 No Content`)**
 
 **Erros**
 
@@ -771,13 +771,13 @@ Sem corpo. A confirmação ("os interesses recebidos também serão excluídos")
 ### POST /api/fotos
 
 Envia uma imagem para o armazenamento em nuvem e devolve a URL dela.
-**Acesso:** Autenticado · **Origem:** RF16
+**Acesso:** Autenticado. **Origem:** RF16
 
 É o único endpoint que **não** recebe JSON: a imagem vai como `multipart/form-data`, no campo `arquivo`, uma imagem por requisição. Limite de 5 MB por imagem. O tipo é conferido pelo conteúdo do arquivo, não pelo nome.
 
 **Fluxo no formulário de animal:** para cada imagem escolhida, o front chama este endpoint, guarda a URL devolvida e, no fim, envia a lista de URLs no campo `fotos` do `POST` ou do `PUT` de animal.
 
-**Saída — `201 Created`**
+**Saída (`201 Created`)**
 
 ```json
 {
@@ -847,7 +847,7 @@ PENDENTE ──► EM_CONTATO ──► APROVADO
 ### POST /api/animais/{id}/interesses
 
 Registra o interesse do Usuario logado em um animal.
-**Acesso:** Somente Usuario · **Origem:** RF08, RF09, RF13, RF14, RF15, UC07
+**Acesso:** Somente Usuario. **Origem:** RF08, RF09, RF13, RF14, RF15, UC07
 
 **Entrada**
 
@@ -877,7 +877,7 @@ Registra o interesse do Usuario logado em um animal.
 
 Os valores de cada campo da triagem estão no dicionário de domínios.
 
-**Saída — `201 Created`:** o [formato do interesse](#formato-do-interesse), com `statusAndamento: "PENDENTE"` e `contatoProtetor` preenchido.
+**Saída (`201 Created`):** o [formato do interesse](#formato-do-interesse), com `statusAndamento: "PENDENTE"` e `contatoProtetor` preenchido.
 
 **Erros**
 
@@ -889,7 +889,7 @@ Os valores de cada campo da triagem estão no dicionário de domínios.
 | `403`  | Conta do tipo Abrigo                                                  | RF14                  |
 | `403`  | Animal de outro estado                                                | RF14                  |
 | `403`  | O Usuario é o protetor deste animal                                   | Regras de integridade |
-| `404`  | O animal não existe                                                   | —                     |
+| `404`  | O animal não existe                                                   | -                     |
 | `409`  | O animal não está `DISPONIVEL`                                        | UC07, pré-condição    |
 | `409`  | O Usuario já tem um interesse `PENDENTE` ou `EM_CONTATO` neste animal | Regras de integridade |
 
@@ -898,22 +898,22 @@ Os valores de cada campo da triagem estão no dicionário de domínios.
 ### GET /api/interesses/meus
 
 Lista os interesses registrados pelo Usuario logado, com qualquer status.
-**Acesso:** Somente Usuario · **Origem:** RF09, UC07
+**Acesso:** Somente Usuario. **Origem:** RF09, UC07
 
-**Saída — `200 OK`:** lista no [formato do interesse](#formato-do-interesse), com `contatoProtetor` em cada item. Um interesse `DESCONTINUADO` traz o `motivoDescontinuacao`, para o candidato saber o porquê.
+**Saída (`200 OK`):** lista no [formato do interesse](#formato-do-interesse), com `contatoProtetor` em cada item. Um interesse `DESCONTINUADO` traz o `motivoDescontinuacao`, para o candidato saber o porquê.
 
-**Erros:** `401` sem token ou token inválido · `403` conta do tipo Abrigo.
+**Erros:** `401` sem token ou token inválido; `403` conta do tipo Abrigo.
 
 ---
 
 ### DELETE /api/interesses/{id}
 
 Desistência: o candidato exclui o próprio interesse.
-**Acesso:** Candidato do interesse · **Origem:** UC07 FA01
+**Acesso:** Candidato do interesse. **Origem:** UC07 FA01
 
 Sem corpo. Ver [Pontos em aberto](#10-pontos-em-aberto) sobre o motivo da desistência.
 
-**Saída — `204 No Content`**
+**Saída (`204 No Content`)**
 
 **Erros**
 
@@ -929,7 +929,7 @@ Sem corpo. Ver [Pontos em aberto](#10-pontos-em-aberto) sobre o motivo da desist
 ### GET /api/interesses/recebidos
 
 Painel do protetor: lista os interesses recebidos em todos os animais da conta logada.
-**Acesso:** Autenticado · **Origem:** RF09, UC08
+**Acesso:** Autenticado. **Origem:** RF09, UC08
 
 **Filtros** (opcionais)
 
@@ -940,7 +940,7 @@ Painel do protetor: lista os interesses recebidos em todos os animais da conta l
 
 Exemplo: `GET /api/interesses/recebidos?status=PENDENTE`
 
-**Saída — `200 OK`:** lista no [formato do interesse](#formato-do-interesse), com `candidato` (nome, telefone e e-mail do interessado) no lugar de `contatoProtetor`. Ordenada do mais recente para o mais antigo.
+**Saída (`200 OK`):** lista no [formato do interesse](#formato-do-interesse), com `candidato` (nome, telefone e e-mail do interessado) no lugar de `contatoProtetor`. Ordenada do mais recente para o mais antigo.
 
 **Erros:** `401` sem token ou token inválido.
 
@@ -949,7 +949,7 @@ Exemplo: `GET /api/interesses/recebidos?status=PENDENTE`
 ### PATCH /api/interesses/{id}/status
 
 O protetor muda o status de um interesse recebido.
-**Acesso:** Protetor do animal · **Origem:** RF10, UC08
+**Acesso:** Protetor do animal. **Origem:** RF10, UC08
 
 **Entrada**
 
@@ -981,11 +981,11 @@ A aprovação bloqueia o animal durante a transação. Cadastro, desistência e 
 
 | Código | Quando                                                                                                              | Origem                          |
 | ------ | ------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
-| `400`  | `statusAndamento` ausente ou inválido                                                                               | —                               |
+| `400`  | `statusAndamento` ausente ou inválido                                                                               | -                               |
 | `400`  | `DESCONTINUADO` sem `motivoDescontinuacao`                                                                          | RF10                            |
-| `401`  | Sem token ou token inválido                                                                                         | —                               |
+| `401`  | Sem token ou token inválido                                                                                         | -                               |
 | `403`  | Quem pede não é o protetor do animal                                                                                | UC08                            |
-| `404`  | O interesse não existe                                                                                              | —                               |
+| `404`  | O interesse não existe                                                                                              | -                               |
 | `409`  | Transição não permitida pela máquina de estados (ex.: de `APROVADO` para qualquer outro, ou voltar para `PENDENTE`) | Máquina de estados do Interesse |
 | `409`  | Aprovar um interesse de um animal que já está `ADOTADO`                                                             | RF10                            |
 

@@ -19,3 +19,25 @@ export function desistirDoInteresse(interesseId, token) {
         token,
     });
 }
+
+// GET /api/interesses/recebidos: o painel do protetor, com os interesses de todos os animais da conta.
+// Cada item vem com o "candidato" (nome, telefone e e-mail de quem demonstrou interesse)
+export function listarInteressesRecebidos(token) {
+    return requisicao('/api/interesses/recebidos', { token });
+}
+
+// O motivo que o back coloca nos outros interesses do animal quando um é aprovado (docs/api.md)
+export const MOTIVO_PADRAO = 'Outro candidato foi aprovado para este animal.';
+
+// PATCH /api/interesses/{id}/status: o protetor muda o andamento (RF10, UC08).
+// Aprovar adota o animal e descontinua os outros interesses dele na mesma operação.
+// O motivo só é obrigatório (e só é enviado) ao descontinuar
+export function atualizarStatusInteresse(interesseId, statusAndamento, motivoDescontinuacao, token) {
+    const corpo = { statusAndamento };
+    if (statusAndamento === 'DESCONTINUADO') corpo.motivoDescontinuacao = motivoDescontinuacao;
+    return requisicao(`/api/interesses/${encodeURIComponent(interesseId)}/status`, {
+        metodo: 'PATCH',
+        corpo,
+        token,
+    });
+}

@@ -1,4 +1,4 @@
-# Back-end — Adota Aqui
+# Back-end do Adota Aqui
 
 API REST em Spring Boot. Se você é do squad de back, começa por aqui.
 
@@ -25,7 +25,7 @@ src/main/java/com/adotaaqui/
 
 Cada pasta que ainda está vazia tem um `package-info.java` explicando o que vai nela.
 
-O caminho de uma requisição é sempre: **controller → service → repository → banco**. O controller não fala direto com o repository, e regra de negócio fica só no service.
+O caminho de uma requisição é sempre o mesmo: o **controller** chama o **service**, o service chama o **repository**, e o repository fala com o **banco**. O controller não fala direto com o repository, e regra de negócio fica só no service.
 
 ## O que já está pronto
 

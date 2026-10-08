@@ -80,7 +80,7 @@ test("o formulário vem preenchido com os dados do animal", async () => {
   expect(screen.getByLabelText("Nome")).toHaveValue("Mel");
   expect(screen.getByLabelText("Espécie")).toHaveValue("CAO");
   expect(screen.getByLabelText("Raça")).toHaveValue("SRD_CAO");
-  expect(screen.getByLabelText("Peso (kg) · opcional")).toHaveValue("14");
+  expect(screen.getByLabelText("Peso em kg (opcional)")).toHaveValue("14");
   expect(screen.getByLabelText("Nascimento estimado")).toHaveValue("03/2024");
   expect(screen.getByAltText("Foto principal do animal")).toHaveAttribute(
     "src",

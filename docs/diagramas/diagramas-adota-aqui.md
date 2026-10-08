@@ -1,4 +1,4 @@
-# Adota Aqui — DER conceitual e lógico, domínios, fluxo, estados e rotas
+# Adota Aqui: DER conceitual e lógico, domínios, fluxo, estados e rotas
 
 Os blocos `mermaid` abaixo são renderizados automaticamente pelo GitHub (em qualquer `.md` dentro de `docs/`). Também dá para colar o código em mermaid.live e exportar PNG/SVG.
 
@@ -267,7 +267,7 @@ Níveis de acesso: **Pública** (Visitante), **Autenticada** (Usuario ou Abrigo)
 
 | Rota | Tela | Acesso | Casos de uso / requisitos |
 | --- | --- | --- | --- |
-| `/` | Home: apresentação e atalhos | Pública | — |
+| `/` | Home: apresentação e atalhos | Pública | - |
 | `/animais` | Listagem com filtros (espécie, raça, porte, sexo, convivência, cidade). Visitante e Abrigo veem todos os estados; só o Usuario logado vê apenas o próprio estado | Pública | UC06, RF07, RF14 |
 | `/animais/:id` | Perfil completo do animal. Botão "Demonstrar interesse" só para Usuario do mesmo estado (Abrigo não vê o botão); vira "Desistir da adoção" se já houver interesse | Pública | UC06, UC07 |
 | `/animais/:id/interesse` | Aviso de guarda responsável (aceite obrigatório) e triagem em 3 partes | Somente Usuario | UC07, RF13, RF15 |
@@ -281,7 +281,7 @@ Níveis de acesso: **Pública** (Visitante), **Autenticada** (Usuario ou Abrigo)
 | `/interesses-recebidos` | Painel dos interesses nos meus animais: contatos, status, aprovar/descontinuar | Autenticada (Protetor) | UC08, RF09, RF10 |
 | `/meus-interesses` | Interesses que eu demonstrei, com status e opção de desistir (sugerida) | Somente Usuario | UC07 |
 | `/minhas-adocoes` | Adoções concluídas e depoimento (opcional) | Somente Usuario | UC09, RF11 |
-| `*` | Página não encontrada | Pública | — |
+| `*` | Página não encontrada | Pública | - |
 
 No React, isso vira três tipos de rota: as públicas soltas, um `RotaProtegida` sem restrição de perfil (`/meus-animais/*`, `/interesses-recebidos`) e um `RotaProtegida` que exige perfil USUARIO (`/animais/:id/interesse`, `/meus-interesses`, `/minhas-adocoes`).
 
@@ -306,4 +306,4 @@ erDiagram
     }
 ```
 
-Regras: só quem tem o interesse APROVADO pode registrar (Service confere `interesse.status = APROVADO` e `interesse.usuario` = usuário logado); o texto é obrigatório e a foto é opcional; e a remoção do animal continua em cascata (animal → interesse → depoimento). A rota `/minhas-adocoes` da seção 6 é a tela dessa extensão.
+Regras: só quem tem o interesse APROVADO pode registrar (Service confere `interesse.status = APROVADO` e `interesse.usuario` = usuário logado); o texto é obrigatório e a foto é opcional; e a remoção do animal continua em cascata (apagar o animal apaga os interesses, e apagar um interesse apaga o depoimento). A rota `/minhas-adocoes` da seção 6 é a tela dessa extensão.

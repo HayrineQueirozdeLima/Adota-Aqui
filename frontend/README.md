@@ -1,4 +1,4 @@
-# Front-end — Adota Aqui
+# Front-end do Adota Aqui
 
 React + Vite + Tailwind. Se você é do squad de front, começa por aqui.
 
@@ -31,9 +31,9 @@ As rotas que cada tela vai ter estão no documento de diagramas (seção "Tabela
 As cores e os estilos de texto são os mesmos do Figma (página "Fundamentos").
 O nome da classe é o nome do Figma, trocando a barra por hífen:
 
-- `acao/terracota` → `bg-acao-terracota`, `text-acao-terracota`
-- `texto/principal` → `text-texto-principal`
-- `borda/sutil` → `border-borda-sutil`
+- `acao/terracota` vira `bg-acao-terracota`, `text-acao-terracota`
+- `texto/principal` vira `text-texto-principal`
+- `borda/sutil` vira `border-borda-sutil`
 
 Fontes: `font-titulo` (Outfit) e `font-corpo` (Source Sans 3).
 Tamanhos: `text-display`, `text-secao`, `text-subtitulo`, `text-item`, `text-botao`,

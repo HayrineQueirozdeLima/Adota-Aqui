@@ -268,7 +268,7 @@ export default function FormularioAnimal({
                 erro={erros.sexo}
               />
               <CampoTexto
-                rotulo="Peso (kg) · opcional"
+                rotulo="Peso em kg (opcional)"
                 inputMode="decimal"
                 placeholder="14"
                 value={valores.peso}

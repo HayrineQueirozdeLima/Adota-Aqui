@@ -16,7 +16,7 @@ function renderizar(animal) {
 test("mostra a descrição com espécie, raça, porte e peso", () => {
   renderizar(mel);
   expect(
-    screen.getByText("Cão; Sem raça definida; Médio; 14 kg"),
+    screen.getByText("Cão, sem raça definida, porte médio, 14 kg"),
   ).toBeInTheDocument();
 });
 

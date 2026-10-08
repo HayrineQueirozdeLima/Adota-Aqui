@@ -1,4 +1,4 @@
-# Plano de testes — Adota Aqui
+# Plano de testes do Adota Aqui
 
 ## Por que a gente testa
 

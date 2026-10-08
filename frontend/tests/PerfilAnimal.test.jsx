@@ -72,11 +72,11 @@ describe("ficha do animal", () => {
     expect(screen.getByText("Castrada")).toBeInTheDocument();
     expect(screen.getByText("Crianças: convive bem")).toBeInTheDocument();
     expect(screen.getByText("Mais animada")).toBeInTheDocument();
-    expect(screen.getByText("2ª dose · 12/03/2026")).toBeInTheDocument();
+    expect(screen.getByText("2ª dose, aplicada em 12/03/2026")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "A história da Mel" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Protetor · Santo André/SP")).toBeInTheDocument();
+    expect(screen.getByText("Protetor em Santo André/SP")).toBeInTheDocument();
   });
 
   test("a galeria troca a foto grande ao clicar na miniatura", async () => {
@@ -99,7 +99,7 @@ describe("ficha do animal", () => {
     abrir();
     await esperarFicha();
 
-    expect(screen.getByText("foto · Mel")).toBeInTheDocument();
+    expect(screen.getByText("Sem foto")).toBeInTheDocument();
     expect(
       screen.queryByRole("heading", { name: "Histórico de vacinação" }),
     ).not.toBeInTheDocument();
