@@ -35,6 +35,14 @@ import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.List;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -48,7 +56,7 @@ class InteresseIntegrationTest {
     @Autowired AnimalRepository animais;
     @Autowired UsuarioRepository usuarios;
     @Autowired AbrigoRepository abrigos;
-    @Autowired InteresseRepository interesses;
+    @org.springframework.test.context.bean.override.mockito.MockitoSpyBean InteresseRepository interesses;
     @Autowired JwtService jwt;
     @Autowired TransactionTemplate transacao;
     private int sequencia;
@@ -254,6 +262,240 @@ class InteresseIntegrationTest {
         String interesse = interesse(animal(usuario("RO")), usuario("RO"));
 
         mvc.perform(delete("/api/interesses/" + interesse)).andExpect(status().isUnauthorized());
+    }
+
+    // ---------- gerenciamento pelo Protetor (UC08, RF09, RF10) ----------
+
+    @Test
+    void recebidosRestringeContaFiltraAnimalEStatusEOrdena() throws Exception {
+        Conta protetor = usuario("RO");
+        Conta candidata = usuario("RO");
+        String primeiroAnimal = animal(protetor);
+        String primeiro = interesse(primeiroAnimal, candidata);
+        String segundoAnimal = animal(protetor);
+        String segundo = interesse(segundoAnimal, candidata);
+        interesse(animal(usuario("RO")), candidata);
+        transacao.executeWithoutResult(s -> interesses.findById(UUID.fromString(primeiro)).orElseThrow()
+                .setStatusAndamento(StatusInteresse.EM_CONTATO));
+        mvc.perform(auth(get("/api/interesses/recebidos"), protetor))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(segundo))
+                .andExpect(jsonPath("$[1].id").value(primeiro))
+                .andExpect(jsonPath("$[0].candidato.email").value("usuario2@example.com"))
+                .andExpect(jsonPath("$[0].triagem.momentoContato").value("NOITE"))
+                .andExpect(jsonPath("$[0].candidato.senha").doesNotExist());
+        mvc.perform(auth(get("/api/interesses/recebidos").param("animalId", primeiroAnimal)
+                        .param("status", "EM_CONTATO"), protetor))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(primeiro));
+        mvc.perform(auth(get("/api/interesses/recebidos").param("animalId", segundoAnimal)
+                        .param("status", "APROVADO"), protetor))
+                .andExpect(jsonPath("$.length()").value(0));
+        mvc.perform(auth(get("/api/interesses/recebidos").param("animalId", primeiroAnimal), candidata))
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void abrigoConsultaEAtualizaOsInteressesRecebidos() throws Exception {
+        Conta protetor = abrigo("RO");
+        String id = interesse(animal(protetor), usuario("RO"));
+        mvc.perform(auth(get("/api/interesses/recebidos"), protetor))
+                .andExpect(status().isOk()).andExpect(jsonPath("$[0].id").value(id));
+        mvc.perform(atualizar(id, protetor, "EM_CONTATO", "ignorado"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.statusAndamento").value("EM_CONTATO"))
+                .andExpect(jsonPath("$.motivoDescontinuacao").doesNotExist());
+        mvc.perform(atualizar(id, protetor, "APROVADO", null)).andExpect(status().isOk());
+    }
+
+    @Test
+    void aprovarAdotaAnimalEDescontinuaApenasOsDemaisAtivos() throws Exception {
+        Conta protetor = usuario("RO");
+        String animal = animal(protetor);
+        String aprovado = interesse(animal, usuario("RO"));
+        String pendente = interesse(animal, usuario("RO"));
+        String contato = interesse(animal, usuario("RO"));
+        mudarStatus(contato, StatusInteresse.EM_CONTATO);
+        String encerrado = interesse(animal, usuario("RO"));
+        mudarStatus(encerrado, StatusInteresse.DESCONTINUADO);
+        String outroAnimal = interesse(animal(protetor), usuario("RO"));
+        mvc.perform(atualizar(aprovado, protetor, "APROVADO", null))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.statusAndamento").value("APROVADO"))
+                .andExpect(jsonPath("$.candidato").exists());
+        assertThat(animais.findById(UUID.fromString(animal)).orElseThrow().getStatusAdocao())
+                .isEqualTo(StatusAdocao.ADOTADO);
+        for (String id : List.of(pendente, contato)) {
+            Interesse registro = interesses.findById(UUID.fromString(id)).orElseThrow();
+            assertThat(registro.getStatusAndamento()).isEqualTo(StatusInteresse.DESCONTINUADO);
+            assertThat(registro.getMotivoDescontinuacao()).isEqualTo("Outro candidato foi aprovado para este animal.");
+        }
+        assertThat(interesses.findById(UUID.fromString(encerrado)).orElseThrow().getMotivoDescontinuacao())
+                .isEqualTo("Outro candidato foi aprovado");
+        assertThat(interesses.findById(UUID.fromString(outroAnimal)).orElseThrow().getStatusAndamento())
+                .isEqualTo(StatusInteresse.PENDENTE);
+        mvc.perform(demonstrar(animal, usuario("RO"), corpo())).andExpect(status().isConflict());
+    }
+
+    @Test
+    void descontinuacaoManualExigeMotivoEGuardaTexto() throws Exception {
+        Conta protetor = usuario("RO");
+        String id = interesse(animal(protetor), usuario("RO"));
+        for (String motivo : new String[]{null, "", "   ", "x".repeat(256)}) {
+            mvc.perform(atualizar(id, protetor, "DESCONTINUADO", motivo)).andExpect(status().isBadRequest());
+        }
+        assertThat(interesses.findById(UUID.fromString(id)).orElseThrow().getStatusAndamento())
+                .isEqualTo(StatusInteresse.PENDENTE);
+        mvc.perform(atualizar(id, protetor, "DESCONTINUADO", " Sem disponibilidade "))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.motivoDescontinuacao").value("Sem disponibilidade"));
+    }
+
+    @Test
+    void gerenciamentoExigeAutenticacaoEPropriedade() throws Exception {
+        Conta protetor = usuario("RO");
+        Conta candidata = usuario("RO");
+        String id = interesse(animal(protetor), candidata);
+        mvc.perform(get("/api/interesses/recebidos")).andExpect(status().isUnauthorized());
+        mvc.perform(patch("/api/interesses/" + id + "/status").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"statusAndamento\":\"APROVADO\"}")).andExpect(status().isUnauthorized());
+        for (Conta conta : List.of(candidata, usuario("RO"), abrigo("RO"))) {
+            mvc.perform(atualizar(id, conta, "APROVADO", null)).andExpect(status().isForbidden());
+        }
+        mvc.perform(atualizar(UUID.randomUUID().toString(), protetor, "APROVADO", null))
+                .andExpect(status().isNotFound());
+        assertThat(interesses.findById(UUID.fromString(id)).orElseThrow().getStatusAndamento())
+                .isEqualTo(StatusInteresse.PENDENTE);
+    }
+
+    @Test
+    void rejeitaStatusAusenteInvalidoEParametrosInvalidos() throws Exception {
+        Conta protetor = usuario("RO");
+        String id = interesse(animal(protetor), usuario("RO"));
+        mvc.perform(atualizar(id, protetor, null, null)).andExpect(status().isBadRequest());
+        mvc.perform(atualizar(id, protetor, "INEXISTENTE", null)).andExpect(status().isBadRequest());
+        mvc.perform(auth(get("/api/interesses/recebidos").param("status", "INEXISTENTE"), protetor))
+                .andExpect(status().isBadRequest());
+        mvc.perform(auth(get("/api/interesses/recebidos").param("animalId", "invalido"), protetor))
+                .andExpect(status().isBadRequest());
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = StatusInteresse.class, names = {"APROVADO", "DESCONTINUADO"})
+    void naoAlteraInteresseEncerrado(StatusInteresse finalizado) throws Exception {
+        Conta protetor = usuario("RO");
+        String id = interesse(animal(protetor), usuario("RO"));
+        mudarStatus(id, finalizado);
+        for (String destino : List.of("PENDENTE", "EM_CONTATO", "APROVADO", "DESCONTINUADO")) {
+            mvc.perform(atualizar(id, protetor, destino, "Motivo")).andExpect(status().isConflict());
+        }
+    }
+
+    @Test
+    void naoRetornaParaPendenteNemAprovaAnimalAdotado() throws Exception {
+        Conta protetor = usuario("RO");
+        String animal = animal(protetor);
+        String id = interesse(animal, usuario("RO"));
+        mvc.perform(atualizar(id, protetor, "PENDENTE", null)).andExpect(status().isConflict());
+        mvc.perform(atualizar(id, protetor, "EM_CONTATO", null)).andExpect(status().isOk());
+        mvc.perform(atualizar(id, protetor, "PENDENTE", null)).andExpect(status().isConflict());
+        transacao.executeWithoutResult(s -> animais.findById(UUID.fromString(animal)).orElseThrow()
+                .setStatusAdocao(StatusAdocao.ADOTADO));
+        mvc.perform(atualizar(id, protetor, "APROVADO", null)).andExpect(status().isConflict());
+        assertThat(interesses.findById(UUID.fromString(id)).orElseThrow().getStatusAndamento())
+                .isEqualTo(StatusInteresse.EM_CONTATO);
+    }
+
+    @Test
+    void novaAdocaoPreservaAprovacaoAnteriorNoHistorico() throws Exception {
+        Conta protetor = usuario("RO");
+        String animal = animal(protetor);
+        String anterior = interesse(animal, usuario("RO"));
+        mvc.perform(atualizar(anterior, protetor, "APROVADO", null)).andExpect(status().isOk());
+        transacao.executeWithoutResult(s -> animais.findByIdParaAtualizacao(UUID.fromString(animal))
+                .orElseThrow().setStatusAdocao(StatusAdocao.DISPONIVEL));
+        String atual = interesse(animal, usuario("RO"));
+        mvc.perform(atualizar(atual, protetor, "APROVADO", null)).andExpect(status().isOk());
+        assertThat(interesses.findById(UUID.fromString(anterior)).orElseThrow().getStatusAndamento())
+                .isEqualTo(StatusInteresse.APROVADO);
+        assertThat(interesses.findById(UUID.fromString(atual)).orElseThrow().getStatusAndamento())
+                .isEqualTo(StatusInteresse.APROVADO);
+    }
+
+    @Test
+    void aprovacoesSimultaneasTemApenasUmVencedor() throws Exception {
+        Conta protetor = usuario("RO");
+        String animal = animal(protetor);
+        String primeiro = interesse(animal, usuario("RO"));
+        String segundo = interesse(animal, usuario("RO"));
+        List<Integer> resultados = simultaneos(
+                () -> mvc.perform(atualizar(primeiro, protetor, "APROVADO", null)).andReturn().getResponse().getStatus(),
+                () -> mvc.perform(atualizar(segundo, protetor, "APROVADO", null)).andReturn().getResponse().getStatus());
+        assertThat(resultados).containsExactlyInAnyOrder(200, 409);
+        assertThat(interesses.findByAnimalId(UUID.fromString(animal)))
+                .filteredOn(i -> i.getStatusAndamento() == StatusInteresse.APROVADO).hasSize(1);
+        assertThat(interesses.findByAnimalId(UUID.fromString(animal)))
+                .filteredOn(i -> i.getStatusAndamento() == StatusInteresse.DESCONTINUADO).hasSize(1);
+    }
+
+    @Test
+    void cadastroSimultaneoAAprovacaoNaoDeixaInteresseAtivo() throws Exception {
+        Conta protetor = usuario("RO");
+        String animal = animal(protetor);
+        String aprovado = interesse(animal, usuario("RO"));
+        Conta nova = usuario("RO");
+        List<Integer> resultados = simultaneos(
+                () -> mvc.perform(atualizar(aprovado, protetor, "APROVADO", null)).andReturn().getResponse().getStatus(),
+                () -> mvc.perform(demonstrar(animal, nova, corpo())).andReturn().getResponse().getStatus());
+        assertThat(resultados.get(0)).isEqualTo(200);
+        assertThat(resultados.get(1)).isIn(201, 409);
+        assertThat(interesses.findByAnimalIdAndStatusAndamentoIn(UUID.fromString(animal),
+                List.of(StatusInteresse.PENDENTE, StatusInteresse.EM_CONTATO))).isEmpty();
+    }
+
+    @Test
+    void falhaNaPersistenciaDesfazTodaAAprovacao() throws Exception {
+        Conta protetor = usuario("RO");
+        String animal = animal(protetor);
+        String escolhido = interesse(animal, usuario("RO"));
+        String outro = interesse(animal, usuario("RO"));
+        org.mockito.Mockito.doThrow(new IllegalStateException("Falha simulada na persistência"))
+                .when(interesses).flush();
+        try {
+            mvc.perform(atualizar(escolhido, protetor, "APROVADO", null))
+                    .andExpect(status().isInternalServerError());
+        } finally {
+            org.mockito.Mockito.reset(interesses);
+        }
+        assertThat(animais.findById(UUID.fromString(animal)).orElseThrow().getStatusAdocao())
+                .isEqualTo(StatusAdocao.DISPONIVEL);
+        for (String id : List.of(escolhido, outro)) {
+            Interesse registro = interesses.findById(UUID.fromString(id)).orElseThrow();
+            assertThat(registro.getStatusAndamento()).isEqualTo(StatusInteresse.PENDENTE);
+            assertThat(registro.getMotivoDescontinuacao()).isNull();
+        }
+    }
+
+    private List<Integer> simultaneos(Callable<Integer> primeira, Callable<Integer> segunda) throws Exception {
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        CountDownLatch prontas = new CountDownLatch(2);
+        CountDownLatch iniciar = new CountDownLatch(1);
+        try {
+            Future<Integer> a = executor.submit(() -> { prontas.countDown(); iniciar.await(); return primeira.call(); });
+            Future<Integer> b = executor.submit(() -> { prontas.countDown(); iniciar.await(); return segunda.call(); });
+            assertThat(prontas.await(10, TimeUnit.SECONDS)).isTrue();
+            iniciar.countDown();
+            return List.of(a.get(20, TimeUnit.SECONDS), b.get(20, TimeUnit.SECONDS));
+        } finally {
+            iniciar.countDown();
+            executor.shutdownNow();
+        }
+    }
+
+    private MockHttpServletRequestBuilder atualizar(String id, Conta conta, String status, String motivo) {
+        ObjectNode request = mapper.createObjectNode();
+        if (status != null) request.put("statusAndamento", status);
+        if (motivo != null) request.put("motivoDescontinuacao", motivo);
+        return auth(patch("/api/interesses/" + id + "/status"), conta)
+                .contentType(MediaType.APPLICATION_JSON).content(request.toString());
     }
 
     // ---------- ajudantes ----------

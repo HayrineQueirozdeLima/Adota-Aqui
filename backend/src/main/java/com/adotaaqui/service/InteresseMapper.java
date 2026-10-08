@@ -3,6 +3,7 @@ package com.adotaaqui.service;
 import com.adotaaqui.dto.AnimalResumoResponse;
 import com.adotaaqui.dto.ContatoResponse;
 import com.adotaaqui.dto.InteresseResponse;
+import com.adotaaqui.dto.InteresseRecebidoResponse;
 import com.adotaaqui.dto.TriagemDto;
 import com.adotaaqui.model.Abrigo;
 import com.adotaaqui.model.Animal;
@@ -18,6 +19,14 @@ final class InteresseMapper {
         Animal animal = interesse.getAnimal();
         return new InteresseResponse(interesse.getId(), interesse.getDataHora(), interesse.getStatusAndamento(),
                 interesse.getMotivoDescontinuacao(), resumo(animal), triagem(interesse), contatoDoProtetor(animal));
+    }
+   // Visão do Protetor, vem coms dados de contato do candidato, inverso do proceso de candidato
+    static InteresseRecebidoResponse paraProtetor(Interesse interesse) {
+        Usuario candidato = interesse.getUsuario();
+        return new InteresseRecebidoResponse(interesse.getId(), interesse.getDataHora(),
+                interesse.getStatusAndamento(), interesse.getMotivoDescontinuacao(),
+                resumo(interesse.getAnimal()), triagem(interesse),
+                new ContatoResponse(candidato.getNome(), candidato.getTelefone(), candidato.getEmail()));
     }
 
     static AnimalResumoResponse resumo(Animal animal) {
