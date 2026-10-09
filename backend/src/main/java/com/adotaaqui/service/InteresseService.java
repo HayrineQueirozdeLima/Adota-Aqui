@@ -3,11 +3,11 @@ package com.adotaaqui.service;
 import com.adotaaqui.dto.AtualizarStatusInteresseRequest;
 import com.adotaaqui.dto.InteresseFiltroRequest;
 import com.adotaaqui.dto.InteresseRecebidoResponse;
-import com.adotaaqui.exception.DadosInvalidosException;
 import com.adotaaqui.dto.InteresseRequest;
 import com.adotaaqui.dto.InteresseResponse;
 import com.adotaaqui.dto.TriagemDto;
 import com.adotaaqui.exception.AcessoNegadoException;
+import com.adotaaqui.exception.DadosInvalidosException;
 import com.adotaaqui.exception.RecursoNaoEncontradoException;
 import com.adotaaqui.exception.RegraNegocioException;
 import com.adotaaqui.model.Animal;
@@ -103,12 +103,19 @@ public class InteresseService {
         interesses.delete(interesse);
     }
 
+    // GET /api/interesses/recebidos (UC08). Os filtros são opcionais: o que vier nulo não filtra
     public List<InteresseRecebidoResponse> recebidos(InteresseFiltroRequest filtro, Authentication autenticacao) {
         Protetor protetor = protetor(autenticacao);
-        return interesses.findRecebidos(protetor.id(), protetor.abrigo(), filtro.getAnimalId(), filtro.getStatus())
-                .stream().map(InteresseMapper::paraProtetor).toList();
+        UUID animalId = filtro.getAnimalId();
+        StatusInteresse status = filtro.getStatus();
+        return interesses.findRecebidos(protetor.id(), protetor.abrigo()).stream()
+                .filter(interesse -> animalId == null || interesse.getAnimal().getId().equals(animalId))
+                .filter(interesse -> status == null || interesse.getStatusAndamento() == status)
+                .map(InteresseMapper::paraProtetor)
+                .toList();
     }
 
+    // PATCH /api/interesses/{id}/status (RF10, UC08)
     @Transactional
     public InteresseRecebidoResponse atualizarStatus(UUID id, AtualizarStatusInteresseRequest request,
                                                      Authentication autenticacao) {
@@ -150,7 +157,9 @@ public class InteresseService {
         return InteresseMapper.paraProtetor(interesse);
     }
 
-       private Interesse interesseParaAtualizacao(UUID id) {
+    // Trava o animal (SELECT ... FOR UPDATE) antes de carregar o interesse. Assim duas operações no mesmo
+    // animal (duas aprovações, ou uma aprovação e um interesse novo) acontecem uma depois da outra
+    private Interesse interesseParaAtualizacao(UUID id) {
         UUID animalId = interesses.findAnimalIdById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Interesse não encontrado"));
         animais.findByIdParaAtualizacao(animalId)

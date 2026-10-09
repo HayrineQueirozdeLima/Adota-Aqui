@@ -20,7 +20,8 @@ final class InteresseMapper {
         return new InteresseResponse(interesse.getId(), interesse.getDataHora(), interesse.getStatusAndamento(),
                 interesse.getMotivoDescontinuacao(), resumo(animal), triagem(interesse), contatoDoProtetor(animal));
     }
-   // Visão do Protetor, vem coms dados de contato do candidato, inverso do proceso de candidato
+
+    // Visão do protetor: vem com o contato do candidato (o inverso do paraCandidato, que traz o do protetor)
     static InteresseRecebidoResponse paraProtetor(Interesse interesse) {
         Usuario candidato = interesse.getUsuario();
         return new InteresseRecebidoResponse(interesse.getId(), interesse.getDataHora(),
