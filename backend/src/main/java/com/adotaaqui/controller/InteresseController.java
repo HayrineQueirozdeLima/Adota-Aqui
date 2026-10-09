@@ -20,10 +20,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.UUID;
 import java.util.List;
+import java.util.UUID;
 
-// Interesses (docs/api.md, seção 9). Os dois precisam de login: a regra
+// Interesses (docs/api.md, seção 9). Todos precisam de login: a regra
 // "anyRequest().authenticated()" do SecurityConfig já cobre, sem token é 401
 @RestController
 @RequestMapping("/api")

@@ -196,11 +196,6 @@ export default function InteressesRecebidos() {
               />
             ))
           )}
-
-          <p className="rounded-[18px] bg-status-atencao-fundo p-6 text-compacto text-status-atencao-texto">
-            <strong className="font-semibold">Descontinuar sempre pede um motivo.</strong> O registro fica no
-            histórico do interesse e não é apagado, mesmo se o animal voltar a ficar disponível depois.
-          </p>
         </>
       )}
     </main>

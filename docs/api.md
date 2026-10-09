@@ -967,7 +967,7 @@ O protetor muda o status de um interesse recebido.
 
 **Transições permitidas:** de `PENDENTE` para `EM_CONTATO`, `APROVADO` ou `DESCONTINUADO`; de `EM_CONTATO` para `APROVADO` ou `DESCONTINUADO`. Repetir o estado atual retorna `409`. Estados encerrados não podem ser alterados.
 
-**Efeitos da aprovação (RF10, UC08 FA01)** — tudo na mesma operação:
+**Efeitos da aprovação (RF10, UC08 FA01).** Tudo acontece na mesma operação:
 
 1. o interesse passa para `APROVADO`;
 2. o animal passa para `ADOTADO`;
@@ -975,7 +975,7 @@ O protetor muda o status de um interesse recebido.
 
 A aprovação bloqueia o animal durante a transação. Cadastro, desistência e alteração de interesses usam o mesmo bloqueio para impedir conflitos concorrentes. Se qualquer etapa falhar, todas as mudanças são desfeitas. Quando o animal voltar a `DISPONIVEL`, aprovações de adoções anteriores permanecem no histórico.
 
-**Saída — `200 OK`:** o interesse atualizado, no [formato do interesse](#formato-do-interesse) com `candidato`.
+**Saída (`200 OK`):** o interesse atualizado, no [formato do interesse](#formato-do-interesse) com `candidato`.
 
 **Erros**
 
