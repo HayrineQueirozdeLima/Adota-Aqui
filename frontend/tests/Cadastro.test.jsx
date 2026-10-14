@@ -174,6 +174,31 @@ describe("cadastro de pessoa física", () => {
     );
   });
 
+  // CT-FRM-04: dois cliques seguidos não criam duas contas
+  test("trava o botão enquanto envia, sem mandar o cadastro duas vezes", async () => {
+    let liberar;
+    global.fetch = jest.fn((url) =>
+      url.includes("viacep")
+        ? Promise.resolve(resposta(200, viaCep))
+        : new Promise((ok) => {
+            liberar = () => ok(resposta(201, sessao));
+          }),
+    );
+    renderizar("/cadastro/usuario");
+    await preencherTudo();
+
+    fireEvent.click(screen.getByRole("button", { name: "Criar conta" }));
+    fireEvent.click(screen.getByRole("button", { name: "Criando conta..." }));
+
+    expect(screen.getByRole("button", { name: "Criando conta..." })).toBeDisabled();
+    expect(
+      fetch.mock.calls.filter(([url]) => url.endsWith("/api/usuarios")),
+    ).toHaveLength(1);
+
+    liberar();
+    expect(await screen.findByText("Vitrine")).toBeInTheDocument();
+  });
+
   test("e-mail já cadastrado aparece embaixo do campo E-mail", async () => {
     simularServidor({
       api: resposta(409, {

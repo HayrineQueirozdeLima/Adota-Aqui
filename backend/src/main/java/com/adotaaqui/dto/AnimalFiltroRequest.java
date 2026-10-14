@@ -6,6 +6,7 @@ import com.adotaaqui.model.enums.Porte;
 import com.adotaaqui.model.enums.Raca;
 import com.adotaaqui.model.enums.SexoAnimal;
 import com.adotaaqui.model.enums.StatusConvivencia;
+import jakarta.validation.constraints.Size;
 
 /** Filtros opcionais da vitrine. Estado e disponibilidade são impostos pelo Service. */
 public class AnimalFiltroRequest {
@@ -19,6 +20,10 @@ public class AnimalFiltroRequest {
     private SexoAnimal sexo;
 
     private String cidade;
+
+    // Nome do animal ou de quem cadastrou (pessoa ou abrigo), por parte do nome
+    @Size(max = 80, message = "A busca pode ter no máximo 80 caracteres")
+    private String busca;
 
     private StatusConvivencia convivenciaCrianca;
 
@@ -66,6 +71,14 @@ public class AnimalFiltroRequest {
 
     public void setCidade(String cidade) {
         this.cidade = cidade;
+    }
+
+    public String getBusca() {
+        return busca;
+    }
+
+    public void setBusca(String busca) {
+        this.busca = busca;
     }
 
     public StatusConvivencia getConvivenciaCrianca() {

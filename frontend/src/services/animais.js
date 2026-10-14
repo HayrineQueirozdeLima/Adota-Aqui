@@ -6,6 +6,8 @@ import { requisicao } from './api';
 // Os filtros da listagem, com os mesmos nomes dos parâmetros do GET /api/animais
 // Vazio ('') basicamente quer dizer "qualquer um"
 export const filtrosVazios = {
+    // nome do animal ou de quem cadastrou (pessoa ou abrigo)
+    busca: '',
     cidade: '',
     especie: '',
     raca: '',

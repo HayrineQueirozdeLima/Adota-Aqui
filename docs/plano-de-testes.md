@@ -1,5 +1,7 @@
 # Plano de testes do Adota Aqui
 
+Os casos de teste do ponto de vista de quem usa o site, incluindo os que são testados à mão, estão em [casos-de-teste.md](casos-de-teste.md).
+
 ## Por que a gente testa
 
 Além do curso pedir **no mínimo 70% de cobertura de testes**, sugerindo JUnit no back e Jest no front, com 9 pessoas mexendo no mesmo código, o teste é o que avisa quando uma mudança quebra algo que já funcionava, antes de chegar na apresentação.
