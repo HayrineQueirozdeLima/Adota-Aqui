@@ -23,17 +23,17 @@ src/main/java/com/adotaaqui/
 └── service/      as regras de negócio
 ```
 
-Cada pasta que ainda está vazia tem um `package-info.java` explicando o que vai nela.
+As pastas `config`, `controller`, `dto`, `exception`, `security` e `service` têm um `package-info.java` explicando o que vai em cada uma.
 
 O caminho de uma requisição é sempre o mesmo: o **controller** chama o **service**, o service chama o **repository**, e o repository fala com o **banco**. O controller não fala direto com o repository, e regra de negócio fica só no service.
 
 ## O que já está pronto
 
 - As entidades (`Usuario`, `Abrigo`, `Animal`, `Vacina`, `Interesse` e `Endereco`) e os enums, iguais ao DER lógico e ao dicionário de domínios.
-- Os repositories com as buscas principais (login por CPF/CNPJ, meus animais, listagem por estado, interesses ativos).
-- O teste `RacaTest`, que pode servir de modelo pros próximos.
+- Cadastro e login com JWT, CRUD de animal com fotos no S3, vitrine com filtros e busca por nome, demonstração de interesse e o painel em que o protetor aprova ou descontinua os interesses.
+- O tratamento de erro num formato único para toda a API.
 
-Controllers, services, DTOs, segurança e tratamento de erro ainda estão por fazer. Cada um tem a sua issue no Projects.
+O que cada funcionalidade faz, tela por tela, está no [`docs/funcionalidades.md`](../docs/funcionalidades.md), e como as camadas se encaixam, no [`docs/arquitetura.md`](../docs/arquitetura.md).
 
 ## Banco de dados
 
