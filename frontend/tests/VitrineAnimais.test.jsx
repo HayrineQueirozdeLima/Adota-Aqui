@@ -115,6 +115,45 @@ describe("busca na API", () => {
     expect(buscasDeAnimais()).toHaveLength(2);
   });
 
+  test("busca pelo nome do animal ou do protetor, esperando a pessoa parar de digitar", async () => {
+    renderizar();
+    await nomesNaTela();
+
+    escolher("Buscar por nome", "q");
+    escolher("Buscar por nome", "quatro");
+    escolher("Buscar por nome", "quatro patas");
+
+    await waitFor(() =>
+      expect(ultimaBuscaDeAnimais().parametros).toEqual({
+        busca: "quatro patas",
+      }),
+    );
+    expect(buscasDeAnimais()).toHaveLength(2);
+  });
+
+  test("limpar filtros apaga a busca e os filtros e traz todos de novo", async () => {
+    renderizar();
+    await nomesNaTela();
+
+    escolher("Buscar por nome", "mel");
+    clicar("Gatos");
+    await waitFor(() =>
+      expect(ultimaBuscaDeAnimais().parametros).toEqual({
+        busca: "mel",
+        especie: "GATO",
+      }),
+    );
+
+    clicar("Limpar filtros");
+
+    expect(screen.getByLabelText("Buscar por nome").value).toBe("");
+    expect(screen.queryByRole("button", { name: "Limpar filtros" })).toBeNull();
+    await waitFor(() =>
+      expect(ultimaBuscaDeAnimais().parametros).toEqual({}),
+    );
+    expect(await nomesNaTela()).toHaveLength(6);
+  });
+
   test("a raça vem da API e só libera depois de escolher a espécie", async () => {
     renderizar();
     await nomesNaTela();

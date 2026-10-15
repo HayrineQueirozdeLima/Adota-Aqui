@@ -2,6 +2,8 @@
 
 Os blocos `mermaid` abaixo são renderizados automaticamente pelo GitHub (em qualquer `.md` dentro de `docs/`). Também dá para colar o código em mermaid.live e exportar PNG/SVG.
 
+O diagrama de classes com métodos fica num arquivo próprio: [diagrama-de-classes.md](diagrama-de-classes.md).
+
 ## 1. DER conceitual
 
 Imagem: `der-conceitual-adota-aqui.png` (há também o `.svg`, que abre e edita no Figma ou no draw.io). Notação: cada entidade é um retângulo com seus atributos dentro, e cada relacionamento é um losango com a cardinalidade (mín,máx) de cada lado. A legenda está na própria imagem.

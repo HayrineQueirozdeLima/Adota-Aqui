@@ -174,6 +174,54 @@ describe("cadastro de pessoa física", () => {
     );
   });
 
+  // CT-FRM-04: dois cliques seguidos não criam duas contas
+  test("trava o botão enquanto envia, sem mandar o cadastro duas vezes", async () => {
+    let liberar;
+    global.fetch = jest.fn((url) =>
+      url.includes("viacep")
+        ? Promise.resolve(resposta(200, viaCep))
+        : new Promise((ok) => {
+            liberar = () => ok(resposta(201, sessao));
+          }),
+    );
+    renderizar("/cadastro/usuario");
+    await preencherTudo();
+
+    fireEvent.click(screen.getByRole("button", { name: "Criar conta" }));
+    fireEvent.click(screen.getByRole("button", { name: "Criando conta..." }));
+
+    expect(screen.getByRole("button", { name: "Criando conta..." })).toBeDisabled();
+    expect(
+      fetch.mock.calls.filter(([url]) => url.endsWith("/api/usuarios")),
+    ).toHaveLength(1);
+
+    liberar();
+    expect(await screen.findByText("Vitrine")).toBeInTheDocument();
+  });
+
+  test("e-mail já cadastrado aparece embaixo do campo E-mail", async () => {
+    simularServidor({
+      api: resposta(409, {
+        status: 409,
+        erro: "Conflito",
+        mensagem: "Já existe uma conta cadastrada com este e-mail",
+      }),
+    });
+    renderizar("/cadastro/usuario");
+    await preencherTudo();
+    fireEvent.click(screen.getByRole("button", { name: "Criar conta" }));
+
+    expect(
+      await screen.findByText("Já existe uma conta cadastrada com este e-mail"),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("E-mail")).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+    expect(screen.getByLabelText("CPF")).not.toHaveAttribute("aria-invalid");
+    expect(screen.queryByText("Vitrine")).toBeNull();
+  });
+
   test("os erros de campo que vêm da API aparecem no lugar certo", async () => {
     simularServidor({
       api: resposta(400, {
@@ -194,10 +242,7 @@ describe("cadastro de pessoa física", () => {
 });
 
 describe("cadastro de abrigo", () => {
-  test("envia CNPJ e razão social pro endpoint de abrigos", async () => {
-    simularServidor({ api: resposta(201, { ...sessao, tipoConta: "ABRIGO" }) });
-    renderizar("/cadastro/abrigo");
-
+  async function preencherTudo() {
     preencher("CNPJ", "11222333000181");
     preencher("Nome institucional", "Instituto Quatro Patas");
     preencher("Razão social", "Instituto Quatro Patas Ltda");
@@ -205,6 +250,13 @@ describe("cadastro de abrigo", () => {
     preencher("Telefone (DDD)", "6932221111");
     preencherSenhas();
     await preencherEndereco();
+  }
+
+  test("envia CNPJ e razão social pro endpoint de abrigos", async () => {
+    simularServidor({ api: resposta(201, { ...sessao, tipoConta: "ABRIGO" }) });
+    renderizar("/cadastro/abrigo");
+
+    await preencherTudo();
     fireEvent.click(screen.getByRole("button", { name: "Cadastrar abrigo" }));
 
     expect(await screen.findByText("Vitrine")).toBeInTheDocument();
@@ -226,18 +278,35 @@ describe("cadastro de abrigo", () => {
     });
     renderizar("/cadastro/abrigo");
 
-    preencher("CNPJ", "11222333000181");
-    preencher("Nome institucional", "Instituto Quatro Patas");
-    preencher("Razão social", "Instituto Quatro Patas Ltda");
-    preencher("E-mail institucional", "contato@quatropatas.org");
-    preencher("Telefone (DDD)", "6932221111");
-    preencherSenhas();
-    await preencherEndereco();
+    await preencherTudo();
     fireEvent.click(screen.getByRole("button", { name: "Cadastrar abrigo" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Não foi possível concluir o cadastro",
     );
+  });
+
+  test("CNPJ já cadastrado aparece embaixo do campo CNPJ", async () => {
+    simularServidor({
+      api: resposta(409, {
+        status: 409,
+        erro: "Conflito",
+        mensagem: "Já existe uma conta cadastrada com este CNPJ",
+      }),
+    });
+    renderizar("/cadastro/abrigo");
+
+    await preencherTudo();
+    fireEvent.click(screen.getByRole("button", { name: "Cadastrar abrigo" }));
+
+    expect(
+      await screen.findByText("Já existe uma conta cadastrada com este CNPJ"),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("CNPJ")).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+    expect(screen.queryByText("Vitrine")).toBeNull();
   });
 });
 

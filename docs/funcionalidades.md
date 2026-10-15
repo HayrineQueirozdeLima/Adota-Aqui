@@ -152,19 +152,21 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 **Como funciona.**
 
 1. Visitante e Abrigo veem animais de todos os estados. Pessoa física logada vê só os do próprio estado (RF14). O estado do animal é o estado de quem cadastrou.
-2. Filtros: cidade, espécie, sexo, porte, raça (liberada depois de escolher a espécie), nível de energia e convivência ("Bom com crianças", "Bom com cães", "Bom com gatos").
+2. Busca por nome e filtros: cidade, espécie, sexo, porte, raça (liberada depois de escolher a espécie), nível de energia e convivência ("Bom com crianças", "Bom com cães", "Bom com gatos").
 3. A cada mudança, o front espera 300 ms sem mudança nova (assim não busca a cada letra digitada na cidade) e chama `GET /api/animais` com os filtros no endereço.
 4. Cada cartão mostra nome, descrição (espécie, raça, porte e peso), tags de convivência, o protetor com cidade e estado, e o botão "Quero conhecer".
 5. Sem resultado com os filtros: "Nenhum resultado encontrado com essas informações.", com o botão "Ver todos os animais" (UC06 FA02). Sem nenhum animal no estado da pessoa: "Nenhum animal disponível no seu estado no momento." (UC06 FA01).
 
-**Busca por cidade.** Acha por parte do nome e ignora acentos e maiúsculas: "sao" acha "São Paulo". O back tira os acentos do que foi digitado e, no banco, compara com a cidade também sem acento (`translate` e `lower`), usando `LIKE` com o texto no meio. Funciona igual no PostgreSQL e no H2 dos testes.
+**Busca por nome.** O campo "Nome do animal ou do protetor" procura no nome do animal e no nome de quem cadastrou, pessoa ou abrigo: "mel" acha a Mel, e "quatro patas" acha os animais do Instituto Quatro Patas. Soma com os outros filtros e aceita até 80 caracteres.
+
+**Busca por cidade e por nome.** As duas acham por parte do texto e ignoram acentos e maiúsculas: "sao" acha "São Paulo". O back tira os acentos do que foi digitado e, no banco, compara com o valor também sem acento (`translate` e `lower`), usando `LIKE` com o texto no meio. Funciona igual no PostgreSQL e no H2 dos testes.
 
 **Onde está no código.**
 
 - Front: `components/VitrineAnimais`, `components/FiltrosAnimais`, `components/CardAnimal` e `services/animais.js`
 - Back: `AnimalController`, `AnimalService`, `AnimalFiltroRequest` e `AnimalSpecifications`
 
-**Testes.** `AnimalIntegrationTest` (estado, status, filtros combinados, cidade sem acento), `ErroApiIntegrationTest` (filtro com valor inválido), `VitrineAnimais.test.jsx` e `CardAnimal.test.jsx`.
+**Testes.** `AnimalIntegrationTest` (estado, status, filtros combinados, cidade e busca por nome sem acento), `ErroApiIntegrationTest` (filtro com valor inválido), `VitrineAnimais.test.jsx` e `CardAnimal.test.jsx`.
 
 ---
 

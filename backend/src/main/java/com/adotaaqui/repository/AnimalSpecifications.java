@@ -39,6 +39,14 @@ public final class AnimalSpecifications {
                 criterios.add(cb.or(cb.like(semAcento(cb, usuario.get("endereco").get("cidade")), cidade),
                         cb.like(semAcento(cb, abrigo.get("endereco").get("cidade")), cidade)));
             }
+            // Busca: o nome do animal ou o nome de quem cadastrou (pessoa ou abrigo), do mesmo jeito da cidade.
+            // "mel" acha a Mel, e "quatro patas" acha os animais do Instituto Quatro Patas
+            if (filtro.getBusca() != null && !filtro.getBusca().isBlank()) {
+                String busca = "%" + semAcento(filtro.getBusca()) + "%";
+                criterios.add(cb.or(cb.like(semAcento(cb, root.get("nome")), busca),
+                        cb.like(semAcento(cb, usuario.get("nome")), busca),
+                        cb.like(semAcento(cb, abrigo.get("nome")), busca)));
+            }
             if (filtro.getEspecie() != null) criterios.add(cb.equal(root.get("especie"), filtro.getEspecie()));
             if (filtro.getRaca() != null) criterios.add(cb.equal(root.get("raca"), filtro.getRaca()));
             if (filtro.getPorte() != null) criterios.add(cb.equal(root.get("porte"), filtro.getPorte()));

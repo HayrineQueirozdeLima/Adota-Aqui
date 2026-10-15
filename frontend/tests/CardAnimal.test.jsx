@@ -31,6 +31,15 @@ test("não mostra a tag de castrado quando o animal não é castrado", () => {
   expect(screen.queryByText("Castrado")).not.toBeInTheDocument();
 });
 
+// CT-NFR-02: quem usa leitor de tela ouve de quem é a foto
+test("a foto tem texto alternativo com o nome do animal", () => {
+  renderizar({ ...mel, fotoCapa: "https://fotos.teste/animais/mel.jpg" });
+  expect(screen.getByAltText("Foto de Mel")).toHaveAttribute(
+    "src",
+    "https://fotos.teste/animais/mel.jpg",
+  );
+});
+
 test("o botão leva para a ficha do animal", () => {
   renderizar(mel);
   expect(

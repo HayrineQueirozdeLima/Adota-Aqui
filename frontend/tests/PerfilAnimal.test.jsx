@@ -58,6 +58,23 @@ afterEach(() => {
 });
 
 describe("ficha do animal", () => {
+  // CT-NFR-03: o React mostra o texto do jeito que veio, sem transformar em HTML
+  test("código no meio do texto aparece como texto e não roda (XSS)", async () => {
+    perfilCom({
+      historia:
+        '<script>window.invadido = true</script><img src="x" onerror="window.invadido = true">',
+    });
+    abrir();
+    await esperarFicha();
+
+    expect(
+      screen.getByText(/<script>window.invadido = true<\/script>/),
+    ).toBeInTheDocument();
+    expect(document.querySelector("script")).toBeNull();
+    expect(document.querySelector('img[src="x"]')).toBeNull();
+    expect(window.invadido).toBeUndefined();
+  });
+
   test("monta a ficha com os dados da API", async () => {
     abrir();
     await esperarFicha();

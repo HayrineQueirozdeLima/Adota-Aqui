@@ -173,6 +173,32 @@ class AnimalIntegrationTest {
     }
 
     @Test
+    void buscaPeloNomeDoAnimalOuDoProtetorSemLigarPraMaiusculaNemAcento() throws Exception {
+        Conta joao = conta(false, "RO", "João Batista");
+        Conta abrigo = conta(true, "RO", "Instituto Quatro Patas");
+        String tobias = criar(joao, corpo().put("nome", "Tobias")).path("id").asText();
+        String mel = criar(abrigo, corpo().put("nome", "Mel")).path("id").asText();
+
+        // nome do animal, por parte do nome
+        mvc.perform(get("/api/animais").param("busca", "TOBI"))
+                .andExpect(jsonPath("$.length()").value(1)).andExpect(jsonPath("$[0].id").value(tobias));
+        // nome de quem cadastrou, pessoa física, digitado sem acento
+        mvc.perform(get("/api/animais").param("busca", "joao"))
+                .andExpect(jsonPath("$.length()").value(1)).andExpect(jsonPath("$[0].id").value(tobias));
+        // nome de quem cadastrou, abrigo
+        mvc.perform(get("/api/animais").param("busca", "quatro patas"))
+                .andExpect(jsonPath("$.length()").value(1)).andExpect(jsonPath("$[0].id").value(mel));
+        // a busca soma com os outros filtros: a Mel é cão, então não aparece entre os gatos
+        mvc.perform(get("/api/animais").param("busca", "mel").param("especie", "GATO"))
+                .andExpect(content().json("[]"));
+        mvc.perform(get("/api/animais").param("busca", "Bidu")).andExpect(content().json("[]"));
+        // só espaço não filtra nada
+        mvc.perform(get("/api/animais").param("busca", "   ")).andExpect(jsonPath("$.length()").value(2));
+        mvc.perform(get("/api/animais").param("busca", "a".repeat(81)))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.campos.busca").isNotEmpty());
+    }
+
+    @Test
     void adotadoSoMudaStatusEPreservaVacinasEHistorico() throws Exception {
         Conta dono = conta(false, "RO");
         Conta candidato = conta(false, "RO");
@@ -334,6 +360,11 @@ class AnimalIntegrationTest {
     }
 
     private Conta conta(boolean abrigo, String estado) {
+        return conta(abrigo, estado, null);
+    }
+
+    // nome = null usa "Usuario 1", "Abrigo 2"...
+    private Conta conta(boolean abrigo, String estado, String nome) {
         int numero = ++sequencia;
         Endereco endereco = new Endereco();
         endereco.setCep("76801000");
@@ -345,7 +376,7 @@ class AnimalIntegrationTest {
         if (abrigo) {
             Abrigo a = new Abrigo();
             a.setCnpj(documento);
-            a.setNome("Abrigo " + numero);
+            a.setNome(nome != null ? nome : "Abrigo " + numero);
             a.setRazaoSocial("Abrigo " + numero);
             a.setEmail("abrigo" + numero + "@example.com");
             a.setTelefone("69999998888");
@@ -355,7 +386,7 @@ class AnimalIntegrationTest {
         } else {
             Usuario u = new Usuario();
             u.setCpf(documento);
-            u.setNome("Usuario " + numero);
+            u.setNome(nome != null ? nome : "Usuario " + numero);
             u.setEmail("usuario" + numero + "@example.com");
             u.setTelefone("69999998888");
             u.setSenha("hash-de-fixture");

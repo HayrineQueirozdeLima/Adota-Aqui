@@ -579,6 +579,7 @@ Lista os animais disponíveis para adoção, com filtros.
 | `porte`              | `PEQUENO`, `MEDIO`, `GRANDE`                                                                             |
 | `sexo`               | `FEMEA`, `MACHO`                                                                                         |
 | `cidade`             | Texto. Basta conter o que foi digitado ("porto" acha Porto Velho). Não diferencia maiúsculas nem acentos |
+| `busca`              | Texto, até 80 caracteres. Procura no nome do animal e no nome de quem cadastrou, pessoa ou abrigo ("quatro patas" acha os animais do Instituto Quatro Patas). Funciona como a cidade |
 | `convivenciaCrianca` | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                          |
 | `convivenciaGato`    | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                          |
 | `convivenciaCao`     | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                          |

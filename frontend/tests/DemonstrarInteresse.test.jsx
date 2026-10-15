@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "../src/contexts/AuthContext";
 import { perfilExemplo } from "../src/mocks/animais";
+import { interesseExemplo } from "../src/mocks/interesses";
 import DemonstrarInteresse from "../src/pages/DemonstrarInteresse/DemonstrarInteresse";
 import { resposta, simularApi } from "./utils/apiFalsa";
 
@@ -121,6 +122,29 @@ test("mostra o termo, as três partes da triagem e o resumo do animal", async ()
   expect(
     screen.getByText("Protetor: Instituto Quatro Patas (Santo André/SP)"),
   ).toBeInTheDocument();
+});
+
+// CT-FRM-04: dois cliques seguidos não registram dois interesses
+test("trava o botão enquanto envia, sem registrar o interesse duas vezes", async () => {
+  let liberar;
+  simular({
+    responderInteresse: () =>
+      new Promise((ok) => {
+        liberar = () => ok(resposta(201, interesseExemplo));
+      }),
+  });
+  abrir();
+  await esperarFormulario();
+  preencherTudo();
+
+  confirmar();
+  fireEvent.click(screen.getByRole("button", { name: "Enviando..." }));
+
+  expect(screen.getByRole("button", { name: "Enviando..." })).toBeDisabled();
+  expect(chamadasDeInteresse()).toHaveLength(1);
+
+  liberar();
+  expect(await screen.findByText("Interesse registrado")).toBeInTheDocument();
 });
 
 test("a pergunta de contato não tem a opção de responder depois (RF15)", async () => {
