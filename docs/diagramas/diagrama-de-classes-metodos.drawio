@@ -305,10 +305,10 @@
           <mxGeometry height="190" width="340" y="30" as="geometry" />
         </mxCell>
         <mxCell id="TM_L1JSCsxkzG0DsrLZ_-23" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="&lt;i&gt;&amp;lt;&amp;lt;enumeration&amp;gt;&amp;gt;&lt;br&gt;&lt;/i&gt;ConvivenciaAnimal" vertex="1">
-          <mxGeometry height="160" width="340" x="40" y="640" as="geometry" />
+          <mxGeometry height="180" width="340" x="40" y="640" as="geometry" />
         </mxCell>
-        <mxCell id="TM_L1JSCsxkzG0DsrLZ_-24" parent="TM_L1JSCsxkzG0DsrLZ_-23" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="NAO_TENHO_OUTROS_ANIMAIS_EM_CASA&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;SIM_GATOS, SIM_CACHORROS&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;SIM_GATOS_E_CACHORROS, SIM_OUTRAS_ESPECIES&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&amp;nbsp;PREFIRO_RESPONDER_DIRETAMENTE_AO_PROTETOR&lt;/div&gt;" vertex="1">
-          <mxGeometry height="130" width="340" y="30" as="geometry" />
+        <mxCell id="TM_L1JSCsxkzG0DsrLZ_-24" parent="TM_L1JSCsxkzG0DsrLZ_-23" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="NAO_TENHO_OUTROS_ANIMAIS_EM_CASA&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;SIM_GATOS&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;SIM_CACHORROS&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;SIM_GATOS_E_CACHORROS, SIM_OUTRAS_ESPECIES&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&amp;nbsp;PREFIRO_RESPONDER_DIRETAMENTE_AO_PROTETOR&lt;/div&gt;" vertex="1">
+          <mxGeometry height="150" width="340" y="30" as="geometry" />
         </mxCell>
         <mxCell id="TM_L1JSCsxkzG0DsrLZ_-25" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="&lt;i&gt;&amp;lt;&amp;lt;enumeration&amp;gt;&amp;gt;&lt;br&gt;&lt;/i&gt;ProgramacaoViagem" vertex="1">
           <mxGeometry height="130" width="340" x="40" y="840" as="geometry" />
