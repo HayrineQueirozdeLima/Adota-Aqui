@@ -114,6 +114,44 @@ Revisão feita na issue #24: cada caso das prioridades 1 a 3 e o teste que cobre
 
 Na devolução de um animal adotado, o front destrava os campos e deixa salvar dados novos junto com a volta pra Disponível (`EditarAnimal.test.jsx`). O back recusa com `409` se algum dado mudar nesse mesmo salvamento (`adotadoSoMudaStatusEPreservaVacinasEHistorico`). Os dois testes passam, cada um do seu lado, mas juntos o fluxo falha. Precisa de uma issue pra decidir qual lado muda.
 
+## Revisão das prioridades 4 e 5 (regras de negócio críticas)
+
+Revisão feita na issue #33: cada regra de interesse e de adoção e o teste que cobre. Os testes do back sem nome de arquivo ficam no `InteresseIntegrationTest`, e os marcados com **(novo)** entraram nessa revisão, no `model/RegrasDasEntidadesTest`.
+
+### 4. Demonstrar interesse
+
+| Caso | Back | Front |
+| --- | --- | --- |
+| Interesse certo, com o contato do protetor | `registraOInteresseEDevolveOContatoDoProtetor`, `quandoOProtetorEUmAbrigoOContatoEDoAbrigo` | `DemonstrarInteresse.test.jsx`: "envia o aceite e a triagem com o token e mostra os contatos do Protetor" |
+| Sem o aceite do termo | `exigeOAceiteDoTermo` | "sem aceite e sem respostas, não envia e leva o foco pro primeiro erro" |
+| Triagem incompleta | `exigeTodasAsRespostasDaTriagem` | O mesmo teste acima e "erro de campo vindo da API aparece na pergunta certa" |
+| Melhor momento pra contato sem a opção de responder depois (RF15) | `oMomentoDeContatoNaoAceitaResponderDepois` | "a pergunta de contato não tem a opção de responder depois (RF15)" |
+| Conta de Abrigo | `abrigoNaoDemonstraInteresse` | `PerfilAnimal.test.jsx`: "Abrigo não demonstra interesse"; `AuthContext.test.jsx`: "abrigo não entra nas telas que são só de pessoa física" |
+| O próprio protetor | `oProtetorNaoDemonstraInteresseNoProprioAnimal` | `PerfilAnimal.test.jsx`: "o protetor que cadastrou vê o botão de editar" |
+| Animal de outro estado (RF14) | `soDemonstraInteresseEmAnimalDoMesmoEstado` | "animal de outro estado: explica e volta pro perfil" |
+| Animal já adotado | `animalAdotadoNaoRecebeInteresse` | "mostra a mensagem da API quando ela recusa (ex.: 409)" |
+| Interesse duplicado | `naoDeixaDoisInteressesEmAndamentoNoMesmoAnimal` | "quem já tem interesse em andamento não vê o formulário" |
+| Clique duplo no envio | Não se aplica | "trava o botão enquanto envia, sem registrar o interesse duas vezes" |
+| Desistir (UC07 FA01) | `oCandidatoDesisteEOInteresseEApagado`, `soQuemDemonstrouOInteressePodeDesistir`, `interesseFinalizadoFicaNoHistorico` | `PerfilAnimal.test.jsx`: os três testes de desistência |
+
+### 5. Aprovar e descontinuar
+
+| Caso | Back | Front |
+| --- | --- | --- |
+| Aprovar deixa o animal Adotado e descontinua só os outros interesses ativos, com o motivo padrão (RF10) | `aprovarAdotaAnimalEDescontinuaApenasOsDemaisAtivos` | `InteressesRecebidos.test.jsx`: "aprovar pede confirmação, adota o animal e recolhe os outros interesses" |
+| Duas aprovações ao mesmo tempo: só uma vale | `aprovacoesSimultaneasTemApenasUmVencedor`, `cadastroSimultaneoAAprovacaoNaoDeixaInteresseAtivo` | Não se aplica |
+| Erro no meio da aprovação desfaz tudo | `falhaNaPersistenciaDesfazTodaAAprovacao` | Não se aplica |
+| Descontinuar sem motivo é recusado | Pela API: `descontinuacaoManualExigeMotivoEGuardaTexto`. Na entidade: `interesseDescontinuadoSemMotivoNaoEGravado` e `interesseQueJaExisteNaoViraDescontinuadoSemMotivo` **(novo)**. No banco: `bancoRecusaInteresseDescontinuadoSemMotivo` **(novo)** | "descontinuar exige o motivo e envia junto" |
+| Transição que não pode acontecer | `naoAlteraInteresseEncerrado`, `naoRetornaParaPendenteNemAprovaAnimalAdotado` | "cada status mostra só as ações que a máquina de estados permite" |
+| Só o protetor do animal gerencia os interesses | `gerenciamentoExigeAutenticacaoEPropriedade` | Não se aplica |
+| Animal adotado só deixa mudar o status (RF06) | `AnimalIntegrationTest`: `adotadoSoMudaStatusEPreservaVacinasEHistorico` | `EditarAnimal.test.jsx`: "só o status fica editável" |
+| Remover o animal apaga os interesses dele (UC05 FA03) | `AnimalIntegrationTest`: `removerApagaDependentesMasPreservaContas` | `EditarAnimal.test.jsx`: "remove depois da confirmação, avisando dos interesses, e volta pra Meus animais" |
+| O animal tem exatamente um protetor, pessoa ou abrigo | Na entidade: `animalNaoFicaComDoisProtetoresNemSemNenhum` **(novo)**. No banco: `bancoRecusaAnimalComDoisProtetoresOuSemNenhum` **(novo)** | Não se aplica |
+
+### Por que testar a entidade e o banco
+
+As regras de "descontinuar exige motivo" e "o animal tem um protetor só" estão em três lugares. O primeiro é o service: ele recusa o motivo vazio com a mensagem certa pra tela, e o protetor nem tem como vir errado, porque sai do token. Os outros dois são a entidade (`validarMotivo` e `validarProtetor`) e o banco, com um `CHECK` na tabela. Os testes da API passam pelo service, que barra antes, então nunca chegam nas outras duas barreiras. O `RegrasDasEntidadesTest` grava direto pelo repository e pelo SQL, sem o service, pra garantir que as outras duas barreiras também funcionam. Se um código novo esquecer a validação, o erro aparece aqui e não no banco de produção.
+
 ## Como escrever os testes
 
 - **Quem escreve o código escreve o teste, no mesmo PR.**
