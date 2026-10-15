@@ -100,7 +100,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | CT-INT-01 | Ver os interesses recebidos | Funcional | Os candidatos aparecem agrupados por animal, com e-mail, WhatsApp e a triagem | `InteressesRecebidos.test.jsx` |
 | CT-INT-02 | Filtrar por status e por animal | Funcional | A lista e as contagens mudam conforme o filtro | `InteressesRecebidos.test.jsx` |
 | CT-INT-03 | Marcar em contato | Funcional | O interesse Pendente passa pra Em contato | `InteressesRecebidos.test.jsx`, `InteresseIntegrationTest.java` |
-| CT-INT-04 | Descontinuar | Regra de negócio | Sem motivo não envia. Com motivo, o interesse vira Descontinuado e o motivo fica guardado | `InteressesRecebidos.test.jsx`, `InteresseIntegrationTest.java` |
+| CT-INT-04 | Descontinuar | Regra de negócio | Sem motivo não envia. Com motivo, o interesse vira Descontinuado e o motivo fica guardado | `InteressesRecebidos.test.jsx`, `InteresseIntegrationTest.java`, `model/RegrasDasEntidadesTest.java` |
 | CT-INT-05 | Aprovar | Regra de negócio | Pede confirmação. O animal vira Adotado e os outros interesses dele são descontinuados com o motivo padrão (RF10) | `InteressesRecebidos.test.jsx`, `InteresseIntegrationTest.java` |
 
 ### Módulo 8: Desempenho, acessibilidade e segurança
