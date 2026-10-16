@@ -97,7 +97,7 @@ export default function Login() {
           }}
         />
 
-        <label className="flex w-fit items-center gap-[9px] text-compacto text-texto-secundario">
+        <label className="flex w-fit items-center gap-[9px] py-1 text-compacto text-texto-secundario">
           <input
             type="checkbox"
             checked={manterConectada}

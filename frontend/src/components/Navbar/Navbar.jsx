@@ -44,9 +44,10 @@ function NavbarVisitante() {
         </Link>
 
         <div className="flex items-center gap-[18px]">
+          {/* min-h-11 deixa a área de toque com 44 px de altura, igual ao botão Entrar */}
           <Link
             to="/cadastro"
-            className={`font-titulo font-semibold text-botao text-texto-sobre-marca ${foco}`}
+            className={`inline-flex min-h-11 items-center font-titulo font-semibold text-botao text-texto-sobre-marca ${foco}`}
           >
             Cadastrar
           </Link>
@@ -86,16 +87,16 @@ function NavbarLogado({ usuario }) {
 
         <nav
           aria-label="Menu principal"
-          className="order-3 mt-3 w-full overflow-x-auto md:order-2 md:mt-0 md:w-auto md:flex-1"
+          className="order-3 mt-3 w-full md:order-2 md:mt-0 md:w-auto md:flex-1"
         >
-          <ul className="flex gap-3 md:gap-5">
+          <ul className="flex flex-wrap gap-x-3 gap-y-1 md:flex-nowrap md:gap-5">
             {itens.map((item) => (
               <li key={item.para}>
                 <NavLink
                   to={item.para}
                   aria-label={item.completo}
                   className={({ isActive }) =>
-                    `block whitespace-nowrap border-b-2 pb-[5px] pt-1 font-titulo font-semibold text-botao text-texto-sobre-marca ${
+                    `block whitespace-nowrap border-b-2 pb-[5px] pt-1 font-titulo font-semibold text-legenda text-texto-sobre-marca md:text-botao ${
                       isActive ? "border-acao-terracota" : "border-transparent"
                     } ${foco}`
                   }

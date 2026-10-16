@@ -28,7 +28,7 @@ A coluna **Automatizado em** mostra o arquivo de teste que já confere o caso. O
 | ID | Cenário | Tipo | Resultado esperado | Automatizado em |
 | --- | --- | --- | --- | --- |
 | CT-NAV-01 | Abrir a página inicial | Smoke | O menu, o título e os cartões dos animais aparecem, sem erro no console | `App.test.jsx`, `VitrineAnimais.test.jsx` |
-| CT-NAV-02 | Responsividade | UI | Nos tamanhos do Figma, celular (390px), tablet (834px) e computador (1440px), as telas se ajustam e não aparece rolagem pro lado | Manual |
+| CT-NAV-02 | Responsividade | UI | Nos tamanhos do Figma, celular (390px), tablet (834px) e computador (1440px), e também nos celulares mais estreitos (360px e 320px), as telas se ajustam: não aparece rolagem pro lado, nenhum texto ou botão fica cortado ou passa da borda do cartão, e o menu mostra todos os itens | Manual |
 | CT-NAV-03 | Menu conforme a conta | Funcional | Visitante vê "Cadastrar" e "Entrar". Logado vê "Explorar", "Meus animais" e "Interesses recebidos", e só pessoa física vê "Minhas candidaturas" | `Navbar.test.jsx` |
 | CT-NAV-04 | Endereço que não existe | Funcional | Aparece "Página não encontrada", com o menu | `App.test.jsx` |
 
@@ -136,7 +136,7 @@ A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta ta
 
 **Navegadores:** Chrome, Firefox e Safari, nas versões mais recentes.
 
-**Tamanhos de tela:** celular (390 x 844), tablet (834 x 1194) e computador (1440 x 900), os mesmos do Figma.
+**Tamanhos de tela:** celular (390 x 844), tablet (834 x 1194) e computador (1440 x 900), os mesmos do Figma. Pra responsividade (CT-NAV-02), testar também 360 x 800, a largura mais comum dos celulares Android, e 320 x 568, a menor que ainda aparece: foi nessas larguras que a revisão da #36 achou os problemas. No Chrome, dá pra simular todas pelo modo dispositivo (F12 e depois Ctrl+Shift+M).
 
 **Quando um caso falha:** abrir uma issue com o ID do caso, o passo a passo, o que aconteceu e o que deveria acontecer.
 

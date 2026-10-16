@@ -340,7 +340,7 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 - **Erros no mesmo formato.** Toda resposta de erro da API tem `status`, `erro`, `mensagem`, `campos` (quando o erro é num campo) e `timestamp`, em português. O front mostra a `mensagem` e põe cada erro de `campos` embaixo do campo certo (`GlobalExceptionHandler`, `ErroResponse` e `services/api.js`).
 - **Servidor acordando.** O Render desliga a API depois de 15 minutos sem uso. Quando uma tela passa de 4 segundos carregando, aparece "O servidor estava parado e está acordando. Isso pode levar até 1 minuto." (`components/Carregando`).
-- **Responsivo (RNF01).** As telas funcionam no celular, no tablet e no computador, seguindo os três tamanhos do Figma.
+- **Responsivo (RNF01).** As telas funcionam no celular, no tablet e no computador, seguindo os três tamanhos do Figma. Na revisão da #36, todas as telas foram conferidas de 320 a 1440 px de largura: nenhuma tem rolagem pro lado, o menu de quem está logado nunca esconde item, os botões descem pra baixo do texto no celular e os links que ficam soltos, fora de uma frase, têm pelo menos 24 px de altura pra tocar.
 - **Página não encontrada** pra qualquer endereço que não existe.
 - **Integração contínua.** A cada push e PR na `dev` e na `main`, o GitHub Actions roda os testes do back (`mvn verify`) e do front (build e `npm run test:coverage`) e guarda os relatórios de cobertura (JaCoCo e lcov). O PR só entra com os dois verdes.
 - **Deploy (RNF06).** Front no Netlify, API no Render (com Docker), banco PostgreSQL no Neon e fotos no Amazon S3. Os endereços estão no [README principal](../README.md).

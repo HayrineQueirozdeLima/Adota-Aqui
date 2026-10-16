@@ -161,7 +161,7 @@ function ItemAnimal({ animal }) {
         </div>
         <p className="mt-1 text-legenda text-texto-terciario">{descricao}</p>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
         {adotado ? (
           <Botao
             variante="secundario"

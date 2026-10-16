@@ -78,7 +78,8 @@ export default function ListaVacinas({
               <span className="font-titulo font-semibold text-texto-principal">
                 {vacina.nome}
               </span>
-              <span className="flex items-center gap-3">
+              {/* flex-wrap: em tela estreita, o Remover desce em vez de espremer a data */}
+              <span className="flex flex-wrap items-center gap-x-3 gap-y-2">
                 <span className="text-legenda text-texto-terciario">
                   {descricaoDaVacina(vacina)}
                 </span>
