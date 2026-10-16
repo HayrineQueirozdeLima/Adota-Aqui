@@ -20,10 +20,11 @@ const variantes = {
     "border-[1.5px] border-borda-forte text-texto-secundario focus-visible:outline-marca-roxo",
 };
 
-// O que todo botão tem igual
+// O que todo botão tem igual.
+
 const base =
   "inline-flex items-center justify-center rounded-[11px] px-[18px] py-[13px] " +
-  "font-titulo font-semibold text-botao whitespace-nowrap " +
+  "font-titulo font-semibold text-botao text-center sm:whitespace-nowrap " +
   "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 " +
   "disabled:cursor-not-allowed disabled:opacity-60";
 

@@ -17,8 +17,9 @@ const status = {
   DESCONTINUADO: { texto: "Descontinuado", variante: "neutro" },
 };
 
+// O py-0.5 deixa a área de toque do e-mail e do WhatsApp com pelo menos 24 px de altura no celular
 const estiloDoLink =
-  "underline decoration-borda-forte underline-offset-2 hover:text-marca-roxo hover:decoration-marca-roxo";
+  "py-0.5 underline decoration-borda-forte underline-offset-2 hover:text-marca-roxo hover:decoration-marca-roxo";
 
 // Um candidato no painel do protetor (UC08): contatos, resumo da triagem e as ações que o status permite.
 //   Pendente: marcar em contato ou descontinuar
@@ -182,7 +183,8 @@ export default function InteresseRecebido({ interesse, aoMudar }) {
             {animal.nome} passa para Adotado e sai da vitrine. Os outros interesses em andamento por{" "}
             {animal.nome} são descontinuados automaticamente, e os candidatos ficam sabendo.
           </p>
-          <div className="mt-3 flex flex-wrap gap-2">
+          {/* Igual às ações do cartão: no celular, um botão embaixo do outro, na largura toda */}
+          <div className="mt-3 flex flex-col gap-2 md:flex-row md:flex-wrap">
             <Botao
               disabled={enviando}
               onClick={() =>
@@ -232,7 +234,7 @@ export default function InteresseRecebido({ interesse, aoMudar }) {
               {motivo.length}/{LIMITE_DO_MOTIVO}
             </span>
           </div>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-col gap-2 md:flex-row md:flex-wrap">
             <Botao onClick={descontinuar} disabled={enviando}>
               {enviando ? "Enviando..." : "Confirmar"}
             </Botao>

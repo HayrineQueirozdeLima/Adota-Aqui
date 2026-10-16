@@ -139,8 +139,9 @@ function Perfil({ animal, usuario, aoMudar }) {
 
   return (
     <main className="mx-auto w-full max-w-[1440px] px-5 py-6 md:px-14 md:py-8">
+      {/* py-1 nos links: área de toque de pelo menos 24 px no celular */}
       <nav aria-label="Caminho" className="text-legenda text-texto-terciario">
-        <Link to="/animais" className="hover:underline">
+        <Link to="/animais" className="inline-block py-1 hover:underline">
           Explorar
         </Link>
         {" / "}
