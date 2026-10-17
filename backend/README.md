@@ -39,7 +39,7 @@ O que cada funcionalidade faz, tela por tela, está no [`docs/funcionalidades.md
 
 A gente não escreve `CREATE TABLE`. O Hibernate cria e atualiza as tabelas sozinho a partir das entidades (`ddl-auto=update`), do jeito que o curso ensina.
 
-Então, **pra mudar uma tabela, muda a entidade**. Só tem um cuidado: o Hibernate só acrescenta coluna. Se você renomear ou apagar um campo, avisa no grupo, porque todo mundo vai ter que apagar e recriar o banco local:
+Então, **pra mudar uma tabela, muda a entidade**. Só tem um cuidado: o Hibernate só acrescenta coluna e índice. `CHECK` novo numa tabela que já existe ele não cria: nesse caso, coloca o SQL em [`docs/banco/integridade.sql`](../docs/banco/integridade.sql) e roda no Neon. O mesmo vale quando um enum ganha um valor novo: o Hibernate cria um `CHECK` com a lista de valores de cada enum, e no Neon o `CHECK` antigo recusa o valor novo até ser recriado. Se você renomear ou apagar um campo, avisa no grupo, porque todo mundo vai ter que apagar e recriar o banco local:
 
 ```sql
 DROP DATABASE adota_aqui;
