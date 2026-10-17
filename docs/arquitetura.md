@@ -25,12 +25,12 @@ Repare que quem chama a API é o próprio navegador: o Netlify só entrega os ar
 
 ### Onde cada parte roda
 
-| Parte | Onde roda | Endereço |
-| --- | --- | --- |
-| Front-end | Netlify, que também gera uma prévia de cada PR | https://adotaaqui.netlify.app |
-| Back-end | Render, num container Docker montado pelo `backend/Dockerfile` | https://adota-aqui.onrender.com |
-| Banco de dados | PostgreSQL no Neon | Só o back acessa |
-| Fotos dos animais | Amazon S3 | Cada foto tem a sua URL pública |
+| Parte             | Onde roda                                                      | Endereço                        |
+| ----------------- | -------------------------------------------------------------- | ------------------------------- |
+| Front-end         | Netlify, que também gera uma prévia de cada PR                 | https://adotaaqui.netlify.app   |
+| Back-end          | Render, num container Docker montado pelo `backend/Dockerfile` | https://adota-aqui.onrender.com |
+| Banco de dados    | PostgreSQL no Neon                                             | Só o back acessa                |
+| Fotos dos animais | Amazon S3                                                      | Cada foto tem a sua URL pública |
 
 A API do Render "dorme" depois de 15 minutos sem uso, e o primeiro acesso depois disso pode levar cerca de 1 minuto.
 
@@ -80,12 +80,12 @@ frontend/src/
 
 O caminho de uma requisição é sempre o mesmo: o **controller** chama o **service**, o service chama o **repository**, e o repository fala com o **banco**. O controller não fala direto com o repository, e regra de negócio fica só no service.
 
-| Camada | Pacote | O que faz | Exemplo |
-| --- | --- | --- | --- |
-| Controller | `controller/` | Recebe a requisição, valida o formato da entrada (`@Valid` no DTO) e devolve a resposta com o status certo. Não tem regra de negócio | `AnimalController` |
-| Service | `service/` | As regras de negócio: quem pode fazer o quê, as transições de status, a transação com o banco | `InteresseService` |
-| Repository | `repository/` | Fala com o banco pelo Spring Data JPA. A busca da vitrine, com os filtros combinados, fica no `AnimalSpecifications` | `AnimalRepository` |
-| Model | `model/` | As entidades, que viram as tabelas, e os enums com as listas fechadas de opções | `Animal`, `Interesse` |
+| Camada     | Pacote        | O que faz                                                                                                                            | Exemplo               |
+| ---------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------ | --------------------- |
+| Controller | `controller/` | Recebe a requisição, valida o formato da entrada (`@Valid` no DTO) e devolve a resposta com o status certo. Não tem regra de negócio | `AnimalController`    |
+| Service    | `service/`    | As regras de negócio: quem pode fazer o quê, as transições de status, a transação com o banco                                        | `InteresseService`    |
+| Repository | `repository/` | Fala com o banco pelo Spring Data JPA. A busca da vitrine, com os filtros combinados, fica no `AnimalSpecifications`                 | `AnimalRepository`    |
+| Model      | `model/`      | As entidades, que viram as tabelas, e os enums com as listas fechadas de opções                                                      | `Animal`, `Interesse` |
 
 Em volta das camadas:
 
@@ -98,16 +98,17 @@ Em volta das camadas:
 
 Todo erro sai no mesmo formato (`docs/api.md`, seção 4): `status`, `erro`, `mensagem`, `campos` (quando é erro de campo) e `timestamp`. O service só lança a exceção certa, e o `GlobalExceptionHandler` escolhe o status:
 
-| Situação | Exceção | Status |
-| --- | --- | --- |
-| Campo vazio ou fora do formato | Validação do DTO | 400, com `campos` |
-| Dado que passou no formato, mas não vale | `DadosInvalidosException`, `DocumentoInvalidoException` | 400 |
-| Documento ou senha errados | `CredenciaisInvalidasException` | 401 |
-| Sem login ou com token inválido | Spring Security | 401 |
-| Logado, mas sem permissão | `AcessoNegadoException` | 403 |
-| Não existe | `RecursoNaoEncontradoException` | 404 |
-| Regra de negócio impede (ex.: animal já adotado) | `RegraNegocioException` | 409 |
-| Qualquer erro inesperado | Outras | 500 |
+| Situação                                                                    | Exceção                                                 | Status            |
+| --------------------------------------------------------------------------- | ------------------------------------------------------- | ----------------- |
+| Campo vazio ou fora do formato                                              | Validação do DTO                                        | 400, com `campos` |
+| Dado que passou no formato, mas não vale                                    | `DadosInvalidosException`, `DocumentoInvalidoException` | 400               |
+| Documento ou senha errados                                                  | `CredenciaisInvalidasException`                         | 401               |
+| Sem login ou com token inválido                                             | Spring Security                                         | 401               |
+| Logado, mas sem permissão                                                   | `AcessoNegadoException`                                 | 403               |
+| Não existe                                                                  | `RecursoNaoEncontradoException`                         | 404               |
+| Regra de negócio impede (ex.: animal já adotado)                            | `RegraNegocioException`                                 | 409               |
+| Conta repetida que passou junto na conferência (duas iguais ao mesmo tempo) | `DataIntegrityViolationException` com código 23505      | 409               |
+| Qualquer erro inesperado                                                    | Outras                                                  | 500               |
 
 ### Fotos
 
@@ -134,11 +135,11 @@ A API não guarda sessão (`STATELESS`): cada requisição carrega o próprio to
 
 **O que cada um pode fazer.** O `SecurityConfig` decide só se a rota precisa de login. As regras mais finas, como ser o dono do animal ou o tipo de conta, ficam nos services.
 
-| Quem | O que pode |
-| --- | --- |
-| Visitante | Ver a vitrine, o perfil dos animais e as raças, se cadastrar e entrar |
+| Quem                    | O que pode                                                                                                                                                 |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Visitante               | Ver a vitrine, o perfil dos animais e as raças, se cadastrar e entrar                                                                                      |
 | Usuario (pessoa física) | Tudo do visitante, mais cadastrar e gerenciar os próprios animais e os interesses recebidos, demonstrar interesse em animais do seu estado e desistir dele |
-| Abrigo | Cadastrar e gerenciar os próprios animais e os interesses recebidos. Não demonstra interesse |
+| Abrigo                  | Cadastrar e gerenciar os próprios animais e os interesses recebidos. Não demonstra interesse                                                               |
 
 **CORS e CSRF.** O navegador só deixa o site chamar a API se o endereço dele estiver em `CORS_ORIGENS` (o site do Netlify, as prévias dos PRs e o `localhost`). A proteção CSRF fica desligada porque o token vai no cabeçalho, e não num cookie que o navegador mandaria sozinho.
 
@@ -146,23 +147,57 @@ A API não guarda sessão (`STATELESS`): cada requisição carrega o próprio to
 
 **PostgreSQL** no Neon em produção e na máquina de vocês. Nos testes, um **H2 em memória**, que é criado do zero a cada execução.
 
-Ninguém escreve `CREATE TABLE`: o **Hibernate cria e atualiza as tabelas** a partir das entidades do pacote `model` (`ddl-auto=update`; nos testes, `create-drop`). Pra mudar uma tabela, muda a entidade. Cuidado: o Hibernate só acrescenta colunas. Renomear ou apagar um campo pede recriar o banco local (ver o [README do back](../backend/README.md)).
+Ninguém escreve `CREATE TABLE`: o **Hibernate cria e atualiza as tabelas** a partir das entidades do pacote `model` (`ddl-auto=update`; nos testes, `create-drop`). Pra mudar uma tabela, muda a entidade. Cuidado: o Hibernate só acrescenta colunas e índices. Renomear ou apagar um campo pede recriar o banco local (ver o [README do back](../backend/README.md)), e um `CHECK` novo numa tabela que já existe precisa ser criado à mão no Neon ([banco/integridade.sql](banco/integridade.sql)).
 
-| Tabela | Entidade | O que guarda |
-| --- | --- | --- |
-| `usuario` | `Usuario` | Pessoa física, com o endereço na mesma tabela (`Endereco` é `@Embeddable`) |
-| `abrigo` | `Abrigo` | ONG ou abrigo, também com o endereço na mesma tabela |
-| `animal` | `Animal` | O animal e quem cadastrou: `usuario_id` ou `abrigo_id`, nunca os dois |
-| `animal_foto` | Lista `fotos` do `Animal` | As URLs das fotos, na ordem (a primeira é a capa). A imagem fica no S3 |
-| `vacina` | `Vacina` | As vacinas de cada animal |
-| `interesse` | `Interesse` | Quem demonstrou interesse em qual animal, a triagem e o andamento |
+| Tabela        | Entidade                  | O que guarda                                                               |
+| ------------- | ------------------------- | -------------------------------------------------------------------------- |
+| `usuario`     | `Usuario`                 | Pessoa física, com o endereço na mesma tabela (`Endereco` é `@Embeddable`) |
+| `abrigo`      | `Abrigo`                  | ONG ou abrigo, também com o endereço na mesma tabela                       |
+| `animal`      | `Animal`                  | O animal e quem cadastrou: `usuario_id` ou `abrigo_id`, nunca os dois      |
+| `animal_foto` | Lista `fotos` do `Animal` | As URLs das fotos, na ordem (a primeira é a capa). A imagem fica no S3     |
+| `vacina`      | `Vacina`                  | As vacinas de cada animal                                                  |
+| `interesse`   | `Interesse`               | Quem demonstrou interesse em qual animal, a triagem e o andamento          |
 
-Regras que o próprio banco garante:
+Regras que o próprio banco garante (revisadas na #40 e testadas em `RegrasDasEntidadesTest` e `IntegridadeDoBancoTest`):
 
+- **Contas únicas:** CPF, CNPJ e e-mail não se repetem (`unique`). O service confere antes e responde 409; se duas contas iguais chegarem ao mesmo tempo, o banco recusa a segunda e ela também recebe 409. O e-mail é único também entre pessoa e abrigo, mas isso só o service confere, porque são duas tabelas.
+- **Nada solto:** toda foto, vacina e interesse aponta pra um animal que existe, e todo animal e interesse aponta pra uma conta que existe (chaves estrangeiras). Uma conta que ainda tem animal não pode ser apagada.
 - **Um protetor só:** um `CHECK` na tabela `animal` recusa animal sem protetor ou com os dois.
 - **Motivo da descontinuação:** um `CHECK` na tabela `interesse` recusa interesse Descontinuado sem motivo.
+- **Valores:** o peso, quando vem, é maior que zero, e a dose da vacina é 1 ou mais (`CHECK`). As colunas de enum só aceitam os valores do dicionário de domínios, porque o Hibernate cria um `CHECK` pra cada uma.
+- **Interesse repetido:** a pessoa não pode ter dois interesses ativos no mesmo animal. Quem garante é o service, com o animal travado (o mesmo lock da aprovação). Não tem `unique` no banco porque a regra vale só pros ativos: depois de uma descontinuação, a pessoa pode demonstrar interesse de novo.
 - **Remoção em cascata:** remover um animal apaga junto as fotos, as vacinas e os interesses dele.
 - **Aprovação sem conflito:** ao aprovar um interesse, o back trava a linha do animal (`findByIdParaAtualizacao`, um lock pessimista) até terminar. Assim, duas aprovações ao mesmo tempo não adotam o mesmo animal duas vezes.
+
+### Índices
+
+O PostgreSQL cria índice sozinho pra chave primária e pra `unique`, mas não pra chave estrangeira. Os índices abaixo cobrem as consultas que mais rodam e estão nas entidades (`@Table(indexes = ...)`), então o Hibernate cria no deploy:
+
+| Índice                         | Colunas                                   | Pra quê                                                      |
+| ------------------------------ | ----------------------------------------- | ------------------------------------------------------------ |
+| `idx_animal_status_adocao`     | `animal (status_adocao)`                  | Vitrine, que só mostra Disponível                            |
+| `idx_animal_usuario`           | `animal (usuario_id)`                     | Meus animais da pessoa e o painel de interesses              |
+| `idx_animal_abrigo`            | `animal (abrigo_id)`                      | Meus animais do abrigo e o painel de interesses              |
+| `idx_interesse_usuario_animal` | `interesse (usuario_id, animal_id)`       | Conferir interesse repetido e listar os interesses da pessoa |
+| `idx_interesse_animal_status`  | `interesse (animal_id, status_andamento)` | Painel do protetor e descontinuar os outros ao aprovar       |
+| `idx_vacina_animal`            | `vacina (animal_id)`                      | Vacinas no perfil do animal                                  |
+
+As fotos não precisam de índice próprio: a chave primária de `animal_foto` já é `(animal_id, ordem)`.
+
+Medido num PostgreSQL 16 com dados de teste parecidos com um ano de uso (20 mil pessoas, 800 abrigos, 15 mil animais, 45 mil interesses e 22 mil vacinas), mediana de 9 execuções:
+
+| Consulta                                | Sem os índices | Com os índices |
+| --------------------------------------- | -------------- | -------------- |
+| Meus animais (abrigo)                   | 3,7 ms         | 0,13 ms        |
+| Meus animais (pessoa)                   | 4,2 ms         | 0,12 ms        |
+| Painel de interesses recebidos          | 17,3 ms        | 0,28 ms        |
+| Conferir interesse repetido             | 7,7 ms         | 0,05 ms        |
+| Interesses ativos do animal, ao aprovar | 8,8 ms         | 0,09 ms        |
+| Vacinas do animal                       | 2,0 ms         | 0,07 ms        |
+| Interesses da pessoa                    | 5,2 ms         | 0,09 ms        |
+| Vitrine sem filtro                      | 4,0 ms         | 3,3 ms         |
+
+Na vitrine o ganho é pequeno porque ela devolve todos os disponíveis (35% dos animais nesse teste). Ele cresce conforme os animais vão sendo adotados e os disponíveis viram uma parte menor da tabela. A busca por nome e por cidade (`LIKE` com o texto no meio) não usa índice comum, mas nesse volume fica em torno de 30 ms, então não compensa um índice especial.
 
 O DER conceitual e o lógico, e o dicionário de domínios, estão em [diagramas/diagramas-adota-aqui.md](diagramas/diagramas-adota-aqui.md). O diagrama de classes está em [diagramas/diagrama-de-classes.md](diagramas/diagrama-de-classes.md).
 

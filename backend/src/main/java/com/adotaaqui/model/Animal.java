@@ -18,6 +18,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -33,7 +34,14 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "animal")
+// Índices das consultas que mais rodam (#40): a vitrine filtra pelo status,
+// e "Meus animais" e o painel de interesses buscam pelo protetor.
+// O PostgreSQL não cria índice sozinho na chave estrangeira, por isso os dois últimos
+@Table(name = "animal", indexes = {
+        @Index(name = "idx_animal_status_adocao", columnList = "status_adocao"),
+        @Index(name = "idx_animal_usuario", columnList = "usuario_id"),
+        @Index(name = "idx_animal_abrigo", columnList = "abrigo_id")
+})
 // Regra do xor: o animal tem que ter exatamente um dono, ou usuario_id ou abrigo_id.
 // Deixei no banco também, além do Java, pra ninguém conseguir gravar errado nem por fora do sistema.
 @Check(constraints = "(usuario_id IS NOT NULL AND abrigo_id IS NULL) OR (usuario_id IS NULL AND abrigo_id IS NOT NULL)")
@@ -64,7 +72,8 @@ public class Animal {
     @Column(nullable = false, length = 20)
     private Porte porte;
 
-    // Em kg. É o único campo opcional do cadastro (RF04).
+    // Em kg. É o único campo opcional do cadastro (RF04). Se vier, tem que ser maior que zero
+    @Check(constraints = "peso IS NULL OR peso > 0")
     private Double peso;
 
     // Convivência: se o protetor não sabe, fica NAO_TESTADO

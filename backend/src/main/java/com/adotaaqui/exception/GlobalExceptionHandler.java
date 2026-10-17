@@ -7,6 +7,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -121,6 +123,21 @@ public class GlobalExceptionHandler {
                 .sorted()
                 .collect(Collectors.joining("; "));
         return responder(HttpStatus.BAD_REQUEST, mensagem);
+    }
+
+    // ----- Banco de dados -----
+
+    // Duas contas iguais chegando ao mesmo tempo passam juntas pela conferência do service,
+    // mas o banco recusa a segunda (CPF, CNPJ e e-mail são únicos). Isso é conflito, não erro do servidor.
+    // 23505 é o código de "valor repetido" no PostgreSQL e no H2
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErroResponse> tratarViolacaoNoBanco(DataIntegrityViolationException ex) {
+        for (Throwable causa = ex; causa != null; causa = causa.getCause()) {
+            if (causa instanceof SQLException sql && "23505".equals(sql.getSQLState())) {
+                return responder(HttpStatus.CONFLICT, "Já existe uma conta cadastrada com esses dados");
+            }
+        }
+        return tratarInesperado(ex);
     }
 
     // ----- Todo o resto -----

@@ -21,26 +21,26 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 
 ## Quem usa o sistema
 
-| Perfil | Como entra | O que pode fazer |
-| --- | --- | --- |
-| Visitante | Sem login | Ver a vitrine (animais de todos os estados) e o perfil de cada animal |
-| Usuario | Pessoa física, login com CPF | Ver os animais do próprio estado, demonstrar interesse e desistir. Também pode cadastrar animais que resgatou e cuidar dos interesses recebidos |
-| Abrigo | ONG ou abrigo, login com CNPJ | Ver a vitrine de todos os estados, cadastrar animais e cuidar dos interesses recebidos. Não demonstra interesse |
+| Perfil    | Como entra                    | O que pode fazer                                                                                                                                |
+| --------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Visitante | Sem login                     | Ver a vitrine (animais de todos os estados) e o perfil de cada animal                                                                           |
+| Usuario   | Pessoa física, login com CPF  | Ver os animais do próprio estado, demonstrar interesse e desistir. Também pode cadastrar animais que resgatou e cuidar dos interesses recebidos |
+| Abrigo    | ONG ou abrigo, login com CNPJ | Ver a vitrine de todos os estados, cadastrar animais e cuidar dos interesses recebidos. Não demonstra interesse                                 |
 
 **Protetor** é quem cadastrou o animal, seja Usuario ou Abrigo.
 
 ## Resumo
 
-| # | Funcionalidade | Requisitos | Telas | Endpoints |
-| --- | --- | --- | --- | --- |
-| 1 | Cadastro de conta | RF01, RF02, RNF02 | `/cadastro`, `/cadastro/usuario`, `/cadastro/abrigo` | `POST /api/usuarios`, `POST /api/abrigos` |
-| 2 | Login, sessão e saída | RF03, RNF03 | `/login`, `/perfil` | `POST /api/auth/login` |
-| 3 | Controle de acesso | RNF03, RF14 | Todas | Todos |
-| 4 | Página inicial e vitrine de animais | RF07, RF14 | `/`, `/animais` | `GET /api/animais`, `GET /api/racas` |
-| 5 | Perfil do animal | RF07, RF14 | `/animais/:id` | `GET /api/animais/{id}` |
-| 6 | CRUD de animal e fotos | RF04, RF05, RF06, RF16 | `/meus-animais`, `/meus-animais/novo`, `/meus-animais/:id/editar` | `GET /api/animais/meus`, `POST /api/animais`, `PUT /api/animais/{id}`, `DELETE /api/animais/{id}`, `POST /api/fotos` |
-| 7 | Demonstrar interesse e desistir | RF08, RF09, RF13, RF14, RF15 | `/animais/:id/interesse` | `POST /api/animais/{id}/interesses`, `DELETE /api/interesses/{id}` |
-| 8 | Painel de interesses recebidos | RF09, RF10, RF12 | `/interesses-recebidos` | `GET /api/interesses/recebidos`, `PATCH /api/interesses/{id}/status` |
+| #   | Funcionalidade                      | Requisitos                   | Telas                                                             | Endpoints                                                                                                            |
+| --- | ----------------------------------- | ---------------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| 1   | Cadastro de conta                   | RF01, RF02, RNF02            | `/cadastro`, `/cadastro/usuario`, `/cadastro/abrigo`              | `POST /api/usuarios`, `POST /api/abrigos`                                                                            |
+| 2   | Login, sessão e saída               | RF03, RNF03                  | `/login`, `/perfil`                                               | `POST /api/auth/login`                                                                                               |
+| 3   | Controle de acesso                  | RNF03, RF14                  | Todas                                                             | Todos                                                                                                                |
+| 4   | Página inicial e vitrine de animais | RF07, RF14                   | `/`, `/animais`                                                   | `GET /api/animais`, `GET /api/racas`                                                                                 |
+| 5   | Perfil do animal                    | RF07, RF14                   | `/animais/:id`                                                    | `GET /api/animais/{id}`                                                                                              |
+| 6   | CRUD de animal e fotos              | RF04, RF05, RF06, RF16       | `/meus-animais`, `/meus-animais/novo`, `/meus-animais/:id/editar` | `GET /api/animais/meus`, `POST /api/animais`, `PUT /api/animais/{id}`, `DELETE /api/animais/{id}`, `POST /api/fotos` |
+| 7   | Demonstrar interesse e desistir     | RF08, RF09, RF13, RF14, RF15 | `/animais/:id/interesse`                                          | `POST /api/animais/{id}/interesses`, `DELETE /api/interesses/{id}`                                                   |
+| 8   | Painel de interesses recebidos      | RF09, RF10, RF12             | `/interesses-recebidos`                                           | `GET /api/interesses/recebidos`, `PATCH /api/interesses/{id}/status`                                                 |
 
 Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da API](api.md).
 
@@ -191,14 +191,14 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 
 O quadro do lado:
 
-| Quem vê | O que aparece |
-| --- | --- |
-| Visitante | "Quero conhecer {nome}", que leva ao login |
-| Pessoa física do mesmo estado | "Quero conhecer {nome}" |
-| Pessoa física com interesse em andamento | O status do interesse e "Desistir da adoção" |
-| Pessoa física de outro estado | Aviso de que a adoção acontece dentro do mesmo estado |
-| Abrigo | Aviso de que conta de abrigo não demonstra interesse |
-| Protetor do animal | "Editar {nome}" e "Ver interesses recebidos" |
+| Quem vê                                  | O que aparece                                         |
+| ---------------------------------------- | ----------------------------------------------------- |
+| Visitante                                | "Quero conhecer {nome}", que leva ao login            |
+| Pessoa física do mesmo estado            | "Quero conhecer {nome}"                               |
+| Pessoa física com interesse em andamento | O status do interesse e "Desistir da adoção"          |
+| Pessoa física de outro estado            | Aviso de que a adoção acontece dentro do mesmo estado |
+| Abrigo                                   | Aviso de que conta de abrigo não demonstra interesse  |
+| Protetor do animal                       | "Editar {nome}" e "Ver interesses recebidos"          |
 
 **Regras.** O back já manda o que o front precisa pra decidir o quadro: `ehMeu`, `podeDemonstrarInteresse` e `meuInteresse`. Animal adotado só aparece pro protetor dele. Pros outros, a resposta é `404` "Animal não encontrado".
 
@@ -350,7 +350,7 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ![Painel de interesses recebidos no tema escuro](prints/13-tema-escuro.png)
 
-- **Rodapé** em todas as telas que têm o menu do topo, com os links da plataforma (explorar animais, como adotar, cadastro e cadastrar um animal) e os do projeto no GitHub (`components/Rodape`, `Rodape.test.jsx`).
+- **Rodapé** em todas as telas que têm o menu do topo, com o logo, a frase do Figma e os links da plataforma: explorar animais, como adotar, cadastro e cadastrar um animal (`components/Rodape`, `Rodape.test.jsx`).
 - **Página não encontrada** pra qualquer endereço que não existe, com foto e os botões "Ver animais disponíveis" e "Ir para a página inicial". Animal que não existe (perfil, interesse ou edição) mostra a mesma foto com "Animal não encontrado".
 - **Integração contínua.** A cada push e PR na `dev` e na `main`, o GitHub Actions roda os testes do back (`mvn verify`) e do front (build e `npm run test:coverage`) e guarda os relatórios de cobertura (JaCoCo e lcov). O PR só entra com os dois verdes.
 - **Deploy (RNF06).** Front no Netlify, API no Render (com Docker), banco PostgreSQL no Neon e fotos no Amazon S3. Os endereços estão no [README principal](../README.md).
@@ -359,13 +359,13 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ## 10. O que ainda não está pronto
 
-| O quê | Situação |
-| --- | --- |
-| Minhas candidaturas (`/meus-interesses`) | A tela ainda é só o título, e não existe endpoint que liste os interesses da pessoa. O menu e a tela de confirmação já levam pra ela |
-| Editar perfil e trocar senha (RF17, UC10) | Os DTOs existem, mas ainda não há endpoint nem tela. Meu perfil só tem "Sair da conta" |
-| Apagar a imagem do S3 | Remover uma foto ou um animal tira o endereço do banco, mas o arquivo continua no S3 |
-| Paginação e ordem na vitrine | A vitrine traz todos os animais de uma vez, sem uma ordem definida |
-| Cobertura mínima obrigatória (RNF04) | A cobertura é medida no CI, mas o build ainda não falha quando fica abaixo de 70% |
+| O quê                                     | Situação                                                                                                                             |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Minhas candidaturas (`/meus-interesses`)  | A tela ainda é só o título, e não existe endpoint que liste os interesses da pessoa. O menu e a tela de confirmação já levam pra ela |
+| Editar perfil e trocar senha (RF17, UC10) | Os DTOs existem, mas ainda não há endpoint nem tela. Meu perfil só tem "Sair da conta"                                               |
+| Apagar a imagem do S3                     | Remover uma foto ou um animal tira o endereço do banco, mas o arquivo continua no S3                                                 |
+| Paginação e ordem na vitrine              | A vitrine traz todos os animais de uma vez, sem uma ordem definida                                                                   |
+| Cobertura mínima obrigatória (RNF04)      | A cobertura é medida no CI, mas o build ainda não falha quando fica abaixo de 70%                                                    |
 
 ---
 
