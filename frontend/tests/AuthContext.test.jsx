@@ -21,8 +21,10 @@ function salvarSessao(armazenamento, mudancas = {}) {
 
 // A Home e a /animais carregam a vitrine: espera os cards aparecerem antes de terminar o teste
 async function esperarVitrine() {
-  await screen.findAllByRole("heading", { level: 3 });
+  await screen.findAllByRole("link", { name: /^Quero conhecer/ });
 }
+
+const TITULO_DA_HOME = "Todo animal merece um lar de verdade.";
 
 function abrir(endereco) {
   render(
@@ -81,7 +83,7 @@ test("abrigo não entra nas telas que são só de pessoa física", async () => {
   abrir("/meus-interesses");
 
   expect(
-    screen.getByRole("heading", { name: "Adota Aqui" }),
+    screen.getByRole("heading", { name: TITULO_DA_HOME }),
   ).toBeInTheDocument();
   await esperarVitrine();
 });
@@ -102,7 +104,7 @@ test("sair da conta apaga a sessão e volta pra Home", async () => {
   fireEvent.click(screen.getByRole("button", { name: "Sair da conta" }));
 
   expect(
-    screen.getByRole("heading", { name: "Adota Aqui" }),
+    screen.getByRole("heading", { name: TITULO_DA_HOME }),
   ).toBeInTheDocument();
   expect(localStorage.getItem(CHAVE)).toBeNull();
   expect(screen.getByRole("link", { name: "Entrar" })).toBeInTheDocument();

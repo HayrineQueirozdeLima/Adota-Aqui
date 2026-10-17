@@ -22,6 +22,7 @@ import {
   sexos,
   statusDoInteresse,
 } from "../../utils/rotulos";
+import fotoNaoEncontrado from "../../assets/fotos/pagina-nao-encontrada.webp";
 
 // Perfil do animal (Figma: "Ficha do animal"), em /animais/:id
 export default function PerfilAnimal() {
@@ -78,7 +79,7 @@ export default function PerfilAnimal() {
 
   if (situacao === "nao-encontrado") {
     return (
-      <AvisoPagina titulo="Animal não encontrado">
+      <AvisoPagina titulo="Animal não encontrado" imagem={fotoNaoEncontrado}>
         <p>Ele pode já ter sido adotado, ou o endereço está errado.</p>
         <Botao para="/animais" className="mt-5">
           Ver animais disponíveis

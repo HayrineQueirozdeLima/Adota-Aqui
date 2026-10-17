@@ -132,3 +132,22 @@ test("avisa quando não consegue carregar", async () => {
     "Não foi possível carregar seus animais",
   );
 });
+
+test("se não conseguir carregar, deixa tentar de novo", async () => {
+  let tentativas = 0;
+  simularApi({
+    outras: (metodo, caminho) => {
+      if (caminho !== "/api/animais/meus") return undefined;
+      tentativas += 1;
+      return tentativas === 1
+        ? resposta(500, { status: 500, mensagem: "Erro interno" })
+        : resposta(200, meus);
+    },
+  });
+  abrir();
+
+  await screen.findByRole("alert");
+  fireEvent.click(screen.getByRole("button", { name: "Tentar de novo" }));
+  expect(await screen.findByRole("heading", { name: "Mel" })).toBeInTheDocument();
+  expect(tentativas).toBe(2);
+});

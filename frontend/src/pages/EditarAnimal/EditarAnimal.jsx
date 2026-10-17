@@ -11,6 +11,7 @@ import {
   removerAnimal,
 } from "../../services/animais";
 import { animalParaFormulario } from "../../utils/formularioAnimal";
+import fotoNaoEncontrado from "../../assets/fotos/pagina-nao-encontrada.webp";
 
 // Editar ou remover animal (UC05, RF06), em /meus-animais/:id/editar
 export default function EditarAnimal() {
@@ -64,7 +65,7 @@ export default function EditarAnimal() {
 
   if (situacao === "nao-encontrado") {
     return (
-      <AvisoPagina titulo="Animal não encontrado">
+      <AvisoPagina titulo="Animal não encontrado" imagem={fotoNaoEncontrado}>
         <p>Ele pode ter sido removido, ou o endereço está errado.</p>
         <Botao para="/meus-animais" className="mt-5">
           Ver meus animais
