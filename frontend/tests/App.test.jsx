@@ -15,9 +15,11 @@ test("abre a Home no endereço /", async () => {
       <App />
     </MemoryRouter>,
   );
-  expect(screen.getByText("Adota Aqui")).toBeInTheDocument();
+  expect(
+    screen.getByRole("heading", { level: 1, name: "Todo animal merece um lar de verdade." }),
+  ).toBeInTheDocument();
   // A Home carrega a vitrine: espera os cards pra não terminar o teste no meio da busca
-  await screen.findAllByRole("heading", { level: 3 });
+  await screen.findAllByRole("link", { name: /^Quero conhecer/ });
 });
 
 test("mostra a página de não encontrada em um endereço que não existe", () => {
@@ -27,4 +29,6 @@ test("mostra a página de não encontrada em um endereço que não existe", () =
     </MemoryRouter>,
   );
   expect(screen.getByText("Página não encontrada")).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Ver animais disponíveis" })).toHaveAttribute("href", "/animais");
+  expect(screen.getByRole("link", { name: "Ir para a página inicial" })).toHaveAttribute("href", "/");
 });

@@ -1,18 +1,21 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Botao from "../Botao/Botao";
 import CardAnimal from "../CardAnimal/CardAnimal";
 import Carregando from "../Carregando/Carregando";
 import FiltrosAnimais from "../FiltrosAnimais/FiltrosAnimais";
 import { useAuth } from "../../contexts/AuthContext";
 import { useValorAtrasado } from "../../hooks/useValorAtrasado";
 import { filtrosVazios, listarAnimais } from "../../services/animais";
+import fotoNenhumAnimal from "../../assets/fotos/nenhum-animal.webp";
 
 // Tempo sem mexer nos filtros antes de buscar (evita uma busca por letra digitada na cidade)
 const ESPERA_ANTES_DE_BUSCAR_MS = 300;
 
 // Filtros + grade de cards
 // fica na /animais e também aparece na Home do site
-export default function VitrineAnimais() {
+// aoCarregar (opcional) é chamado quando uma busca termina, com ou sem erro
+export default function VitrineAnimais({ aoCarregar }) {
   const { usuario, token, sair } = useAuth();
   const [filtros, setFiltros] = useState(filtrosVazios);
   const [animais, setAnimais] = useState([]);
@@ -52,6 +55,10 @@ export default function VitrineAnimais() {
       cancelado = true;
     };
   }, [filtrosDaBusca, token, sair]);
+
+  useEffect(() => {
+    if (!carregando) aoCarregar?.();
+  }, [carregando, aoCarregar]);
 
   function mudarFiltros(novos) {
     setCarregando(true);
@@ -97,17 +104,16 @@ export default function VitrineAnimais() {
           role="alert"
           className="rounded-[16px] border border-borda-sutil bg-fundo-superficie p-8 text-center"
         >
-          <p className="text-texto-principal">
-            Não foi possível carregar os animais. Confira sua conexão e tente de
-            novo.
+          <p className="font-titulo text-item font-semibold text-texto-principal">
+            Não foi possível carregar os animais.
           </p>
-          <button
-            type="button"
-            onClick={() => mudarFiltros({ ...filtros })}
-            className="mt-3 font-titulo font-semibold text-marca-roxo underline"
-          >
+          <p className="mt-1 text-compacto text-texto-secundario">
+            Confira sua conexão e tente de novo. Se o site ficou um tempo parado, o primeiro acesso pode
+            levar até um minuto.
+          </p>
+          <Botao variante="secundario" onClick={() => mudarFiltros({ ...filtros })} className="mt-4">
             Tentar de novo
-          </button>
+          </Botao>
         </div>
       );
     }
@@ -115,15 +121,17 @@ export default function VitrineAnimais() {
     if (animais.length === 0) {
       return (
         <div className="rounded-[16px] border border-borda-sutil bg-fundo-superficie p-8 text-center">
-          <p className="text-texto-principal">{mensagemDeVazio()}</p>
+          <img src={fotoNenhumAnimal} alt="" className="mx-auto w-full max-w-[320px] rounded-[12px]" />
+          <p className="mt-5 font-titulo text-item font-semibold text-texto-principal">{mensagemDeVazio()}</p>
+          <p className="mt-1 text-compacto text-texto-secundario">
+            {temFiltro
+              ? "Tente tirar algum filtro ou buscar por outro nome."
+              : "Novos animais aparecem aqui assim que os protetores cadastram."}
+          </p>
           {temFiltro && (
-            <button
-              type="button"
-              onClick={() => mudarFiltros(filtrosVazios)}
-              className="mt-3 font-titulo font-semibold text-marca-roxo underline"
-            >
+            <Botao variante="secundario" onClick={() => mudarFiltros(filtrosVazios)} className="mt-4">
               Ver todos os animais
-            </button>
+            </Botao>
           )}
         </div>
       );

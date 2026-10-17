@@ -2,8 +2,8 @@
 
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
-- **Versão:** 1.2 (outubro de 2026)
-- **Total:** 49 casos, 46 já automatizados e 3 manuais
+- **Versão:** 1.3 (outubro de 2026)
+- **Total:** 51 casos, 48 já automatizados e 3 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
 
@@ -30,7 +30,9 @@ A coluna **Automatizado em** mostra o arquivo de teste que já confere o caso. O
 | CT-NAV-01 | Abrir a página inicial | Smoke | O menu, o título e os cartões dos animais aparecem, sem erro no console | `App.test.jsx`, `VitrineAnimais.test.jsx` |
 | CT-NAV-02 | Responsividade | UI | Nos tamanhos do Figma, celular (390px), tablet (834px) e computador (1440px), e também nos celulares mais estreitos (360px e 320px), as telas se ajustam: não aparece rolagem pro lado, nenhum texto ou botão fica cortado ou passa da borda do cartão, e o menu mostra todos os itens | Manual |
 | CT-NAV-03 | Menu conforme a conta | Funcional | Visitante vê "Cadastrar" e "Entrar". Logado vê "Explorar", "Meus animais" e "Interesses recebidos", e só pessoa física vê "Minhas candidaturas" | `Navbar.test.jsx` |
-| CT-NAV-04 | Endereço que não existe | Funcional | Aparece "Página não encontrada", com o menu | `App.test.jsx` |
+| CT-NAV-04 | Endereço que não existe | Funcional | Aparece "Página não encontrada", com o menu e os botões "Ver animais disponíveis" e "Ir para a página inicial" | `App.test.jsx` |
+| CT-NAV-05 | Trocar o tema | UI | O botão do topo troca entre claro e escuro, e a escolha continua depois de recarregar a página. Quem nunca escolheu vê o tema do sistema operacional | `BotaoTema.test.jsx` |
+| CT-NAV-06 | Links do rodapé | Funcional | "Explorar animais", "Como adotar", "Abrigos e protetores independentes" e "Cadastrar um animal" levam pra tela certa. Os links do projeto abrem o GitHub em outra aba | `Rodape.test.jsx`, `Home.test.jsx` |
 
 ### Módulo 2: Cadastro, login e sessão
 
@@ -118,7 +120,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 
 | Módulo | Casos | Automatizados | Manuais |
 | --- | --- | --- | --- |
-| 1. Navegação e página inicial | 4 | 3 | 1 |
+| 1. Navegação e página inicial | 6 | 5 | 1 |
 | 2. Cadastro, login e sessão | 9 | 9 | 0 |
 | 3. Vitrine, busca e filtros | 7 | 7 | 0 |
 | 4. Perfil do animal e interesse | 7 | 7 | 0 |
@@ -126,7 +128,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | 6. Cadastro de animal e Meus animais | 7 | 7 | 0 |
 | 7. Interesses recebidos | 5 | 5 | 0 |
 | 8. Desempenho, acessibilidade e segurança | 6 | 4 | 2 |
-| **Total** | **49** | **46** | **3** |
+| **Total** | **51** | **48** | **3** |
 
 A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta tabela: ela é medida pelo JaCoCo e pelo Jest a cada push, como explica o [plano de testes](plano-de-testes.md). Esta tabela mostra outra coisa: quantos comportamentos importantes já têm teste automático e quantos ainda dependem de alguém testar à mão.
 

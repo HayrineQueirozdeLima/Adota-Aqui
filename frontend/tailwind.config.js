@@ -1,6 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
+  // O "dark:" das classes vale quando o <html> tem a classe tema-escuro (index.css)
+  darkMode: ['class', '.tema-escuro'],
   theme: {
     extend: {
       // As cores apontam pras variáveis do index.css

@@ -1,5 +1,6 @@
 import { Link, NavLink } from "react-router-dom";
 import Botao from "../Botao/Botao";
+import BotaoTema from "../BotaoTema/BotaoTema";
 import logo from "../../assets/logo-sobre-marca.svg";
 import { iniciais } from "../../utils/rotulos";
 
@@ -40,10 +41,12 @@ function NavbarVisitante() {
     <header className="bg-fundo-marca">
       <div className="flex items-center justify-between px-5 py-3.5 md:px-8 lg:px-14">
         <Link to="/" aria-label="Adota Aqui, página inicial" className={foco}>
-          <img src={logo} alt="" className="h-[35px] w-auto md:h-[46px]" />
+          {/* object-contain: se faltar espaço no celular de 320 px, o logo diminui sem achatar */}
+          <img src={logo} alt="" className="h-[35px] w-auto object-contain object-left md:h-[46px]" />
         </Link>
 
-        <div className="flex items-center gap-[18px]">
+        <div className="flex items-center gap-2 sm:gap-[18px]">
+          <BotaoTema />
           {/* min-h-11 deixa a área de toque com 44 px de altura, igual ao botão Entrar */}
           <Link
             to="/cadastro"
@@ -76,14 +79,17 @@ function NavbarLogado({ usuario }) {
           <img src={logo} alt="" className="h-[35px] w-auto md:h-[38px]" />
         </Link>
 
-        {/* No celular, o avatar fica na primeira linha e o menu desce pra segunda */}
-        <Link
-          to="/perfil"
-          aria-label="Meu perfil"
-          className={`order-2 ml-auto flex size-[34px] items-center justify-center rounded-full bg-texto-sobre-marca font-titulo font-semibold text-campo text-fundo-marca md:order-3 md:size-9 ${foco}`}
-        >
-          {iniciais(usuario.nome)}
-        </Link>
+        {/* No celular, o tema e o avatar ficam na primeira linha e o menu desce pra segunda */}
+        <div className="order-2 ml-auto flex items-center gap-1 md:order-3">
+          <BotaoTema />
+          <Link
+            to="/perfil"
+            aria-label="Meu perfil"
+            className={`flex size-[34px] items-center justify-center rounded-full bg-texto-sobre-marca font-titulo font-semibold text-campo text-fundo-marca md:size-9 ${foco}`}
+          >
+            {iniciais(usuario.nome)}
+          </Link>
+        </div>
 
         <nav
           aria-label="Menu principal"

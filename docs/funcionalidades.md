@@ -2,7 +2,7 @@
 
 O que já funciona no Adota Aqui: o que cada funcionalidade faz, como ela funciona por dentro (tela, API e banco), as regras que ela segue e onde ficam o código e os testes.
 
-Situação em 08/10/2026, fim da Sprint 3. A regra é a mesma do resto da pasta: entrou funcionalidade nova, entra uma seção nova aqui, no mesmo PR.
+Situação em 16/10/2026, Sprint 4. A regra é a mesma do resto da pasta: entrou funcionalidade nova, entra uma seção nova aqui, no mesmo PR.
 
 Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`), por isso os animais aparecem sem foto. No site, as fotos vêm do Amazon S3.
 
@@ -11,7 +11,7 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 1. [Cadastro de conta](#1-cadastro-de-conta)
 2. [Login, sessão e saída](#2-login-sessão-e-saída)
 3. [Controle de acesso](#3-controle-de-acesso)
-4. [Vitrine de animais](#4-vitrine-de-animais)
+4. [Página inicial e vitrine de animais](#4-página-inicial-e-vitrine-de-animais)
 5. [Perfil do animal](#5-perfil-do-animal)
 6. [Cadastro, edição e remoção de animal (CRUD)](#6-cadastro-edição-e-remoção-de-animal-crud)
 7. [Demonstrar interesse e desistir](#7-demonstrar-interesse-e-desistir)
@@ -36,7 +36,7 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 | 1 | Cadastro de conta | RF01, RF02, RNF02 | `/cadastro`, `/cadastro/usuario`, `/cadastro/abrigo` | `POST /api/usuarios`, `POST /api/abrigos` |
 | 2 | Login, sessão e saída | RF03, RNF03 | `/login`, `/perfil` | `POST /api/auth/login` |
 | 3 | Controle de acesso | RNF03, RF14 | Todas | Todos |
-| 4 | Vitrine de animais | RF07, RF14 | `/`, `/animais` | `GET /api/animais`, `GET /api/racas` |
+| 4 | Página inicial e vitrine de animais | RF07, RF14 | `/`, `/animais` | `GET /api/animais`, `GET /api/racas` |
 | 5 | Perfil do animal | RF07, RF14 | `/animais/:id` | `GET /api/animais/{id}` |
 | 6 | CRUD de animal e fotos | RF04, RF05, RF06, RF16 | `/meus-animais`, `/meus-animais/novo`, `/meus-animais/:id/editar` | `GET /api/animais/meus`, `POST /api/animais`, `PUT /api/animais/{id}`, `DELETE /api/animais/{id}`, `POST /api/fotos` |
 | 7 | Demonstrar interesse e desistir | RF08, RF09, RF13, RF14, RF15 | `/animais/:id/interesse` | `POST /api/animais/{id}/interesses`, `DELETE /api/interesses/{id}` |
@@ -141,7 +141,11 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 
 ---
 
-## 4. Vitrine de animais
+## 4. Página inicial e vitrine de animais
+
+![Página inicial no computador](prints/12-home.png)
+
+**Página inicial.** Abre com a apresentação do Figma: a foto de um cão e um gato, o título "Todo animal merece um lar de verdade." e os botões "Ver animais disponíveis" e "Resgatei um animal". No celular e no tablet, a foto fica escurecida e o texto branco; no computador com o tema claro, a foto aparece inteira e o texto fica escuro. Logo abaixo vem a faixa laranja da guarda responsável (Leis nº 9.605/1998 e nº 14.064/2020), depois a vitrine e, no fim, "Como funciona a adoção", com os quatro passos. O link "Como adotar" do rodapé leva direto pra essa parte.
 
 ![Vitrine no computador](prints/04-vitrine.png)
 
@@ -155,7 +159,8 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 2. Busca por nome e filtros: cidade, espécie, sexo, porte, raça (liberada depois de escolher a espécie), nível de energia e convivência ("Bom com crianças", "Bom com cães", "Bom com gatos").
 3. A cada mudança, o front espera 300 ms sem mudança nova (assim não busca a cada letra digitada na cidade) e chama `GET /api/animais` com os filtros no endereço.
 4. Cada cartão mostra nome, descrição (espécie, raça, porte e peso), tags de convivência, o protetor com cidade e estado, e o botão "Quero conhecer".
-5. Sem resultado com os filtros: "Nenhum resultado encontrado com essas informações.", com o botão "Ver todos os animais" (UC06 FA02). Sem nenhum animal no estado da pessoa: "Nenhum animal disponível no seu estado no momento." (UC06 FA01).
+5. Sem resultado com os filtros: "Nenhum resultado encontrado com essas informações.", com uma foto, a dica "Tente tirar algum filtro ou buscar por outro nome." e o botão "Ver todos os animais" (UC06 FA02). Sem nenhum animal no estado da pessoa: "Nenhum animal disponível no seu estado no momento." (UC06 FA01).
+6. Se a API não responder: "Não foi possível carregar os animais.", com o botão "Tentar de novo", que busca outra vez sem perder os filtros.
 
 **Busca por nome.** O campo "Nome do animal ou do protetor" procura no nome do animal e no nome de quem cadastrou, pessoa ou abrigo: "mel" acha a Mel, e "quatro patas" acha os animais do Instituto Quatro Patas. Soma com os outros filtros e aceita até 80 caracteres.
 
@@ -163,10 +168,10 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 
 **Onde está no código.**
 
-- Front: `components/VitrineAnimais`, `components/FiltrosAnimais`, `components/CardAnimal` e `services/animais.js`
+- Front: `pages/Home`, `components/Apresentacao`, `components/ComoFunciona`, `components/VitrineAnimais`, `components/FiltrosAnimais`, `components/CardAnimal` e `services/animais.js`
 - Back: `AnimalController`, `AnimalService`, `AnimalFiltroRequest` e `AnimalSpecifications`
 
-**Testes.** `AnimalIntegrationTest` (estado, status, filtros combinados, cidade e busca por nome sem acento), `ErroApiIntegrationTest` (filtro com valor inválido), `VitrineAnimais.test.jsx` e `CardAnimal.test.jsx`.
+**Testes.** `AnimalIntegrationTest` (estado, status, filtros combinados, cidade e busca por nome sem acento), `ErroApiIntegrationTest` (filtro com valor inválido), `VitrineAnimais.test.jsx`, `CardAnimal.test.jsx` e `Home.test.jsx`.
 
 ---
 
@@ -221,7 +226,7 @@ O quadro do lado:
 3. Cada foto escolhida sobe na hora pro `POST /api/fotos`, que guarda o arquivo no Amazon S3 e devolve o endereço. A primeira é a principal, e dá pra trocar qual é a principal ou remover uma foto.
 4. "Publicar animal" manda tudo pro `POST /api/animais`. O animal já nasce Disponível e aparece na vitrine.
 
-**Ver (read).** Meus animais (`GET /api/animais/meus`) lista os animais da conta, disponíveis e adotados, com os filtros Todos, Disponível e Adotado. Animal disponível tem "Ver interesses" e "Editar". Adotado tem "Editar status".
+**Ver (read).** Meus animais (`GET /api/animais/meus`) lista os animais da conta, disponíveis e adotados, com os filtros Todos, Disponível e Adotado. Animal disponível tem "Ver interesses" e "Editar". Adotado tem "Editar status". Conta sem nenhum animal vê uma foto, "Você ainda não cadastrou nenhum animal." e o botão pra cadastrar o primeiro. Se a lista não carregar, aparece "Tentar de novo".
 
 **Editar (update).** O mesmo formulário, já preenchido, manda tudo pro `PUT /api/animais/{id}`.
 
@@ -341,7 +346,12 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 - **Erros no mesmo formato.** Toda resposta de erro da API tem `status`, `erro`, `mensagem`, `campos` (quando o erro é num campo) e `timestamp`, em português. O front mostra a `mensagem` e põe cada erro de `campos` embaixo do campo certo (`GlobalExceptionHandler`, `ErroResponse` e `services/api.js`).
 - **Servidor acordando.** O Render desliga a API depois de 15 minutos sem uso. Quando uma tela passa de 4 segundos carregando, aparece "O servidor estava parado e está acordando. Isso pode levar até 1 minuto." (`components/Carregando`).
 - **Responsivo (RNF01).** As telas funcionam no celular, no tablet e no computador, seguindo os três tamanhos do Figma. Na revisão da #36, todas as telas foram conferidas de 320 a 1440 px de largura: nenhuma tem rolagem pro lado, o menu de quem está logado nunca esconde item, os botões descem pra baixo do texto no celular e os links que ficam soltos, fora de uma frase, têm pelo menos 24 px de altura pra tocar.
-- **Página não encontrada** pra qualquer endereço que não existe.
+- **Tema claro e escuro.** O botão de lua e sol no topo troca o tema, e a escolha fica salva no navegador. Quem nunca escolheu segue o tema do sistema operacional. Um script curto no `index.html` aplica o tema antes da página aparecer, pra não piscar claro antes de ficar escuro. As cores dos dois temas estão no `styles/index.css`; no escuro, o roxo, o texto terciário e os textos das tags ficaram um pouco mais claros que no Figma, pra passar no contraste mínimo de 4,5:1 (WCAG AA). Código: `hooks/useTema.js` e `components/BotaoTema`. Teste: `BotaoTema.test.jsx`.
+
+![Painel de interesses recebidos no tema escuro](prints/13-tema-escuro.png)
+
+- **Rodapé** em todas as telas que têm o menu do topo, com os links da plataforma (explorar animais, como adotar, cadastro e cadastrar um animal) e os do projeto no GitHub (`components/Rodape`, `Rodape.test.jsx`).
+- **Página não encontrada** pra qualquer endereço que não existe, com foto e os botões "Ver animais disponíveis" e "Ir para a página inicial". Animal que não existe (perfil, interesse ou edição) mostra a mesma foto com "Animal não encontrado".
 - **Integração contínua.** A cada push e PR na `dev` e na `main`, o GitHub Actions roda os testes do back (`mvn verify`) e do front (build e `npm run test:coverage`) e guarda os relatórios de cobertura (JaCoCo e lcov). O PR só entra com os dois verdes.
 - **Deploy (RNF06).** Front no Netlify, API no Render (com Docker), banco PostgreSQL no Neon e fotos no Amazon S3. Os endereços estão no [README principal](../README.md).
 
@@ -362,5 +372,5 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 ## Como atualizar este documento
 
 1. Funcionalidade nova ganha uma seção nova, com as mesmas partes: o que faz, como funciona, regras, onde está no código, testes e print.
-2. Os prints ficam em `docs/prints/`, com número e nome da tela (por exemplo, `12-minhas-candidaturas.png`). Pode ser do site de verdade ou do ambiente local.
+2. Os prints ficam em `docs/prints/`, com número e nome da tela (por exemplo, `14-minhas-candidaturas.png`). Pode ser do site de verdade ou do ambiente local.
 3. Mudou uma regra? Atualiza aqui e no `api.md` no mesmo PR.

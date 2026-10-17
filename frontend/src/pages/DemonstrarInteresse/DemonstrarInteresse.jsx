@@ -12,6 +12,7 @@ import { demonstrarInteresse } from "../../services/interesses";
 import { mascaraTelefone } from "../../utils/mascaras";
 import { resumoDoAnimal } from "../../utils/rotulos";
 import { partesDaTriagem, triagemVazia } from "../../utils/triagem";
+import fotoNaoEncontrado from "../../assets/fotos/pagina-nao-encontrada.webp";
 
 // Demonstrar interesse (Figma: "Demonstrar interesse"), em /animais/:id/interesse.
 // A rota é só de Usuario logado: a RotaProtegida já barrou visitante e Abrigo antes de chegar aqui.
@@ -66,7 +67,7 @@ export default function DemonstrarInteresse() {
 
   if (situacao === "nao-encontrado") {
     return (
-      <AvisoPagina titulo="Animal não encontrado">
+      <AvisoPagina titulo="Animal não encontrado" imagem={fotoNaoEncontrado}>
         <p>Ele pode já ter sido adotado, ou o endereço está errado.</p>
         <Botao para="/animais" className="mt-5">
           Ver animais disponíveis
