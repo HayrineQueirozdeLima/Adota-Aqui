@@ -45,7 +45,7 @@ Fica **de fora** da cobertura só o que não tem lógica pra testar:
 
 - `AdotaAquiApplication.java` (só liga a aplicação);
 - a pasta `dto/` do back (só carrega dados de um lado pro outro);
-- o `main.jsx` e a pasta `mocks/` do front (inicialização e dados de exemplo).
+- o `main.jsx`, o `config/ambiente.js` e a pasta `mocks/` do front (inicialização, endereço da API e dados de exemplo).
 
 As entidades do `model` **entram**, porque têm regra de negócio (o xor do protetor, o motivo obrigatório na descontinuação, a raça que pertence à espécie).
 
@@ -112,7 +112,7 @@ Revisão feita na issue #24: cada caso das prioridades 1 a 3 e o teste que cobre
 
 ### Divergência encontrada
 
-Na devolução de um animal adotado, o front destrava os campos e deixa salvar dados novos junto com a volta pra Disponível (`EditarAnimal.test.jsx`). O back recusa com `409` se algum dado mudar nesse mesmo salvamento (`adotadoSoMudaStatusEPreservaVacinasEHistorico`). Os dois testes passam, cada um do seu lado, mas juntos o fluxo falha. Precisa de uma issue pra decidir qual lado muda.
+Na devolução de um animal adotado, o front destrava os campos e deixa salvar dados novos junto com a volta pra Disponível (`EditarAnimal.test.jsx`). O back recusa com `409` se algum dado mudar nesse mesmo salvamento (`adotadoSoMudaStatusEPreservaVacinasEHistorico`). Os dois testes passam, cada um do seu lado, mas juntos o fluxo falha. Como o RF06, o UC05 FA04 e o `docs/api.md` deixam editar os dados na mesma tela da devolução, quem muda é o back, junto com o teste `adotadoSoMudaStatusEPreservaVacinasEHistorico`.
 
 ## Revisão das prioridades 4 e 5 (regras de negócio críticas)
 
@@ -151,6 +151,8 @@ Revisão feita na issue #33: cada regra de interesse e de adoção e o teste que
 ### Por que testar a entidade e o banco
 
 As regras de "descontinuar exige motivo" e "o animal tem um protetor só" estão em três lugares. O primeiro é o service: ele recusa o motivo vazio com a mensagem certa pra tela, e o protetor nem tem como vir errado, porque sai do token. Os outros dois são a entidade (`validarMotivo` e `validarProtetor`) e o banco, com um `CHECK` na tabela. Os testes da API passam pelo service, que barra antes, então nunca chegam nas outras duas barreiras. O `RegrasDasEntidadesTest` grava direto pelo repository e pelo SQL, sem o service, pra garantir que as outras duas barreiras também funcionam. Se um código novo esquecer a validação, o erro aparece aqui e não no banco de produção.
+
+O `model/IntegridadeDoBancoTest` (issue #40) faz o mesmo com o resto do banco: os índices das consultas principais, o CPF, o CNPJ e o e-mail únicos, as chaves estrangeiras (nada de vacina ou interesse de animal que não existe) e os `CHECK` de peso e dose.
 
 ## Como escrever os testes
 

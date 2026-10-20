@@ -4,9 +4,11 @@ Plataforma de adoção de animais, criada como projeto final da Trilha Dev. Full
 
 ## Tecnologias
 
-- Front-end: React + Vite + Tailwind
-- Back-end: Spring Boot + Spring Security (JWT + BCrypt)
-- Banco de dados: PostgreSQL, com tabelas criadas pelo Hibernate (JPA)
+- Front-end: React + Vite + Tailwind, no Netlify
+- Back-end: Spring Boot + Spring Security (JWT + BCrypt), no Render
+- Banco de dados: PostgreSQL no Neon, com tabelas criadas pelo Hibernate (JPA)
+- Fotos dos animais: Amazon S3
+- Testes: JUnit e JaCoCo no back, Jest e Testing Library no front
 
 ## Como rodar localmente
 
@@ -26,6 +28,7 @@ mvn spring-boot:run
 Na primeira execução o Hibernate cria as tabelas automaticamente a partir
 das entidades do pacote `model`. As credenciais do banco podem ser
 definidas pelas variáveis de ambiente `DB_URL`, `DB_USERNAME` e `DB_PASSWORD`.
+Na sua máquina as fotos ficam na memória, sem precisar de conta na AWS.
 
 ### Front-end
 

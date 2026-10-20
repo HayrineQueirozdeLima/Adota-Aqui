@@ -17,10 +17,12 @@ src/
 ├── components/   o que se repete em várias telas (botão, card de animal, navbar)
 ├── services/     as chamadas pra API. Nenhuma tela chama a API direto, sempre por aqui
 ├── contexts/     dados compartilhados entre telas (ex.: quem está logado e o token)
-├── hooks/        hooks personalizados
+├── hooks/        hooks personalizados (ex.: useTema, que troca o tema claro e escuro)
 ├── routes/       as rotas das páginas (React Router)
-├── styles/       CSS global
-├── assets/       imagens, ícones e logo exportados do Figma
+├── styles/       CSS global, com as cores dos dois temas
+├── assets/       logos e fotos (as fotos ficam em assets/fotos, em WEBP)
+├── config/       o endereço da API (ambiente.js)
+├── mocks/        dados de exemplo, usados pelos testes
 └── utils/        funções de apoio (tirar máscara de CPF, formatar data...)
 ```
 
@@ -40,6 +42,8 @@ Tamanhos: `text-display`, `text-secao`, `text-subtitulo`, `text-item`, `text-bot
 `text-campo`, `text-overline`, `text-corpo`, `text-compacto`, `text-legenda`.
 
 Nunca use código hexadecimal no meio do código. Se precisar de uma cor que não existe, fala com o time de design primeiro.
+
+As mesmas classes servem pros dois temas: no tema escuro, só os valores das cores mudam (`styles/index.css`, classe `tema-escuro`). Então não precisa escrever nada a mais pra tela funcionar no escuro. O `dark:` do Tailwind fica só pra trocar imagem, como o logo do rodapé.
 
 ## Alguns combinados com a API
 

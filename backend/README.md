@@ -20,7 +20,8 @@ src/main/java/com/adotaaqui/
 │   └── enums/    as listas fechadas de opções
 ├── repository/   quem conversa com o banco
 ├── security/     JWT e login
-└── service/      as regras de negócio
+├── service/      as regras de negócio
+└── util/         funções de apoio (validar CPF e CNPJ)
 ```
 
 As pastas `config`, `controller`, `dto`, `exception`, `security` e `service` têm um `package-info.java` explicando o que vai em cada uma.
@@ -59,5 +60,7 @@ Precisa de um PostgreSQL rodando com o banco `adota_aqui` criado. O projeto usa 
 ```bash
 mvn test
 ```
+
+O `mvn verify` roda os mesmos testes e ainda gera o relatório de cobertura em `target/site/jacoco/index.html`. É ele que o CI usa.
 
 Os testes usam um banco H2 em memória, então não precisa do PostgreSQL. A meta do curso é **70% de cobertura**, então escreve o teste junto com o código, não deixa pro final.
