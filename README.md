@@ -63,7 +63,7 @@ cd frontend && npm test
 ## Como a gente trabalha
 
 - A `dev` é a branch padrão: é onde o trabalho do time se junta.
-- A `main` é a versão estável, a que vai ser apresentada. Ela só recebe a `dev`,
+- A `main` é a versão estável, a que vai ser apresentada e a que está no ar (o Render e o Netlify publicam a `main`). Ela só recebe a `dev`,
   por Pull Request, no fim de cada sprint.
 - Ninguém faz push direto na `main` nem na `dev`. As duas são protegidas.
 - Cada tarefa ganha uma branch própria, criada a partir da `dev`:
@@ -79,3 +79,5 @@ cd frontend && npm test
 - API: https://adota-aqui.onrender.com
 
 A API "dorme" depois de 15 minutos sem uso. O primeiro acesso depois disso pode levar cerca de 1 minuto.
+
+Como o deploy funciona e como subir tudo do zero: [`docs/deploy.md`](docs/deploy.md).

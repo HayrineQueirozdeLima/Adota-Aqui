@@ -125,6 +125,28 @@
                             <goal>report</goal>
                         </goals>
                     </execution>
+                    <!-- RNF04: o build falha se a cobertura de linhas ficar abaixo de 70%. Roda depois do relatório -->
+                    <execution>
+                        <id>conferir-cobertura</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.70</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>

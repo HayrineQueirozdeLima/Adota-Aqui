@@ -5,6 +5,7 @@ O que tem em cada lugar desta pasta:
 | Onde | O quê |
 | --- | --- |
 | `api.md` | Contrato da API: todos os endpoints, com entrada, saída, quem pode acessar e os erros. É o combinado entre front e back |
+| `deploy.md` | Onde cada parte roda, as variáveis de ambiente e o passo a passo pra subir tudo do zero |
 | `arquitetura.md` | Como o sistema é organizado (front, back, banco e o caminho dos dados) |
 | `funcionalidades.md` | O que já funciona, tela por tela: o que faz, como funciona, regras, código, testes e print |
 | `prints/` | Os prints usados no `funcionalidades.md` |
@@ -15,4 +16,4 @@ O que tem em cada lugar desta pasta:
 | `diagramas/` | DER conceitual e lógico, diagrama de classes, diagrama de fluxo, dicionário de domínios e máquinas de estado |
 | `atas/` | Atas das reuniões |
 
-Caso haja mudanças no sistema, é necessário atualizar também o ducomento.
+Caso haja mudanças no sistema, é necessário atualizar também o documento.
