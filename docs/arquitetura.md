@@ -256,6 +256,6 @@ O cadastro (`POST /api/usuarios` ou `/api/abrigos`) segue o mesmo caminho e já 
 - **Back:** JUnit 5 com o banco H2, rodando pelo Maven (`mvn verify`), que também gera o relatório de cobertura do JaCoCo.
 - **Front:** Jest e Testing Library (`npm run test:coverage`).
 - **CI:** o GitHub Actions roda os dois a cada push e a cada PR para a `dev` e a `main`, nos jobs `backend` e `frontend`, e mostra a cobertura no resumo da execução. Se a cobertura de linhas de um dos dois ficar abaixo de 70%, o job falha. A proteção das branches só deixa o PR entrar com os dois verdes.
-- **Deploy:** o Render só publica o back depois que o CI passa (ver [deploy](deploy.md)).
+- **Deploy:** o Render e o Netlify publicam a `main`, e o Render só depois que o CI passa (ver [deploy](deploy.md)).
 
 O que é testado e por quê está no [plano de testes](plano-de-testes.md).

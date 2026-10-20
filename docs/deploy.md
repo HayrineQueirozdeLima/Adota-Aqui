@@ -15,7 +15,7 @@ Endereços: o site em https://adotaaqui.netlify.app e a API em https://adota-aqu
 
 ## Quando o deploy acontece
 
-- O Render e o Netlify publicam a branch `dev`: todo PR que entra na `dev` vira deploy.
+- O Render e o Netlify publicam a branch `main`, que é a de produção. O trabalho do dia a dia entra na `dev`, e vai pro ar quando um PR da `dev` pra `main` é aprovado (no fim de cada sprint, ou antes, se precisar publicar uma correção).
 - **Render:** só refaz o deploy quando muda alguma coisa dentro de `backend/`, e só depois que o CI passa. O primeiro build leva uns 5 minutos, porque o Maven baixa todas as bibliotecas.
 - **Netlify:** só refaz o site quando muda alguma coisa dentro de `frontend/`. Cada PR ganha uma prévia (deploy preview) com endereço próprio, que já conversa com a API de verdade.
 - **Se o back não subir** (erro no build ou variável faltando), o Render mantém a versão anterior no ar. O site não cai.
@@ -105,7 +105,7 @@ A ordem importa: o banco e o S3 primeiro, porque o back precisa dos dois pra sub
 | Campo | Valor |
 | --- | --- |
 | Language | Docker |
-| Branch | `dev` |
+| Branch | `main` |
 | Dockerfile Path | `./backend/Dockerfile` |
 | Docker Build Context Directory | `./backend` |
 | Build Filters, Included Paths | `backend/**` |
@@ -119,7 +119,7 @@ Quando terminar, abra `https://<seu-servico>.onrender.com/api/racas?especie=CAO`
 
 1. Add new project > Import an existing project, escolha este repositório.
 2. Não precisa preencher nada na tela de build: o `netlify.toml` cuida disso.
-3. Em Project configuration > Build & deploy > Branches, a branch de produção é a `dev`.
+3. Em Project configuration > Build & deploy > Branches, a branch de produção é a `main`.
 4. Se a API ficou num endereço diferente de `https://adota-aqui.onrender.com`, troque a `VITE_API_URL` no `netlify.toml`. Se o site ficou num endereço diferente de `https://adotaaqui.netlify.app`, troque o `CORS_ORIGENS` no Render.
 
 ### 5. Conferir

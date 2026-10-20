@@ -7,7 +7,8 @@ services:
     name: adota-aqui
     runtime: docker
     plan: free
-    branch: dev
+    # A main é a branch de produção: só ela vai pro ar
+    branch: main
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     # Só faz deploy quando muda alguma coisa no back, e só depois que o CI passa
