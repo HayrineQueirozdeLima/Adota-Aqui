@@ -15,6 +15,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
@@ -28,7 +29,12 @@ import java.util.UUID;
 // É o registro de "fulano quer adotar este animal", junto com as respostas da triagem.
 // Liga um Usuario (o candidato) a um Animal.
 @Entity
-@Table(name = "interesse")
+// Índices (#40): pessoa + animal serve pra conferir interesse repetido e pra "Meus interesses";
+// animal + status serve pro painel do protetor e pra descontinuar os outros ao aprovar
+@Table(name = "interesse", indexes = {
+        @Index(name = "idx_interesse_usuario_animal", columnList = "usuario_id, animal_id"),
+        @Index(name = "idx_interesse_animal_status", columnList = "animal_id, status_andamento")
+})
 // RF10: toda descontinuação precisa de motivo. Está aqui no banco e também no método validarMotivo().
 @Check(constraints = "status_andamento <> 'DESCONTINUADO' OR motivo_descontinuacao IS NOT NULL")
 public class Interesse {

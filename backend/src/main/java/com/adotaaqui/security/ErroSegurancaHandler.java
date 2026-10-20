@@ -18,20 +18,11 @@ public class ErroSegurancaHandler {
         this.objectMapper = objectMapper;
     }
 
+    // Mesmo formato e mesmos nomes de erro do GlobalExceptionHandler: os dois usam o ErroResponse
     public void escrever(HttpServletResponse response, HttpStatus status, String mensagem) throws IOException {
         response.setStatus(status.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        objectMapper.writeValue(response.getWriter(),
-                ErroResponse.de(status.value(), nomeDoErro(status), mensagem));
-    }
-
-    // Mesmos nomes do GlobalExceptionHandler, pra todo erro da API vir em português
-    private String nomeDoErro(HttpStatus status) {
-        return switch (status) {
-            case UNAUTHORIZED -> "Não autorizado";
-            case FORBIDDEN -> "Acesso negado";
-            default -> status.getReasonPhrase();
-        };
+        objectMapper.writeValue(response.getWriter(), ErroResponse.de(status, mensagem));
     }
 }

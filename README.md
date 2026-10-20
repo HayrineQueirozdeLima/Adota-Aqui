@@ -1,12 +1,14 @@
 # Adota Aqui
 
-Plataforma de adoção de animais — projeto final da Trilha Dev. Full Stack 2026 (+praTi & Codifica).
+Plataforma de adoção de animais, criada como projeto final da Trilha Dev. Full Stack 2026 (+praTi & Codifica).
 
 ## Tecnologias
 
-- Front-end: React + Vite + Tailwind
-- Back-end: Spring Boot + Spring Security (JWT + BCrypt)
-- Banco de dados: PostgreSQL, com tabelas criadas pelo Hibernate (JPA)
+- Front-end: React + Vite + Tailwind, no Netlify
+- Back-end: Spring Boot + Spring Security (JWT + BCrypt), no Render
+- Banco de dados: PostgreSQL no Neon, com tabelas criadas pelo Hibernate (JPA)
+- Fotos dos animais: Amazon S3
+- Testes: JUnit e JaCoCo no back, Jest e Testing Library no front
 
 ## Como rodar localmente
 
@@ -26,6 +28,7 @@ mvn spring-boot:run
 Na primeira execução o Hibernate cria as tabelas automaticamente a partir
 das entidades do pacote `model`. As credenciais do banco podem ser
 definidas pelas variáveis de ambiente `DB_URL`, `DB_USERNAME` e `DB_PASSWORD`.
+Na sua máquina as fotos ficam na memória, sem precisar de conta na AWS.
 
 ### Front-end
 
@@ -47,9 +50,9 @@ cd frontend && npm test
 
 ## Estrutura do projeto
 
-- `backend/` — API REST (Spring Boot). Tem um README próprio explicando as pastas
-- `frontend/` — interface web (React). Também tem README próprio
-- `docs/` — contrato da API, requisitos, diagramas e atas
+- `backend/`: API REST (Spring Boot). Tem um README próprio explicando as pastas
+- `frontend/`: interface web (React). Também tem README próprio
+- `docs/`: contrato da API, funcionalidades implementadas (com prints), requisitos, diagramas e atas
 
 ## Chegou agora? Começa por aqui
 
@@ -60,7 +63,7 @@ cd frontend && npm test
 ## Como a gente trabalha
 
 - A `dev` é a branch padrão: é onde o trabalho do time se junta.
-- A `main` é a versão estável, a que vai ser apresentada. Ela só recebe a `dev`,
+- A `main` é a versão estável, a que vai ser apresentada e a que está no ar (o Render e o Netlify publicam a `main`). Ela só recebe a `dev`,
   por Pull Request, no fim de cada sprint.
 - Ninguém faz push direto na `main` nem na `dev`. As duas são protegidas.
 - Cada tarefa ganha uma branch própria, criada a partir da `dev`:
@@ -69,3 +72,12 @@ cd frontend && npm test
   Quando o PR entra, a issue fecha sozinha.
 - O PR só entra com o CI verde e pelo menos uma pessoa aprovando.
 - Mudou um endpoint? Atualiza o `docs/api.md` no mesmo PR.
+
+## No ar
+
+- Site: https://adotaaqui.netlify.app
+- API: https://adota-aqui.onrender.com
+
+A API "dorme" depois de 15 minutos sem uso. O primeiro acesso depois disso pode levar cerca de 1 minuto.
+
+Como o deploy funciona e como subir tudo do zero: [`docs/deploy.md`](docs/deploy.md).

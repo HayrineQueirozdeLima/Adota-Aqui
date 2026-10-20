@@ -28,7 +28,7 @@ public class SecurityConfig {
     private final String[] origensPermitidas;
 
     // As origens vêm do application.properties (app.cors.origens).
-    // No deploy, a variável de ambiente CORS_ORIGENS recebe o endereço do Netlify.
+    // No deploy, a variável de ambiente CORS_ORIGENS recebe os endereços do Netlify (site e prévias).
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
                           @Value("${app.cors.origens:http://localhost:5173}") String[] origensPermitidas) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
@@ -70,8 +70,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuracao = new CorsConfiguration();
-        // Dev server do Vite
-        configuracao.setAllowedOrigins(List.of(origensPermitidas));
+        // Aceita endereços exatos e padrões com *, como as prévias do Netlify
+        // (https://deploy-preview-*--adotaaqui.netlify.app), que mudam de endereço a cada PR
+        configuracao.setAllowedOriginPatterns(List.of(origensPermitidas));
         configuracao.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuracao.setAllowedHeaders(List.of("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

@@ -16,7 +16,7 @@ function renderizar(animal) {
 test("mostra a descrição com espécie, raça, porte e peso", () => {
   renderizar(mel);
   expect(
-    screen.getByText("Cão; Sem raça definida; Médio; 14 kg"),
+    screen.getByText("Cão, sem raça definida, porte médio, 14 kg"),
   ).toBeInTheDocument();
 });
 
@@ -29,6 +29,15 @@ test("usa a palavra certa para o sexo do animal", () => {
 test("não mostra a tag de castrado quando o animal não é castrado", () => {
   renderizar(tobias);
   expect(screen.queryByText("Castrado")).not.toBeInTheDocument();
+});
+
+// CT-NFR-02: quem usa leitor de tela ouve de quem é a foto
+test("a foto tem texto alternativo com o nome do animal", () => {
+  renderizar({ ...mel, fotoCapa: "https://fotos.teste/animais/mel.jpg" });
+  expect(screen.getByAltText("Foto de Mel")).toHaveAttribute(
+    "src",
+    "https://fotos.teste/animais/mel.jpg",
+  );
 });
 
 test("o botão leva para a ficha do animal", () => {

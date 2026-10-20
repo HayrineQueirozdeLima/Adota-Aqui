@@ -1,5 +1,5 @@
 // Dados de exemplo, no mesmo formato do GET /api/animais (docs/api.md)
-//Quando a API estiver no ar, as telas passam a buscar da API e este arquivo deixa de ser usado
+// As telas buscam da API de verdade. Estes dados ficam pros testes: é o que a "API de mentira" deles devolve
 // ATENÇÃO:Mel e Tobias são usados nos testes do CardAnimal, então nao devem ser mudados sem ajustar os testes
 export const animaisExemplo = [
     {
@@ -99,3 +99,23 @@ export const animaisExemplo = [
         protetor: { nome: 'Maria Pinheiro', cidade: 'Porto Alegre', estado: 'RS' },
     },
 ];
+
+// Exemplo do GET /api/animais/{id} (perfil completo), visto por um visitante.
+// Os testes trocam ehMeu, podeDemonstrarInteresse e meuInteresse pra simular cada tipo de conta
+export const perfilExemplo = {
+    ...animaisExemplo[0],
+    dataNascEstimada: '2024-03-10',
+    historia: 'A Mel foi resgatada com cerca de seis meses. Fez tratamento completo e adora criança.',
+    fotos: [
+        'https://fotos.teste/animais/mel-1.jpg',
+        'https://fotos.teste/animais/mel-2.jpg',
+        'https://fotos.teste/animais/mel-3.jpg',
+    ],
+    vacinas: [
+        { id: 'v1', nome: 'V10', dose: 2, dataAplicacao: '2026-03-12' },
+        { id: 'v2', nome: 'Antirrábica', dose: 1, dataAplicacao: '2026-04-20' },
+    ],
+    ehMeu: false,
+    podeDemonstrarInteresse: false,
+    meuInteresse: null,
+};

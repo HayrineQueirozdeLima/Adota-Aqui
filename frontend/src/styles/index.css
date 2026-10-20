@@ -2,10 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Cores do projeto, iguais às variáveis do Figma (página "01 · Fundamentos").
+/* Cores do projeto, iguais às variáveis do Figma (página de fundamentos).
    O nome é o mesmo do Figma, trocando a barra por hífen (acao/terracota vira --acao-terracota)
    Se precisar mudar uma cor, muda só aqui, que o site inteiro acompanha. */
 :root {
+  /* deixa os campos nativos (data, select, barra de rolagem) no tema certo */
+  color-scheme: light;
+
   --fundo-pagina: #fffcf5;
   --fundo-superficie: #ffffff;
   --fundo-marca: #4a2d73;
@@ -36,21 +39,24 @@
 }
 
 /* Tema escuro: mesmos nomes, outros valores.
-   Por enquanto só liga se alguém colocar a classe "tema-escuro" no <html>.
-   O botão de trocar o tema fica pra depois, se der tempo. */
+   Liga com a classe "tema-escuro" no <html>, que o botão de tema do topo coloca e tira (hooks/useTema.js).
+   Roxo, texto terciário e os textos de status ficaram um pouco mais claros que no Figma,
+   pra passar no contraste mínimo de 4,5:1 (WCAG AA) em cima dos cartões e das tags */
 .tema-escuro {
+  color-scheme: dark;
+
   --fundo-pagina: #292929;
   --fundo-superficie: #363636;
   --fundo-marca: #4a2d73;
 
-  --marca-roxo: #9c87c9;
+  --marca-roxo: #c0b3dd;
   --marca-roxo-suave: #4c4856;
 
   --acao-terracota: #c1502e;
 
   --texto-principal: #fffcf5;
   --texto-secundario: #b8b5af;
-  --texto-terciario: #9a968f;
+  --texto-terciario: #a19e97;
 
   --borda-sutil: #3f3f3e;
   --borda-forte: #575654;
@@ -58,14 +64,42 @@
   --status-disponivel-fundo: #2e4640;
   --status-disponivel-texto: #5fbfa0;
   --status-atencao-fundo: #5b4f38;
-  --status-atencao-texto: #e0bc6e;
+  --status-atencao-texto: #e1be72;
   --status-erro-fundo: #523836;
-  --status-erro-texto: #d98077;
+  --status-erro-texto: #e0968f;
   --status-neutro-fundo: #4a4a49;
-  --status-neutro-texto: #b7b5b0;
+  --status-neutro-texto: #bbb9b4;
 
   --texto-sobre-marca: #ffffff;
   --acao-terracota-texto: #ffffff;
+}
+
+/* Topo da Home (components/Apresentacao).
+   No celular e no tablet, a foto fica escurecida e o texto branco, como no Figma.
+   No computador com o tema claro, a foto aparece inteira e o texto fica escuro.
+   O fundo cinza é o mesmo da foto, pra emendar quando a tela é mais larga que ela. */
+.apresentacao {
+  --apresentacao-fundo: #e2e2e2;
+  --apresentacao-veu: rgb(20 20 20 / 0.6);
+  --apresentacao-titulo: var(--texto-sobre-marca);
+  --apresentacao-texto: var(--texto-sobre-marca);
+  --apresentacao-destaque: var(--texto-sobre-marca);
+  --apresentacao-contorno: var(--texto-sobre-marca);
+}
+
+/* No tema escuro, a foto escurece um pouco mais, pra combinar com o resto da página */
+.tema-escuro .apresentacao {
+  --apresentacao-veu: rgb(20 20 20 / 0.72);
+}
+
+@media (min-width: 1024px) {
+  :root:not(.tema-escuro) .apresentacao {
+    --apresentacao-veu: transparent;
+    --apresentacao-titulo: var(--texto-principal);
+    --apresentacao-texto: var(--texto-secundario);
+    --apresentacao-destaque: var(--acao-terracota);
+    --apresentacao-contorno: var(--marca-roxo);
+  }
 }
 
 /* Fundo e texto padrão do site inteiro */

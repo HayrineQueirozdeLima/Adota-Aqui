@@ -6,9 +6,11 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.Check;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -16,7 +18,8 @@ import java.util.UUID;
 // Histórico de vacinação do animal. Vacina não existe sozinha: sempre pertence
 // a um animal, e some junto quando o animal é removido.
 @Entity
-@Table(name = "vacina")
+// O perfil do animal busca as vacinas pelo animal_id (#40)
+@Table(name = "vacina", indexes = @Index(name = "idx_vacina_animal", columnList = "animal_id"))
 public class Vacina {
 
     @Id
@@ -27,6 +30,7 @@ public class Vacina {
     private String nome;
 
     // 1 ou mais
+    @Check(constraints = "dose IS NULL OR dose >= 1")
     private Integer dose;
 
     // Não pode ser data futura (quem confere é o service)

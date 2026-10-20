@@ -25,9 +25,14 @@ export default function FiltrosAnimais({ filtros, aoMudar }) {
     if (!filtros.especie) return;
 
     let cancelado = false;
-    listarRacas(filtros.especie).then((lista) => {
-      if (!cancelado) setRacas(lista);
-    });
+    listarRacas(filtros.especie)
+      .then((lista) => {
+        if (!cancelado) setRacas(lista);
+      })
+      // se a API falhar, o filtro de raça fica só com "Raça" (qualquer uma) e a vitrine segue funcionando
+      .catch(() => {
+        if (!cancelado) setRacas([]);
+      });
 
     return () => {
       cancelado = true;
@@ -50,6 +55,16 @@ export default function FiltrosAnimais({ filtros, aoMudar }) {
 
   return (
     <div className="flex flex-wrap items-center gap-2.5">
+      {/* A API procura no nome do animal e no nome de quem cadastrou */}
+      <input
+        type="search"
+        aria-label="Buscar por nome"
+        placeholder="Nome do animal ou do protetor"
+        maxLength={80}
+        value={filtros.busca}
+        onChange={(evento) => mudar("busca", evento.target.value)}
+        className="w-full rounded-full border border-borda-sutil bg-fundo-superficie px-[18px] py-2.5 text-campo text-texto-principal md:w-[260px]"
+      />
       <input
         type="search"
         aria-label="Cidade"

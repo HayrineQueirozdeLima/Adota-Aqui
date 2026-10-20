@@ -6,38 +6,72 @@ on:
   pull_request:
     branches: [main, dev]
 
+# Os nomes dos jobs (backend e frontend) são os que a proteção da branch exige.
+# Se mudar o nome aqui, a regra do GitHub passa a esperar um check que nunca chega.
 jobs:
   backend:
-    runs-on: ubuntu-latest
+    # Versão fixa do Ubuntu: o "ubuntu-latest" muda pro Ubuntu 26 a partir de 19/10/2026,
+    # bem na reta final do projeto. Fixar evita surpresa no CI até a entrega.
+    runs-on: ubuntu-24.04
+    # Se travar, cancela em 20 minutos (sem isso, o GitHub espera até 6 horas)
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: "17"
+          # Guarda as bibliotecas do Maven entre as execuções: não baixa tudo de novo a cada vez
+          cache: maven
       - name: Build e testes do backend
         run: mvn -B -f backend/pom.xml verify
+      # Mostra a cobertura no resumo da execução, sem precisar baixar o relatório
+      - name: Resumo da cobertura do backend
+        if: always()
+        run: |
+          relatorio=backend/target/site/jacoco/jacoco.csv
+          [ -f "$relatorio" ] || exit 0
+          # Colunas do JaCoCo: 6 e 7 = ramos sem e com teste; 8 e 9 = linhas sem e com teste
+          read linhas ramos < <(awk -F, 'NR > 1 { bm += $6; bc += $7; lm += $8; lc += $9 }
+            END { printf "%.1f %.1f\n", 100 * lc / (lm + lc), (bm + bc) ? 100 * bc / (bm + bc) : 100 }' "$relatorio")
+          echo "::notice title=Cobertura do back::Linhas ${linhas}% | Ramos ${ramos}%"
+          echo "### Cobertura do back: linhas ${linhas}%, ramos ${ramos}%" >> "$GITHUB_STEP_SUMMARY"
       - name: Guarda o relatório de cobertura do backend
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cobertura-backend
           path: backend/target/site/jacoco/
 
   frontend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: "20"
+          # Mesma ideia do Maven: guarda os pacotes do npm entre as execuções
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
       - name: Instala, builda e testa o frontend
         working-directory: frontend
         run: |
           npm install
           npm run build
           npm run test:coverage -- --ci
+      - name: Resumo da cobertura do frontend
+        if: always()
+        working-directory: frontend
+        run: |
+          [ -f coverage/coverage-summary.json ] || exit 0
+          node -e '
+            const total = require("./coverage/coverage-summary.json").total;
+            const linhas = total.lines.pct, ramos = total.branches.pct;
+            console.log(`::notice title=Cobertura do front::Linhas ${linhas}% | Ramos ${ramos}%`);
+            require("fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY, `### Cobertura do front: linhas ${linhas}%, ramos ${ramos}%\n`);
+          '
       - name: Guarda o relatório de cobertura do frontend
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cobertura-frontend
           path: frontend/coverage/lcov-report/

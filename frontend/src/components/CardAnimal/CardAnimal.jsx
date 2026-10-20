@@ -1,10 +1,9 @@
 import Botao from "../Botao/Botao";
 import Tag from "../Tag/Tag";
 import {
-  especies,
-  portes,
   sexos,
   convivencias,
+  resumoDoAnimal,
   rotuloCastrado,
   rotuloEnergia,
   iniciais,
@@ -17,11 +16,7 @@ export default function CardAnimal({ animal }) {
   const {
     id,
     nome,
-    especie,
-    racaNome,
     sexo,
-    porte,
-    peso,
     castrado,
     energia,
     convivencia,
@@ -29,15 +24,8 @@ export default function CardAnimal({ animal }) {
     protetor,
   } = animal;
 
-  // "Cão; Sem raça definida; Médio; 14 kg" Se não tiver peso, a parte do peso some
-  const descricao = [
-    especies[especie],
-    racaNome,
-    portes[porte],
-    peso && `${peso.toLocaleString("pt-BR")} kg`,
-  ]
-    .filter(Boolean)
-    .join("; ");
+  // "Cão, sem raça definida, porte médio, 14 kg"
+  const descricao = resumoDoAnimal(animal);
 
   // Características: sempre cinzas
   const caracteristicas = [
@@ -54,7 +42,7 @@ export default function CardAnimal({ animal }) {
 
   return (
     <article className="flex flex-col overflow-hidden rounded-[16px] border border-borda-sutil bg-fundo-superficie">
-      {/* Foto. Enquanto não tiver foto, fica o fundo roxo-suave com o nome, igual ao Figma */}
+      {/* Foto. Enquanto não tiver foto, fica o fundo roxo-suave com o aviso "Sem foto" */}
       <div className="flex h-[210px] items-center justify-center bg-marca-roxo-suave">
         {fotoCapa ? (
           <img
@@ -64,7 +52,7 @@ export default function CardAnimal({ animal }) {
           />
         ) : (
           <span className="text-legenda text-texto-terciario">
-            foto · {nome}
+            Sem foto
           </span>
         )}
       </div>

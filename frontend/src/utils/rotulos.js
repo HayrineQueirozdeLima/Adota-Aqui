@@ -43,3 +43,73 @@ export function iniciais(nome) {
         .map((palavra) => palavra[0].toUpperCase())
         .join('');
 }
+
+// "a Mel", "o Bento": o artigo que acompanha o nome do animal nas frases
+export function artigoDefinido(sexo) {
+    return finalPorSexo(sexo);
+}
+
+// Como cada status de interesse aparece pra quem demonstrou o interesse
+export const statusDoInteresse = {
+    PENDENTE: 'Aguardando o Protetor',
+    EM_CONTATO: 'Em contato',
+    APROVADO: 'Aprovado',
+    DESCONTINUADO: 'Descontinuado',
+};
+
+// "2026-03-12" (formato da API) vira "12/03/2026".
+// Separa o texto em vez de usar new Date(), que pode mudar o dia por causa do fuso horário
+export function formatarData(dataDaApi) {
+    if (!dataDaApi) return '';
+    const [ano, mes, dia] = dataDaApi.split('-');
+    return `${dia}/${mes}/${ano}`;
+}
+
+// Há quanto tempo algo aconteceu: "hoje", "há 1 dia", "há 5 dias". Depois de 30 dias, vira a data: "em 12/03/2026".
+// Compara só os dias do calendário, então o horário não muda o resultado
+export function haQuantoTempo(dataHora, agora = new Date()) {
+    const data = dataHora.slice(0, 10);
+    const [ano, mes, dia] = data.split('-').map(Number);
+    const umDia = 24 * 60 * 60 * 1000;
+    const dias = Math.round(
+        (Date.UTC(agora.getFullYear(), agora.getMonth(), agora.getDate()) - Date.UTC(ano, mes - 1, dia)) / umDia,
+    );
+
+    if (dias <= 0) return 'hoje';
+    if (dias === 1) return 'há 1 dia';
+    if (dias < 30) return `há ${dias} dias`;
+    return `em ${formatarData(data)}`;
+}
+
+// Idade a partir da data de nascimento estimada: "8 meses", "2 anos"
+export function idadeEstimada(dataNascimento, hoje = new Date()) {
+    if (!dataNascimento) return null;
+    const [ano, mes, dia] = dataNascimento.split('-').map(Number);
+    let meses = (hoje.getFullYear() - ano) * 12 + (hoje.getMonth() + 1 - mes);
+    if (hoje.getDate() < dia) meses -= 1;
+
+    if (meses < 1) return 'Menos de 1 mês';
+    if (meses < 12) return `${meses} ${meses === 1 ? 'mês' : 'meses'}`;
+    const anos = Math.floor(meses / 12);
+    return `${anos} ${anos === 1 ? 'ano' : 'anos'}`;
+}
+
+// "Cão, sem raça definida, porte médio, 14 kg". Sem peso, a parte do peso some
+export function resumoDoAnimal({ especie, racaNome, porte, peso }) {
+    return [
+        especies[especie],
+        racaNome?.toLowerCase(),
+        portes[porte] && `porte ${portes[porte].toLowerCase()}`,
+        peso && `${peso.toLocaleString('pt-BR')} kg`,
+    ]
+        .filter(Boolean)
+        .join(', ');
+}
+
+// "2ª dose, aplicada em 12/03/2026". Funciona também com só a dose ou só a data
+export function descricaoDaVacina({ dose, dataAplicacao }) {
+    const texto = [dose && `${dose}ª dose`, dataAplicacao && `aplicada em ${formatarData(dataAplicacao)}`]
+        .filter(Boolean)
+        .join(', ');
+    return texto.charAt(0).toUpperCase() + texto.slice(1);
+}

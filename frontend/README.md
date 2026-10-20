@@ -1,4 +1,4 @@
-# Front-end — Adota Aqui
+# Front-end do Adota Aqui
 
 React + Vite + Tailwind. Se você é do squad de front, começa por aqui.
 
@@ -17,10 +17,12 @@ src/
 ├── components/   o que se repete em várias telas (botão, card de animal, navbar)
 ├── services/     as chamadas pra API. Nenhuma tela chama a API direto, sempre por aqui
 ├── contexts/     dados compartilhados entre telas (ex.: quem está logado e o token)
-├── hooks/        hooks personalizados
+├── hooks/        hooks personalizados (ex.: useTema, que troca o tema claro e escuro)
 ├── routes/       as rotas das páginas (React Router)
-├── styles/       CSS global
-├── assets/       imagens, ícones e logo exportados do Figma
+├── styles/       CSS global, com as cores dos dois temas
+├── assets/       logos e fotos (as fotos ficam em assets/fotos, em WEBP)
+├── config/       o endereço da API (ambiente.js)
+├── mocks/        dados de exemplo, usados pelos testes
 └── utils/        funções de apoio (tirar máscara de CPF, formatar data...)
 ```
 
@@ -31,15 +33,17 @@ As rotas que cada tela vai ter estão no documento de diagramas (seção "Tabela
 As cores e os estilos de texto são os mesmos do Figma (página "Fundamentos").
 O nome da classe é o nome do Figma, trocando a barra por hífen:
 
-- `acao/terracota` → `bg-acao-terracota`, `text-acao-terracota`
-- `texto/principal` → `text-texto-principal`
-- `borda/sutil` → `border-borda-sutil`
+- `acao/terracota` vira `bg-acao-terracota`, `text-acao-terracota`
+- `texto/principal` vira `text-texto-principal`
+- `borda/sutil` vira `border-borda-sutil`
 
 Fontes: `font-titulo` (Outfit) e `font-corpo` (Source Sans 3).
 Tamanhos: `text-display`, `text-secao`, `text-subtitulo`, `text-item`, `text-botao`,
 `text-campo`, `text-overline`, `text-corpo`, `text-compacto`, `text-legenda`.
 
 Nunca use código hexadecimal no meio do código. Se precisar de uma cor que não existe, fala com o time de design primeiro.
+
+As mesmas classes servem pros dois temas: no tema escuro, só os valores das cores mudam (`styles/index.css`, classe `tema-escuro`). Então não precisa escrever nada a mais pra tela funcionar no escuro. O `dark:` do Tailwind fica só pra trocar imagem, como o logo do rodapé.
 
 ## Alguns combinados com a API
 
@@ -56,6 +60,15 @@ npm install
 npm run dev
 ```
 
+Sem configurar nada, o front chama o back rodando na sua máquina (`http://localhost:8080`).
+Pra usar a API que está no ar, crie o arquivo `frontend/.env.local` com esta linha:
+
+```
+VITE_API_URL=https://adota-aqui.onrender.com
+```
+
+Esse arquivo não vai pro GitHub (está no `.gitignore`). Depois de criar ou mudar, reinicie o `npm run dev`.
+
 ## Testes
 
 ```bash
@@ -63,3 +76,8 @@ npm test
 ```
 
 A meta do curso é **70% de cobertura**, então o teste vem junto com o componente.
+
+Os testes nunca chamam a API de verdade. Pra telas que buscam dados, use a "API de mentira"
+do `tests/utils/apiFalsa.js`: ela troca o `fetch` por respostas prontas (veja o `VitrineAnimais.test.jsx`).
+O teste confere o que é trabalho do front: mandar os parâmetros certos, mandar o token e mostrar
+a resposta. Filtrar e validar os dados é trabalho do back, e quem testa isso são os testes do back.

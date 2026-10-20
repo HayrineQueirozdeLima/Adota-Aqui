@@ -1,17 +1,20 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "../Navbar/Navbar";
-
-// Por enquanto ninguém está logado
-// quando a issue do login criar o AuthContext, o usuario passa a vir de lá
-// Pra ver o topo logado, troque temporariamente por:
-// const usuario = { nome: "Marina Prado", tipoConta: "USUARIO" };
-const usuario = null;
+import Rodape from "../Rodape/Rodape";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function Layout() {
+  // null quando é visitante; { id, nome, tipoConta } quando tem alguém logado
+  const { usuario } = useAuth();
+
+  // O flex-1 empurra o rodapé pro fim da tela quando a página tem pouco conteúdo
   return (
-    <>
+    <div className="flex min-h-screen flex-col">
       <Navbar usuario={usuario} />
-      <Outlet />
-    </>
+      <div className="flex-1">
+        <Outlet />
+      </div>
+      <Rodape />
+    </div>
   );
 }

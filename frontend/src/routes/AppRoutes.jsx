@@ -16,6 +16,7 @@ import InteressesRecebidos from "../pages/InteressesRecebidos/InteressesRecebido
 import MeusInteresses from "../pages/MeusInteresses/MeusInteresses";
 import Perfil from "../pages/Perfil/Perfil";
 import NaoEncontrada from "../pages/NaoEncontrada/NaoEncontrada";
+import RotaProtegida from "./RotaProtegida";
 
 // Todas as rotas do sistema ficam aqui. Ao criar uma nova tela, lembrar de criar a rota correspondente
 export default function AppRoutes() {
@@ -35,17 +36,26 @@ export default function AppRoutes() {
         <Route path="/animais" element={<ListaAnimais />} />
         <Route path="/animais/:id" element={<PerfilAnimal />} />
 
-        {/* Precisam de login. A proteção entra junto com a issue do login */}
-        <Route
-          path="/animais/:id/interesse"
-          element={<DemonstrarInteresse />}
-        />
-        <Route path="/meus-animais" element={<MeusAnimais />} />
-        <Route path="/meus-animais/novo" element={<CadastroAnimal />} />
-        <Route path="/meus-animais/:id/editar" element={<EditarAnimal />} />
-        <Route path="/interesses-recebidos" element={<InteressesRecebidos />} />
-        <Route path="/meus-interesses" element={<MeusInteresses />} />
-        <Route path="/perfil" element={<Perfil />} />
+        {/* Precisam de login: sem login, a RotaProtegida manda pro /login */}
+        <Route element={<RotaProtegida />}>
+          <Route path="/meus-animais" element={<MeusAnimais />} />
+          <Route path="/meus-animais/novo" element={<CadastroAnimal />} />
+          <Route path="/meus-animais/:id/editar" element={<EditarAnimal />} />
+          <Route
+            path="/interesses-recebidos"
+            element={<InteressesRecebidos />}
+          />
+          <Route path="/perfil" element={<Perfil />} />
+        </Route>
+
+        {/* Só pessoa física: Abrigo não demonstra interesse (RF14) */}
+        <Route element={<RotaProtegida apenasUsuario />}>
+          <Route
+            path="/animais/:id/interesse"
+            element={<DemonstrarInteresse />}
+          />
+          <Route path="/meus-interesses" element={<MeusInteresses />} />
+        </Route>
 
         {/* Qualquer endereço que não existe cai aqui.*/}
         <Route path="*" element={<NaoEncontrada />} />

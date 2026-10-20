@@ -1,4 +1,4 @@
-# Back-end — Adota Aqui
+# Back-end do Adota Aqui
 
 API REST em Spring Boot. Se você é do squad de back, começa por aqui.
 
@@ -20,26 +20,27 @@ src/main/java/com/adotaaqui/
 │   └── enums/    as listas fechadas de opções
 ├── repository/   quem conversa com o banco
 ├── security/     JWT e login
-└── service/      as regras de negócio
+├── service/      as regras de negócio
+└── util/         funções de apoio (validar CPF e CNPJ)
 ```
 
-Cada pasta que ainda está vazia tem um `package-info.java` explicando o que vai nela.
+As pastas `config`, `controller`, `dto`, `exception`, `security` e `service` têm um `package-info.java` explicando o que vai em cada uma.
 
-O caminho de uma requisição é sempre: **controller → service → repository → banco**. O controller não fala direto com o repository, e regra de negócio fica só no service.
+O caminho de uma requisição é sempre o mesmo: o **controller** chama o **service**, o service chama o **repository**, e o repository fala com o **banco**. O controller não fala direto com o repository, e regra de negócio fica só no service.
 
 ## O que já está pronto
 
 - As entidades (`Usuario`, `Abrigo`, `Animal`, `Vacina`, `Interesse` e `Endereco`) e os enums, iguais ao DER lógico e ao dicionário de domínios.
-- Os repositories com as buscas principais (login por CPF/CNPJ, meus animais, listagem por estado, interesses ativos).
-- O teste `RacaTest`, que pode servir de modelo pros próximos.
+- Cadastro e login com JWT, CRUD de animal com fotos no S3, vitrine com filtros e busca por nome, demonstração de interesse e o painel em que o protetor aprova ou descontinua os interesses.
+- O tratamento de erro num formato único para toda a API.
 
-Controllers, services, DTOs, segurança e tratamento de erro ainda estão por fazer. Cada um tem a sua issue no Projects.
+O que cada funcionalidade faz, tela por tela, está no [`docs/funcionalidades.md`](../docs/funcionalidades.md), e como as camadas se encaixam, no [`docs/arquitetura.md`](../docs/arquitetura.md).
 
 ## Banco de dados
 
 A gente não escreve `CREATE TABLE`. O Hibernate cria e atualiza as tabelas sozinho a partir das entidades (`ddl-auto=update`), do jeito que o curso ensina.
 
-Então, **pra mudar uma tabela, muda a entidade**. Só tem um cuidado: o Hibernate só acrescenta coluna. Se você renomear ou apagar um campo, avisa no grupo, porque todo mundo vai ter que apagar e recriar o banco local:
+Então, **pra mudar uma tabela, muda a entidade**. Só tem um cuidado: o Hibernate só acrescenta coluna e índice. `CHECK` novo numa tabela que já existe ele não cria: nesse caso, coloca o SQL em [`docs/banco/integridade.sql`](../docs/banco/integridade.sql) e roda no Neon. O mesmo vale quando um enum ganha um valor novo: o Hibernate cria um `CHECK` com a lista de valores de cada enum, e no Neon o `CHECK` antigo recusa o valor novo até ser recriado. Se você renomear ou apagar um campo, avisa no grupo, porque todo mundo vai ter que apagar e recriar o banco local:
 
 ```sql
 DROP DATABASE adota_aqui;
@@ -59,5 +60,7 @@ Precisa de um PostgreSQL rodando com o banco `adota_aqui` criado. O projeto usa 
 ```bash
 mvn test
 ```
+
+O `mvn verify` roda os mesmos testes e ainda gera o relatório de cobertura em `target/site/jacoco/index.html`. É ele que o CI usa.
 
 Os testes usam um banco H2 em memória, então não precisa do PostgreSQL. A meta do curso é **70% de cobertura**, então escreve o teste junto com o código, não deixa pro final.
