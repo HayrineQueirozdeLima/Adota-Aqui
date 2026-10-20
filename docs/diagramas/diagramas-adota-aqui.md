@@ -6,7 +6,9 @@ O diagrama de classes com métodos fica num arquivo próprio: [diagrama-de-class
 
 ## 1. DER conceitual
 
-Imagem: `der-conceitual-adota-aqui.png` (há também o `.svg`, que abre e edita no Figma ou no draw.io). Notação: cada entidade é um retângulo com seus atributos dentro, e cada relacionamento é um losango com a cardinalidade (mín,máx) de cada lado. A legenda está na própria imagem.
+![DER conceitual](der-conceitual-adota-aqui.png)
+
+Notação: cada entidade é um retângulo com seus atributos dentro, e cada relacionamento é um losango com a cardinalidade (mín,máx) de cada lado. A legenda está na própria imagem.
 
 Decisões de modelagem:
 
@@ -26,9 +28,9 @@ O dicionário de domínios é uma tabela que lista, para cada atributo com opç�
 
 | Domínio | Valores permitidos | Onde é usado |
 | --- | --- | --- |
-| EspecieAnimal | `CAO`, `GATO` | Animal.espécie |
+| Especie | `CAO`, `GATO` | Animal.espécie |
 | SexoAnimal | `FEMEA`, `MACHO` | Animal.sexo |
-| PorteAnimal (sugerido) | `PEQUENO`, `MEDIO`, `GRANDE` | Animal.porte |
+| Porte | `PEQUENO`, `MEDIO`, `GRANDE` | Animal.porte |
 | StatusConvivencia | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO` | Animal.convivência (criança, gato, cão) |
 | NivelEnergia | `MAIS_ANIMADO`, `MAIS_CALMO` | Animal.energia |
 | StatusAdocao | `DISPONIVEL`, `ADOTADO` | Animal.status_adoção |
@@ -41,9 +43,9 @@ O dicionário de domínios é uma tabela que lista, para cada atributo com opç�
 | MomentoContato | `MANHA`, `TARDE`, `NOITE`, `QUALQUER_HORARIO` | triagem.momento_contato |
 | Raca | lista por espécie (tabela abaixo); cada raça pertence a uma única espécie | Animal.raça |
 
-### Raças por espécie (sugestão inicial; ajustem à vontade)
+### Raças por espécie
 
-A raça é um enum no back-end, e cada valor carrega a sua espécie. O front busca as opções filtradas pela espécie escolhida (por exemplo `GET /racas?especie=CAO`), então a lista fica em um só lugar.
+A raça é um enum no back-end, e cada valor carrega a sua espécie. O front busca as opções filtradas pela espécie escolhida (por exemplo `GET /api/racas?especie=CAO`), então a lista fica em um só lugar.
 
 | Espécie | Raças |
 | --- | --- |
@@ -75,7 +77,7 @@ A raça é um enum no back-end, e cada valor carrega a sua espécie. O front bus
 
 ## 3. DER lógico
 
-Convenções: chaves primárias em UUID; `Endereco` é `@Embeddable`, então suas colunas ficam dentro de `usuario` e `abrigo`; enums gravados como texto (`@Enumerated(EnumType.STRING)`); `estado` guardado como UF de 2 letras (vem do CEP).
+Os tipos são os que o Hibernate cria no PostgreSQL a partir das entidades. Convenções: chaves primárias em UUID; `Endereco` é `@Embeddable`, então suas colunas ficam dentro de `usuario` e `abrigo`; enums gravados como texto (`@Enumerated(EnumType.STRING)`); `estado` guardado como UF de 2 letras (vem do CEP).
 
 ```mermaid
 erDiagram
@@ -94,8 +96,8 @@ erDiagram
         varchar(120) email UK
         varchar(20) telefone
         varchar(60) senha_hash "BCrypt"
-        char(8) cep "Endereco embutido"
-        char(2) estado "UF"
+        varchar(8) cep "Endereco embutido"
+        varchar(2) estado "UF"
         varchar(80) cidade
         varchar(120) logradouro
         varchar(10) numero
@@ -110,8 +112,8 @@ erDiagram
         varchar(120) email UK
         varchar(20) telefone
         varchar(60) senha_hash "BCrypt"
-        char(8) cep "Endereco embutido"
-        char(2) estado "UF"
+        varchar(8) cep "Endereco embutido"
+        varchar(2) estado "UF"
         varchar(80) cidade
         varchar(120) logradouro
         varchar(10) numero
@@ -127,7 +129,7 @@ erDiagram
         varchar(40) raca "enum"
         varchar(10) sexo "enum"
         varchar(20) porte "enum"
-        numeric peso "opcional, kg"
+        float peso "opcional, kg"
         varchar(20) convivencia_crianca "enum"
         varchar(20) convivencia_gato "enum"
         varchar(20) convivencia_cao "enum"
@@ -168,25 +170,35 @@ erDiagram
     }
 ```
 
+![DER lógico](der-logico-adota-aqui.png)
+
+O banco de verdade, criado pelo Hibernate e visto num cliente de banco de dados, tem as mesmas tabelas e colunas:
+
+![DER físico](der-fisico.png)
+
 ### Regras de integridade
 
 | Tabela | Regra | Como garantir |
 | --- | --- | --- |
 | usuario | `cpf` e `email` únicos | `unique = true` na entidade |
 | abrigo | `cnpj` e `email` únicos | `unique = true` na entidade |
-| animal | a `raca` deve pertencer à `especie` informada | Service (`raca.getEspecie() == especie`), retornando 400 se não bater |
-| animal | exatamente um dono: `usuario_id` OU `abrigo_id` (XOR) | `CHECK ((usuario_id IS NOT NULL) <> (abrigo_id IS NOT NULL))` via `@Check` + validação no Service |
+| usuario e abrigo | e-mail único também entre as duas tabelas | Service (`existsByEmail` nos dois repositories) |
+| animal | a `raca` deve pertencer à `especie` informada | Service (`raca.pertenceA(especie)`), retornando 400 se não bater |
+| animal | exatamente um dono: `usuario_id` OU `abrigo_id` (XOR) | `CHECK ((usuario_id IS NOT NULL AND abrigo_id IS NULL) OR (usuario_id IS NULL AND abrigo_id IS NOT NULL))` via `@Check` + validação na entidade |
+| animal | `peso`, quando vem, maior que zero | `CHECK (peso IS NULL OR peso > 0)` via `@Check` + validação do DTO |
 | animal | remover o animal remove fotos, vacinas e interesses (UC05) | `cascade = ALL` + `orphanRemoval = true` |
-| animal | dono (usuario/abrigo) não é apagado no MVP | FK sem cascade |
+| animal | dono (usuario/abrigo) não é apagado no MVP | FK sem cascade: o banco recusa apagar uma conta que ainda tem animal |
 | animal_foto | PK composta (`animal_id`, `ordem`); a primeira foto é a capa | `@ElementCollection` + `@OrderColumn` |
+| vacina | `dose`, quando vem, 1 ou mais | `CHECK (dose IS NULL OR dose >= 1)` via `@Check` + validação do DTO |
+| todas | colunas de enum só aceitam os valores do dicionário | `CHECK` que o Hibernate cria pra cada coluna `@Enumerated` |
 | interesse | `motivo_descontinuacao` obrigatório quando `status_andamento = DESCONTINUADO` | `CHECK (status_andamento <> 'DESCONTINUADO' OR motivo_descontinuacao IS NOT NULL)` + Service |
-| interesse | um Usuario só pode ter 1 interesse ATIVO (PENDENTE ou EM CONTATO) por animal | Service (`existsBy...StatusIn`) |
+| interesse | um Usuario só pode ter 1 interesse ATIVO (PENDENTE ou EM CONTATO) por animal | Service (`existsBy...StatusIn`), com o animal travado |
 | interesse | só 1 interesse APROVADO por animal | Service, dentro da mesma transação que muda o animal para ADOTADO |
 | interesse | Usuario não demonstra interesse em animal que ele mesmo cadastrou | Service (`animal.usuario_id <> interesse.usuario_id`) |
 
-Índices sugeridos (o PostgreSQL não cria índice automático em FK): `animal(status_adocao)`, `animal(usuario_id)`, `animal(abrigo_id)`, `interesse(animal_id)`, `interesse(usuario_id)`, `usuario(estado)`, `abrigo(estado)`.
+Índices (o PostgreSQL não cria índice automático em FK): `animal(status_adocao)`, `animal(usuario_id)`, `animal(abrigo_id)`, `interesse(usuario_id, animal_id)`, `interesse(animal_id, status_andamento)` e `vacina(animal_id)`. Estão nas entidades, e a medição de cada um está na [arquitetura](../arquitetura.md#índices).
 
-Consulta da listagem (RF07 e RF14), que funciona sem duplicar o estado na tabela `animal`. O filtro por estado só entra para Usuario logado; para Visitante e Abrigo a mesma consulta roda sem essa linha (todos os estados). Os demais filtros (porte, sexo, convivência, cidade) entram do mesmo jeito, como condições opcionais:
+Consulta da listagem (RF07 e RF14), que funciona sem duplicar o estado na tabela `animal`. O filtro por estado só entra para Usuario logado; para Visitante e Abrigo a mesma consulta roda sem essa linha (todos os estados). Os demais filtros (porte, sexo, convivência, energia, cidade e a busca por nome do animal ou do protetor) entram do mesmo jeito, como condições opcionais. No código, quem monta essa consulta é o `AnimalSpecifications`:
 
 ```sql
 SELECT a.*, COALESCE(u.nome, b.nome) AS protetor
@@ -269,9 +281,9 @@ Níveis de acesso: **Pública** (Visitante), **Autenticada** (Usuario ou Abrigo)
 
 | Rota | Tela | Acesso | Casos de uso / requisitos |
 | --- | --- | --- | --- |
-| `/` | Home: apresentação e atalhos | Pública | - |
-| `/animais` | Listagem com filtros (espécie, raça, porte, sexo, convivência, cidade). Visitante e Abrigo veem todos os estados; só o Usuario logado vê apenas o próprio estado | Pública | UC06, RF07, RF14 |
-| `/animais/:id` | Perfil completo do animal. Botão "Demonstrar interesse" só para Usuario do mesmo estado (Abrigo não vê o botão); vira "Desistir da adoção" se já houver interesse | Pública | UC06, UC07 |
+| `/` | Home: apresentação, vitrine e "Como funciona a adoção" | Pública | UC06 |
+| `/animais` | Listagem com busca por nome do animal ou do protetor e filtros (espécie, raça, porte, sexo, convivência, energia, cidade). Visitante e Abrigo veem todos os estados; só o Usuario logado vê apenas o próprio estado | Pública | UC06, RF07, RF14 |
+| `/animais/:id` | Perfil completo do animal. Botão "Quero conhecer {nome}" só para Usuario do mesmo estado (Abrigo não vê o botão); vira "Desistir da adoção" se já houver interesse | Pública | UC06, UC07 |
 | `/animais/:id/interesse` | Aviso de guarda responsável (aceite obrigatório) e triagem em 3 partes | Somente Usuario | UC07, RF13, RF15 |
 | `/login` | Login com CPF ou CNPJ e senha | Pública (redireciona se já logado) | UC03, RF03 |
 | `/cadastro` | Escolha do tipo de conta | Pública | UC01, UC02 |
@@ -281,15 +293,15 @@ Níveis de acesso: **Pública** (Visitante), **Autenticada** (Usuario ou Abrigo)
 | `/meus-animais/novo` | Cadastrar animal (dados, fotos, vacinas) | Autenticada | UC04, RF04, RF05, RF16 |
 | `/meus-animais/:id/editar` | Editar ou remover. Se ADOTADO, só o status é editável | Autenticada + dono do animal | UC05, RF06 |
 | `/interesses-recebidos` | Painel dos interesses nos meus animais: contatos, status, aprovar/descontinuar | Autenticada (Protetor) | UC08, RF09, RF10 |
-| `/meus-interesses` | Interesses que eu demonstrei, com status e opção de desistir (sugerida) | Somente Usuario | UC07 |
-| `/minhas-adocoes` | Adoções concluídas e depoimento (opcional) | Somente Usuario | UC09, RF11 |
+| `/perfil` | Meu perfil. Por enquanto só tem "Sair da conta"; a edição dos dados (RF17) ainda não foi feita | Autenticada | UC10 |
+| `/meus-interesses` | Minhas candidaturas: interesses que eu demonstrei, com status. A tela ainda é só o título, esperando o `GET /api/interesses/meus` | Somente Usuario | UC07 |
 | `*` | Página não encontrada | Pública | - |
 
-No React, isso vira três tipos de rota: as públicas soltas, um `RotaProtegida` sem restrição de perfil (`/meus-animais/*`, `/interesses-recebidos`) e um `RotaProtegida` que exige perfil USUARIO (`/animais/:id/interesse`, `/meus-interesses`, `/minhas-adocoes`).
+No React, isso vira três tipos de rota: as públicas soltas, a `RotaProtegida` sem restrição de perfil (`/meus-animais/*`, `/interesses-recebidos` e `/perfil`) e a `RotaProtegida apenasUsuario` (`/animais/:id/interesse` e `/meus-interesses`). A `/minhas-adocoes`, do depoimento opcional (seção 7), não foi criada.
 
 ## 7. Extensão opcional: Depoimento (UC09, RF11)
 
-Fora do DER principal, porque só entra se sobrar tempo. Se entrar, é uma tabela nova ligada ao `interesse` (que já liga Usuario e Animal), sem mexer nas tabelas existentes.
+Fora do DER principal, porque só entra se sobrar tempo. **Não foi implementada.** Se entrar, é uma tabela nova ligada ao `interesse` (que já liga Usuario e Animal), sem mexer nas tabelas existentes.
 
 ```mermaid
 erDiagram
@@ -308,4 +320,4 @@ erDiagram
     }
 ```
 
-Regras: só quem tem o interesse APROVADO pode registrar (Service confere `interesse.status = APROVADO` e `interesse.usuario` = usuário logado); o texto é obrigatório e a foto é opcional; e a remoção do animal continua em cascata (apagar o animal apaga os interesses, e apagar um interesse apaga o depoimento). A rota `/minhas-adocoes` da seção 6 é a tela dessa extensão.
+Regras: só quem tem o interesse APROVADO pode registrar (Service confere `interesse.status = APROVADO` e `interesse.usuario` = usuário logado); o texto é obrigatório e a foto é opcional; e a remoção do animal continua em cascata (apagar o animal apaga os interesses, e apagar um interesse apaga o depoimento). Se entrar, a tela dessa extensão seria a rota `/minhas-adocoes`.

@@ -2,7 +2,7 @@
 
 O que já funciona no Adota Aqui: o que cada funcionalidade faz, como ela funciona por dentro (tela, API e banco), as regras que ela segue e onde ficam o código e os testes.
 
-Situação em 16/10/2026, Sprint 4. A regra é a mesma do resto da pasta: entrou funcionalidade nova, entra uma seção nova aqui, no mesmo PR.
+Situação em 17/10/2026, fim da Sprint 4. A regra é a mesma do resto da pasta: entrou funcionalidade nova, entra uma seção nova aqui, no mesmo PR.
 
 Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`), por isso os animais aparecem sem foto. No site, as fotos vêm do Amazon S3.
 
@@ -61,7 +61,7 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
    - Pessoa física: nome completo, CPF, e-mail e telefone.
    - Abrigo: CNPJ, nome institucional, razão social, e-mail institucional e telefone.
    - Os dois: senha, confirmação da senha e endereço.
-3. Ao digitar os 8 números do CEP, o front consulta o ViaCEP e preenche logradouro, cidade e estado. Os campos continuam editáveis. Se o CEP não existir, aparece "CEP não encontrado. Confira os números.".
+3. Ao digitar os 8 números do CEP, o front consulta o ViaCEP e preenche logradouro, bairro, cidade e estado. Os campos continuam editáveis. Se o CEP não existir, aparece "CEP não encontrado. Confira os números.".
 4. O front confere tudo antes de enviar e manda só os números de CPF, CNPJ, telefone e CEP.
 5. O back confere de novo, guarda a senha criptografada com BCrypt e responde `201` já com o token de login. A pessoa entra direto, sem precisar fazer login, e vai pra vitrine.
 
@@ -231,7 +231,7 @@ O quadro do lado:
 **Editar (update).** O mesmo formulário, já preenchido, manda tudo pro `PUT /api/animais/{id}`.
 
 - Animal disponível: dá pra mudar todos os dados. O status não muda por aqui: o animal só vira Adotado quando o protetor aprova um interesse.
-- Animal adotado: os dados ficam travados e só o status muda (RF06). Escolher "Disponível (devolução)" pede confirmação ("Tornar {nome} disponível de novo?") e devolve o animal pra vitrine. A devolução é salva sem mudar os dados (se mudar, o back responde `409`); depois dela, o animal pode ser editado normalmente. O interesse aprovado continua no histórico.
+- Animal adotado: os dados ficam travados e só o status muda (RF06). Escolher "Disponível (devolução)" pede confirmação ("Tornar {nome} disponível de novo?") e devolve o animal pra vitrine. A devolução é salva sem mudar os dados (se mudar, o back responde `409`); depois dela, o animal pode ser editado normalmente. Isso diverge do RF06, que deixa editar na mesma tela da devolução, e está na seção 10. O interesse aprovado continua no histórico.
 
 **Remover (delete).** "Remover {nome}" pede confirmação ("Remover {nome} de vez?") e chama `DELETE /api/animais/{id}`. Saem junto as vacinas, os endereços das fotos e os interesses do animal.
 
@@ -365,6 +365,7 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 | Editar perfil e trocar senha (RF17, UC10) | Os DTOs existem, mas ainda não há endpoint nem tela. Meu perfil só tem "Sair da conta"                                               |
 | Apagar a imagem do S3                     | Remover uma foto ou um animal tira o endereço do banco, mas o arquivo continua no S3                                                 |
 | Paginação e ordem na vitrine              | A vitrine traz todos os animais de uma vez, sem uma ordem definida                                                                   |
+| Editar na mesma tela da devolução (RF06)  | O formulário libera os campos quando o status volta pra Disponível, mas o back recusa (`409`) se algum dado mudar junto. Por enquanto: salvar a devolução e depois editar |
 | Cobertura mínima obrigatória (RNF04)      | A cobertura é medida no CI, mas o build ainda não falha quando fica abaixo de 70%                                                    |
 
 ---

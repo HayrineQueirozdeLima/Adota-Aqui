@@ -52,10 +52,11 @@ frontend/src/
 ├── routes/       todas as rotas (AppRoutes) e a RotaProtegida
 ├── contexts/     o AuthContext, que guarda quem está logado
 ├── services/     as chamadas à API, um arquivo por assunto, e a consulta ao ViaCEP
-├── hooks/        hooks próprios (useValorAtrasado, useFocoNoPrimeiroErro)
+├── hooks/        hooks próprios (useValorAtrasado, useFocoNoPrimeiroErro, useTema)
 ├── utils/        máscaras, validações e os textos que traduzem os valores da API
 ├── config/       o endereço da API (ambiente.js)
-├── styles/       o CSS global e as cores do tema
+├── styles/       o CSS global e as cores dos dois temas
+├── assets/       os logos e as fotos da página inicial e das telas de aviso
 └── mocks/        dados de exemplo usados pelos testes
 ```
 
@@ -69,6 +70,8 @@ frontend/src/
 2. Manda o token no cabeçalho `Authorization: Bearer ...` quando a pessoa está logada.
 3. Envia JSON, ou o arquivo como está, no caso das fotos.
 4. Se a API responder com erro, transforma a resposta num `ErroApi` com `status`, `mensagem` e `campos`. É assim que cada tela mostra a mensagem embaixo do campo certo. `status` 0 quer dizer que nem chegou na API (sem internet ou servidor fora do ar).
+
+**Tema claro e escuro.** As cores são variáveis CSS no `styles/index.css`, com os nomes do Figma, e o Tailwind usa essas variáveis. O tema escuro troca só os valores, quando a classe `tema-escuro` está no `<html>`, então as telas não precisam de classe nenhuma pra cada tema. Quem põe e tira a classe é o `useTema`, ligado ao botão do topo; a escolha fica no `localStorage`, e sem escolha vale o tema do sistema operacional. Um script curto no `index.html` aplica o tema antes da página aparecer, pra não piscar.
 
 **Netlify.** O arquivo `public/_redirects` manda qualquer endereço para o `index.html`. Sem ele, recarregar a página em `/animais/123` daria erro 404, porque quem conhece essa rota é o React Router, dentro do navegador.
 
