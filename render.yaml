@@ -1,0 +1,45 @@
+# Configuração do back no Render, em código (Blueprint).
+# Serve pra subir a API do zero numa conta nova: no Render, New > Blueprint, escolhe este repositório,
+# e o Render cria o serviço com tudo isto. Os valores secretos (sync: false) ele pede na hora.
+# O passo a passo completo está em docs/deploy.md
+services:
+  - type: web
+    name: adota-aqui
+    runtime: docker
+    plan: free
+    branch: dev
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    # Só faz deploy quando muda alguma coisa no back, e só depois que o CI passa
+    buildFilter:
+      paths:
+        - backend/**
+    autoDeployTrigger: checksPass
+    envVars:
+      # Banco no Neon: jdbc:postgresql://<host>/<banco>?sslmode=require
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      # Chave que assina o token. O Render gera uma aleatória
+      - key: JWT_SECRET
+        generateValue: true
+      # Site e prévias dos PRs no Netlify, e o front rodando na máquina de vocês, separados por vírgula
+      - key: CORS_ORIGENS
+        value: https://adotaaqui.netlify.app,https://deploy-preview-*--adotaaqui.netlify.app,http://localhost:5173
+      # Fotos no S3
+      - key: FOTOS_ARMAZENAMENTO
+        value: s3
+      - key: S3_BUCKET
+        sync: false
+      - key: AWS_REGION
+        value: us-east-2
+      # Endereço público do bucket: https://<bucket>.s3.us-east-2.amazonaws.com
+      - key: FOTOS_URL_BASE
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false

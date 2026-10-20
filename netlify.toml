@@ -1,0 +1,15 @@
+# Configuração do front no Netlify, em código:
+# quem cria um projeto novo a partir deste repositório não precisa preencher nada na tela de build.
+# O passo a passo completo está em docs/deploy.md
+[build]
+  # Pasta onde o Netlify instala as dependências e roda o build
+  base = "frontend"
+  command = "npm run build"
+  # Relativo ao base: frontend/dist
+  publish = "dist"
+
+[build.environment]
+  # A mesma versão do CI
+  NODE_VERSION = "20"
+  # Endereço da API. Não é segredo: é o mesmo que está no README
+  VITE_API_URL = "https://adota-aqui.onrender.com"

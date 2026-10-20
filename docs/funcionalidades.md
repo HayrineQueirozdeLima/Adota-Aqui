@@ -352,7 +352,7 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 - **Rodapé** em todas as telas que têm o menu do topo, com o logo, a frase do Figma e os links da plataforma: explorar animais, como adotar, cadastro e cadastrar um animal (`components/Rodape`, `Rodape.test.jsx`).
 - **Página não encontrada** pra qualquer endereço que não existe, com foto e os botões "Ver animais disponíveis" e "Ir para a página inicial". Animal que não existe (perfil, interesse ou edição) mostra a mesma foto com "Animal não encontrado".
-- **Integração contínua.** A cada push e PR na `dev` e na `main`, o GitHub Actions roda os testes do back (`mvn verify`) e do front (build e `npm run test:coverage`) e guarda os relatórios de cobertura (JaCoCo e lcov). O PR só entra com os dois verdes.
+- **Integração contínua.** A cada push e PR na `dev` e na `main`, o GitHub Actions roda os testes do back (`mvn verify`) e do front (build e `npm run test:coverage`) e guarda os relatórios de cobertura (JaCoCo e lcov). A cobertura aparece no resumo de cada execução, e o CI falha se a de linhas ficar abaixo de 70% (RNF04). O PR só entra com os dois verdes.
 - **Deploy (RNF06).** Front no Netlify, API no Render (com Docker), banco PostgreSQL no Neon e fotos no Amazon S3. Os endereços estão no [README principal](../README.md).
 
 ---
@@ -366,7 +366,6 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 | Apagar a imagem do S3                     | Remover uma foto ou um animal tira o endereço do banco, mas o arquivo continua no S3                                                 |
 | Paginação e ordem na vitrine              | A vitrine traz todos os animais de uma vez, sem uma ordem definida                                                                   |
 | Editar na mesma tela da devolução (RF06)  | O formulário libera os campos quando o status volta pra Disponível, mas o back recusa (`409`) se algum dado mudar junto. Por enquanto: salvar a devolução e depois editar |
-| Cobertura mínima obrigatória (RNF04)      | A cobertura é medida no CI, mas o build ainda não falha quando fica abaixo de 70%                                                    |
 
 ---
 

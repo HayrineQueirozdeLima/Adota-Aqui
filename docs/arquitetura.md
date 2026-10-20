@@ -34,10 +34,9 @@ Repare que quem chama a API é o próprio navegador: o Netlify só entrega os ar
 
 A API do Render "dorme" depois de 15 minutos sem uso, e o primeiro acesso depois disso pode levar cerca de 1 minuto.
 
-A configuração de cada ambiente vem de variáveis de ambiente, definidas no painel de cada serviço e nunca no repositório:
+A configuração de cada ambiente vem de variáveis de ambiente, definidas no painel de cada serviço e nunca no repositório. O resto da configuração fica em código: `render.yaml` (Render), `netlify.toml` (Netlify) e `backend/Dockerfile`. A lista completa das variáveis e o passo a passo pra subir tudo do zero estão no [deploy](deploy.md).
 
-- **Render (back):** `DB_URL`, `DB_USERNAME` e `DB_PASSWORD` (banco), `JWT_SECRET` (chave do token), `CORS_ORIGENS` (quais sites podem chamar a API), `FOTOS_ARMAZENAMENTO=s3`, `FOTOS_URL_BASE`, `S3_BUCKET` e `AWS_REGION` (fotos), além das credenciais da AWS, que o SDK lê sozinho.
-- **Netlify (front):** `VITE_API_URL`, o endereço da API.
+Com o banco de produção, o back confere na hora de subir se o `JWT_SECRET`, o `FOTOS_ARMAZENAMENTO=s3` e o `CORS_ORIGENS` foram configurados (`config/ConferenciaDoDeploy`). Se faltar algum, ele não sobe, e o Render mantém a versão anterior no ar.
 
 Na máquina de vocês, sem variável nenhuma, o front roda em `http://localhost:5173`, o back em `http://localhost:8080` com um PostgreSQL local (banco `adota_aqui`), e as fotos ficam na memória. O passo a passo está no [README principal](../README.md).
 
@@ -256,6 +255,7 @@ O cadastro (`POST /api/usuarios` ou `/api/abrigos`) segue o mesmo caminho e já 
 
 - **Back:** JUnit 5 com o banco H2, rodando pelo Maven (`mvn verify`), que também gera o relatório de cobertura do JaCoCo.
 - **Front:** Jest e Testing Library (`npm run test:coverage`).
-- **CI:** o GitHub Actions roda os dois a cada push e a cada PR para a `dev` e a `main`, nos jobs `backend` e `frontend`. A proteção das branches só deixa o PR entrar com os dois verdes.
+- **CI:** o GitHub Actions roda os dois a cada push e a cada PR para a `dev` e a `main`, nos jobs `backend` e `frontend`, e mostra a cobertura no resumo da execução. Se a cobertura de linhas de um dos dois ficar abaixo de 70%, o job falha. A proteção das branches só deixa o PR entrar com os dois verdes.
+- **Deploy:** o Render só publica o back depois que o CI passa (ver [deploy](deploy.md)).
 
 O que é testado e por quê está no [plano de testes](plano-de-testes.md).

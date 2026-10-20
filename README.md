@@ -79,3 +79,5 @@ cd frontend && npm test
 - API: https://adota-aqui.onrender.com
 
 A API "dorme" depois de 15 minutos sem uso. O primeiro acesso depois disso pode levar cerca de 1 minuto.
+
+Como o deploy funciona e como subir tudo do zero: [`docs/deploy.md`](docs/deploy.md).

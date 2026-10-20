@@ -37,7 +37,9 @@ npm run test:coverage
 
 Aparece uma tabela no terminal, e o relatório completo fica em `frontend/coverage/lcov-report/index.html`.
 
-**Sem rodar nada:** o CI gera os dois relatórios a cada push. Na aba **Actions** do GitHub, abre a execução mais recente e baixa `cobertura-backend` ou `cobertura-frontend` em **Artifacts**.
+**Sem rodar nada:** a cada push, o CI mostra a cobertura de linhas e de ramos do back e do front no resumo da execução (aba **Actions**, abre a execução, e os números aparecem em cima). O relatório completo, arquivo por arquivo, fica em **Artifacts**: `cobertura-backend` e `cobertura-frontend`.
+
+**O mínimo é obrigatório:** se a cobertura de linhas do back ou do front ficar abaixo de 70%, o CI falha e o PR não entra. No back quem confere é o JaCoCo (`check`, no `mvn verify`); no front, o `coverageThreshold` do `jest.config.js` (no `npm run test:coverage`).
 
 ## O que entra na conta
 
@@ -168,7 +170,7 @@ O `model/IntegridadeDoBancoTest` (issue #40) faz o mesmo com o resto do banco: o
 
 - **Cada squad** testa o próprio código.
 - **O squad de Testes** revisa os PRs olhando os testes: se os casos das prioridades acima estão cobertos, e se não ficou só o "caminho feliz".
-- Ao revisar um PR, confira no relatório de cobertura do CI se a porcentagem não caiu.
+- Ao revisar um PR, confira no resumo do CI se a porcentagem não caiu.
 
 ## Metas por sprint
 
@@ -176,5 +178,5 @@ O `model/IntegridadeDoBancoTest` (issue #40) faz o mesmo com o resto do banco: o
 | --- | --- |
 | 2 | Testes do cadastro, do login e do CRUD de animal (prioridades 1 a 3) |
 | 3 | Testes das regras de interesse (prioridades 4 e 5) |
-| 4 | Fechar os 70% no back e no front. A partir daqui, o CI passa a recusar PR que deixe a cobertura abaixo de 70% |
+| 4 | Fechar os 70% no back e no front. A partir daqui, o CI recusa PR que deixe a cobertura de linhas abaixo de 70% (feito na #41) |
 | 5 | Rodar tudo uma última vez e guardar o relatório final como prova |
