@@ -2,7 +2,7 @@
 
 O que já funciona no Adota Aqui: o que cada funcionalidade faz, como ela funciona por dentro (tela, API e banco), as regras que ela segue e onde ficam o código e os testes.
 
-Situação em 17/10/2026, fim da Sprint 4. A regra é a mesma do resto da pasta: entrou funcionalidade nova, entra uma seção nova aqui, no mesmo PR.
+Situação em 22/10/2026, Sprint 5. A regra é a mesma do resto da pasta: entrou funcionalidade nova, entra uma seção nova aqui, no mesmo PR.
 
 Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`), por isso os animais aparecem sem foto. No site, as fotos vêm do Amazon S3.
 
@@ -16,16 +16,18 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 6. [Cadastro, edição e remoção de animal (CRUD)](#6-cadastro-edição-e-remoção-de-animal-crud)
 7. [Demonstrar interesse e desistir](#7-demonstrar-interesse-e-desistir)
 8. [Painel de interesses recebidos](#8-painel-de-interesses-recebidos)
-9. [O que vale pro sistema todo](#9-o-que-vale-pro-sistema-todo)
-10. [O que ainda não está pronto](#10-o-que-ainda-não-está-pronto)
+9. [Minhas candidaturas](#9-minhas-candidaturas)
+10. [Meu perfil](#10-meu-perfil)
+11. [O que vale pro sistema todo](#11-o-que-vale-pro-sistema-todo)
+12. [O que ainda não está pronto](#12-o-que-ainda-não-está-pronto)
 
 ## Quem usa o sistema
 
-| Perfil    | Como entra                    | O que pode fazer                                                                                                                                |
-| --------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Visitante | Sem login                     | Ver a vitrine (animais de todos os estados) e o perfil de cada animal                                                                           |
-| Usuario   | Pessoa física, login com CPF  | Ver os animais do próprio estado, demonstrar interesse e desistir. Também pode cadastrar animais que resgatou e cuidar dos interesses recebidos |
-| Abrigo    | ONG ou abrigo, login com CNPJ | Ver a vitrine de todos os estados, cadastrar animais e cuidar dos interesses recebidos. Não demonstra interesse                                 |
+| Perfil    | Como entra                    | O que pode fazer                                                                                                                                                            |
+| --------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Visitante | Sem login                     | Ver a vitrine (animais de todos os estados) e o perfil de cada animal                                                                                                       |
+| Usuario   | Pessoa física, login com CPF  | Ver os animais do próprio estado, demonstrar interesse, acompanhar as candidaturas e desistir. Também pode cadastrar animais que resgatou e cuidar dos interesses recebidos |
+| Abrigo    | ONG ou abrigo, login com CNPJ | Ver a vitrine de todos os estados, cadastrar animais e cuidar dos interesses recebidos. Não demonstra interesse                                                             |
 
 **Protetor** é quem cadastrou o animal, seja Usuario ou Abrigo.
 
@@ -41,6 +43,8 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 | 6   | CRUD de animal e fotos              | RF04, RF05, RF06, RF16       | `/meus-animais`, `/meus-animais/novo`, `/meus-animais/:id/editar` | `GET /api/animais/meus`, `POST /api/animais`, `PUT /api/animais/{id}`, `DELETE /api/animais/{id}`, `POST /api/fotos` |
 | 7   | Demonstrar interesse e desistir     | RF08, RF09, RF13, RF14, RF15 | `/animais/:id/interesse`                                          | `POST /api/animais/{id}/interesses`, `DELETE /api/interesses/{id}`                                                   |
 | 8   | Painel de interesses recebidos      | RF09, RF10, RF12             | `/interesses-recebidos`                                           | `GET /api/interesses/recebidos`, `PATCH /api/interesses/{id}/status`                                                 |
+| 9   | Minhas candidaturas                 | RF09, UC07                   | `/meus-interesses`                                                | `GET /api/interesses/meus`, `DELETE /api/interesses/{id}`                                                            |
+| 10  | Meu perfil                          | RF17, RF14, UC10             | `/perfil`                                                         | `GET` e `PUT` em `/api/usuarios/me` e `/api/abrigos/me`, `PATCH` em `.../me/senha`                                   |
 
 Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da API](api.md).
 
@@ -341,7 +345,72 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ---
 
-## 9. O que vale pro sistema todo
+## 9. Minhas candidaturas
+
+![Minhas candidaturas](prints/14-minhas-candidaturas.png)
+
+**O que faz.** A pessoa acompanha os animais em que demonstrou interesse: em que pé está cada candidatura e o contato do protetor, pra ela também poder puxar a conversa (RF09, UC07). Só pessoa física tem essa tela.
+
+**Como funciona.**
+
+1. Um cartão por candidatura, com a foto, o nome e o status do animal, a espécie, a raça e o porte, e há quanto tempo o interesse foi enviado.
+2. Em cada cartão, o contato do protetor: nome, e-mail e WhatsApp.
+3. As em andamento (Em contato e Pendente) vêm primeiro, depois a Aprovada e as Descontinuadas.
+4. Filtros por status: Todas, Pendente, Em contato, Aprovado e Descontinuado, cada um com a quantidade.
+5. Aprovada mostra "Adoção aprovada. Combine os próximos passos com o protetor." Descontinuada mostra o motivo que o protetor escreveu.
+6. "Ver ficha" só aparece com o animal disponível: animal adotado só abre pro protetor dele.
+7. "Desistir da adoção" só aparece nas candidaturas Pendente ou Em contato. Pede confirmação, apaga o interesse (o mesmo `DELETE` do perfil do animal) e o cartão some da lista, com um aviso no topo.
+8. Sem nenhuma candidatura, aparece um convite pra ver os animais disponíveis.
+
+**Regras.**
+
+- Cada pessoa só vê as próprias candidaturas: a conta sai do token.
+- Sem login: `401`. Conta de abrigo: `403` "Contas de abrigo não têm candidaturas. Para adotar, use uma conta pessoal (CPF)".
+- O interesse traz um resumo do animal com o `statusAdocao`, que é o que decide se o "Ver ficha" aparece (`docs/api.md`, formato do interesse).
+
+**Onde está no código.**
+
+- Front: `pages/MeusInteresses`, `components/Candidatura` e `services/interesses.js`
+- Back: `InteresseController`, `InteresseService` e `InteresseRepository` (`findByUsuarioIdOrderByDataHoraDescIdDesc`)
+
+**Testes.** `InteresseIntegrationTest` (só as da pessoa, contato do protetor, motivo, `401` e `403`) e `MeusInteresses.test.jsx`.
+
+---
+
+## 10. Meu perfil
+
+![Meu perfil](prints/15-meu-perfil.png)
+
+**O que faz.** A pessoa ou o abrigo vê e edita os dados da conta e troca a senha (RF17, UC10). O CPF e o CNPJ aparecem, mas não mudam, porque é com eles que se entra.
+
+**Como funciona.**
+
+1. A tela abre com os dados da conta: documento (só leitura), nome, telefone, e-mail e endereço. O abrigo também tem a razão social.
+2. O endereço funciona igual ao do cadastro: o CEP preenche cidade, estado e logradouro pelo ViaCEP, e os campos continuam editáveis.
+3. Um aviso explica que mudar o estado muda o que a pessoa vê na vitrine e onde os animais dela aparecem (RF14).
+4. A troca de senha fica na mesma tela e é opcional: com os três campos em branco, a senha não muda. Começou a preencher, os três passam a ser obrigatórios.
+5. "Salvar alterações" manda os dados (`PUT`) e, se a senha foi preenchida, troca a senha logo depois (`PATCH`). Se nada mudou, avisa que não há o que salvar.
+6. "Cancelar" volta tudo pro que está salvo. O nome novo aparece no menu na hora, sem entrar de novo.
+7. "Sair da conta" continua na mesma tela.
+
+**Regras.**
+
+- A conta sai do token (`/me`), nunca de um id no endereço. Pessoa usa `/api/usuarios/me` e abrigo usa `/api/abrigos/me`; o outro tipo recebe `403`.
+- O e-mail continua único entre pessoas e abrigos, sem diferença de maiúsculas: `409` "Já existe uma conta cadastrada com este e-mail", mostrado embaixo do campo.
+- A senha nova segue a regra do cadastro (8 a 72 caracteres) e precisa ser confirmada.
+- Senha atual errada: `400`, e não `401`, pra não deslogar a pessoa. A mensagem aparece embaixo da senha atual.
+- Mudar o estado muda a vitrine da pessoa e leva junto os animais dela: o animal não guarda estado, usa o de quem cadastrou.
+
+**Onde está no código.**
+
+- Front: `pages/Perfil`, `services/perfil.js`, `utils/validacoes.js` (`validarPerfil` e `validarTrocaDeSenha`) e `contexts/AuthContext.jsx` (`atualizarNome`)
+- Back: `PerfilController` e `PerfilService`
+
+**Testes.** `PerfilIntegrationTest` (ver, editar, e-mail repetido, outro tipo de conta, troca de senha, senha atual errada e a mudança de estado na vitrine) e `Perfil.test.jsx`.
+
+---
+
+## 11. O que vale pro sistema todo
 
 - **Erros no mesmo formato.** Toda resposta de erro da API tem `status`, `erro`, `mensagem`, `campos` (quando o erro é num campo) e `timestamp`, em português. O front mostra a `mensagem` e põe cada erro de `campos` embaixo do campo certo (`GlobalExceptionHandler`, `ErroResponse` e `services/api.js`).
 - **Servidor acordando.** O Render desliga a API depois de 15 minutos sem uso. Quando uma tela passa de 4 segundos carregando, aparece "O servidor estava parado e está acordando. Isso pode levar até 1 minuto." (`components/Carregando`).
@@ -357,15 +426,13 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ---
 
-## 10. O que ainda não está pronto
+## 12. O que ainda não está pronto
 
-| O quê                                     | Situação                                                                                                                             |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Minhas candidaturas (`/meus-interesses`)  | A tela ainda é só o título, e não existe endpoint que liste os interesses da pessoa. O menu e a tela de confirmação já levam pra ela |
-| Editar perfil e trocar senha (RF17, UC10) | Os DTOs existem, mas ainda não há endpoint nem tela. Meu perfil só tem "Sair da conta"                                               |
-| Apagar a imagem do S3                     | Remover uma foto ou um animal tira o endereço do banco, mas o arquivo continua no S3                                                 |
-| Paginação e ordem na vitrine              | A vitrine traz todos os animais de uma vez, sem uma ordem definida                                                                   |
-| Editar na mesma tela da devolução (RF06)  | O formulário libera os campos quando o status volta pra Disponível, mas o back recusa (`409`) se algum dado mudar junto. Por enquanto: salvar a devolução e depois editar |
+| O quê                                    | Situação                                                                                                                                                                  |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Apagar a imagem do S3                    | Remover uma foto ou um animal tira o endereço do banco, mas o arquivo continua no S3                                                                                      |
+| Paginação e ordem na vitrine             | A vitrine traz todos os animais de uma vez, sem uma ordem definida                                                                                                        |
+| Editar na mesma tela da devolução (RF06) | O formulário libera os campos quando o status volta pra Disponível, mas o back recusa (`409`) se algum dado mudar junto. Por enquanto: salvar a devolução e depois editar |
 
 ---
 

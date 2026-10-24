@@ -148,32 +148,32 @@ Quando um valor não existe na lista de opções (um enum, como `porte` ou `espe
 
 ## 5. Mapa dos endpoints
 
-| Método   | URL                            | Acesso                 | Origem                             | Pronto    |
-| -------- | ------------------------------ | ---------------------- | ---------------------------------- | --------- |
-| `POST`   | `/api/auth/login`              | Público                | RF03, UC03                         | Sim       |
-| `POST`   | `/api/usuarios`                | Público                | RF01, UC01                         | Sim       |
-| `POST`   | `/api/abrigos`                 | Público                | RF02, UC02                         | Sim       |
-| `GET`    | `/api/usuarios/me`             | Somente Usuario        | RF17, UC10                         | Ainda não |
-| `PUT`    | `/api/usuarios/me`             | Somente Usuario        | RF17, UC10                         | Ainda não |
-| `PATCH`  | `/api/usuarios/me/senha`       | Somente Usuario        | RF17, UC10 FA03                    | Ainda não |
-| `GET`    | `/api/abrigos/me`              | Somente Abrigo         | RF17, UC10                         | Ainda não |
-| `PUT`    | `/api/abrigos/me`              | Somente Abrigo         | RF17, UC10                         | Ainda não |
-| `PATCH`  | `/api/abrigos/me/senha`        | Somente Abrigo         | RF17, UC10 FA03                    | Ainda não |
-| `GET`    | `/api/racas`                   | Público                | RF04, RF07                         | Sim       |
-| `GET`    | `/api/animais`                 | Público                | RF07, RF14, UC06                   | Sim       |
-| `GET`    | `/api/animais/{id}`            | Público                | UC06                               | Sim       |
-| `GET`    | `/api/animais/meus`            | Autenticado            | UC05                               | Sim       |
-| `POST`   | `/api/animais`                 | Autenticado            | RF04, RF05, UC04                   | Sim       |
-| `PUT`    | `/api/animais/{id}`            | Protetor do animal     | RF06, UC05                         | Sim       |
-| `DELETE` | `/api/animais/{id}`            | Protetor do animal     | RF06, UC05 FA03                    | Sim       |
-| `POST`   | `/api/fotos`                   | Autenticado            | RF16                               | Sim       |
-| `POST`   | `/api/animais/{id}/interesses` | Somente Usuario        | RF08, RF09, RF13, RF14, RF15, UC07 | Sim       |
-| `GET`    | `/api/interesses/meus`         | Somente Usuario        | RF09, UC07                         | Ainda não |
-| `DELETE` | `/api/interesses/{id}`         | Candidato do interesse | UC07 FA01                          | Sim       |
-| `GET`    | `/api/interesses/recebidos`    | Autenticado            | RF09, UC08                         | Sim       |
-| `PATCH`  | `/api/interesses/{id}/status`  | Protetor do animal     | RF10, UC08                         | Sim       |
+| Método   | URL                            | Acesso                 | Origem                             | Pronto |
+| -------- | ------------------------------ | ---------------------- | ---------------------------------- | ------ |
+| `POST`   | `/api/auth/login`              | Público                | RF03, UC03                         | Sim    |
+| `POST`   | `/api/usuarios`                | Público                | RF01, UC01                         | Sim    |
+| `POST`   | `/api/abrigos`                 | Público                | RF02, UC02                         | Sim    |
+| `GET`    | `/api/usuarios/me`             | Somente Usuario        | RF17, UC10                         | Sim    |
+| `PUT`    | `/api/usuarios/me`             | Somente Usuario        | RF17, UC10                         | Sim    |
+| `PATCH`  | `/api/usuarios/me/senha`       | Somente Usuario        | RF17, UC10 FA03                    | Sim    |
+| `GET`    | `/api/abrigos/me`              | Somente Abrigo         | RF17, UC10                         | Sim    |
+| `PUT`    | `/api/abrigos/me`              | Somente Abrigo         | RF17, UC10                         | Sim    |
+| `PATCH`  | `/api/abrigos/me/senha`        | Somente Abrigo         | RF17, UC10 FA03                    | Sim    |
+| `GET`    | `/api/racas`                   | Público                | RF04, RF07                         | Sim    |
+| `GET`    | `/api/animais`                 | Público                | RF07, RF14, UC06                   | Sim    |
+| `GET`    | `/api/animais/{id}`            | Público                | UC06                               | Sim    |
+| `GET`    | `/api/animais/meus`            | Autenticado            | UC05                               | Sim    |
+| `POST`   | `/api/animais`                 | Autenticado            | RF04, RF05, UC04                   | Sim    |
+| `PUT`    | `/api/animais/{id}`            | Protetor do animal     | RF06, UC05                         | Sim    |
+| `DELETE` | `/api/animais/{id}`            | Protetor do animal     | RF06, UC05 FA03                    | Sim    |
+| `POST`   | `/api/fotos`                   | Autenticado            | RF16                               | Sim    |
+| `POST`   | `/api/animais/{id}/interesses` | Somente Usuario        | RF08, RF09, RF13, RF14, RF15, UC07 | Sim    |
+| `GET`    | `/api/interesses/meus`         | Somente Usuario        | RF09, UC07                         | Sim    |
+| `DELETE` | `/api/interesses/{id}`         | Candidato do interesse | UC07 FA01                          | Sim    |
+| `GET`    | `/api/interesses/recebidos`    | Autenticado            | RF09, UC08                         | Sim    |
+| `PATCH`  | `/api/interesses/{id}/status`  | Protetor do animal     | RF10, UC08                         | Sim    |
 
-Os que estão como "Ainda não" já têm o formato definido aqui, e o front pode montar a tela com dados de exemplo enquanto eles não ficam prontos.
+Endpoint novo entra nesta tabela como "Ainda não" assim que o formato é combinado. Assim o front já pode montar a tela com dados de exemplo enquanto o back faz a parte dele.
 
 O depoimento (RF11, UC09) é opcional e não faz parte deste contrato. Se entrar no escopo, os endpoints dele são acrescentados aqui.
 
@@ -217,12 +217,12 @@ Autentica um Usuario (CPF) ou um Abrigo (CNPJ) e devolve o token.
 
 **Erros**
 
-| Código | Quando                                                                                                              | Origem          |
-| ------ | ------------------------------------------------------------------------------------------------------------------- | --------------- |
-| `400`  | Documento ou senha não informados                                                                                   | UC03 FA03       |
-| `400`  | Documento sem 11 nem 14 dígitos                                                                                     | UC03 FA05       |
+| Código | Quando                                                                                                               | Origem          |
+| ------ | -------------------------------------------------------------------------------------------------------------------- | --------------- |
+| `400`  | Documento ou senha não informados                                                                                    | UC03 FA03       |
+| `400`  | Documento sem 11 nem 14 dígitos                                                                                      | UC03 FA05       |
 | `401`  | Documento não cadastrado **ou** senha incorreta. A mensagem é a mesma nos dois casos: "Documento ou senha inválidos" | UC03 FA01, FA02 |
-| `500`  | Falha ao autenticar ou gerar o token                                                                                | UC03 FA04       |
+| `500`  | Falha ao autenticar ou gerar o token                                                                                 | UC03 FA04       |
 
 > A mesma mensagem para "documento não cadastrado" e "senha incorreta" impede que alguém descubra quais CPFs e CNPJs têm conta testando um por um. Ver [Pontos em aberto](#10-pontos-em-aberto).
 
@@ -254,19 +254,19 @@ Cria a conta de uma pessoa física e já a autentica.
 }
 ```
 
-| Campo                                    | Regra                                                                        |
-| ---------------------------------------- | ---------------------------------------------------------------------------- |
-| `nome`                                   | Obrigatório. Até 120 caracteres                                              |
-| `cpf`                                    | Obrigatório. 11 dígitos, com dígitos verificadores válidos. Único no sistema |
+| Campo                                    | Regra                                                                                                         |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `nome`                                   | Obrigatório. Até 120 caracteres                                                                               |
+| `cpf`                                    | Obrigatório. 11 dígitos, com dígitos verificadores válidos. Único no sistema                                  |
 | `email`                                  | Obrigatório. Formato de e-mail, até 120 caracteres. Único entre pessoas e abrigos, sem diferenciar maiúsculas |
-| `telefone`                               | Obrigatório. DDD + número: 10 ou 11 dígitos, somente números                 |
-| `senha`                                  | Obrigatório. De 8 a 72 caracteres                                            |
-| `confirmacaoSenha`                       | Obrigatório. Deve ser igual a `senha`. Não é gravada                         |
-| `endereco.cep`                           | Obrigatório. 8 dígitos                                                       |
-| `endereco.numero`                        | Obrigatório. Aceita "s/n" e complemento                                      |
-| `endereco.logradouro`, `endereco.bairro` | Podem vir vazios (há CEPs sem logradouro)                                    |
-| `endereco.cidade`                        | Obrigatório                                                                  |
-| `endereco.estado`                        | Obrigatório. UF com 2 letras maiúsculas                                      |
+| `telefone`                               | Obrigatório. DDD + número: 10 ou 11 dígitos, somente números                                                  |
+| `senha`                                  | Obrigatório. De 8 a 72 caracteres                                                                             |
+| `confirmacaoSenha`                       | Obrigatório. Deve ser igual a `senha`. Não é gravada                                                          |
+| `endereco.cep`                           | Obrigatório. 8 dígitos                                                                                        |
+| `endereco.numero`                        | Obrigatório. Aceita "s/n" e complemento                                                                       |
+| `endereco.logradouro`, `endereco.bairro` | Podem vir vazios (há CEPs sem logradouro)                                                                     |
+| `endereco.cidade`                        | Obrigatório                                                                                                   |
+| `endereco.estado`                        | Obrigatório. UF com 2 letras maiúsculas                                                                       |
 
 O usuário digita só **CEP e número** (RF01). O front consulta o ViaCEP com o CEP digitado, preenche logradouro, bairro, cidade e estado, e envia o endereço completo. Ver [Pontos em aberto](#10-pontos-em-aberto).
 
@@ -326,11 +326,11 @@ Cria a conta de uma ONG ou abrigo e já a autentica.
 
 As regras dos campos são as mesmas do cadastro de Usuario, com estas diferenças:
 
-| Campo         | Regra                                                                        |
-| ------------- | ---------------------------------------------------------------------------- |
+| Campo         | Regra                                                                           |
+| ------------- | ------------------------------------------------------------------------------- |
 | `nome`        | Obrigatório. Nome institucional (o que aparece na listagem), até 120 caracteres |
-| `razaoSocial` | Obrigatório. Até 150 caracteres                                              |
-| `cnpj`        | Obrigatório. 14 dígitos, com dígitos verificadores válidos. Único no sistema |
+| `razaoSocial` | Obrigatório. Até 150 caracteres                                                 |
+| `cnpj`        | Obrigatório. 14 dígitos, com dígitos verificadores válidos. Único no sistema    |
 
 A conta do Abrigo é **única e compartilhada** entre os funcionários da instituição.
 
@@ -353,8 +353,6 @@ Mesmo formato do login, com `"tipoConta": "ABRIGO"`.
 ## 7. Perfil da conta
 
 Os endpoints de perfil usam `me` no lugar do id: a API identifica a conta pelo token. Assim ninguém consegue ver ou editar a conta de outra pessoa trocando um id na URL.
-
-> **Ainda não implementados.** Os DTOs já existem no back (`AtualizarUsuarioRequest`, `AtualizarAbrigoRequest` e `AlterarSenhaRequest`), mas os endpoints e a tela ainda não. O formato abaixo é o combinado.
 
 ### GET /api/usuarios/me
 
@@ -383,7 +381,7 @@ Devolve os dados da conta do Usuario logado.
 
 O `cpf` vem na resposta para ser exibido na tela, mas não pode ser editado.
 
-**Erros:** `401` sem token ou token inválido; `403` conta do tipo Abrigo.
+**Erros:** `401` sem token, token inválido ou conta que não existe mais; `403` conta do tipo Abrigo.
 
 ---
 
@@ -410,9 +408,10 @@ Atualiza os dados editáveis da conta do Usuario logado.
 }
 ```
 
-- O CPF **não faz parte** do corpo, porque não é editável (RF17).
+- O CPF **não faz parte** do corpo, porque não é editável (RF17). Se vier, é ignorado.
+- O e-mail é guardado em minúsculas, como no cadastro. Manter o próprio e-mail não é conflito.
 - A senha é trocada em um endpoint próprio (`PATCH /api/usuarios/me/senha`).
-- Se o estado mudar, a listagem e a demonstração de interesse passam a usar o estado novo (RF14, UC10 FA06). O aviso sobre isso é exibido pelo front antes de salvar.
+- Se o estado mudar, a listagem e a demonstração de interesse passam a usar o estado novo (RF14, UC10 FA06). Os animais que a conta cadastrou mudam de estado junto, porque o animal usa o estado de quem cadastrou. O aviso sobre isso é exibido pelo front antes de salvar.
 
 **Saída (`200 OK`):** os dados atualizados, no mesmo formato do `GET /api/usuarios/me`.
 
@@ -452,8 +451,9 @@ Troca a senha do Usuario logado.
 | `400`  | Senha atual incorreta                           | UC10 FA04 |
 | `400`  | `novaSenha` e `confirmacaoNovaSenha` diferentes | UC10 FA05 |
 | `401`  | Sem token ou token inválido                     | -         |
+| `403`  | Conta do tipo Abrigo                            | -         |
 
-> A senha atual incorreta responde `400`, e não `401`. O token continua válido, e um `401` faria o front entender que a sessão expirou e deslogar a pessoa.
+> A senha atual incorreta responde `400`, e não `401`. O token continua válido, e um `401` faria o front entender que a sessão expirou e deslogar a pessoa. A resposta traz `"campos": { "senhaAtual": "A senha atual está incorreta" }`, pra mensagem aparecer embaixo do campo.
 
 ---
 
@@ -466,6 +466,7 @@ Diferenças:
 
 - A resposta do `GET` traz `cnpj` e `razaoSocial` no lugar de `cpf`.
 - O corpo do `PUT` traz `nome` (nome institucional), `razaoSocial`, `telefone`, `email` e `endereco`. O CNPJ não é editável.
+- O `PUT` sem `razaoSocial` responde `400`, como os outros campos obrigatórios.
 - Uma conta do tipo Usuario recebe `403` nesses endpoints.
 
 ---
@@ -525,14 +526,14 @@ Usado nas respostas de `GET /api/animais/{id}`, `POST /api/animais` e `PUT /api/
 }
 ```
 
-| Campo                     | Descrição                                                                                                                                                                                                                                                          |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `fotos`                   | Lista ordenada de URLs. **A primeira é a foto de capa**                                                                                                                                                                                                            |
-| `protetor`                | Quem cadastrou o animal. O estado do animal é o estado do protetor (RF14). Telefone e e-mail do protetor **não** aparecem aqui; eles são liberados depois que o interesse é registrado (RF09)                                                                      |
-| `ehMeu`                   | `true` se quem está logado é o protetor deste animal. O front usa para mostrar "Editar" e "Remover"                                                                                                                                                                |
+| Campo                     | Descrição                                                                                                                                                                                                                                                           |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fotos`                   | Lista ordenada de URLs. **A primeira é a foto de capa**                                                                                                                                                                                                             |
+| `protetor`                | Quem cadastrou o animal. O estado do animal é o estado do protetor (RF14). Telefone e e-mail do protetor **não** aparecem aqui; eles são liberados depois que o interesse é registrado (RF09)                                                                       |
+| `ehMeu`                   | `true` se quem está logado é o protetor deste animal. O front usa para mostrar "Editar" e "Remover"                                                                                                                                                                 |
 | `podeDemonstrarInteresse` | `true` só quando: a conta é Usuario, o animal está `DISPONIVEL`, o animal é do mesmo estado do Usuario, o Usuario não é o protetor e ainda não tem interesse ativo nele. O front mostra o botão "Quero conhecer {nome}" com base neste campo, sem repetir as regras |
-| `meuInteresse`            | Para Usuario logado com interesse neste animal: `{ "id": "...", "statusAndamento": "PENDENTE" }`. Nos demais casos, `null`. O front troca o botão por "Desistir da adoção" quando o interesse está `PENDENTE` ou `EM_CONTATO` (UC07, passo 6)                      |
-| `racaNome`                | Nome da raça pronto pra exibir na tela. Assim o front não precisa guardar a lista das raças                                                                                                                                                                        |
+| `meuInteresse`            | Para Usuario logado com interesse neste animal: `{ "id": "...", "statusAndamento": "PENDENTE" }`. Nos demais casos, `null`. O front troca o botão por "Desistir da adoção" quando o interesse está `PENDENTE` ou `EM_CONTATO` (UC07, passo 6)                       |
+| `racaNome`                | Nome da raça pronto pra exibir na tela. Assim o front não precisa guardar a lista das raças                                                                                                                                                                         |
 
 ---
 
@@ -575,18 +576,18 @@ Lista os animais disponíveis para adoção, com filtros.
 
 **Filtros** (todos opcionais, combináveis, passados na URL)
 
-| Parâmetro            | Valores                                                                                                  |
-| -------------------- | -------------------------------------------------------------------------------------------------------- |
-| `especie`            | `CAO`, `GATO`                                                                                            |
-| `raca`               | Valor de uma raça (ver `GET /api/racas`)                                                                 |
-| `porte`              | `PEQUENO`, `MEDIO`, `GRANDE`                                                                             |
-| `sexo`               | `FEMEA`, `MACHO`                                                                                         |
-| `cidade`             | Texto. Basta conter o que foi digitado ("porto" acha Porto Velho). Não diferencia maiúsculas nem acentos |
+| Parâmetro            | Valores                                                                                                                                                                              |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `especie`            | `CAO`, `GATO`                                                                                                                                                                        |
+| `raca`               | Valor de uma raça (ver `GET /api/racas`)                                                                                                                                             |
+| `porte`              | `PEQUENO`, `MEDIO`, `GRANDE`                                                                                                                                                         |
+| `sexo`               | `FEMEA`, `MACHO`                                                                                                                                                                     |
+| `cidade`             | Texto. Basta conter o que foi digitado ("porto" acha Porto Velho). Não diferencia maiúsculas nem acentos                                                                             |
 | `busca`              | Texto, até 80 caracteres. Procura no nome do animal e no nome de quem cadastrou, pessoa ou abrigo ("quatro patas" acha os animais do Instituto Quatro Patas). Funciona como a cidade |
-| `convivenciaCrianca` | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                          |
-| `convivenciaGato`    | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                          |
-| `convivenciaCao`     | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                          |
-| `energia`            | `MAIS_ANIMADO`, `MAIS_CALMO`                                                                             |
+| `convivenciaCrianca` | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                                                                                                      |
+| `convivenciaGato`    | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                                                                                                      |
+| `convivenciaCao`     | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                                                                                                      |
+| `energia`            | `MAIS_ANIMADO`, `MAIS_CALMO`                                                                                                                                                         |
 
 Exemplo: `GET /api/animais?especie=GATO&porte=PEQUENO&convivenciaCrianca=CONVIVE_BEM`
 
@@ -685,15 +686,15 @@ Cadastra um animal para adoção. O protetor é a conta logada (Usuario ou Abrig
 }
 ```
 
-| Campo                                                             | Regra                                                                                                                                                   |
-| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `nome`, `especie`, `raca`, `sexo`, `porte`, `energia`, `historia` | Obrigatórios. O `nome` tem até 80 caracteres                                                                                                            |
-| `raca`                                                            | Precisa pertencer à `especie` informada                                                                                                                 |
-| `peso`                                                            | Opcional. Em kg, maior que zero                                                                                                                         |
-| `dataNascEstimada`                                                | Obrigatória. Não pode ser futura. O RF04 fala em "idade": o formulário pode perguntar a idade aproximada e converter para esta data                     |
-| `castrado`                                                        | Obrigatório (`true` ou `false`)                                                                                                                         |
-| `convivencia.crianca`, `.gato`, `.cao`                            | Obrigatórios. Se o protetor não sabe, envia `NAO_TESTADO`                                                                                               |
-| `fotos`                                                           | Obrigatório, com **pelo menos 1** URL. A ordem da lista é a ordem de exibição, e a primeira é a capa (RF16). As URLs vêm do `POST /api/fotos`           |
+| Campo                                                             | Regra                                                                                                                                                                      |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `nome`, `especie`, `raca`, `sexo`, `porte`, `energia`, `historia` | Obrigatórios. O `nome` tem até 80 caracteres                                                                                                                               |
+| `raca`                                                            | Precisa pertencer à `especie` informada                                                                                                                                    |
+| `peso`                                                            | Opcional. Em kg, maior que zero                                                                                                                                            |
+| `dataNascEstimada`                                                | Obrigatória. Não pode ser futura. O RF04 fala em "idade": o formulário pode perguntar a idade aproximada e converter para esta data                                        |
+| `castrado`                                                        | Obrigatório (`true` ou `false`)                                                                                                                                            |
+| `convivencia.crianca`, `.gato`, `.cao`                            | Obrigatórios. Se o protetor não sabe, envia `NAO_TESTADO`                                                                                                                  |
+| `fotos`                                                           | Obrigatório, com **pelo menos 1** URL. A ordem da lista é a ordem de exibição, e a primeira é a capa (RF16). As URLs vêm do `POST /api/fotos`                              |
 | `vacinas`                                                         | Opcional. Lista vazia ou omitida = nenhuma vacina registrada. Em cada item: `nome` obrigatório, até 80 caracteres; `dose` inteiro ≥ 1; `dataAplicacao` não pode ser futura |
 
 Não se envia `statusAdocao` nem o protetor: todo animal nasce `DISPONIVEL` (UC04, passo 9), e o protetor é a conta do token.
@@ -814,7 +815,11 @@ Envia uma imagem para o armazenamento em nuvem e devolve a URL dela.
   "animal": {
     "id": "9b2e4f10-1c3d-4a5b-8e7f-6a5b4c3d2e1f",
     "nome": "Paçoca",
-    "fotoCapa": "https://adota-aqui.s3.amazonaws.com/animais/9b2e4f10/1.jpg"
+    "fotoCapa": "https://adota-aqui.s3.amazonaws.com/animais/9b2e4f10/1.jpg",
+    "especie": "CAO",
+    "racaNome": "Sem raça definida",
+    "porte": "MEDIO",
+    "statusAdocao": "DISPONIVEL"
   },
   "triagem": {
     "moradia": "CASA_COM_QUINTAL",
@@ -832,6 +837,7 @@ Envia uma imagem para o armazenamento em nuvem e devolve a URL dela.
 }
 ```
 
+- O `animal` é um resumo: dá pra montar o cartão sem buscar o animal. O `statusAdocao` diz se a ficha ainda abre: o `GET /api/animais/{id}` de um animal `ADOTADO` responde `404` pra quem não é o protetor dele.
 - Nas respostas para o **candidato**, o interesse traz `contatoProtetor` (RF09).
 - Nas respostas para o **protetor**, o interesse traz `candidato` no lugar de `contatoProtetor`, com `nome`, `telefone` e `email` do Usuario interessado.
 - Assim, a partir do registro do interesse, cada lado tem o contato do outro, e qualquer um pode iniciar a conversa (UC07, passo 8).
@@ -906,9 +912,9 @@ Os valores de cada campo da triagem estão no dicionário de domínios.
 Lista os interesses registrados pelo Usuario logado, com qualquer status.
 **Acesso:** Somente Usuario. **Origem:** RF09, UC07
 
-> **Ainda não implementado.** O repository já tem o `findByUsuarioId`; falta o endpoint e a tela Minhas candidaturas.
+**Saída (`200 OK`):** lista no [formato do interesse](#formato-do-interesse), com `contatoProtetor` em cada item, do mais recente para o mais antigo. Um interesse `DESCONTINUADO` traz o `motivoDescontinuacao`, para o candidato saber o porquê. Quem nunca demonstrou interesse recebe `[]`.
 
-**Saída (`200 OK`):** lista no [formato do interesse](#formato-do-interesse), com `contatoProtetor` em cada item. Um interesse `DESCONTINUADO` traz o `motivoDescontinuacao`, para o candidato saber o porquê.
+A desistência apaga o interesse (`DELETE /api/interesses/{id}`), então ele some desta lista.
 
 **Erros:** `401` sem token ou token inválido; `403` conta do tipo Abrigo.
 
@@ -968,9 +974,9 @@ O protetor muda o status de um interesse recebido.
 }
 ```
 
-| Campo                  | Regra                                                                     |
-| ---------------------- | ------------------------------------------------------------------------- |
-| `statusAndamento`      | Obrigatório: `EM_CONTATO`, `APROVADO` ou `DESCONTINUADO`                  |
+| Campo                  | Regra                                                                                         |
+| ---------------------- | --------------------------------------------------------------------------------------------- |
+| `statusAndamento`      | Obrigatório: `EM_CONTATO`, `APROVADO` ou `DESCONTINUADO`                                      |
 | `motivoDescontinuacao` | Obrigatório quando o status é `DESCONTINUADO` (RF10), até 255 caracteres. Ignorado nos demais |
 
 **Transições permitidas:** de `PENDENTE` para `EM_CONTATO`, `APROVADO` ou `DESCONTINUADO`; de `EM_CONTATO` para `APROVADO` ou `DESCONTINUADO`. Repetir o estado atual retorna `409`. Estados encerrados não podem ser alterados.
@@ -1005,18 +1011,18 @@ Decisões que o contrato precisou assumir antes da implementação. As que a imp
 
 **Como ficou na implementação**
 
-| #   | Ponto                                                | Como ficou                                                                                                                                                       | Onde afeta                                              |
-| --- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| 1   | Quem consulta o ViaCEP                               | O **front** consulta o ViaCEP e envia o endereço completo. Os campos continuam editáveis, pra quando o CEP não traz logradouro ou o ViaCEP está fora do ar      | `POST /api/usuarios`, `POST /api/abrigos`, `PUT .../me` |
-| 2   | Mensagem de login                                    | A mesma mensagem, "Documento ou senha inválidos", para documento não cadastrado e para senha errada, por segurança. O UC03 foi ajustado                        | `POST /api/auth/login`                                  |
-| 3   | Notificação ao protetor (RF09)                       | A notificação é o próprio painel: interesses novos aparecem como `PENDENTE` em `GET /api/interesses/recebidos`. Não há envio de e-mail                          | `GET /api/interesses/recebidos`                         |
-| 4   | Motivo da desistência (UC07 FA01)                    | Sem motivo: a desistência pede só a confirmação e apaga o interesse, que some do painel do protetor. O UC07 foi ajustado                                       | `DELETE /api/interesses/{id}`                           |
-| 5   | Regras de senha                                      | De 8 a 72 caracteres, sem exigência de composição. 72 é o limite do BCrypt                                                                                     | Cadastros e troca de senha                              |
-| 6   | Limite das imagens                                   | Até 5 MB por imagem, só JPG, PNG ou WEBP (conferido pelo conteúdo). Sem limite de quantidade de fotos por animal                                              | `POST /api/fotos`, `POST /api/animais`                  |
-| 7   | Quantidade de interesses por animal (RF12, opcional) | Aparece só pro protetor, no painel de interesses recebidos ("2 interesses, 1 em contato"), contada pelo front a partir de `GET /api/interesses/recebidos`      | `GET /api/interesses/recebidos`                         |
+| #   | Ponto                                                | Como ficou                                                                                                                                                 | Onde afeta                                              |
+| --- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| 1   | Quem consulta o ViaCEP                               | O **front** consulta o ViaCEP e envia o endereço completo. Os campos continuam editáveis, pra quando o CEP não traz logradouro ou o ViaCEP está fora do ar | `POST /api/usuarios`, `POST /api/abrigos`, `PUT .../me` |
+| 2   | Mensagem de login                                    | A mesma mensagem, "Documento ou senha inválidos", para documento não cadastrado e para senha errada, por segurança. O UC03 foi ajustado                    | `POST /api/auth/login`                                  |
+| 3   | Notificação ao protetor (RF09)                       | A notificação é o próprio painel: interesses novos aparecem como `PENDENTE` em `GET /api/interesses/recebidos`. Não há envio de e-mail                     | `GET /api/interesses/recebidos`                         |
+| 4   | Motivo da desistência (UC07 FA01)                    | Sem motivo: a desistência pede só a confirmação e apaga o interesse, que some do painel do protetor. O UC07 foi ajustado                                   | `DELETE /api/interesses/{id}`                           |
+| 5   | Regras de senha                                      | De 8 a 72 caracteres, sem exigência de composição. 72 é o limite do BCrypt                                                                                 | Cadastros e troca de senha                              |
+| 6   | Limite das imagens                                   | Até 5 MB por imagem, só JPG, PNG ou WEBP (conferido pelo conteúdo). Sem limite de quantidade de fotos por animal                                           | `POST /api/fotos`, `POST /api/animais`                  |
+| 7   | Quantidade de interesses por animal (RF12, opcional) | Aparece só pro protetor, no painel de interesses recebidos ("2 interesses, 1 em contato"), contada pelo front a partir de `GET /api/interesses/recebidos`  | `GET /api/interesses/recebidos`                         |
 
 **Ainda em aberto**
 
-| #   | Ponto                     | O que o contrato assumiu                                                                                                                         | Onde afeta                          |
-| --- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------- |
+| #   | Ponto                     | O que o contrato assumiu                                                                                                                           | Onde afeta                          |
+| --- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
 | 8   | Registro do aceite (RF13) | O aceite é validado, mas não é gravado (não há campo no modelo de dados). Guardar a data do aceite ajudaria a comprovar a concordância do adotante | `POST /api/animais/{id}/interesses` |

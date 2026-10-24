@@ -32,7 +32,8 @@ final class InteresseMapper {
 
     static AnimalResumoResponse resumo(Animal animal) {
         String fotoCapa = animal.getFotos().isEmpty() ? null : animal.getFotos().get(0);
-        return new AnimalResumoResponse(animal.getId(), animal.getNome(), fotoCapa);
+        return new AnimalResumoResponse(animal.getId(), animal.getNome(), fotoCapa, animal.getEspecie(),
+                animal.getRaca().getNome(), animal.getPorte(), animal.getStatusAdocao());
     }
 
     static TriagemDto triagem(Interesse interesse) {

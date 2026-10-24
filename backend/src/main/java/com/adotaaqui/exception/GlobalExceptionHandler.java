@@ -46,6 +46,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({DadosInvalidosException.class, DocumentoInvalidoException.class})
     public ResponseEntity<ErroResponse> tratarDadosInvalidos(RuntimeException ex) {
+        if (ex instanceof DadosInvalidosException dados && dados.getCampo() != null) {
+            return responder(HttpStatus.BAD_REQUEST, ex.getMessage(), Map.of(dados.getCampo(), ex.getMessage()));
+        }
         return responder(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
@@ -83,9 +86,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErroResponse> tratarValidacao(BindException ex) {
         Map<String, String> campos = new LinkedHashMap<>();
         for (FieldError erro : ex.getBindingResult().getFieldErrors()) {
-            // A confirmação de senha é conferida pelo método isSenhasConferem(),
-            // mas o front mostra o erro embaixo do campo confirmacaoSenha
-            String campo = "senhasConferem".equals(erro.getField()) ? "confirmacaoSenha" : erro.getField();
+            // As confirmações de senha são conferidas por métodos (isSenhasConferem e isNovasSenhasConferem),
+            // mas o front mostra o erro embaixo do campo de confirmação
+            String campo = switch (erro.getField()) {
+                case "senhasConferem" -> "confirmacaoSenha";
+                case "novasSenhasConferem" -> "confirmacaoNovaSenha";
+                default -> erro.getField();
+            };
             campos.putIfAbsent(campo, mensagemDoCampo(erro));
         }
         return responder(HttpStatus.BAD_REQUEST, CAMPOS_INCORRETOS, campos);

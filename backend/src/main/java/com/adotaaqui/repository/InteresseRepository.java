@@ -36,8 +36,8 @@ public interface InteresseRepository extends JpaRepository<Interesse, UUID> {
 
     List<Interesse> findByAnimalId(UUID animalId);
 
-    // "Meus interesses" do candidato
-    List<Interesse> findByUsuarioId(UUID usuarioId);
+    // Minhas candidaturas: os interesses do candidato, do mais recente pro mais antigo
+    List<Interesse> findByUsuarioIdOrderByDataHoraDescIdDesc(UUID usuarioId);
 
     // Quando o protetor aprova um interesse, os outros PENDENTE e EM_CONTATO
     // do mesmo animal são descontinuados (RF10). É esse método que acha eles.

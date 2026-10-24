@@ -264,6 +264,77 @@ class InteresseIntegrationTest {
         mvc.perform(delete("/api/interesses/" + interesse)).andExpect(status().isUnauthorized());
     }
 
+    // ---------- minhas candidaturas (#95, RF09, UC07) ----------
+
+    @Test
+    void meusListaSoAsCandidaturasDaPessoaComOContatoDoProtetor() throws Exception {
+        Conta candidata = usuario("RO");
+        Conta abrigo = abrigo("RO");
+        String daPessoa = interesse(animal(usuario("RO")), candidata);
+        String doAbrigo = interesse(animal(abrigo), candidata);
+        interesse(animal(abrigo), usuario("RO")); // de outra pessoa, não aparece
+
+        mvc.perform(auth(get("/api/interesses/meus"), candidata))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                // a mais recente primeiro
+                .andExpect(jsonPath("$[0].id").value(doAbrigo))
+                .andExpect(jsonPath("$[0].statusAndamento").value("PENDENTE"))
+                .andExpect(jsonPath("$[0].contatoProtetor.nome").value("Abrigo 2"))
+                .andExpect(jsonPath("$[0].contatoProtetor.telefone").value("6932221111"))
+                .andExpect(jsonPath("$[0].contatoProtetor.email").value("abrigo2@example.com"))
+                .andExpect(jsonPath("$[0].candidato").doesNotExist())
+                .andExpect(jsonPath("$[0].animal.nome").value("Mel"))
+                .andExpect(jsonPath("$[0].animal.fotoCapa").value("https://example.com/mel.jpg"))
+                .andExpect(jsonPath("$[0].animal.especie").value("CAO"))
+                .andExpect(jsonPath("$[0].animal.racaNome").value("Sem raça definida"))
+                .andExpect(jsonPath("$[0].animal.porte").value("MEDIO"))
+                .andExpect(jsonPath("$[0].animal.statusAdocao").value("DISPONIVEL"))
+                .andExpect(jsonPath("$[0].triagem.momentoContato").value("NOITE"))
+                .andExpect(jsonPath("$[1].id").value(daPessoa))
+                .andExpect(jsonPath("$[1].contatoProtetor.nome").value("Usuario 3"))
+                .andExpect(jsonPath("$[1].contatoProtetor.email").value("usuario3@example.com"));
+    }
+
+    @Test
+    void meusMostraODesfechoEOMotivoDaDescontinuada() throws Exception {
+        Conta candidata = usuario("RO");
+        Conta protetor = usuario("RO");
+        String descontinuada = interesse(animal(protetor), candidata);
+        mvc.perform(atualizar(descontinuada, protetor, "DESCONTINUADO", "Ela precisa de uma casa com quintal."))
+                .andExpect(status().isOk());
+        String aprovada = interesse(animal(protetor), candidata);
+        mvc.perform(atualizar(aprovada, protetor, "APROVADO", null)).andExpect(status().isOk());
+
+        mvc.perform(auth(get("/api/interesses/meus"), candidata))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(aprovada))
+                .andExpect(jsonPath("$[0].statusAndamento").value("APROVADO"))
+                .andExpect(jsonPath("$[0].motivoDescontinuacao").doesNotExist())
+                // a ficha de animal adotado não abre pro candidato, o front usa isso pra esconder o link
+                .andExpect(jsonPath("$[0].animal.statusAdocao").value("ADOTADO"))
+                .andExpect(jsonPath("$[1].id").value(descontinuada))
+                .andExpect(jsonPath("$[1].statusAndamento").value("DESCONTINUADO"))
+                .andExpect(jsonPath("$[1].motivoDescontinuacao").value("Ela precisa de uma casa com quintal."))
+                .andExpect(jsonPath("$[1].animal.statusAdocao").value("DISPONIVEL"));
+    }
+
+    @Test
+    void meusSemCandidaturaDevolveListaVazia() throws Exception {
+        mvc.perform(auth(get("/api/interesses/meus"), usuario("RO")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void meusExigeLoginEContaDePessoa() throws Exception {
+        mvc.perform(get("/api/interesses/meus")).andExpect(status().isUnauthorized());
+        mvc.perform(auth(get("/api/interesses/meus"), abrigo("RO")))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.mensagem", containsString("abrigo")));
+    }
+
     // ---------- gerenciamento pelo Protetor (UC08, RF09, RF10) ----------
 
     @Test
