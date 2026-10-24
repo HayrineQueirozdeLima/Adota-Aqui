@@ -1,8 +1,10 @@
 import FormularioCadastro from "../../components/FormularioCadastro/FormularioCadastro";
 import LayoutAutenticacao from "../../components/LayoutAutenticacao/LayoutAutenticacao";
+import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 
 // UC01: conta de pessoa física (CPF)
 export default function CadastroUsuario() {
+  useTituloDaPagina("Criar conta pessoal");
   return (
     <LayoutAutenticacao
       frase="Resgatou um animal? Te ajudamos a encontrar um lar."

@@ -11,12 +11,20 @@
       rel="stylesheet"
     />
     <title>Adota Aqui</title>
+    <meta
+      name="description"
+      content="Plataforma de adoção de cães e gatos: protetores e abrigos divulgam os animais, e quem quer adotar demonstra interesse e recebe o contato."
+    />
+    <meta name="theme-color" content="#4a2d73" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <!-- Liga o tema escuro antes de a página aparecer, pra não piscar claro e depois escuro.
          A mesma regra está no hooks/useTema.js: vale a escolha salva e, sem escolha, o tema do sistema -->
     <script>
       try {
         var tema = localStorage.getItem("adotaaqui.tema");
-        var escuro = tema === "escuro" || (!tema && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        var escuro =
+          tema === "escuro" ||
+          (!tema && window.matchMedia("(prefers-color-scheme: dark)").matches);
         if (escuro) document.documentElement.classList.add("tema-escuro");
       } catch (erro) {}
     </script>

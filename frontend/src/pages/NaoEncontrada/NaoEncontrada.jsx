@@ -1,9 +1,11 @@
 import AvisoPagina from "../../components/AvisoPagina/AvisoPagina";
 import Botao from "../../components/Botao/Botao";
 import foto from "../../assets/fotos/pagina-nao-encontrada.webp";
+import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 
 // Qualquer endereço que não existe cai aqui (AppRoutes, rota "*")
 export default function NaoEncontrada() {
+  useTituloDaPagina("Página não encontrada");
   return (
     <AvisoPagina titulo="Página não encontrada" imagem={foto}>
       <p>O endereço pode estar errado ou a página mudou de lugar.</p>

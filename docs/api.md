@@ -739,8 +739,6 @@ Atualiza um animal. Como é `PUT`, o corpo leva **todos** os campos, inclusive o
 
 Na devolução (de `ADOTADO` para `DISPONIVEL`), o interesse que resultou na adoção continua `APROVADO` no histórico (RF06). A confirmação "isso torna o animal disponível novamente" é exibida pelo front antes de enviar.
 
-> **Divergência conhecida.** Hoje o back ainda responde `409` quando a devolução chega com outros dados alterados, o que não bate com o RF06 nem com esta tabela. Até a correção, a devolução precisa ser salva sem mudar os dados, e a edição vem depois.
-
 **Saída (`200 OK`):** o [formato completo do animal](#formato-do-animal-resposta-completa).
 
 **Erros**

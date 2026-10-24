@@ -222,3 +222,24 @@ test("animal que não existe", async () => {
     await screen.findByRole("heading", { name: "Animal não encontrado" }),
   ).toBeInTheDocument();
 });
+
+test("se o animal não carregar, dá pra tentar de novo sem recarregar a página", async () => {
+  let tentativas = 0;
+  simularApi({
+    responderAnimal: (id) => {
+      tentativas += 1;
+      return tentativas === 1
+        ? resposta(500, { status: 500, mensagem: "Erro interno" })
+        : resposta(200, { ...perfilExemplo, id, ehMeu: true });
+    },
+  });
+  abrir();
+
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Tentar de novo" }),
+  );
+
+  await esperarFormulario();
+  expect(tentativas).toBe(2);
+  expect(document.title).toBe("Editar Mel | Adota Aqui");
+});

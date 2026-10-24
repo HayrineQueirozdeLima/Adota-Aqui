@@ -235,7 +235,7 @@ O quadro do lado:
 **Editar (update).** O mesmo formulário, já preenchido, manda tudo pro `PUT /api/animais/{id}`.
 
 - Animal disponível: dá pra mudar todos os dados. O status não muda por aqui: o animal só vira Adotado quando o protetor aprova um interesse.
-- Animal adotado: os dados ficam travados e só o status muda (RF06). Escolher "Disponível (devolução)" pede confirmação ("Tornar {nome} disponível de novo?") e devolve o animal pra vitrine. A devolução é salva sem mudar os dados (se mudar, o back responde `409`); depois dela, o animal pode ser editado normalmente. Isso diverge do RF06, que deixa editar na mesma tela da devolução, e está na seção 10. O interesse aprovado continua no histórico.
+- Animal adotado: os dados ficam travados e só o status muda (RF06). Escolher "Disponível (devolução)" destrava os campos, pede confirmação ("Tornar {nome} disponível de novo?") e devolve o animal pra vitrine, já com os dados que a pessoa mudou nessa mesma tela. Continuando Adotado, qualquer dado alterado é recusado (`409`). O interesse aprovado continua no histórico.
 
 **Remover (delete).** "Remover {nome}" pede confirmação ("Remover {nome} de vez?") e chama `DELETE /api/animais/{id}`. Saem junto as vacinas, os endereços das fotos e os interesses do animal.
 
@@ -419,6 +419,7 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ![Painel de interesses recebidos no tema escuro](prints/13-tema-escuro.png)
 
+- **Título da aba e rolagem.** Cada página põe o nome dela no título da aba do navegador ("Meus animais | Adota Aqui"), e toda página nova abre no topo. O "Como adotar" do rodapé rola até a seção, e o voltar do navegador devolve a pessoa onde ela estava (`hooks/useTituloDaPagina.js` e `components/RolarParaOTopo`).
 - **Rodapé** em todas as telas que têm o menu do topo, com o logo, a frase do Figma e os links da plataforma: explorar animais, como adotar, cadastro e cadastrar um animal (`components/Rodape`, `Rodape.test.jsx`).
 - **Página não encontrada** pra qualquer endereço que não existe, com foto e os botões "Ver animais disponíveis" e "Ir para a página inicial". Animal que não existe (perfil, interesse ou edição) mostra a mesma foto com "Animal não encontrado".
 - **Integração contínua.** A cada push e PR na `dev` e na `main`, o GitHub Actions roda os testes do back (`mvn verify`) e do front (build e `npm run test:coverage`) e guarda os relatórios de cobertura (JaCoCo e lcov). A cobertura aparece no resumo de cada execução, e o CI falha se a de linhas ficar abaixo de 70% (RNF04). O PR só entra com os dois verdes.
@@ -428,11 +429,10 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ## 12. O que ainda não está pronto
 
-| O quê                                    | Situação                                                                                                                                                                  |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Apagar a imagem do S3                    | Remover uma foto ou um animal tira o endereço do banco, mas o arquivo continua no S3                                                                                      |
-| Paginação e ordem na vitrine             | A vitrine traz todos os animais de uma vez, sem uma ordem definida                                                                                                        |
-| Editar na mesma tela da devolução (RF06) | O formulário libera os campos quando o status volta pra Disponível, mas o back recusa (`409`) se algum dado mudar junto. Por enquanto: salvar a devolução e depois editar |
+| O quê                        | Situação                                                                             |
+| ---------------------------- | ------------------------------------------------------------------------------------ |
+| Apagar a imagem do S3        | Remover uma foto ou um animal tira o endereço do banco, mas o arquivo continua no S3 |
+| Paginação e ordem na vitrine | A vitrine traz todos os animais de uma vez, sem uma ordem definida                   |
 
 ---
 

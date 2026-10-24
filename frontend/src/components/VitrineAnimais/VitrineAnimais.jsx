@@ -15,7 +15,8 @@ const ESPERA_ANTES_DE_BUSCAR_MS = 300;
 // Filtros + grade de cards
 // fica na /animais e também aparece na Home do site
 // aoCarregar (opcional) é chamado quando uma busca termina, com ou sem erro
-export default function VitrineAnimais({ aoCarregar }) {
+// nivelDoTitulo vai pro nome do animal em cada card (ver CardAnimal)
+export default function VitrineAnimais({ aoCarregar, nivelDoTitulo }) {
   const { usuario, token, sair } = useAuth();
   const [filtros, setFiltros] = useState(filtrosVazios);
   const [animais, setAnimais] = useState([]);
@@ -68,6 +69,14 @@ export default function VitrineAnimais({ aoCarregar }) {
 
   const temFiltro = Object.values(filtros).some(Boolean);
 
+  // Pro leitor de tela: depois de cada busca, avisa quantos animais vieram
+  let quantos = "";
+  if (!carregando && !erro) {
+    if (animais.length === 0) quantos = "Nenhum animal encontrado";
+    else if (animais.length === 1) quantos = "1 animal encontrado";
+    else quantos = `${animais.length} animais encontrados`;
+  }
+
   // UC06: FA02 quando tem filtro; FA01 ("no seu estado") quando é Usuario sem filtro
   function mensagemDeVazio() {
     if (temFiltro) return "Nenhum resultado encontrado com essas informações.";
@@ -108,10 +117,14 @@ export default function VitrineAnimais({ aoCarregar }) {
             Não foi possível carregar os animais.
           </p>
           <p className="mt-1 text-compacto text-texto-secundario">
-            Confira sua conexão e tente de novo. Se o site ficou um tempo parado, o primeiro acesso pode
-            levar até um minuto.
+            Confira sua conexão e tente de novo. Se o site ficou um tempo
+            parado, o primeiro acesso pode levar até um minuto.
           </p>
-          <Botao variante="secundario" onClick={() => mudarFiltros({ ...filtros })} className="mt-4">
+          <Botao
+            variante="secundario"
+            onClick={() => mudarFiltros({ ...filtros })}
+            className="mt-4"
+          >
             Tentar de novo
           </Botao>
         </div>
@@ -121,15 +134,25 @@ export default function VitrineAnimais({ aoCarregar }) {
     if (animais.length === 0) {
       return (
         <div className="rounded-[16px] border border-borda-sutil bg-fundo-superficie p-8 text-center">
-          <img src={fotoNenhumAnimal} alt="" className="mx-auto w-full max-w-[320px] rounded-[12px]" />
-          <p className="mt-5 font-titulo text-item font-semibold text-texto-principal">{mensagemDeVazio()}</p>
+          <img
+            src={fotoNenhumAnimal}
+            alt=""
+            className="mx-auto w-full max-w-[320px] rounded-[12px]"
+          />
+          <p className="mt-5 font-titulo text-item font-semibold text-texto-principal">
+            {mensagemDeVazio()}
+          </p>
           <p className="mt-1 text-compacto text-texto-secundario">
             {temFiltro
               ? "Tente tirar algum filtro ou buscar por outro nome."
               : "Novos animais aparecem aqui assim que os protetores cadastram."}
           </p>
           {temFiltro && (
-            <Botao variante="secundario" onClick={() => mudarFiltros(filtrosVazios)} className="mt-4">
+            <Botao
+              variante="secundario"
+              onClick={() => mudarFiltros(filtrosVazios)}
+              className="mt-4"
+            >
               Ver todos os animais
             </Botao>
           )}
@@ -140,7 +163,11 @@ export default function VitrineAnimais({ aoCarregar }) {
     return (
       <div className="grid gap-[22px] md:grid-cols-2 lg:grid-cols-3">
         {animais.map((animal) => (
-          <CardAnimal key={animal.id} animal={animal} />
+          <CardAnimal
+            key={animal.id}
+            animal={animal}
+            nivelDoTitulo={nivelDoTitulo}
+          />
         ))}
       </div>
     );
@@ -151,6 +178,10 @@ export default function VitrineAnimais({ aoCarregar }) {
       <p className="text-legenda text-texto-terciario">{avisoDoTopo()}</p>
 
       <FiltrosAnimais filtros={filtros} aoMudar={mudarFiltros} />
+
+      <p role="status" className="sr-only">
+        {quantos}
+      </p>
 
       {mostrarResultado()}
     </section>

@@ -84,7 +84,7 @@ export default function EnvioFotos({
           )}
         </div>
       ) : (
-        <div className="flex aspect-[4/3] w-full items-center justify-center rounded-[12px] bg-marca-roxo-suave px-4 text-center text-legenda text-texto-terciario">
+        <div className="flex aspect-[4/3] w-full items-center justify-center rounded-[12px] bg-marca-roxo-suave px-4 text-center text-legenda text-texto-secundario">
           Nenhuma foto ainda
         </div>
       )}

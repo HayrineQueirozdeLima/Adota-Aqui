@@ -8,6 +8,7 @@ import { useFocoNoPrimeiroErro } from "../../hooks/useFocoNoPrimeiroErro";
 import { autenticar } from "../../services/autenticacao";
 import { mascaraDocumento, somenteNumeros } from "../../utils/mascaras";
 import { validarLogin } from "../../utils/validacoes";
+import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 
 // UC03: entra com CPF (Usuario) ou CNPJ (Abrigo) e senha
 export default function Login() {
@@ -22,6 +23,7 @@ export default function Login() {
   const [erroGeral, setErroGeral] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [tentativas, setTentativas] = useState(0);
+  useTituloDaPagina("Entrar");
   useFocoNoPrimeiroErro(refFormulario, tentativas);
 
   // Se veio de uma tela que pedia login (RotaProtegida), volta pra ela depois de entrar

@@ -1,5 +1,7 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import LayoutAutenticacao from "../../components/LayoutAutenticacao/LayoutAutenticacao";
+import { useAuth } from "../../contexts/AuthContext";
+import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 
 // Não tem tela no Figma: é o caminho do "Cadastrar" do topo até um dos dois formulários
 const opcoes = [
@@ -16,6 +18,12 @@ const opcoes = [
 ];
 
 export default function EscolhaCadastro() {
+  const { usuario } = useAuth();
+  useTituloDaPagina("Criar conta");
+
+  // Quem já está logado não precisa criar conta (igual aos dois formulários)
+  if (usuario) return <Navigate to="/animais" replace />;
+
   return (
     <LayoutAutenticacao frase="Todo animal merece um lar de verdade.">
       <h1 className="font-titulo text-secao font-semibold text-texto-principal">
