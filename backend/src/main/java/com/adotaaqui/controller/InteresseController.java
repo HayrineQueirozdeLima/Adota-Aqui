@@ -34,6 +34,11 @@ public class InteresseController {
         this.service = service;
     }
 
+    @GetMapping("/interesses/meus")
+    public List<InteresseResponse> meus(Authentication conta) {
+        return service.meus(conta);
+    }
+
     @GetMapping("/interesses/recebidos")
     public List<InteresseRecebidoResponse> recebidos(@Valid @ModelAttribute InteresseFiltroRequest filtro,
                                                    Authentication conta) {

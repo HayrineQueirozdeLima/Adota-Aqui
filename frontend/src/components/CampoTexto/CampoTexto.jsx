@@ -13,6 +13,10 @@ export default function CampoTexto({
   const id = useId();
   const idAjuda = `${id}-ajuda`;
   const ajuda = erro || dica;
+  // Campo que só mostra o valor (ex.: o CPF no perfil) fica cinza, mas continua focável e legível
+  const cores = propsDoInput.readOnly
+    ? "bg-status-neutro-fundo text-texto-secundario"
+    : "bg-fundo-superficie text-texto-principal";
 
   return (
     <div className={className}>
@@ -26,7 +30,7 @@ export default function CampoTexto({
         id={id}
         aria-invalid={erro ? true : undefined}
         aria-describedby={ajuda ? idAjuda : undefined}
-        className={`w-full rounded-[10px] border bg-fundo-superficie px-[15px] py-[14px] text-corpo text-texto-principal placeholder:text-texto-terciario focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-marca-roxo ${
+        className={`w-full rounded-[10px] border px-[15px] py-[14px] text-corpo placeholder:text-texto-terciario ${cores} focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-marca-roxo ${
           erro ? "border-status-erro-texto" : "border-borda-forte"
         }`}
         {...propsDoInput}

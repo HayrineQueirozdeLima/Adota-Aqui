@@ -47,6 +47,21 @@ export function AuthProvider({ children }) {
     setSessao(novaSessao);
   }, []);
 
+  // Depois de editar o perfil, o nome novo aparece no topo sem precisar entrar de novo.
+  // Grava no mesmo lugar onde a sessão já estava (localStorage ou sessionStorage)
+  const atualizarNome = useCallback((nome) => {
+    for (const armazenamento of [localStorage, sessionStorage]) {
+      try {
+        const salva = JSON.parse(armazenamento.getItem(CHAVE));
+        if (salva)
+          armazenamento.setItem(CHAVE, JSON.stringify({ ...salva, nome }));
+      } catch {
+        // sessão estragada: o lerSessaoSalva já descarta na próxima vez
+      }
+    }
+    setSessao((atual) => (atual ? { ...atual, nome } : atual));
+  }, []);
+
   // Quando o token vence (24 h), encerra a sessão sozinho
   useEffect(() => {
     if (!sessao) return undefined;
@@ -65,8 +80,9 @@ export function AuthProvider({ children }) {
       token: sessao?.token ?? null,
       entrar,
       sair,
+      atualizarNome,
     }),
-    [sessao, entrar, sair],
+    [sessao, entrar, sair, atualizarNome],
   );
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;

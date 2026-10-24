@@ -103,6 +103,16 @@ public class InteresseService {
         interesses.delete(interesse);
     }
 
+    // GET /api/interesses/meus: as candidaturas do Usuario logado, com qualquer status (RF09, UC07).
+    // Cada uma traz o contato do protetor, e a descontinuada traz o motivo
+    public List<InteresseResponse> meus(Authentication autenticacao) {
+        Usuario candidato = candidato(autenticacao,
+                "Contas de abrigo não têm candidaturas. Para adotar, use uma conta pessoal (CPF)");
+        return interesses.findByUsuarioIdOrderByDataHoraDescIdDesc(candidato.getId()).stream()
+                .map(InteresseMapper::paraCandidato)
+                .toList();
+    }
+
     // GET /api/interesses/recebidos (UC08). Os filtros são opcionais: o que vier nulo não filtra
     public List<InteresseRecebidoResponse> recebidos(InteresseFiltroRequest filtro, Authentication autenticacao) {
         Protetor protetor = protetor(autenticacao);

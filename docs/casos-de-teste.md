@@ -2,8 +2,8 @@
 
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
-- **Versão:** 1.4 (outubro de 2026)
-- **Total:** 52 casos, 49 já automatizados e 3 manuais
+- **Versão:** 1.5 (outubro de 2026)
+- **Total:** 63 casos, 60 já automatizados e 3 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
 
@@ -11,13 +11,12 @@ Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o 
 
 Garantir que o Adota Aqui funciona do jeito que os requisitos pedem: cadastro e login seguros, vitrine com filtros, perfil do animal, demonstração de interesse com termo e triagem, cadastro de animais e o painel em que o protetor aprova a adoção. Também entram usabilidade, acessibilidade, segurança e desempenho.
 
-**Coberto:** página inicial e navegação, cadastro e login, vitrine, busca e filtros, perfil do animal, demonstração de interesse e desistência, cadastro de animal e Meus animais, painel de interesses recebidos, acessibilidade, segurança e desempenho.
+**Coberto:** página inicial e navegação, cadastro e login, vitrine, busca e filtros, perfil do animal, demonstração de interesse e desistência, cadastro de animal e Meus animais, painel de interesses recebidos, Minhas candidaturas, Meu perfil, acessibilidade, segurança e desempenho.
 
 **Fora do escopo desta fase:**
 
 - teste de carga (muitos acessos ao mesmo tempo);
-- doações e pagamentos, que estão fora do MVP (ERS, seção 6);
-- telas que ainda não foram implementadas: Minhas candidaturas e editar perfil (RF17). Os casos delas entram quando ficarem prontas.
+- doações e pagamentos, que estão fora do MVP (ERS, seção 6).
 
 ## 2. Casos de teste
 
@@ -105,31 +104,54 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | CT-INT-04 | Descontinuar                    | Regra de negócio | Sem motivo não envia. Com motivo, o interesse vira Descontinuado e o motivo fica guardado                         | `InteressesRecebidos.test.jsx`, `InteresseIntegrationTest.java`, `model/RegrasDasEntidadesTest.java` |
 | CT-INT-05 | Aprovar                         | Regra de negócio | Pede confirmação. O animal vira Adotado e os outros interesses dele são descontinuados com o motivo padrão (RF10) | `InteressesRecebidos.test.jsx`, `InteresseIntegrationTest.java`                                      |
 
-### Módulo 8: Desempenho, acessibilidade e segurança
+### Módulo 8: Minhas candidaturas
 
-| ID        | Cenário                            | Tipo           | Resultado esperado                                                                                                                                                                                                           | Automatizado em                                                                  |
-| --------- | ---------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| CT-NFR-01 | Tempo de carregamento              | Desempenho     | No Lighthouse do Chrome, modo celular, a primeira pintura (FCP) fica abaixo de 2,5 segundos. Medir com a API já acordada: no plano gratuito do Render, o primeiro acesso depois de 15 minutos parada pode levar até 1 minuto | Manual                                                                           |
-| CT-NFR-02 | Texto alternativo nas fotos        | Acessibilidade | Toda foto de animal tem texto alternativo com o nome dele ("Foto de Mel", "Foto 1 de 3 de Mel"), pra quem usa leitor de tela                                                                                                 | `CardAnimal.test.jsx`, `PerfilAnimal.test.jsx`                                   |
-| CT-NFR-03 | Código no meio do texto (XSS)      | Segurança      | Um animal com `<script>alert(1)</script>` na história mostra o código como texto e nada é executado. O React não transforma texto em HTML, e o projeto não usa `dangerouslySetInnerHTML`                                     | `PerfilAnimal.test.jsx`                                                          |
-| CT-NFR-04 | Senha protegida                    | Segurança      | A senha nunca volta nas respostas da API e fica guardada com BCrypt                                                                                                                                                          | `AutenticacaoIntegrationTest.java`                                               |
-| CT-NFR-05 | API protegida                      | Segurança      | Sem login, a API responde 401. Com login de outra conta, 403                                                                                                                                                                 | `AnimalIntegrationTest.java`, `InteresseIntegrationTest.java`                    |
-| CT-NFR-06 | Usar o site só com o teclado       | Acessibilidade | Dá pra navegar e enviar os formulários só com Tab, Enter e espaço, com o foco sempre visível e na ordem da tela                                                                                                              | Manual                                                                           |
-| CT-NFR-07 | Dado inconsistente direto no banco | Integridade    | O banco recusa CPF, CNPJ ou e-mail repetidos, vacina ou interesse de animal que não existe, apagar conta que ainda tem animal, peso zerado e dose 0. Conta repetida ao mesmo tempo recebe 409, não 500                       | `model/IntegridadeDoBancoTest.java`, `exception/GlobalExceptionHandlerTest.java` |
+| ID        | Cenário                               | Tipo             | Resultado esperado                                                                                                                            | Automatizado em                                                            |
+| --------- | ------------------------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| CT-CAN-01 | Ver minhas candidaturas               | Funcional        | Cada candidatura mostra o animal, o status, quando foi enviada e o e-mail e o WhatsApp do protetor. As em andamento vêm primeiro              | `MeusInteresses.test.jsx`, `InteresseIntegrationTest.java`                 |
+| CT-CAN-02 | Filtrar por status                    | Funcional        | A lista e as contagens mudam conforme o filtro                                                                                                | `MeusInteresses.test.jsx`                                                  |
+| CT-CAN-03 | Candidatura aprovada ou descontinuada | Regra de negócio | A descontinuada mostra o motivo que o protetor escreveu. Animal já adotado não tem "Ver ficha", e só as em andamento têm "Desistir da adoção" | `MeusInteresses.test.jsx`, `InteresseIntegrationTest.java`                 |
+| CT-CAN-04 | Desistir pela lista                   | Funcional        | Pede confirmação, apaga o interesse e a candidatura some da lista, com um aviso                                                               | `MeusInteresses.test.jsx`, `InteresseIntegrationTest.java`                 |
+| CT-CAN-05 | Conta de abrigo                       | Segurança        | O menu não mostra "Minhas candidaturas", a tela manda pra página inicial e a API responde 403                                                 | `Navbar.test.jsx`, `AuthContext.test.jsx`, `InteresseIntegrationTest.java` |
+
+### Módulo 9: Meu perfil
+
+| ID        | Cenário               | Tipo             | Resultado esperado                                                                                                   | Automatizado em                                 |
+| --------- | --------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| CT-PRF-01 | Abrir Meu perfil      | Funcional        | O formulário vem preenchido. O CPF ou o CNPJ aparecem, mas não dá pra editar                                         | `Perfil.test.jsx`, `PerfilIntegrationTest.java` |
+| CT-PRF-02 | Editar os dados       | Funcional        | Nome, telefone, e-mail e endereço são salvos, e o nome novo aparece no menu sem entrar de novo                       | `Perfil.test.jsx`, `PerfilIntegrationTest.java` |
+| CT-PRF-03 | E-mail de outra conta | Regra de negócio | A mensagem aparece embaixo do e-mail e nada é salvo                                                                  | `Perfil.test.jsx`, `PerfilIntegrationTest.java` |
+| CT-PRF-04 | Mudar o estado        | Regra de negócio | A vitrine passa a mostrar os animais do estado novo, e os animais da conta passam a aparecer pra quem é de lá (RF14) | `PerfilIntegrationTest.java`                    |
+| CT-PRF-05 | Trocar a senha        | Funcional        | Pede a senha atual e a confirmação. Depois, o login só funciona com a senha nova                                     | `Perfil.test.jsx`, `PerfilIntegrationTest.java` |
+| CT-PRF-06 | Senha atual errada    | Segurança        | A mensagem aparece embaixo da senha atual e a pessoa continua logada                                                 | `Perfil.test.jsx`, `PerfilIntegrationTest.java` |
+
+### Módulo 10: Desempenho, acessibilidade e segurança
+
+| ID        | Cenário                            | Tipo           | Resultado esperado                                                                                                                                                                                                           | Automatizado em                                                                             |
+| --------- | ---------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| CT-NFR-01 | Tempo de carregamento              | Desempenho     | No Lighthouse do Chrome, modo celular, a primeira pintura (FCP) fica abaixo de 2,5 segundos. Medir com a API já acordada: no plano gratuito do Render, o primeiro acesso depois de 15 minutos parada pode levar até 1 minuto | Manual                                                                                      |
+| CT-NFR-02 | Texto alternativo nas fotos        | Acessibilidade | Toda foto de animal tem texto alternativo com o nome dele ("Foto de Mel", "Foto 1 de 3 de Mel"), pra quem usa leitor de tela                                                                                                 | `CardAnimal.test.jsx`, `PerfilAnimal.test.jsx`                                              |
+| CT-NFR-03 | Código no meio do texto (XSS)      | Segurança      | Um animal com `<script>alert(1)</script>` na história mostra o código como texto e nada é executado. O React não transforma texto em HTML, e o projeto não usa `dangerouslySetInnerHTML`                                     | `PerfilAnimal.test.jsx`                                                                     |
+| CT-NFR-04 | Senha protegida                    | Segurança      | A senha nunca volta nas respostas da API e fica guardada com BCrypt                                                                                                                                                          | `AutenticacaoIntegrationTest.java`                                                          |
+| CT-NFR-05 | API protegida                      | Segurança      | Sem login, a API responde 401. Com login de outra conta, 403                                                                                                                                                                 | `AnimalIntegrationTest.java`, `InteresseIntegrationTest.java`, `PerfilIntegrationTest.java` |
+| CT-NFR-06 | Usar o site só com o teclado       | Acessibilidade | Dá pra navegar e enviar os formulários só com Tab, Enter e espaço, com o foco sempre visível e na ordem da tela                                                                                                              | Manual                                                                                      |
+| CT-NFR-07 | Dado inconsistente direto no banco | Integridade    | O banco recusa CPF, CNPJ ou e-mail repetidos, vacina ou interesse de animal que não existe, apagar conta que ainda tem animal, peso zerado e dose 0. Conta repetida ao mesmo tempo recebe 409, não 500                       | `model/IntegridadeDoBancoTest.java`, `exception/GlobalExceptionHandlerTest.java`            |
 
 ## 3. Cobertura
 
-| Módulo                                    | Casos  | Automatizados | Manuais |
-| ----------------------------------------- | ------ | ------------- | ------- |
-| 1. Navegação e página inicial             | 6      | 5             | 1       |
-| 2. Cadastro, login e sessão               | 9      | 9             | 0       |
-| 3. Vitrine, busca e filtros               | 7      | 7             | 0       |
-| 4. Perfil do animal e interesse           | 7      | 7             | 0       |
-| 5. Formulários                            | 4      | 4             | 0       |
-| 6. Cadastro de animal e Meus animais      | 7      | 7             | 0       |
-| 7. Interesses recebidos                   | 5      | 5             | 0       |
-| 8. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
-| **Total**                                 | **52** | **49**        | **3**   |
+| Módulo                                     | Casos  | Automatizados | Manuais |
+| ------------------------------------------ | ------ | ------------- | ------- |
+| 1. Navegação e página inicial              | 6      | 5             | 1       |
+| 2. Cadastro, login e sessão                | 9      | 9             | 0       |
+| 3. Vitrine, busca e filtros                | 7      | 7             | 0       |
+| 4. Perfil do animal e interesse            | 7      | 7             | 0       |
+| 5. Formulários                             | 4      | 4             | 0       |
+| 6. Cadastro de animal e Meus animais       | 7      | 7             | 0       |
+| 7. Interesses recebidos                    | 5      | 5             | 0       |
+| 8. Minhas candidaturas                     | 5      | 5             | 0       |
+| 9. Meu perfil                              | 6      | 6             | 0       |
+| 10. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
+| **Total**                                  | **63** | **60**        | **3**   |
 
 A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta tabela: ela é medida pelo JaCoCo e pelo Jest a cada push, como explica o [plano de testes](plano-de-testes.md). Esta tabela mostra outra coisa: quantos comportamentos importantes já têm teste automático e quantos ainda dependem de alguém testar à mão.
 
