@@ -60,15 +60,17 @@ test("cada página põe o nome dela no título da aba", async () => {
   expect(document.title).toBe("Entrar | Adota Aqui");
 });
 
-// Na /animais o nome de cada animal é h2, logo abaixo do h1 da página. Na Home ele é h3, abaixo do h2 da vitrine
+// Na /animais o nome de cada animal é h2, logo abaixo do h1 da página. Na Home ele é h3, abaixo do h2 da vitrine.
+// Espera pelo h2 da Mel: o rodapé já tem um h2 ("Plataforma") antes da vitrine carregar
 test("na lista de animais, os títulos seguem a ordem: h1 da página e h2 em cada animal", async () => {
   render(
     <MemoryRouter initialEntries={["/animais"]}>
       <App />
     </MemoryRouter>,
   );
-  const nomes = await screen.findAllByRole("heading", { level: 2 });
-  expect(nomes.map((titulo) => titulo.textContent)).toContain("Mel");
+  expect(
+    await screen.findByRole("heading", { level: 2, name: "Mel" }),
+  ).toBeInTheDocument();
   expect(
     screen.queryAllByRole("heading", { level: 3, name: "Mel" }),
   ).toHaveLength(0);
