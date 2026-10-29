@@ -105,10 +105,19 @@ public class AnimalService {
         Animal animal = animais.findByIdParaAtualizacao(id).orElseThrow(AnimalService::naoEncontrado);
         exigirDono(animal, conta);
         if (animal.getStatusAdocao() == StatusAdocao.ADOTADO) {
-            if (!mesmosDados(animal, request)) {
-                throw new RegraNegocioException("Animal adotado permite alterar somente o status. Reabra antes de editar os dados");
+            if (request.getStatusAdocao() == StatusAdocao.ADOTADO) {
+                // Continua adotado: os dados ficam como estão (RF06)
+                if (!mesmosDados(animal, request)) {
+                    throw new RegraNegocioException("Animal adotado permite alterar somente o status. "
+                            + "Para editar os dados, volte o status para Disponível");
+                }
+            } else {
+                // Devolução (UC05 FA04): volta pra Disponível e os dados podem mudar no mesmo salvamento.
+                // O interesse aprovado da adoção anterior continua no histórico
+                validarRaca(request);
+                atualizarDados(animal, request);
+                animal.setStatusAdocao(StatusAdocao.DISPONIVEL);
             }
-            animal.setStatusAdocao(request.getStatusAdocao());
         } else {
             if (request.getStatusAdocao() != StatusAdocao.DISPONIVEL) {
                 throw new RegraNegocioException("A adoção deve ser registrada pela aprovação de um interesse");
@@ -257,4 +266,3 @@ public class AnimalService {
         return new RecursoNaoEncontradoException("Animal não encontrado");
     }
 }
-

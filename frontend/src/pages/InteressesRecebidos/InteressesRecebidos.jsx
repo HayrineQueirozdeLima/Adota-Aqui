@@ -8,6 +8,7 @@ import InteressesDoAnimal from "../../components/InteressesDoAnimal/InteressesDo
 import { useAuth } from "../../contexts/AuthContext";
 import { listarMeusAnimais } from "../../services/animais";
 import { listarInteressesRecebidos } from "../../services/interesses";
+import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 
 const filtrosDeStatus = [
   { valor: "", nome: "Todos" },
@@ -32,6 +33,7 @@ export default function InteressesRecebidos() {
   const [aviso, setAviso] = useState("");
   // muda a cada alteração de status, pra buscar tudo de novo
   const [versao, setVersao] = useState(0);
+  useTituloDaPagina("Interesses recebidos");
 
   useEffect(() => {
     let cancelado = false;
@@ -74,18 +76,30 @@ export default function InteressesRecebidos() {
   });
 
   const animalNoEndereco = parametros.get("animal") ?? "";
-  const animalEscolhido = animais.some((animal) => animal.id === animalNoEndereco) ? animalNoEndereco : "";
+  const animalEscolhido = animais.some(
+    (animal) => animal.id === animalNoEndereco,
+  )
+    ? animalNoEndereco
+    : "";
   const animalSemInteresses = animalNoEndereco !== "" && animalEscolhido === "";
 
   let doAnimal = interesses;
   if (animalSemInteresses) doAnimal = [];
-  else if (animalEscolhido) doAnimal = interesses.filter((interesse) => interesse.animal.id === animalEscolhido);
+  else if (animalEscolhido)
+    doAnimal = interesses.filter(
+      (interesse) => interesse.animal.id === animalEscolhido,
+    );
   const visiveis = statusEscolhido
-    ? doAnimal.filter((interesse) => interesse.statusAndamento === statusEscolhido)
+    ? doAnimal.filter(
+        (interesse) => interesse.statusAndamento === statusEscolhido,
+      )
     : doAnimal;
 
   function contar(valor) {
-    return valor ? doAnimal.filter((interesse) => interesse.statusAndamento === valor).length : doAnimal.length;
+    return valor
+      ? doAnimal.filter((interesse) => interesse.statusAndamento === valor)
+          .length
+      : doAnimal.length;
   }
 
   function escolherAnimal(id) {
@@ -100,12 +114,20 @@ export default function InteressesRecebidos() {
   // Um cartão por animal que tem algum interesse visível, juntando os dados de Meus animais.
   // Os animais com adoção encerrada vão pro fim
   const grupos = animais
-    .filter((animal) => visiveis.some((interesse) => interesse.animal.id === animal.id))
+    .filter((animal) =>
+      visiveis.some((interesse) => interesse.animal.id === animal.id),
+    )
     .map((animal) => {
-      const dados = { ...animal, ...meusAnimais.find((item) => item.id === animal.id) };
-      const doGrupo = interesses.filter((interesse) => interesse.animal.id === animal.id);
+      const dados = {
+        ...animal,
+        ...meusAnimais.find((item) => item.id === animal.id),
+      };
+      const doGrupo = interesses.filter(
+        (interesse) => interesse.animal.id === animal.id,
+      );
       const encerrado =
-        dados.statusAdocao === "ADOTADO" || doGrupo.some((interesse) => interesse.statusAndamento === "APROVADO");
+        dados.statusAdocao === "ADOTADO" ||
+        doGrupo.some((interesse) => interesse.statusAndamento === "APROVADO");
       return { animal: dados, interesses: doGrupo, encerrado };
     })
     .sort((a, b) => Number(a.encerrado) - Number(b.encerrado));
@@ -113,10 +135,12 @@ export default function InteressesRecebidos() {
   return (
     <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-5 px-5 pb-9 pt-6 md:px-8 md:pt-[30px] lg:px-10">
       <div>
-        <h1 className="font-titulo text-secao font-semibold text-texto-principal">Interesses recebidos</h1>
+        <h1 className="font-titulo text-secao font-semibold text-texto-principal">
+          Interesses recebidos
+        </h1>
         <p className="mt-2 text-corpo text-texto-secundario">
-          Os candidatos aparecem agrupados pelo animal. A entrevista, a visita e a decisão final são suas, fora do
-          sistema.
+          Os candidatos aparecem agrupados pelo animal. A entrevista, a visita e
+          a decisão final são suas, fora do sistema.
         </p>
       </div>
 
@@ -129,11 +153,16 @@ export default function InteressesRecebidos() {
         </p>
       )}
 
-      {situacao === "carregando" && <Carregando texto="Carregando interesses..." />}
+      {situacao === "carregando" && (
+        <Carregando texto="Carregando interesses..." />
+      )}
 
       {situacao === "erro" && (
         <div role="alert" className="text-corpo text-texto-secundario">
-          <p>Não foi possível carregar os interesses. Confira sua conexão e tente de novo.</p>
+          <p>
+            Não foi possível carregar os interesses. Confira sua conexão e tente
+            de novo.
+          </p>
           <Botao onClick={tentarDeNovo} className="mt-3">
             Tentar de novo
           </Botao>
@@ -143,8 +172,8 @@ export default function InteressesRecebidos() {
       {situacao === "pronto" && interesses.length === 0 && (
         <div className="rounded-[18px] border border-borda-sutil bg-fundo-superficie p-8 text-center">
           <p className="text-corpo text-texto-secundario">
-            Você ainda não recebeu nenhum interesse. Quando alguém demonstrar interesse em um dos seus animais, ele
-            aparece aqui.
+            Você ainda não recebeu nenhum interesse. Quando alguém demonstrar
+            interesse em um dos seus animais, ele aparece aqui.
           </p>
           <Botao para="/meus-animais" className="mt-4">
             Ver meus animais
@@ -157,7 +186,11 @@ export default function InteressesRecebidos() {
           <div className="flex flex-wrap items-end gap-4">
             <div className="flex flex-wrap gap-2">
               {filtrosDeStatus.map(({ valor, nome }) => (
-                <Chip key={nome} ativo={statusEscolhido === valor} onClick={() => setStatusEscolhido(valor)}>
+                <Chip
+                  key={nome}
+                  ativo={statusEscolhido === valor}
+                  onClick={() => setStatusEscolhido(valor)}
+                >
                   {nome} {contar(valor)}
                 </Chip>
               ))}
@@ -166,7 +199,10 @@ export default function InteressesRecebidos() {
               <CampoSelecao
                 rotulo="Animal"
                 vazio="Todos os animais"
-                opcoes={animais.map((animal) => ({ valor: animal.id, nome: animal.nome }))}
+                opcoes={animais.map((animal) => ({
+                  valor: animal.id,
+                  nome: animal.nome,
+                }))}
                 value={animalEscolhido}
                 onChange={(evento) => escolherAnimal(evento.target.value)}
                 className="w-full sm:w-[260px]"

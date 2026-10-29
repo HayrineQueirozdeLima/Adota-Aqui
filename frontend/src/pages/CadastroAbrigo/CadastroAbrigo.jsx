@@ -1,8 +1,9 @@
 import FormularioCadastro from "../../components/FormularioCadastro/FormularioCadastro";
 import LayoutAutenticacao from "../../components/LayoutAutenticacao/LayoutAutenticacao";
+import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 
-// UC02: conta institucional (CNPJ), com login único compartilhado pela equipe
 export default function CadastroAbrigo() {
+  useTituloDaPagina("Cadastrar abrigo");
   return (
     <LayoutAutenticacao
       frase="Seu abrigo, visível para quem quer adotar."

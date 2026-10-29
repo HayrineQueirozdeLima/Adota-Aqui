@@ -148,9 +148,7 @@ describe("busca na API", () => {
 
     expect(screen.getByLabelText("Buscar por nome").value).toBe("");
     expect(screen.queryByRole("button", { name: "Limpar filtros" })).toBeNull();
-    await waitFor(() =>
-      expect(ultimaBuscaDeAnimais().parametros).toEqual({}),
-    );
+    await waitFor(() => expect(ultimaBuscaDeAnimais().parametros).toEqual({}));
     expect(await nomesNaTela()).toHaveLength(6);
   });
 
@@ -194,6 +192,26 @@ describe("busca na API", () => {
 
     clicar("Ver todos os animais");
     expect(await nomesNaTela()).toHaveLength(6);
+  });
+
+  // Quem usa leitor de tela não vê a grade mudar: a quantidade é anunciada depois de cada busca
+  test("anuncia quantos animais a busca trouxe", async () => {
+    simularApi({
+      responderAnimais: (parametros) =>
+        resposta(200, parametros.porte ? [] : animaisExemplo),
+    });
+    renderizar();
+    await nomesNaTela();
+    expect(screen.getByText("6 animais encontrados")).toHaveAttribute(
+      "role",
+      "status",
+    );
+
+    escolher("Porte", "GRANDE");
+    expect(await screen.findByText("Nenhum animal encontrado")).toHaveAttribute(
+      "role",
+      "status",
+    );
   });
 
   test("avisa quando a API falha e deixa tentar de novo", async () => {

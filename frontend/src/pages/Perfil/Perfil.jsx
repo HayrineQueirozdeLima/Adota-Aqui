@@ -20,6 +20,7 @@ import {
   somenteNumeros,
 } from "../../utils/mascaras";
 import { validarPerfil, validarTrocaDeSenha } from "../../utils/validacoes";
+import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 
 const senhasVazias = {
   senhaAtual: "",
@@ -116,6 +117,7 @@ export default function Perfil() {
   const [aviso, setAviso] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [tentativas, setTentativas] = useState(0);
+  useTituloDaPagina("Meu perfil");
   useFocoNoPrimeiroErro(refFormulario, tentativas);
 
   useEffect(() => {

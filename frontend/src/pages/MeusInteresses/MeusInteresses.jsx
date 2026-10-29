@@ -5,6 +5,7 @@ import Carregando from "../../components/Carregando/Carregando";
 import Chip from "../../components/Chip/Chip";
 import { useAuth } from "../../contexts/AuthContext";
 import { listarMeusInteresses } from "../../services/interesses";
+import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 
 const filtrosDeStatus = [
   { valor: "", nome: "Todas" },
@@ -34,6 +35,7 @@ export default function MeusInteresses() {
   // muda pra buscar a lista de novo depois de um erro
   const [versao, setVersao] = useState(0);
   const refAviso = useRef(null);
+  useTituloDaPagina("Minhas candidaturas");
 
   useEffect(() => {
     let cancelado = false;

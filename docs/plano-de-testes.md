@@ -10,10 +10,10 @@ Além do curso pedir **no mínimo 70% de cobertura de testes**, sugerindo JUnit 
 
 ## Ferramentas
 
-| Parte | Roda os testes | Mede a cobertura |
-| --- | --- | --- |
-| Back-end | JUnit 5 (já vem com o Spring Boot) | JaCoCo |
-| Front-end | Jest + Testing Library | O próprio Jest (`--coverage`) |
+| Parte     | Roda os testes                     | Mede a cobertura              |
+| --------- | ---------------------------------- | ----------------------------- |
+| Back-end  | JUnit 5 (já vem com o Spring Boot) | JaCoCo                        |
+| Front-end | Jest + Testing Library             | O próprio Jest (`--coverage`) |
 
 Os testes do back usam um banco H2 em memória, então não precisa de PostgreSQL pra rodar.
 
@@ -55,13 +55,13 @@ As entidades do `model` **entram**, porque têm regra de negócio (o xor do prot
 
 Testar nesta ordem. É a ordem de importância pro sistema funcionar: se o login quebrar, nada mais funciona.
 
-| # | O quê | Casos que não podem faltar | Origem |
-| --- | --- | --- | --- |
-| 1 | **Cadastro** (Usuario e Abrigo) | cadastro certo; campo obrigatório vazio; CPF/CNPJ repetido; e-mail repetido (inclusive entre Usuario e Abrigo); senha e confirmação diferentes; senha salva com BCrypt, nunca em texto puro | UC01, UC02, RNF02 |
-| 2 | **Login** | login certo com CPF e com CNPJ; senha errada; documento não cadastrado; documento sem 11 nem 14 dígitos; o token volta com o tipo de conta certo | UC03, RF03 |
-| 3 | **Cadastro de animal** | cadastro certo; raça de outra espécie; sem foto; data futura; só o dono edita e remove; animal adotado só deixa mudar o status | UC04, UC05, RF06 |
-| 4 | **Demonstrar interesse** | interesse certo; sem o aceite; triagem incompleta; conta de Abrigo; animal de outro estado; animal já adotado; interesse duplicado | UC07, RF13, RF14, RF15 |
-| 5 | **Aprovar interesse** | aprovar deixa o animal ADOTADO e descontinua os outros interesses; descontinuar sem motivo é recusado; transição de status que não pode acontecer | UC08, RF10 |
+| #   | O quê                           | Casos que não podem faltar                                                                                                                                                                  | Origem                 |
+| --- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| 1   | **Cadastro** (Usuario e Abrigo) | cadastro certo; campo obrigatório vazio; CPF/CNPJ repetido; e-mail repetido (inclusive entre Usuario e Abrigo); senha e confirmação diferentes; senha salva com BCrypt, nunca em texto puro | UC01, UC02, RNF02      |
+| 2   | **Login**                       | login certo com CPF e com CNPJ; senha errada; documento não cadastrado; documento sem 11 nem 14 dígitos; o token volta com o tipo de conta certo                                            | UC03, RF03             |
+| 3   | **Cadastro de animal**          | cadastro certo; raça de outra espécie; sem foto; data futura; só o dono edita e remove; animal adotado só deixa mudar o status                                                              | UC04, UC05, RF06       |
+| 4   | **Demonstrar interesse**        | interesse certo; sem o aceite; triagem incompleta; conta de Abrigo; animal de outro estado; animal já adotado; interesse duplicado                                                          | UC07, RF13, RF14, RF15 |
+| 5   | **Aprovar interesse**           | aprovar deixa o animal ADOTADO e descontinua os outros interesses; descontinuar sem motivo é recusado; transição de status que não pode acontecer                                           | UC08, RF10             |
 
 As tabelas de **Erros** de cada endpoint no `docs/api.md` são um bom roteiro: cada linha da tabela vira pelo menos um teste.
 
@@ -73,48 +73,49 @@ Revisão feita na issue #24: cada caso das prioridades 1 a 3 e o teste que cobre
 
 ### 1. Cadastro
 
-| Caso | Back | Front |
-| --- | --- | --- |
-| Cadastro certo, pessoa física e abrigo | `AutenticacaoIntegrationTest`: `cadastraUsuarioFazLoginEAutenticaToken`, `cadastraAbrigoFazLoginEAutenticaToken` | `Cadastro.test.jsx`: "envia só números e entra logada na vitrine", "envia CNPJ e razão social pro endpoint de abrigos" |
-| Campo obrigatório vazio ou fora do formato | `campoObrigatorioVazioOuInvalidoApontaOCampo` **(novo)** e `dto/DtoValidationTest` | `Validacoes.test.jsx`: "aponta cada campo com problema"; `Cadastro.test.jsx`: "os erros de campo que vêm da API aparecem no lugar certo" |
-| CPF repetido | `cpfRepetidoNaoCriaOutraContaEDizOMotivo` **(novo)** | "CPF já cadastrado aparece embaixo do campo CPF" |
-| CNPJ repetido | `cnpjRepetidoNaoCriaOutroAbrigoEDizOMotivo` **(novo)** | "CNPJ já cadastrado aparece embaixo do campo CNPJ" **(novo)** |
-| E-mail repetido, inclusive entre pessoa e abrigo e com maiúsculas | `emailRepetidoValeParaAsDuasContasEIgnoraMaiusculas` **(novo)** e `rejeitaDocumentoDuplicadoEEmailEntreTiposDeConta` | "e-mail já cadastrado aparece embaixo do campo E-mail" **(novo)** |
-| CPF ou CNPJ com tamanho, letras ou dígito verificador errado | `cpfOuCnpjComFormatoInvalidoNaoCriaConta` **(novo)**, `rejeitaDocumentosComDigitosVerificadoresInvalidos` e `util/DocumentoUtilsTest` **(novo)** | `Validacoes.test.jsx`: "recusa dígito errado, tamanho errado e números repetidos" |
-| Senha e confirmação diferentes | `rejeitaConfirmacaoAusenteOuDiferenteParaAmbasContas` | "não envia com as senhas diferentes" |
-| Senha guardada com BCrypt, nunca em texto puro | `cadastraUsuarioFazLoginEAutenticaToken` (confere o hash) | Não se aplica |
+| Caso                                                              | Back                                                                                                                                             | Front                                                                                                                                    |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Cadastro certo, pessoa física e abrigo                            | `AutenticacaoIntegrationTest`: `cadastraUsuarioFazLoginEAutenticaToken`, `cadastraAbrigoFazLoginEAutenticaToken`                                 | `Cadastro.test.jsx`: "envia só números e entra logada na vitrine", "envia CNPJ e razão social pro endpoint de abrigos"                   |
+| Campo obrigatório vazio ou fora do formato                        | `campoObrigatorioVazioOuInvalidoApontaOCampo` **(novo)** e `dto/DtoValidationTest`                                                               | `Validacoes.test.jsx`: "aponta cada campo com problema"; `Cadastro.test.jsx`: "os erros de campo que vêm da API aparecem no lugar certo" |
+| CPF repetido                                                      | `cpfRepetidoNaoCriaOutraContaEDizOMotivo` **(novo)**                                                                                             | "CPF já cadastrado aparece embaixo do campo CPF"                                                                                         |
+| CNPJ repetido                                                     | `cnpjRepetidoNaoCriaOutroAbrigoEDizOMotivo` **(novo)**                                                                                           | "CNPJ já cadastrado aparece embaixo do campo CNPJ" **(novo)**                                                                            |
+| E-mail repetido, inclusive entre pessoa e abrigo e com maiúsculas | `emailRepetidoValeParaAsDuasContasEIgnoraMaiusculas` **(novo)** e `rejeitaDocumentoDuplicadoEEmailEntreTiposDeConta`                             | "e-mail já cadastrado aparece embaixo do campo E-mail" **(novo)**                                                                        |
+| CPF ou CNPJ com tamanho, letras ou dígito verificador errado      | `cpfOuCnpjComFormatoInvalidoNaoCriaConta` **(novo)**, `rejeitaDocumentosComDigitosVerificadoresInvalidos` e `util/DocumentoUtilsTest` **(novo)** | `Validacoes.test.jsx`: "recusa dígito errado, tamanho errado e números repetidos"                                                        |
+| Senha e confirmação diferentes                                    | `rejeitaConfirmacaoAusenteOuDiferenteParaAmbasContas`                                                                                            | "não envia com as senhas diferentes"                                                                                                     |
+| Senha guardada com BCrypt, nunca em texto puro                    | `cadastraUsuarioFazLoginEAutenticaToken` (confere o hash)                                                                                        | Não se aplica                                                                                                                            |
 
 ### 2. Login
 
-| Caso | Back | Front |
-| --- | --- | --- |
-| Login certo com CPF e com CNPJ | `cadastraUsuarioFazLoginEAutenticaToken`, `cadastraAbrigoFazLoginEAutenticaToken` | `Login.test.jsx`: "mostra a máscara, mas manda só os números" |
-| Documento com máscara | `loginAceitaDocumentoComMascara` **(novo)** | O mesmo teste acima |
-| Senha errada e documento não cadastrado, com a mesma mensagem | `senhaIncorretaEContaInexistenteRetornamMesmoErro` (agora confere o texto "Documento ou senha inválidos") | "mostra a mensagem da API quando a senha está errada" |
-| Documento sem 11 nem 14 dígitos | `rejeitaLoginSemCamposOuDocumentoComTamanhoInvalido` e `documentoSemOnzeNemQuatorzeDigitosExplicaOFormatoNoLogin` **(novo)** | `Validacoes.test.jsx`: "recusa documento que não tem 11 nem 14 dígitos"; `Login.test.jsx`: "valida antes de chamar a API" |
-| Token com o tipo de conta certo | `cadastraUsuarioFazLoginEAutenticaToken` e `cadastraAbrigoFazLoginEAutenticaToken` (conferem o papel) | `AuthContext.test.jsx` |
-| Token inválido ou vencido | `rejeitaTokenInvalidoOuExpiradoInclusiveNoLogin` | `AuthContext.test.jsx`: "sessão com o token vencido é descartada" |
-| Manter a conta conectada ou não | Não se aplica | `Login.test.jsx`: os dois testes de "manter conectada" |
+| Caso                                                          | Back                                                                                                                         | Front                                                                                                                     |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Login certo com CPF e com CNPJ                                | `cadastraUsuarioFazLoginEAutenticaToken`, `cadastraAbrigoFazLoginEAutenticaToken`                                            | `Login.test.jsx`: "mostra a máscara, mas manda só os números"                                                             |
+| Documento com máscara                                         | `loginAceitaDocumentoComMascara` **(novo)**                                                                                  | O mesmo teste acima                                                                                                       |
+| Senha errada e documento não cadastrado, com a mesma mensagem | `senhaIncorretaEContaInexistenteRetornamMesmoErro` (agora confere o texto "Documento ou senha inválidos")                    | "mostra a mensagem da API quando a senha está errada"                                                                     |
+| Documento sem 11 nem 14 dígitos                               | `rejeitaLoginSemCamposOuDocumentoComTamanhoInvalido` e `documentoSemOnzeNemQuatorzeDigitosExplicaOFormatoNoLogin` **(novo)** | `Validacoes.test.jsx`: "recusa documento que não tem 11 nem 14 dígitos"; `Login.test.jsx`: "valida antes de chamar a API" |
+| Token com o tipo de conta certo                               | `cadastraUsuarioFazLoginEAutenticaToken` e `cadastraAbrigoFazLoginEAutenticaToken` (conferem o papel)                        | `AuthContext.test.jsx`                                                                                                    |
+| Token inválido ou vencido                                     | `rejeitaTokenInvalidoOuExpiradoInclusiveNoLogin`                                                                             | `AuthContext.test.jsx`: "sessão com o token vencido é descartada"                                                         |
+| Manter a conta conectada ou não                               | Não se aplica                                                                                                                | `Login.test.jsx`: os dois testes de "manter conectada"                                                                    |
 
 ### 3. Cadastro de animal (CRUD)
 
-| Caso | Back | Front |
-| --- | --- | --- |
-| Cadastro certo, por pessoa física e por abrigo | `AnimalIntegrationTest`: `cadastraComProtetorDoTokenEListaSomenteSeusAnimais` | `CadastroAnimal.test.jsx`: "publica com o corpo do api.md e volta pra Meus animais com o aviso" |
-| Raça de outra espécie | `naoPermiteAdotarPeloPutNemSalvarRacaIncompativel`, `rejeitaEntradasInvalidasSemPersistirAnimal`, `dto/DtoValidationTest` e `model/enums/RacaTest` | `CadastroAnimal.test.jsx`: "a raça só libera depois da espécie e vem da API" |
-| Sem foto | `rejeitaEntradasInvalidasSemPersistirAnimal` | `FormularioAnimal.test.jsx`: "o formulário em branco acusa todos os obrigatórios" |
-| Data no futuro (nascimento e vacina) | `rejeitaEntradasInvalidasSemPersistirAnimal` | `FormularioAnimal.test.jsx`: "confere peso e nascimento" |
-| Foto que não é imagem ou maior que 5 MB | `FotoIntegrationTest` | `CadastroAnimal.test.jsx`: "recusa arquivo que não é imagem e imagem maior que 5 MB" |
-| Editar | `donoEditaEAtualizacaoSubstituiFotosEVacinas` | `EditarAnimal.test.jsx`: "salva com PUT levando todos os campos e o status" |
-| Só o dono edita e remove | `terceirosNaoPodemEditarOuRemover` | `EditarAnimal.test.jsx`: "quem não cadastrou o animal não vê o formulário" |
-| Animal adotado só deixa mudar o status | `adotadoSoMudaStatusEPreservaVacinasEHistorico` | `EditarAnimal.test.jsx`: "só o status fica editável" |
-| Remover | `removerApagaDependentesMasPreservaContas` | `EditarAnimal.test.jsx`: os três testes de remoção |
-| Listar os animais da conta | `cadastraComProtetorDoTokenEListaSomenteSeusAnimais` | `MeusAnimais.test.jsx` |
-| Sem login | `rotasProtegidasExigemTokenEErrosDeEntradaSaoPadronizados` | `AuthContext.test.jsx`: "sem login, as telas de quem está logado mandam pro login" |
+| Caso                                                      | Back                                                                                                                                               | Front                                                                                                  |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Cadastro certo, por pessoa física e por abrigo            | `AnimalIntegrationTest`: `cadastraComProtetorDoTokenEListaSomenteSeusAnimais`                                                                      | `CadastroAnimal.test.jsx`: "publica com o corpo do api.md e volta pra Meus animais com o aviso"        |
+| Raça de outra espécie                                     | `naoPermiteAdotarPeloPutNemSalvarRacaIncompativel`, `rejeitaEntradasInvalidasSemPersistirAnimal`, `dto/DtoValidationTest` e `model/enums/RacaTest` | `CadastroAnimal.test.jsx`: "a raça só libera depois da espécie e vem da API"                           |
+| Sem foto                                                  | `rejeitaEntradasInvalidasSemPersistirAnimal`                                                                                                       | `FormularioAnimal.test.jsx`: "o formulário em branco acusa todos os obrigatórios"                      |
+| Data no futuro (nascimento e vacina)                      | `rejeitaEntradasInvalidasSemPersistirAnimal`                                                                                                       | `FormularioAnimal.test.jsx`: "confere peso e nascimento"                                               |
+| Foto que não é imagem ou maior que 5 MB                   | `FotoIntegrationTest`                                                                                                                              | `CadastroAnimal.test.jsx`: "recusa arquivo que não é imagem e imagem maior que 5 MB"                   |
+| Editar                                                    | `donoEditaEAtualizacaoSubstituiFotosEVacinas`                                                                                                      | `EditarAnimal.test.jsx`: "salva com PUT levando todos os campos e o status"                            |
+| Só o dono edita e remove                                  | `terceirosNaoPodemEditarOuRemover`                                                                                                                 | `EditarAnimal.test.jsx`: "quem não cadastrou o animal não vê o formulário"                             |
+| Animal adotado só deixa mudar o status                    | `adotadoSoMudaStatusEPreservaVacinasEHistorico`                                                                                                    | `EditarAnimal.test.jsx`: "só o status fica editável"                                                   |
+| Devolução com dados novos no mesmo salvamento (UC05 FA04) | `devolucaoVoltaParaDisponivelComOsDadosNovos` e `devolucaoComRacaDeOutraEspecieERecusadaENadaMuda` **(novos, #98)**                                | `EditarAnimal.test.jsx`: "voltar pra Disponível destrava os campos e pede confirmação antes de salvar" |
+| Remover                                                   | `removerApagaDependentesMasPreservaContas`                                                                                                         | `EditarAnimal.test.jsx`: os três testes de remoção                                                     |
+| Listar os animais da conta                                | `cadastraComProtetorDoTokenEListaSomenteSeusAnimais`                                                                                               | `MeusAnimais.test.jsx`                                                                                 |
+| Sem login                                                 | `rotasProtegidasExigemTokenEErrosDeEntradaSaoPadronizados`                                                                                         | `AuthContext.test.jsx`: "sem login, as telas de quem está logado mandam pro login"                     |
 
-### Divergência encontrada
+### Divergência encontrada (corrigida na #98)
 
-Na devolução de um animal adotado, o front destrava os campos e deixa salvar dados novos junto com a volta pra Disponível (`EditarAnimal.test.jsx`). O back recusa com `409` se algum dado mudar nesse mesmo salvamento (`adotadoSoMudaStatusEPreservaVacinasEHistorico`). Os dois testes passam, cada um do seu lado, mas juntos o fluxo falha. Como o RF06, o UC05 FA04 e o `docs/api.md` deixam editar os dados na mesma tela da devolução, quem muda é o back, junto com o teste `adotadoSoMudaStatusEPreservaVacinasEHistorico`.
+Na devolução de um animal adotado, o front destrava os campos e deixa salvar dados novos junto com a volta pra Disponível (`EditarAnimal.test.jsx`), mas o back recusava com `409` se algum dado mudasse nesse mesmo salvamento. Os dois testes passavam, cada um do seu lado, e juntos o fluxo falhava: foi a revisão dos casos contra o RF06 que achou. Na #98 o back passou a aceitar os dados novos na devolução, e o `AnimalIntegrationTest` ganhou um teste pra esse caminho.
 
 ## Revisão das prioridades 4 e 5 (regras de negócio críticas)
 
@@ -122,39 +123,62 @@ Revisão feita na issue #33: cada regra de interesse e de adoção e o teste que
 
 ### 4. Demonstrar interesse
 
-| Caso | Back | Front |
-| --- | --- | --- |
-| Interesse certo, com o contato do protetor | `registraOInteresseEDevolveOContatoDoProtetor`, `quandoOProtetorEUmAbrigoOContatoEDoAbrigo` | `DemonstrarInteresse.test.jsx`: "envia o aceite e a triagem com o token e mostra os contatos do Protetor" |
-| Sem o aceite do termo | `exigeOAceiteDoTermo` | "sem aceite e sem respostas, não envia e leva o foco pro primeiro erro" |
-| Triagem incompleta | `exigeTodasAsRespostasDaTriagem` | O mesmo teste acima e "erro de campo vindo da API aparece na pergunta certa" |
-| Melhor momento pra contato sem a opção de responder depois (RF15) | `oMomentoDeContatoNaoAceitaResponderDepois` | "a pergunta de contato não tem a opção de responder depois (RF15)" |
-| Conta de Abrigo | `abrigoNaoDemonstraInteresse` | `PerfilAnimal.test.jsx`: "Abrigo não demonstra interesse"; `AuthContext.test.jsx`: "abrigo não entra nas telas que são só de pessoa física" |
-| O próprio protetor | `oProtetorNaoDemonstraInteresseNoProprioAnimal` | `PerfilAnimal.test.jsx`: "o protetor que cadastrou vê o botão de editar" |
-| Animal de outro estado (RF14) | `soDemonstraInteresseEmAnimalDoMesmoEstado` | "animal de outro estado: explica e volta pro perfil" |
-| Animal já adotado | `animalAdotadoNaoRecebeInteresse` | "mostra a mensagem da API quando ela recusa (ex.: 409)" |
-| Interesse duplicado | `naoDeixaDoisInteressesEmAndamentoNoMesmoAnimal` | "quem já tem interesse em andamento não vê o formulário" |
-| Clique duplo no envio | Não se aplica | "trava o botão enquanto envia, sem registrar o interesse duas vezes" |
-| Desistir (UC07 FA01) | `oCandidatoDesisteEOInteresseEApagado`, `soQuemDemonstrouOInteressePodeDesistir`, `interesseFinalizadoFicaNoHistorico` | `PerfilAnimal.test.jsx`: os três testes de desistência |
+| Caso                                                              | Back                                                                                                                   | Front                                                                                                                                       |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Interesse certo, com o contato do protetor                        | `registraOInteresseEDevolveOContatoDoProtetor`, `quandoOProtetorEUmAbrigoOContatoEDoAbrigo`                            | `DemonstrarInteresse.test.jsx`: "envia o aceite e a triagem com o token e mostra os contatos do Protetor"                                   |
+| Sem o aceite do termo                                             | `exigeOAceiteDoTermo`                                                                                                  | "sem aceite e sem respostas, não envia e leva o foco pro primeiro erro"                                                                     |
+| Triagem incompleta                                                | `exigeTodasAsRespostasDaTriagem`                                                                                       | O mesmo teste acima e "erro de campo vindo da API aparece na pergunta certa"                                                                |
+| Melhor momento pra contato sem a opção de responder depois (RF15) | `oMomentoDeContatoNaoAceitaResponderDepois`                                                                            | "a pergunta de contato não tem a opção de responder depois (RF15)"                                                                          |
+| Conta de Abrigo                                                   | `abrigoNaoDemonstraInteresse`                                                                                          | `PerfilAnimal.test.jsx`: "Abrigo não demonstra interesse"; `AuthContext.test.jsx`: "abrigo não entra nas telas que são só de pessoa física" |
+| O próprio protetor                                                | `oProtetorNaoDemonstraInteresseNoProprioAnimal`                                                                        | `PerfilAnimal.test.jsx`: "o protetor que cadastrou vê o botão de editar"                                                                    |
+| Animal de outro estado (RF14)                                     | `soDemonstraInteresseEmAnimalDoMesmoEstado`                                                                            | "animal de outro estado: explica e volta pro perfil"                                                                                        |
+| Animal já adotado                                                 | `animalAdotadoNaoRecebeInteresse`                                                                                      | "mostra a mensagem da API quando ela recusa (ex.: 409)"                                                                                     |
+| Interesse duplicado                                               | `naoDeixaDoisInteressesEmAndamentoNoMesmoAnimal`                                                                       | "quem já tem interesse em andamento não vê o formulário"                                                                                    |
+| Clique duplo no envio                                             | Não se aplica                                                                                                          | "trava o botão enquanto envia, sem registrar o interesse duas vezes"                                                                        |
+| Desistir (UC07 FA01)                                              | `oCandidatoDesisteEOInteresseEApagado`, `soQuemDemonstrouOInteressePodeDesistir`, `interesseFinalizadoFicaNoHistorico` | `PerfilAnimal.test.jsx`: os três testes de desistência                                                                                      |
 
 ### 5. Aprovar e descontinuar
 
-| Caso | Back | Front |
-| --- | --- | --- |
-| Aprovar deixa o animal Adotado e descontinua só os outros interesses ativos, com o motivo padrão (RF10) | `aprovarAdotaAnimalEDescontinuaApenasOsDemaisAtivos` | `InteressesRecebidos.test.jsx`: "aprovar pede confirmação, adota o animal e recolhe os outros interesses" |
-| Duas aprovações ao mesmo tempo: só uma vale | `aprovacoesSimultaneasTemApenasUmVencedor`, `cadastroSimultaneoAAprovacaoNaoDeixaInteresseAtivo` | Não se aplica |
-| Erro no meio da aprovação desfaz tudo | `falhaNaPersistenciaDesfazTodaAAprovacao` | Não se aplica |
-| Descontinuar sem motivo é recusado | Pela API: `descontinuacaoManualExigeMotivoEGuardaTexto`. Na entidade: `interesseDescontinuadoSemMotivoNaoEGravado` e `interesseQueJaExisteNaoViraDescontinuadoSemMotivo` **(novo)**. No banco: `bancoRecusaInteresseDescontinuadoSemMotivo` **(novo)** | "descontinuar exige o motivo e envia junto" |
-| Transição que não pode acontecer | `naoAlteraInteresseEncerrado`, `naoRetornaParaPendenteNemAprovaAnimalAdotado` | "cada status mostra só as ações que a máquina de estados permite" |
-| Só o protetor do animal gerencia os interesses | `gerenciamentoExigeAutenticacaoEPropriedade` | Não se aplica |
-| Animal adotado só deixa mudar o status (RF06) | `AnimalIntegrationTest`: `adotadoSoMudaStatusEPreservaVacinasEHistorico` | `EditarAnimal.test.jsx`: "só o status fica editável" |
-| Remover o animal apaga os interesses dele (UC05 FA03) | `AnimalIntegrationTest`: `removerApagaDependentesMasPreservaContas` | `EditarAnimal.test.jsx`: "remove depois da confirmação, avisando dos interesses, e volta pra Meus animais" |
-| O animal tem exatamente um protetor, pessoa ou abrigo | Na entidade: `animalNaoFicaComDoisProtetoresNemSemNenhum` **(novo)**. No banco: `bancoRecusaAnimalComDoisProtetoresOuSemNenhum` **(novo)** | Não se aplica |
+| Caso                                                                                                    | Back                                                                                                                                                                                                                                                   | Front                                                                                                      |
+| ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| Aprovar deixa o animal Adotado e descontinua só os outros interesses ativos, com o motivo padrão (RF10) | `aprovarAdotaAnimalEDescontinuaApenasOsDemaisAtivos`                                                                                                                                                                                                   | `InteressesRecebidos.test.jsx`: "aprovar pede confirmação, adota o animal e recolhe os outros interesses"  |
+| Duas aprovações ao mesmo tempo: só uma vale                                                             | `aprovacoesSimultaneasTemApenasUmVencedor`, `cadastroSimultaneoAAprovacaoNaoDeixaInteresseAtivo`                                                                                                                                                       | Não se aplica                                                                                              |
+| Erro no meio da aprovação desfaz tudo                                                                   | `falhaNaPersistenciaDesfazTodaAAprovacao`                                                                                                                                                                                                              | Não se aplica                                                                                              |
+| Descontinuar sem motivo é recusado                                                                      | Pela API: `descontinuacaoManualExigeMotivoEGuardaTexto`. Na entidade: `interesseDescontinuadoSemMotivoNaoEGravado` e `interesseQueJaExisteNaoViraDescontinuadoSemMotivo` **(novo)**. No banco: `bancoRecusaInteresseDescontinuadoSemMotivo` **(novo)** | "descontinuar exige o motivo e envia junto"                                                                |
+| Transição que não pode acontecer                                                                        | `naoAlteraInteresseEncerrado`, `naoRetornaParaPendenteNemAprovaAnimalAdotado`                                                                                                                                                                          | "cada status mostra só as ações que a máquina de estados permite"                                          |
+| Só o protetor do animal gerencia os interesses                                                          | `gerenciamentoExigeAutenticacaoEPropriedade`                                                                                                                                                                                                           | Não se aplica                                                                                              |
+| Animal adotado só deixa mudar o status (RF06)                                                           | `AnimalIntegrationTest`: `adotadoSoMudaStatusEPreservaVacinasEHistorico`                                                                                                                                                                               | `EditarAnimal.test.jsx`: "só o status fica editável"                                                       |
+| Remover o animal apaga os interesses dele (UC05 FA03)                                                   | `AnimalIntegrationTest`: `removerApagaDependentesMasPreservaContas`                                                                                                                                                                                    | `EditarAnimal.test.jsx`: "remove depois da confirmação, avisando dos interesses, e volta pra Meus animais" |
+| O animal tem exatamente um protetor, pessoa ou abrigo                                                   | Na entidade: `animalNaoFicaComDoisProtetoresNemSemNenhum` **(novo)**. No banco: `bancoRecusaAnimalComDoisProtetoresOuSemNenhum` **(novo)**                                                                                                             | Não se aplica                                                                                              |
 
 ### Por que testar a entidade e o banco
 
 As regras de "descontinuar exige motivo" e "o animal tem um protetor só" estão em três lugares. O primeiro é o service: ele recusa o motivo vazio com a mensagem certa pra tela, e o protetor nem tem como vir errado, porque sai do token. Os outros dois são a entidade (`validarMotivo` e `validarProtetor`) e o banco, com um `CHECK` na tabela. Os testes da API passam pelo service, que barra antes, então nunca chegam nas outras duas barreiras. O `RegrasDasEntidadesTest` grava direto pelo repository e pelo SQL, sem o service, pra garantir que as outras duas barreiras também funcionam. Se um código novo esquecer a validação, o erro aparece aqui e não no banco de produção.
 
 O `model/IntegridadeDoBancoTest` (issue #40) faz o mesmo com o resto do banco: os índices das consultas principais, o CPF, o CNPJ e o e-mail únicos, as chaves estrangeiras (nada de vacina ou interesse de animal que não existe) e os `CHECK` de peso e dose.
+
+## Bug bash da Sprint 5 (#44)
+
+Não teve lista de bugs anotada pelo time na semana de teste geral, então o bug bash do front foi feito em cima do último commit da `dev` (depois da #95 e da #96), com dois roteiros automáticos no navegador e uma revisão do código:
+
+- **Todas as telas**, como visitante, pessoa física e abrigo, de 320 a 1440 px, nos temas claro e escuro: rolagem pro lado, coisa saindo do cartão, erro de JavaScript, contraste do texto, botão ou link sem nome, imagem sem texto alternativo, campo sem rótulo, id repetido e a ordem dos títulos (h1, h2, h3).
+- **Só pelo teclado** (Tab), conferindo se o foco aparece em tudo.
+- **As tarefas de quem usa o site**: entrar, criar conta, cadastrar animal com foto e vacina, editar e devolver um animal adotado, demonstrar interesse, aprovar, desistir e editar o perfil.
+- **Quando algo dá errado**: a API fora do ar em cada tela, o token vencido no meio do uso e nomes bem compridos no celular de 320 px.
+
+| O que estava errado                                                                                                                          | O que mudou                                                                                                                                                         | Teste                                                                   |
+| -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Clicando num link do rodapé, a página nova abria no meio, na altura em que a anterior estava                                                 | Toda página nova abre no topo. O "Como adotar" continua rolando até a seção, e o voltar do navegador devolve a pessoa onde ela estava (`components/RolarParaOTopo`) | `RolarParaOTopo.test.jsx`                                               |
+| Todas as abas tinham o mesmo título, "Adota Aqui"                                                                                            | Cada página põe o nome dela no título da aba (`hooks/useTituloDaPagina.js`)                                                                                         | `App.test.jsx`, `EditarAnimal.test.jsx`, `DemonstrarInteresse.test.jsx` |
+| Quem já estava logado e clicava em "Abrigos e protetores independentes" (rodapé) caía na escolha do tipo de conta                            | Vai direto pra vitrine, igual aos dois formulários de cadastro                                                                                                      | `Cadastro.test.jsx`                                                     |
+| No cadastro de animal, se a lista de raças não carregasse, o campo ficava só com "Escolha", sem explicação                                   | O campo avisa que as raças não carregaram, e abrir o campo de novo tenta outra vez                                                                                  | `CadastroAnimal.test.jsx`                                               |
+| Em Editar animal e Demonstrar interesse, o erro de carregamento pedia pra recarregar a página                                                | Tem o botão "Tentar de novo", como nas outras telas                                                                                                                 | `EditarAnimal.test.jsx`, `DemonstrarInteresse.test.jsx`                 |
+| Contraste abaixo de 4,5:1 nos textos em cima do roxo suave ("Sem foto", "Nenhuma foto ainda" e o quadro "Antes de publicar"), nos dois temas | O texto desses quadros ficou mais escuro, e no tema escuro o roxo suave também                                                                                      | Conferido no navegador                                                  |
+| Na `/animais`, o nome de cada animal era h3 logo depois do h1, pulando o h2                                                                  | Na `/animais` ele é h2. Na Home continua h3, embaixo do h2 da vitrine                                                                                               | `App.test.jsx`                                                          |
+| Quem usa leitor de tela não ficava sabendo o resultado de um filtro, porque a grade muda sem aviso                                           | A vitrine anuncia "6 animais encontrados" (ou "Nenhum animal encontrado") depois de cada busca                                                                      | `VitrineAnimais.test.jsx`                                               |
+| O site não tinha ícone na aba                                                                                                                | Ícone com o coração do logo (`public/favicon.svg`), mais a descrição e a cor do tema no `index.html`                                                                | Conferido no navegador                                                  |
+
+O resto passou: nenhum erro de JavaScript, nenhuma rolagem pro lado, foco visível em todos os controles, e todas as telas que buscam dados mostram o erro e o "Tentar de novo" com a API fora do ar. Com o token vencido, as telas de quem está logado mandam pro login, e a vitrine e o perfil do animal continuam abertos, agora como visitante. A devolução de animal adotado com dados novos no mesmo salvamento, que o back recusava, foi corrigida na #98.
 
 ## Como escrever os testes
 
@@ -174,9 +198,9 @@ O `model/IntegridadeDoBancoTest` (issue #40) faz o mesmo com o resto do banco: o
 
 ## Metas por sprint
 
-| Sprint | Meta |
-| --- | --- |
-| 2 | Testes do cadastro, do login e do CRUD de animal (prioridades 1 a 3) |
-| 3 | Testes das regras de interesse (prioridades 4 e 5) |
-| 4 | Fechar os 70% no back e no front. A partir daqui, o CI recusa PR que deixe a cobertura de linhas abaixo de 70% (feito na #41) |
-| 5 | Rodar tudo uma última vez e guardar o relatório final como prova |
+| Sprint | Meta                                                                                                                          |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| 2      | Testes do cadastro, do login e do CRUD de animal (prioridades 1 a 3)                                                          |
+| 3      | Testes das regras de interesse (prioridades 4 e 5)                                                                            |
+| 4      | Fechar os 70% no back e no front. A partir daqui, o CI recusa PR que deixe a cobertura de linhas abaixo de 70% (feito na #41) |
+| 5      | Rodar tudo uma última vez e guardar o relatório final como prova                                                              |

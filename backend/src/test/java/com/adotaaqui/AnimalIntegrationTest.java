@@ -1,6 +1,7 @@
 package com.adotaaqui;
 
 import com.adotaaqui.model.Abrigo;
+import com.adotaaqui.model.Animal;
 import com.adotaaqui.model.Endereco;
 import com.adotaaqui.model.Interesse;
 import com.adotaaqui.model.Usuario;
@@ -8,6 +9,7 @@ import com.adotaaqui.model.enums.ConvivenciaAnimal;
 import com.adotaaqui.model.enums.ConvivenciaCrianca;
 import com.adotaaqui.model.enums.MomentoContato;
 import com.adotaaqui.model.enums.ProgramacaoViagem;
+import com.adotaaqui.model.enums.Raca;
 import com.adotaaqui.model.enums.StatusAdocao;
 import com.adotaaqui.model.enums.StatusInteresse;
 import com.adotaaqui.model.enums.TempoSozinho;
@@ -209,8 +211,9 @@ class AnimalIntegrationTest {
         mvc.perform(get("/api/animais/" + id)).andExpect(status().isNotFound());
         mvc.perform(auth(get("/api/animais/" + id), candidato)).andExpect(status().isNotFound());
         mvc.perform(auth(get("/api/animais/" + id), dono)).andExpect(status().isOk());
+        // Continuando adotado, nenhum dado muda (RF06)
         for (String campo : new String[]{"nome", "fotos", "vacinas", "convivencia"}) {
-            ObjectNode alterado = corpo().put("statusAdocao", "DISPONIVEL");
+            ObjectNode alterado = corpo().put("statusAdocao", "ADOTADO");
             if (campo.equals("nome")) alterado.put("nome", "Novo");
             if (campo.equals("fotos")) alterado.putArray("fotos").add("https://example.com/outra.jpg");
             if (campo.equals("vacinas")) alterado.putArray("vacinas");
@@ -219,6 +222,7 @@ class AnimalIntegrationTest {
                     .content(alterado.toString())).andExpect(status().isConflict());
         }
         assertThat(animais.findById(UUID.fromString(id)).orElseThrow().getStatusAdocao()).isEqualTo(StatusAdocao.ADOTADO);
+        // Salvar sem mudar nada não recria as vacinas, e devolver sem mudar os dados também não
         for (String estado : new String[]{"ADOTADO", "DISPONIVEL"}) {
             mvc.perform(auth(put("/api/animais/" + id), dono).contentType(MediaType.APPLICATION_JSON)
                             .content(corpo().put("statusAdocao", estado).toString()))
@@ -226,9 +230,47 @@ class AnimalIntegrationTest {
                             .value(criado.path("vacinas").get(0).path("id").asText()));
         }
         assertThat(interesses.findById(interesse).orElseThrow().getStatusAndamento()).isEqualTo(StatusInteresse.APROVADO);
+    }
+
+    // Issue #98: na devolução (UC05 FA04), os dados mudam no mesmo salvamento da volta pra Disponível
+    @Test
+    void devolucaoVoltaParaDisponivelComOsDadosNovos() throws Exception {
+        Conta dono = conta(false, "RO");
+        String id = criar(dono, corpo()).path("id").asText();
+        UUID interesse = interesse(id, conta(false, "RO"), StatusInteresse.APROVADO);
+        adotar(id);
+
+        ObjectNode devolucao = corpo().put("statusAdocao", "DISPONIVEL").put("nome", "Mel de volta");
+        devolucao.putArray("fotos").add("https://example.com/outra.jpg");
+        devolucao.putArray("vacinas");
+        devolucao.withObject("/convivencia").put("cao", "CONVIVE_BEM");
         mvc.perform(auth(put("/api/animais/" + id), dono).contentType(MediaType.APPLICATION_JSON)
-                        .content(corpo().put("statusAdocao", "DISPONIVEL").put("nome", "Agora pode").toString()))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.nome").value("Agora pode"));
+                        .content(devolucao.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusAdocao").value("DISPONIVEL"))
+                .andExpect(jsonPath("$.nome").value("Mel de volta"))
+                .andExpect(jsonPath("$.fotos[0]").value("https://example.com/outra.jpg"))
+                .andExpect(jsonPath("$.vacinas.length()").value(0))
+                .andExpect(jsonPath("$.convivencia.cao").value("CONVIVE_BEM"));
+
+        // Volta pra vitrine, e a adoção anterior continua no histórico
+        mvc.perform(get("/api/animais/" + id)).andExpect(status().isOk());
+        assertThat(interesses.findById(interesse).orElseThrow().getStatusAndamento()).isEqualTo(StatusInteresse.APROVADO);
+    }
+
+    @Test
+    void devolucaoComRacaDeOutraEspecieERecusadaENadaMuda() throws Exception {
+        Conta dono = conta(false, "RO");
+        String id = criar(dono, corpo()).path("id").asText();
+        adotar(id);
+
+        mvc.perform(auth(put("/api/animais/" + id), dono).contentType(MediaType.APPLICATION_JSON)
+                        .content(corpo().put("statusAdocao", "DISPONIVEL").put("raca", "SIAMES").toString()))
+                .andExpect(status().isBadRequest());
+
+        Animal animal = animais.findById(UUID.fromString(id)).orElseThrow();
+        assertThat(animal.getStatusAdocao()).isEqualTo(StatusAdocao.ADOTADO);
+        assertThat(animal.getRaca()).isEqualTo(Raca.SRD_CAO);
     }
 
     @Test
@@ -407,4 +449,3 @@ class AnimalIntegrationTest {
                 """);
     }
 }
-
