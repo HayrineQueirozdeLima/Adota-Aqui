@@ -51,7 +51,7 @@ frontend/src/
 ├── routes/       todas as rotas (AppRoutes) e a RotaProtegida
 ├── contexts/     o AuthContext, que guarda quem está logado
 ├── services/     as chamadas à API, um arquivo por assunto, e a consulta ao ViaCEP
-├── hooks/        hooks próprios (useValorAtrasado, useFocoNoPrimeiroErro, useTema)
+├── hooks/        hooks próprios (useValorAtrasado, useFocoNoPrimeiroErro, useTema, useTituloDaPagina)
 ├── utils/        máscaras, validações e os textos que traduzem os valores da API
 ├── config/       o endereço da API (ambiente.js)
 ├── styles/       o CSS global e as cores dos dois temas
@@ -59,7 +59,7 @@ frontend/src/
 └── mocks/        dados de exemplo usados pelos testes
 ```
 
-**Rotas.** Todas ficam no `AppRoutes`. As públicas (vitrine, perfil do animal, login e cadastro) abrem para qualquer pessoa. As que precisam de login ficam dentro da `RotaProtegida`, que manda pro `/login` quem não entrou e, depois do login, devolve a pessoa pra tela de onde ela veio. Demonstrar interesse e Meus interesses usam a `RotaProtegida` com `apenasUsuario`, que barra o Abrigo (RF14: só pessoa física adota).
+**Rotas.** Todas ficam no `AppRoutes`. As públicas (vitrine, perfil do animal, login e cadastro) abrem para qualquer pessoa. As que precisam de login ficam dentro da `RotaProtegida`, que manda pro `/login` quem não entrou e, depois do login, devolve a pessoa pra tela de onde ela veio. Demonstrar interesse e Minhas candidaturas usam a `RotaProtegida` com `apenasUsuario`, que barra o Abrigo (RF14: só pessoa física adota). Como o React troca de página sem recarregar, o `RolarParaOTopo` leva cada página nova pro topo, e cada página põe o nome dela no título da aba com o `useTituloDaPagina`.
 
 **Sessão.** O login e o cadastro devolvem `{ token, tipoConta, id, nome, expiraEm }`. O `AuthContext` guarda isso no `localStorage` quando a pessoa marca "Manter conta conectada", ou no `sessionStorage` quando não marca, e aí a sessão acaba quando a aba fecha. Quando o token vence (24 horas), a sessão é encerrada sozinha.
 
@@ -257,5 +257,6 @@ O cadastro (`POST /api/usuarios` ou `/api/abrigos`) segue o mesmo caminho e já 
 - **Front:** Jest e Testing Library (`npm run test:coverage`).
 - **CI:** o GitHub Actions roda os dois a cada push e a cada PR para a `dev` e a `main`, nos jobs `backend` e `frontend`, e mostra a cobertura no resumo da execução. Se a cobertura de linhas de um dos dois ficar abaixo de 70%, o job falha. A proteção das branches só deixa o PR entrar com os dois verdes.
 - **Deploy:** o Render e o Netlify publicam a `main`, e o Render só depois que o CI passa (ver [deploy](deploy.md)).
+- **Produção:** o workflow "Conferir produção" (`.github/workflows/producao.yml`) abre o site e a API publicados todo dia de manhã, ou pelo botão na aba Actions, e falha se algum deles estiver fora do ar, se o CORS não liberar o site ou se o site estiver chamando outra API.
 
-O que é testado e por quê está no [plano de testes](plano-de-testes.md).
+O que é testado e por quê está no [plano de testes](plano-de-testes.md), e o resultado final, no [relatório de testes](relatorio-de-testes.md). As decisões por trás desta arquitetura e os problemas que ela resolveu estão em [aspectos relevantes](aspectos-relevantes.md).

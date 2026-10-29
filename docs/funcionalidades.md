@@ -2,7 +2,7 @@
 
 O que já funciona no Adota Aqui: o que cada funcionalidade faz, como ela funciona por dentro (tela, API e banco), as regras que ela segue e onde ficam o código e os testes.
 
-Situação em 22/10/2026, Sprint 5. A regra é a mesma do resto da pasta: entrou funcionalidade nova, entra uma seção nova aqui, no mesmo PR.
+Situação em 24/10/2026, fim da Sprint 5. A regra é a mesma do resto da pasta: entrou funcionalidade nova, entra uma seção nova aqui, no mesmo PR. O porquê das principais regras (login por documento, ids UUID, remoção em cascata, aprovação travada) está em [aspectos relevantes](aspectos-relevantes.md).
 
 Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`), por isso os animais aparecem sem foto. No site, as fotos vêm do Amazon S3.
 

@@ -1,0 +1,94 @@
+name: Conferir produção
+
+# Confere se o site e a API estão no ar, do jeito que a banca vai abrir (issue #48).
+# Roda sozinho todo dia de manhã e também pelo botão "Run workflow", na aba Actions.
+# Na véspera e uns 10 minutos antes da apresentação, rode pelo botão: ele já acorda a API do Render.
+# Se falhar, o GitHub manda e-mail, e o resumo da execução diz o que falhou.
+on:
+  workflow_dispatch:
+  schedule:
+    # 07:17 em Porto Velho. O horário do GitHub é UTC (4 horas a mais)
+    - cron: "17 11 * * *"
+
+permissions:
+  contents: read
+
+env:
+  SITE: https://adotaaqui.netlify.app
+  API: https://adota-aqui.onrender.com
+
+jobs:
+  producao:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      # O Render gratuito dorme depois de 15 minutos parado e leva até 1 minuto pra acordar
+      - name: A API responde
+        run: |
+          codigo=000
+          for tentativa in $(seq 1 12); do
+            codigo=$(curl -s -o racas.json -w "%{http_code}" --max-time 60 "$API/api/racas?especie=CAO" || true)
+            if [ "$codigo" = "200" ]; then break; fi
+            echo "Tentativa $tentativa: a API respondeu $codigo. Esperando 15 segundos"
+            sleep 15
+          done
+          if [ "$codigo" != "200" ]; then
+            echo "::error title=API fora do ar::$API/api/racas respondeu $codigo. Veja o deploy e o log no Render"
+            exit 1
+          fi
+          if ! grep -q '"LABRADOR"' racas.json; then
+            echo "::error title=API respondeu errado::a lista de raças de cão veio sem o Labrador"
+            exit 1
+          fi
+
+      - name: A vitrine carrega
+        run: |
+          codigo=$(curl -s -o vitrine.json -w "%{http_code}" --max-time 60 "$API/api/animais" || true)
+          if [ "$codigo" != "200" ]; then
+            echo "::error title=Vitrine::GET /api/animais respondeu $codigo. Pode ser o banco (Neon) ou as fotos (S3)"
+            exit 1
+          fi
+          echo "Animais na vitrine: $(jq length vitrine.json)"
+
+      # Sem isso, o site abre, mas o navegador bloqueia todas as chamadas pra API
+      - name: A API aceita o site (CORS)
+        run: |
+          origem=$(curl -s -o /dev/null -D - -X OPTIONS "$API/api/auth/login" \
+            -H "Origin: $SITE" \
+            -H "Access-Control-Request-Method: POST" \
+            -H "Access-Control-Request-Headers: content-type" \
+            | tr -d '\r' | grep -i '^access-control-allow-origin:' | cut -d' ' -f2 || true)
+          if [ "$origem" != "$SITE" ]; then
+            echo "::error title=CORS::a API não libera $SITE (veio '$origem'). Confira o CORS_ORIGENS no Render"
+            exit 1
+          fi
+
+      # Abrir direto um endereço de dentro do site (ou recarregar a página) não pode dar 404
+      - name: O site e as páginas internas abrem
+        run: |
+          for caminho in / /animais /login; do
+            codigo=$(curl -s -o pagina.html -w "%{http_code}" --max-time 30 "$SITE$caminho" || true)
+            if [ "$codigo" != "200" ] || ! grep -q 'id="root"' pagina.html; then
+              echo "::error title=Site::$SITE$caminho respondeu $codigo. Veja o último deploy no Netlify"
+              exit 1
+            fi
+          done
+
+      # O endereço da API entra no JavaScript na hora do build (VITE_API_URL, no netlify.toml)
+      - name: O site chama a API certa
+        run: |
+          js=$(grep -o 'src="/assets/[^"]*\.js"' pagina.html | head -1 | cut -d'"' -f2 || true)
+          if ! curl -s --max-time 30 "$SITE$js" | grep -q "${API#https://}"; then
+            echo "::error title=Build do site::o JavaScript publicado não chama $API. Confira a VITE_API_URL no netlify.toml"
+            exit 1
+          fi
+
+      - name: Resumo
+        run: |
+          {
+            echo "### Produção no ar"
+            echo ""
+            echo "- Site: $SITE"
+            echo "- API: $API"
+            echo "- Animais na vitrine: $(jq length vitrine.json)"
+          } >> "$GITHUB_STEP_SUMMARY"
