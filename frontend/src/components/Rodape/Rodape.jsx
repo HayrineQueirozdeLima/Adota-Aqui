@@ -2,11 +2,11 @@ import { Link } from "react-router-dom";
 import logoClaro from "../../assets/logo-marca.svg";
 import logoEscuro from "../../assets/logo-sobre-marca.svg";
 
-// Blog, redes sociais e "Fale conosco"
-// entram quando existirem
+// Redes sociais e "Fale conosco" entram quando existirem
 const plataforma = [
   { texto: "Explorar animais", para: "/animais" },
   { texto: "Como adotar", para: { pathname: "/", hash: "#como-funciona" } },
+  { texto: "Histórias de adoção", para: "/historias" },
   { texto: "Abrigos e protetores independentes", para: "/cadastro" },
   { texto: "Cadastrar um animal", para: "/meus-animais/novo" },
 ];

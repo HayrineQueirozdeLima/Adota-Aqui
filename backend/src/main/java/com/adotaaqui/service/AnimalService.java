@@ -21,6 +21,7 @@ import com.adotaaqui.model.enums.StatusInteresse;
 import com.adotaaqui.repository.AbrigoRepository;
 import com.adotaaqui.repository.AnimalRepository;
 import com.adotaaqui.repository.AnimalSpecifications;
+import com.adotaaqui.repository.DepoimentoRepository;
 import com.adotaaqui.repository.InteresseRepository;
 import com.adotaaqui.repository.UsuarioRepository;
 import jakarta.validation.Valid;
@@ -53,17 +54,20 @@ public class AnimalService {
     private final AbrigoRepository abrigos;
     private final InteresseRepository interesses;
     private final LimpezaDeFotos limpezaDeFotos;
+    private final DepoimentoRepository depoimentos;
 
     // A vitrine mostra os mais novos primeiro. O id desempata, pra ordem não mudar de uma página pra outra
     private static final Sort MAIS_NOVOS_PRIMEIRO = Sort.by(Sort.Order.desc("cadastradoEm"), Sort.Order.asc("id"));
 
     public AnimalService(AnimalRepository animais, UsuarioRepository usuarios, AbrigoRepository abrigos,
-                         InteresseRepository interesses, LimpezaDeFotos limpezaDeFotos) {
+                         InteresseRepository interesses, LimpezaDeFotos limpezaDeFotos,
+                         DepoimentoRepository depoimentos) {
         this.animais = animais;
         this.usuarios = usuarios;
         this.abrigos = abrigos;
         this.interesses = interesses;
         this.limpezaDeFotos = limpezaDeFotos;
+        this.depoimentos = depoimentos;
     }
 
     @Transactional
@@ -146,7 +150,9 @@ public class AnimalService {
         Conta conta = conta(autenticacao, true);
         Animal animal = animais.findByIdParaAtualizacao(id).orElseThrow(AnimalService::naoEncontrado);
         exigirDono(animal, conta);
-        List<String> fotos = List.copyOf(animal.getFotos());
+        // As fotos do animal e as dos depoimentos das adoções dele, que o banco apaga junto (on delete cascade)
+        List<String> fotos = new ArrayList<>(animal.getFotos());
+        fotos.addAll(depoimentos.fotosDoAnimal(id));
         // Remoção por entidade preserva os callbacks e a cascata dos dependentes.
         animais.delete(animal);
         animais.flush();

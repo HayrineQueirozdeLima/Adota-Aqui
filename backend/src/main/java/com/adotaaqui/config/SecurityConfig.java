@@ -58,6 +58,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/animais", "/api/animais/*", "/api/racas").permitAll()
                         // Números da Home: visitante também vê
                         .requestMatchers(HttpMethod.GET, "/api/estatisticas").permitAll()
+                        // Mural de histórias de adoção: visitante também lê
+                        .requestMatchers(HttpMethod.GET, "/api/depoimentos").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex

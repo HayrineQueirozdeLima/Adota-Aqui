@@ -3,10 +3,12 @@ import { useLocation } from "react-router-dom";
 import Apresentacao from "../../components/Apresentacao/Apresentacao";
 import ComoFunciona from "../../components/ComoFunciona/ComoFunciona";
 import Estatisticas from "../../components/Estatisticas/Estatisticas";
+import HistoriasRecentes from "../../components/HistoriasRecentes/HistoriasRecentes";
 import VitrineAnimais from "../../components/VitrineAnimais/VitrineAnimais";
 import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 
-// Home (Figma: Home): apresentação, os números do site, vitrine e como funciona a adoção. O rodapé vem do Layout
+// Home (Figma: Home): apresentação, os números do site, vitrine, histórias de quem adotou
+// e como funciona a adoção. O rodapé vem do Layout
 export default function Home() {
   const { hash, key } = useLocation();
   const [vitrinePronta, setVitrinePronta] = useState(false);
@@ -35,6 +37,7 @@ export default function Home() {
         </h2>
         <VitrineAnimais aoCarregar={marcarVitrinePronta} />
       </section>
+      <HistoriasRecentes />
       <ComoFunciona />
     </main>
   );

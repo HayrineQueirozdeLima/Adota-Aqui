@@ -355,3 +355,93 @@ describe("estados da página", () => {
     await waitFor(() => expect(localStorage.getItem(CHAVE)).toBeNull());
   });
 });
+
+// Depoimento (RF11): na adoção aprovada, a pessoa conta como foi e pode apagar depois
+describe("história da adoção", () => {
+  const amora = minhasCandidaturasExemplo[2];
+
+  test("adoção aprovada convida a contar como foi, com o prazo", async () => {
+    simularCandidaturas();
+    abrir();
+    await esperarLista();
+
+    expect(
+      cartao("Amora").getByRole("link", {
+        name: "Contar como foi a adoção de Amora",
+      }),
+    ).toHaveAttribute("href", "/meus-interesses/m3/depoimento");
+    expect(
+      cartao("Amora").getByText(/Dá pra contar até 28\/11\/2026/),
+    ).toBeInTheDocument();
+    // Nas outras não aparece
+    expect(
+      cartao("Mel").queryByRole("link", { name: /Contar como foi/ }),
+    ).toBeNull();
+  });
+
+  test("com a história contada, mostra o mural e deixa apagar", async () => {
+    let apagou = false;
+    simularApi({
+      outras: (metodo, caminho) => {
+        if (caminho === "/api/depoimentos/d1" && metodo === "DELETE") {
+          apagou = true;
+          return resposta(204, null);
+        }
+        if (caminho === "/api/interesses/meus") {
+          const depois = apagou
+            ? { ...amora, depoimentoId: null, podeContarAdocao: true }
+            : { ...amora, depoimentoId: "d1", podeContarAdocao: false };
+          return resposta(200, [depois]);
+        }
+        return undefined;
+      },
+    });
+    abrir();
+    await screen.findByRole("heading", { name: "Amora", level: 2 });
+
+    expect(
+      cartao("Amora").getByRole("link", { name: "mural de histórias" }),
+    ).toHaveAttribute("href", "/historias");
+    fireEvent.click(
+      cartao("Amora").getByRole("button", { name: "Apagar minha história" }),
+    );
+    expect(
+      screen.getByText("Apagar sua história com Amora?"),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Apagar história" }));
+
+    expect(
+      await screen.findByText("Sua história com Amora saiu do mural."),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole("link", {
+        name: "Contar como foi a adoção de Amora",
+      }),
+    ).toBeInTheDocument();
+    expect(apagou).toBe(true);
+  });
+
+  test("mostra o aviso de quando a história acabou de ser publicada", async () => {
+    simularCandidaturas();
+    render(
+      <MemoryRouter
+        initialEntries={[
+          {
+            pathname: "/meus-interesses",
+            state: { aviso: "Sua história com Amora foi publicada no mural." },
+          },
+        ]}
+      >
+        <AuthProvider>
+          <Routes>
+            <Route path="/meus-interesses" element={<MeusInteresses />} />
+          </Routes>
+        </AuthProvider>
+      </MemoryRouter>,
+    );
+
+    expect(
+      await screen.findByText("Sua história com Amora foi publicada no mural."),
+    ).toHaveAttribute("role", "status");
+  });
+});

@@ -1,6 +1,7 @@
 package com.adotaaqui.service;
 
 import com.adotaaqui.repository.AnimalRepository;
+import com.adotaaqui.repository.DepoimentoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -11,7 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-// Apaga do S3 as fotos que saíram de um animal (editado ou removido).
+// Apaga do S3 as fotos que saíram de um animal (editado ou removido) ou de um depoimento apagado.
 // Antes, o arquivo continuava no bucket pra sempre, ocupando espaço sem ninguém usar
 @Component
 public class LimpezaDeFotos {
@@ -21,19 +22,23 @@ public class LimpezaDeFotos {
     private final ArmazenamentoFotos armazenamento;
     private final FotoService fotos;
     private final AnimalRepository animais;
+    private final DepoimentoRepository depoimentos;
 
-    public LimpezaDeFotos(ArmazenamentoFotos armazenamento, FotoService fotos, AnimalRepository animais) {
+    public LimpezaDeFotos(ArmazenamentoFotos armazenamento, FotoService fotos, AnimalRepository animais,
+                          DepoimentoRepository depoimentos) {
         this.armazenamento = armazenamento;
         this.fotos = fotos;
         this.animais = animais;
+        this.depoimentos = depoimentos;
     }
 
     // Chamar dentro da transação, depois do flush, com as URLs que saíram.
-    // Só apaga a foto que nenhum outro animal usa e que foi guardada pela própria API.
+    // Só apaga a foto que nenhum animal nem depoimento usa e que foi guardada pela própria API.
     // O arquivo só sai depois do commit: se a transação falhar, a foto continua lá
     public void apagarDepoisDeSalvar(Collection<String> urls) {
         List<String> chaves = urls.stream().distinct()
-                .filter(url -> fotos.chaveDe(url).isPresent() && !animais.algumAnimalUsaFoto(url))
+                .filter(url -> fotos.chaveDe(url).isPresent()
+                        && !animais.algumAnimalUsaFoto(url) && !depoimentos.existsByFotoUrl(url))
                 .map(fotos::chaveDe)
                 .flatMap(Optional::stream)
                 .toList();

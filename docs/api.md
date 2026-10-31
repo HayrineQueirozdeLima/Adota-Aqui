@@ -24,7 +24,8 @@ Fontes: Especificação de Requisitos (RF01 a RF17), Casos de Uso (UC01 a UC10),
 8. [Animais](#8-animais)
 9. [Interesses](#9-interesses)
 10. [Números do site](#10-números-do-site)
-11. [Pontos em aberto](#11-pontos-em-aberto)
+11. [Histórias de adoção](#11-histórias-de-adoção)
+12. [Pontos em aberto](#12-pontos-em-aberto)
 
 ---
 
@@ -33,7 +34,7 @@ Fontes: Especificação de Requisitos (RF01 a RF17), Casos de Uso (UC01 a UC10),
 - **Mudou um endpoint no código? Atualize este arquivo no mesmo pull request.** Um contrato desatualizado é pior do que nenhum, porque o outro squad confia nele.
 - Nenhum squad muda um formato de entrada ou saída sozinho. Mudança de contrato é combinada entre Front End e Back End antes de ser implementada.
 - Cada endpoint indica a sua **origem** (RF/UC). Se um requisito mudar, procure aqui pelo código dele para achar os endpoints afetados.
-- Decisões ainda não fechadas ficam na seção [11. Pontos em aberto](#11-pontos-em-aberto) até o time decidir.
+- Decisões ainda não fechadas ficam na seção [12. Pontos em aberto](#12-pontos-em-aberto) até o time decidir.
 
 ---
 
@@ -174,10 +175,13 @@ Quando um valor não existe na lista de opções (um enum, como `porte` ou `espe
 | `GET`    | `/api/interesses/recebidos`    | Autenticado            | RF09, UC08                         | Sim    |
 | `PATCH`  | `/api/interesses/{id}/status`  | Protetor do animal     | RF10, UC08                         | Sim    |
 | `GET`    | `/api/estatisticas`            | Público                | ERS 6.7                            | Sim    |
+| `POST`   | `/api/interesses/{id}/depoimento` | Candidato do interesse | RF11, UC09                      | Sim    |
+| `GET`    | `/api/depoimentos`             | Público                | RF11                               | Sim    |
+| `DELETE` | `/api/depoimentos/{id}`        | Autor do depoimento    | RF11                               | Sim    |
 
 Endpoint novo entra nesta tabela como "Ainda não" assim que o formato é combinado. Assim o front já pode montar a tela com dados de exemplo enquanto o back faz a parte dele.
 
-O depoimento (RF11, UC09) é opcional e não faz parte deste contrato. Se entrar no escopo, os endpoints dele são acrescentados aqui.
+O depoimento (RF11, UC09) era opcional e entrou depois do MVP: os endpoints estão na seção [Histórias de adoção](#11-histórias-de-adoção).
 
 ---
 
@@ -226,7 +230,7 @@ Autentica um Usuario (CPF) ou um Abrigo (CNPJ) e devolve o token.
 | `401`  | Documento não cadastrado **ou** senha incorreta. A mensagem é a mesma nos dois casos: "Documento ou senha inválidos" | UC03 FA01, FA02 |
 | `500`  | Falha ao autenticar ou gerar o token                                                                                 | UC03 FA04       |
 
-> A mesma mensagem para "documento não cadastrado" e "senha incorreta" impede que alguém descubra quais CPFs e CNPJs têm conta testando um por um. Ver [Pontos em aberto](#11-pontos-em-aberto).
+> A mesma mensagem para "documento não cadastrado" e "senha incorreta" impede que alguém descubra quais CPFs e CNPJs têm conta testando um por um. Ver [Pontos em aberto](#12-pontos-em-aberto).
 
 ---
 
@@ -270,7 +274,7 @@ Cria a conta de uma pessoa física e já a autentica.
 | `endereco.cidade`                        | Obrigatório                                                                                                   |
 | `endereco.estado`                        | Obrigatório. UF com 2 letras maiúsculas                                                                       |
 
-O usuário digita só **CEP e número** (RF01). O front consulta o ViaCEP com o CEP digitado, preenche logradouro, bairro, cidade e estado, e envia o endereço completo. Ver [Pontos em aberto](#11-pontos-em-aberto).
+O usuário digita só **CEP e número** (RF01). O front consulta o ViaCEP com o CEP digitado, preenche logradouro, bairro, cidade e estado, e envia o endereço completo. Ver [Pontos em aberto](#12-pontos-em-aberto).
 
 **Saída (`201 Created`)**
 
@@ -845,7 +849,10 @@ Envia uma imagem para o armazenamento em nuvem e devolve a URL dela.
     "nome": "Abrigo Patas Unidas",
     "telefone": "6932221111",
     "email": "contato@patasunidas.org"
-  }
+  },
+  "depoimentoId": null,
+  "podeContarAdocao": false,
+  "prazoDepoimento": null
 }
 ```
 
@@ -853,6 +860,7 @@ Envia uma imagem para o armazenamento em nuvem e devolve a URL dela.
 - Nas respostas para o **candidato**, o interesse traz `contatoProtetor` (RF09).
 - Nas respostas para o **protetor**, o interesse traz `candidato` no lugar de `contatoProtetor`, com `nome`, `telefone` e `email` do Usuario interessado.
 - Assim, a partir do registro do interesse, cada lado tem o contato do outro, e qualquer um pode iniciar a conversa (UC07, passo 8).
+- `depoimentoId`, `podeContarAdocao` e `prazoDepoimento` dizem, pro candidato, se a história da adoção já foi contada, se ainda dá pra contar e até quando ([Histórias de adoção](#11-histórias-de-adoção)). Fora do `GET /api/interesses/meus`, vêm vazios.
 
 **Estados do interesse** (máquina de estados do Interesse)
 
@@ -937,7 +945,7 @@ A desistência apaga o interesse (`DELETE /api/interesses/{id}`), então ele som
 Desistência: o candidato exclui o próprio interesse.
 **Acesso:** Candidato do interesse. **Origem:** UC07 FA01
 
-Sem corpo. Ver [Pontos em aberto](#11-pontos-em-aberto) sobre o motivo da desistência.
+Sem corpo. Ver [Pontos em aberto](#12-pontos-em-aberto) sobre o motivo da desistência.
 
 **Saída (`204 No Content`)**
 
@@ -1044,7 +1052,93 @@ Os números do site que aparecem na página inicial.
 
 ---
 
-## 11. Pontos em aberto
+## 11. Histórias de adoção
+
+Quem adotou pelo site conta como foi, e a história vai pro mural público (RF11, UC09, ERS 6.3).
+
+### POST /api/interesses/{id}/depoimento
+
+Registra o depoimento de uma adoção. O `{id}` é o do interesse aprovado.
+**Acesso:** Somente o Usuario que demonstrou o interesse. **Origem:** RF11, UC09
+
+**Entrada**
+
+```json
+{
+  "texto": "A Mel chegou tímida e em uma semana já dormia no sofá.",
+  "fotoUrl": "https://adota-aqui.s3.amazonaws.com/animais/abc123.jpg",
+  "autorizaPublicacao": true
+}
+```
+
+| Campo                | Regra                                                                                                   |
+| -------------------- | ------------------------------------------------------------------------------------------------------- |
+| `texto`              | Obrigatório, de 10 a 1000 caracteres                                                                    |
+| `fotoUrl`            | Opcional (UC09 FA02). Tem que ser uma foto enviada pelo `POST /api/fotos`                               |
+| `autorizaPublicacao` | Tem que ser `true`: o mural é público e mostra o texto, a foto, o primeiro nome e o estado do adotante |
+
+**Regras**
+
+- Um depoimento por adoção.
+- Só vale pra adoção atual do animal: o interesse está `APROVADO`, o animal está `ADOTADO` e nenhum outro interesse dele foi aprovado depois. Depois de uma devolução e de uma nova adoção, a vez passa pra quem adotou por último.
+- Prazo de 30 dias a partir da aprovação (ERS 6.3). Interesse aprovado antes de existir a data da aprovação não tem prazo.
+
+**Saída (`201 Created`):** o depoimento no formato do mural (ver o `GET` abaixo).
+
+**Erros**
+
+| Código | Quando                                                                       | Origem    |
+| ------ | ---------------------------------------------------------------------------- | --------- |
+| `400`  | Texto vazio, curto ou longo demais, sem autorização, ou foto de outro site    | UC09 FA01 |
+| `401`  | Sem token ou token inválido                                                  | -         |
+| `403`  | Conta de abrigo, ou o interesse é de outra pessoa                            | UC09      |
+| `404`  | O interesse não existe                                                       | -         |
+| `409`  | A adoção não está aprovada (ou não é a atual), o prazo acabou ou já tem depoimento | UC09, RF11 |
+
+### GET /api/depoimentos
+
+O mural de histórias de adoção, das mais novas pras mais antigas, em páginas (`pagina` e `tamanho`, como no `GET /api/animais`).
+**Acesso:** Público. **Origem:** RF11, ERS 6.3
+
+**Saída (`200 OK`)**
+
+```json
+{
+  "itens": [
+    {
+      "id": "d1a2b3c4-0000-4000-8000-000000000001",
+      "texto": "A Mel chegou tímida e em uma semana já dormia no sofá.",
+      "fotoUrl": null,
+      "dataHora": "2026-10-28T19:30:00",
+      "autor": "Ana",
+      "estado": "RO",
+      "animal": { "nome": "Mel", "especie": "CAO", "fotoCapa": null },
+      "protetor": "Instituto Quatro Patas"
+    }
+  ],
+  "pagina": 0,
+  "tamanho": 12,
+  "totalItens": 1,
+  "totalPaginas": 1
+}
+```
+
+Do adotante só saem o **primeiro nome** e o **estado**. O sobrenome, o e-mail e o telefone não aparecem. Sem `fotoUrl`, o front mostra a `fotoCapa` do animal.
+
+**Erros:** `400` `pagina` ou `tamanho` fora dos limites; `401` token enviado, porém inválido ou expirado.
+
+### DELETE /api/depoimentos/{id}
+
+Tira a história do mural. A foto sai também do armazenamento (S3).
+**Acesso:** Somente quem escreveu. **Origem:** RF11
+
+**Saída (`204 No Content`).** Ainda no prazo, a pessoa pode contar de novo.
+
+**Erros:** `401` sem token; `403` conta de abrigo ou depoimento de outra pessoa; `404` o depoimento não existe.
+
+---
+
+## 12. Pontos em aberto
 
 Decisões que o contrato precisou assumir antes da implementação. As que a implementação já resolveu estão na primeira tabela; ao decidir uma das que faltam, atualize o endpoint correspondente e mova o item.
 

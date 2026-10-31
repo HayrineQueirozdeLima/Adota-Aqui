@@ -1,6 +1,7 @@
 package com.adotaaqui.dto;
 
 import com.adotaaqui.model.enums.StatusInteresse;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -13,7 +14,11 @@ public record InteresseResponse(
         String motivoDescontinuacao,
         AnimalResumoResponse animal,
         TriagemDto triagem,
-        ContatoResponse contatoProtetor) {
+        ContatoResponse contatoProtetor,
+        // Depoimento (RF11): o que já foi escrito, se ainda dá pra escrever e até quando
+        UUID depoimentoId,
+        boolean podeContarAdocao,
+        LocalDate prazoDepoimento) {
 }
 
 

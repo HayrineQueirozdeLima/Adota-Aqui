@@ -88,6 +88,7 @@ erDiagram
     ANIMAL ||--o{ INTERESSE : "recebe"
     ANIMAL ||--o{ VACINA : "possui"
     ANIMAL ||--o{ ANIMAL_FOTO : "possui"
+    INTERESSE ||--o| DEPOIMENTO : "gera (seção 7)"
 
     USUARIO {
         uuid id PK
@@ -138,6 +139,7 @@ erDiagram
         boolean is_castrado
         text historia
         varchar(20) status_adocao "enum"
+        timestamp cadastrado_em "ordem da vitrine"
     }
 
     ANIMAL_FOTO {
@@ -161,6 +163,7 @@ erDiagram
         timestamp data_hora
         varchar(20) status_andamento "enum"
         varchar(255) motivo_descontinuacao
+        timestamp aprovado_em "prazo do depoimento"
         varchar(60) moradia "enum"
         varchar(60) criancas "enum"
         varchar(60) tempo_sozinho "enum"
@@ -295,13 +298,15 @@ Níveis de acesso: **Pública** (Visitante), **Autenticada** (Usuario ou Abrigo)
 | `/interesses-recebidos`    | Painel dos interesses nos meus animais: contatos, status, aprovar/descontinuar                                                                                                                                      | Autenticada (Protetor)             | UC08, RF09, RF10          |
 | `/perfil`                  | Meu perfil: editar os dados e o endereço, trocar a senha e sair da conta. CPF e CNPJ não mudam                                                                                                                      | Autenticada                        | UC10, RF17                |
 | `/meus-interesses`         | Minhas candidaturas: interesses que eu demonstrei, com status, contato do protetor e o motivo da descontinuação. Dá pra desistir dos que estão em andamento                                                         | Somente Usuario                    | UC07, RF09                |
+| `/meus-interesses/:id/depoimento` | Contar como foi a adoção: texto, foto opcional e autorização pra publicar no mural | Somente Usuario | UC09, RF11 |
+| `/historias`               | Mural de histórias de adoção | Pública | RF11 |
 | `*`                        | Página não encontrada                                                                                                                                                                                               | Pública                            | -                         |
 
-No React, isso vira três tipos de rota: as públicas soltas, a `RotaProtegida` sem restrição de perfil (`/meus-animais/*`, `/interesses-recebidos` e `/perfil`) e a `RotaProtegida apenasUsuario` (`/animais/:id/interesse` e `/meus-interesses`). A `/minhas-adocoes`, do depoimento opcional (seção 7), não foi criada.
+No React, isso vira três tipos de rota: as públicas soltas, a `RotaProtegida` sem restrição de perfil (`/meus-animais/*`, `/interesses-recebidos` e `/perfil`) e a `RotaProtegida apenasUsuario` (`/animais/:id/interesse` e `/meus-interesses`). O depoimento (seção 7) ficou na `/meus-interesses/:id/depoimento`, também só de pessoa física, e o mural `/historias` é público.
 
-## 7. Extensão opcional: Depoimento (UC09, RF11)
+## 7. Depoimento (UC09, RF11)
 
-Fora do DER principal, porque só entra se sobrar tempo. **Não foi implementada.** Se entrar, é uma tabela nova ligada ao `interesse` (que já liga Usuario e Animal), sem mexer nas tabelas existentes.
+Era uma extensão opcional e entrou depois do MVP, do jeito que estava planejado aqui: uma tabela nova ligada ao `interesse` (que já liga Usuario e Animal). A única mudança nas tabelas existentes foi a coluna `aprovado_em` no `interesse`, que conta o prazo de 30 dias pra contar como foi (ERS 6.3).
 
 ```mermaid
 erDiagram
@@ -314,10 +319,10 @@ erDiagram
     DEPOIMENTO {
         uuid id PK
         uuid interesse_id FK, UK "1 por adocao"
-        text texto
+        varchar(1000) texto
         varchar(500) foto_url "opcional, S3"
         timestamp data_hora
     }
 ```
 
-Regras: só quem tem o interesse APROVADO pode registrar (Service confere `interesse.status = APROVADO` e `interesse.usuario` = usuário logado); o texto é obrigatório e a foto é opcional; e a remoção do animal continua em cascata (apagar o animal apaga os interesses, e apagar um interesse apaga o depoimento). Se entrar, a tela dessa extensão seria a rota `/minhas-adocoes`.
+Regras: só quem tem o interesse APROVADO pode registrar, e só na adoção atual do animal (o service confere o status, o dono do interesse, o animal Adotado e o prazo); o texto é obrigatório e a foto é opcional; e a remoção do animal continua em cascata (apagar o animal apaga os interesses, e o banco apaga o depoimento junto, com `on delete cascade`). As telas são a `/meus-interesses/:id/depoimento` e o mural `/historias` (ver [funcionalidades](../funcionalidades.md#12-histórias-de-adoção-depoimentos)).

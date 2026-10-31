@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import Botao from "../../components/Botao/Botao";
 import Candidatura from "../../components/Candidatura/Candidatura";
 import Carregando from "../../components/Carregando/Carregando";
@@ -27,11 +28,13 @@ const ordemDoStatus = {
 // Cada candidatura traz o contato do protetor: qualquer um dos dois pode iniciar a conversa
 export default function MeusInteresses() {
   const { token, sair } = useAuth();
+  // Aviso que a tela de contar a história manda ao voltar pra cá
+  const { state } = useLocation();
   const [candidaturas, setCandidaturas] = useState([]);
   // "carregando" | "pronto" | "erro"
   const [situacao, setSituacao] = useState("carregando");
   const [statusEscolhido, setStatusEscolhido] = useState("");
-  const [aviso, setAviso] = useState("");
+  const [aviso, setAviso] = useState(state?.aviso ?? "");
   // muda pra buscar a lista de novo depois de um erro
   const [versao, setVersao] = useState(0);
   const refAviso = useRef(null);
@@ -70,6 +73,20 @@ export default function MeusInteresses() {
     setAviso(
       `Você desistiu da adoção de ${desistida.animal.nome}. O protetor não vê mais o seu interesse.`,
     );
+  }
+
+  // A história saiu do mural: busca a lista de novo, que agora diz se ainda dá pra contar outra
+  function aposApagarHistoria(candidatura) {
+    setAviso(`Sua história com ${candidatura.animal.nome} saiu do mural.`);
+    listarMeusInteresses(token)
+      .then(setCandidaturas)
+      .catch(() =>
+        setCandidaturas((atuais) =>
+          atuais.map((item) =>
+            item.id === candidatura.id ? { ...item, depoimentoId: null } : item,
+          ),
+        ),
+      );
   }
 
   function tentarDeNovo() {
@@ -180,6 +197,7 @@ export default function MeusInteresses() {
                   key={candidatura.id}
                   candidatura={candidatura}
                   aoDesistir={aposDesistir}
+                  aoApagarHistoria={aposApagarHistoria}
                 />
               ))}
             </ul>
