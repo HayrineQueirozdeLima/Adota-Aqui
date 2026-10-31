@@ -14,6 +14,8 @@
 --
 -- Os nomes que o Hibernate e o PostgreSQL inventam (das chaves estrangeiras, dos unique e dos índices)
 -- ficam de fora da comparação: o que importa é o que a regra garante, não o nome dela.
+-- O NOT NULL também fica de fora das regras: o PostgreSQL 18 (o do Neon) guarda cada NOT NULL como
+-- uma regra, e as versões antes dele não. Ele já aparece na parte das colunas.
 
 with colunas as (
     select 'colunas' as parte,
@@ -38,6 +40,7 @@ regras as (
     join pg_class t on t.oid = r.conrelid
     join pg_namespace n on n.oid = t.relnamespace
     where n.nspname = 'public'
+      and r.contype <> 'n'
 ),
 indices as (
     select 'indices' as parte,
