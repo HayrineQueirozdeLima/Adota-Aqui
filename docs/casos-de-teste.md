@@ -3,7 +3,7 @@
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
 - **Versão:** 1.6 (outubro de 2026)
-- **Total:** 73 casos, 70 já automatizados e 3 manuais
+- **Total:** 78 casos, 75 já automatizados e 3 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
 
@@ -140,7 +140,17 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | CT-HIS-04 | Ver o mural                          | Funcional        | O mural abre pra qualquer pessoa, com o primeiro nome e o estado de quem contou (sem sobrenome, e-mail ou telefone), e traz mais histórias de 12 em 12 | `Historias.test.jsx`, `Home.test.jsx`, `DepoimentoIntegrationTest.java` |
 | CT-HIS-05 | Apagar a história                    | Funcional        | Pede confirmação, a história sai do mural junto com a foto do S3, e o convite pra contar volta enquanto estiver no prazo                            | `MeusInteresses.test.jsx`, `DepoimentoIntegrationTest.java`            |
 
-### Módulo 11: Desempenho, acessibilidade e segurança
+### Módulo 11: Blog de dicas
+
+| ID        | Cenário                      | Tipo             | Resultado esperado                                                                                                                                         | Onde está o teste                                                          |
+| --------- | ---------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| CT-DIC-01 | Ler as dicas                 | Funcional        | O blog abre pra qualquer pessoa, filtra por assunto e traz mais dicas de 12 em 12. O título abre a dica inteira, com o texto em parágrafos                  | `Dicas.test.jsx`, `Dica.test.jsx`, `DicaIntegrationTest.java`              |
+| CT-DIC-02 | Escrever uma dica            | Funcional        | O protetor publica com título, assunto, capa opcional e texto, e cai na dica com o aviso "Sua dica foi publicada."                                         | `FormularioDica.test.jsx`, `DicaIntegrationTest.java`                      |
+| CT-DIC-03 | Enviar uma dica incompleta   | Validação        | Não envia, marca o que falta e leva o foco pro primeiro problema. A API recusa título, texto ou assunto fora da regra e capa que não veio do próprio site | `FormularioDica.test.jsx`, `DicaIntegrationTest.java`                      |
+| CT-DIC-04 | Quem pode escrever           | Regra de negócio | Só abrigo, ou pessoa que já cadastrou animal. As outras pessoas veem o convite pra cadastrar um animal, e a API responde 403                                | `FormularioDica.test.jsx`, `Dicas.test.jsx`, `DicaIntegrationTest.java`    |
+| CT-DIC-05 | Editar e apagar              | Funcional        | Só quem escreveu vê os botões e consegue pela API (as outras contas recebem 403). Apagar pede confirmação, e a capa trocada ou apagada sai do S3            | `Dica.test.jsx`, `FormularioDica.test.jsx`, `DicaIntegrationTest.java`     |
+
+### Módulo 12: Desempenho, acessibilidade e segurança
 
 | ID        | Cenário                            | Tipo           | Resultado esperado                                                                                                                                                                                                           | Automatizado em                                                                             |
 | --------- | ---------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
@@ -166,8 +176,9 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | 8. Minhas candidaturas                     | 5      | 5             | 0       |
 | 9. Meu perfil                              | 6      | 6             | 0       |
 | 10. Histórias de adoção                    | 5      | 5             | 0       |
-| 11. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
-| **Total**                                  | **73** | **70**        | **3**   |
+| 11. Blog de dicas                          | 5      | 5             | 0       |
+| 12. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
+| **Total**                                  | **78** | **75**        | **3**   |
 
 A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta tabela: ela é medida pelo JaCoCo e pelo Jest a cada push, como explica o [plano de testes](plano-de-testes.md). Esta tabela mostra outra coisa: quantos comportamentos importantes já têm teste automático e quantos ainda dependem de alguém testar à mão.
 

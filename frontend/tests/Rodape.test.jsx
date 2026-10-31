@@ -17,6 +17,7 @@ test("os links da plataforma levam pras telas do site", () => {
     "Explorar animais": "/animais",
     "Como adotar": "/#como-funciona",
     "Histórias de adoção": "/historias",
+    "Dicas pra adotar e cuidar": "/dicas",
     "Abrigos e protetores independentes": "/cadastro",
     "Cadastrar um animal": "/meus-animais/novo",
   };

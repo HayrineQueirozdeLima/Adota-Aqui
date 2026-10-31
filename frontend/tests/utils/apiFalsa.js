@@ -1,5 +1,6 @@
 import { animaisExemplo, perfilExemplo } from "../../src/mocks/animais";
 import { depoimentosExemplo } from "../../src/mocks/depoimentos";
+import { dicaExemplo, dicasExemplo } from "../../src/mocks/dicas";
 import { estatisticasExemplo } from "../../src/mocks/estatisticas";
 import { interesseExemplo } from "../../src/mocks/interesses";
 import { perfilAbrigoExemplo, perfilUsuarioExemplo } from "../../src/mocks/perfil";
@@ -37,6 +38,8 @@ export function paginaDe(itens, { pagina = 0, tamanho = 12, totalItens = itens.l
 // GET /api/usuarios/me e /api/abrigos/me devolvem os perfis de exemplo (src/mocks/perfil.js)
 // GET /api/estatisticas devolve os números de exemplo (src/mocks/estatisticas.js)
 // GET /api/depoimentos devolve uma página com as histórias de exemplo (src/mocks/depoimentos.js)
+// GET /api/dicas devolve uma página com as dicas de exemplo, /api/dicas/minhas diz que a conta não
+// pode publicar e /api/dicas/{id} devolve a dica de exemplo (src/mocks/dicas.js)
 export function simularApi({
     responderAnimais,
     responderAnimal,
@@ -68,6 +71,17 @@ export function simularApi({
         }
         if (endereco.pathname === "/api/abrigos/me" && metodo === "GET") {
             return Promise.resolve(resposta(200, perfilAbrigoExemplo));
+        }
+
+        if (endereco.pathname === "/api/dicas" && metodo === "GET") {
+            return Promise.resolve(resposta(200, paginaDe(dicasExemplo)));
+        }
+        if (endereco.pathname === "/api/dicas/minhas") {
+            return Promise.resolve(resposta(200, { podePublicar: false, dicas: [] }));
+        }
+        const dica = endereco.pathname.match(/^\/api\/dicas\/([^/]+)$/);
+        if (dica && metodo === "GET") {
+            return Promise.resolve(resposta(200, { ...dicaExemplo, id: decodeURIComponent(dica[1]) }));
         }
 
         if (endereco.pathname === "/api/depoimentos" && metodo === "GET") {
