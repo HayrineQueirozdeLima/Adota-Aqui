@@ -24,6 +24,10 @@ public interface AnimalRepository extends JpaRepository<Animal, UUID>, JpaSpecif
 
     List<Animal> findByAbrigoId(UUID abrigoId);
 
+    // Algum animal ainda usa essa foto? Antes de apagar o arquivo do armazenamento
+    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Animal a JOIN a.fotos f WHERE f = :url")
+    boolean algumAnimalUsaFoto(@Param("url") String url);
+
     // Listagem pra Visitante e Abrigo: animais de todos os estados (RF07)
     List<Animal> findByStatusAdocao(StatusAdocao status);
 

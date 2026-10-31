@@ -5,6 +5,7 @@ import com.adotaaqui.dto.AnimalListagemResponse;
 import com.adotaaqui.dto.AnimalRequest;
 import com.adotaaqui.dto.AnimalResponse;
 import com.adotaaqui.dto.AtualizarAnimalRequest;
+import com.adotaaqui.dto.PaginaResponse;
 import com.adotaaqui.dto.RacaResponse;
 import com.adotaaqui.model.enums.Especie;
 import com.adotaaqui.model.enums.Raca;
@@ -43,7 +44,8 @@ public class AnimalController {
     }
 
     @GetMapping("/animais")
-    public List<AnimalListagemResponse> listar(@Valid @ModelAttribute AnimalFiltroRequest filtro, Authentication conta) {
+    public PaginaResponse<AnimalListagemResponse> listar(@Valid @ModelAttribute AnimalFiltroRequest filtro,
+                                                         Authentication conta) {
         return service.listar(filtro, conta);
     }
 

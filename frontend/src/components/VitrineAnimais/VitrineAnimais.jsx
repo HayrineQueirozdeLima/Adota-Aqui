@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Botao from "../Botao/Botao";
 import CardAnimal from "../CardAnimal/CardAnimal";
@@ -22,6 +22,16 @@ export default function VitrineAnimais({ aoCarregar, nivelDoTitulo }) {
   const [animais, setAnimais] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(false);
+  // Paginação: a API manda 12 por vez, e o "Ver mais animais" busca a próxima página
+  const [total, setTotal] = useState(0);
+  const [pagina, setPagina] = useState(0);
+  const [carregandoMais, setCarregandoMais] = useState(false);
+  const [erroMais, setErroMais] = useState(false);
+  const [focarNoCard, setFocarNoCard] = useState(null);
+  const grade = useRef(null);
+  // Cada busca nova ganha um número. A resposta de um "Ver mais" que chegar depois
+  // de a pessoa trocar o filtro é de outra busca, e fica de fora
+  const buscaAtual = useRef(0);
 
   // Só o Usuario vê os animais do próprio estado (RF14). Visitante e Abrigo veem todos
   const filtraPeloEstado = usuario?.tipoConta === "USUARIO";
@@ -32,11 +42,15 @@ export default function VitrineAnimais({ aoCarregar, nivelDoTitulo }) {
   // Busca de novo quando os filtros mudam ou quando alguém entra ou sai da conta
   useEffect(() => {
     let cancelado = false;
+    buscaAtual.current += 1;
 
     listarAnimais(filtrosDaBusca, token)
-      .then((lista) => {
+      .then((resultado) => {
         if (cancelado) return;
-        setAnimais(lista);
+        setAnimais(resultado.itens);
+        setTotal(resultado.totalItens);
+        setPagina(0);
+        setErroMais(false);
         setCarregando(false);
       })
       .catch((erroDaApi) => {
@@ -61,6 +75,42 @@ export default function VitrineAnimais({ aoCarregar, nivelDoTitulo }) {
     if (!carregando) aoCarregar?.();
   }, [carregando, aoCarregar]);
 
+  // Depois do "Ver mais", o foco vai pro primeiro animal novo. Sem isso, quem usa teclado
+  // ficava sem foco quando o botão some na última página
+  useEffect(() => {
+    if (focarNoCard === null) return;
+    grade.current?.children[focarNoCard]?.querySelector("a, button")?.focus();
+    setFocarNoCard(null);
+  }, [focarNoCard]);
+
+  function verMais() {
+    const busca = buscaAtual.current;
+    const proxima = pagina + 1;
+    setCarregandoMais(true);
+    setErroMais(false);
+    listarAnimais(filtrosDaBusca, token, proxima)
+      .then((resultado) => {
+        if (busca !== buscaAtual.current) return;
+        // Se alguém cadastrou um animal enquanto a pessoa olhava, a lista anda uma casa
+        // e um animal da página anterior pode vir de novo: ele não entra duas vezes
+        const vistos = new Set(animais.map((animal) => animal.id));
+        const novos = resultado.itens.filter((animal) => !vistos.has(animal.id));
+        setAnimais([...animais, ...novos]);
+        setTotal(resultado.totalItens);
+        setPagina(proxima);
+        if (novos.length > 0) setFocarNoCard(animais.length);
+      })
+      .catch((erroDaApi) => {
+        if (busca !== buscaAtual.current) return;
+        if (erroDaApi.status === 401 && token) {
+          sair();
+          return;
+        }
+        setErroMais(true);
+      })
+      .finally(() => setCarregandoMais(false));
+  }
+
   function mudarFiltros(novos) {
     setCarregando(true);
     setErro(false);
@@ -72,9 +122,9 @@ export default function VitrineAnimais({ aoCarregar, nivelDoTitulo }) {
   // Pro leitor de tela: depois de cada busca, avisa quantos animais vieram
   let quantos = "";
   if (!carregando && !erro) {
-    if (animais.length === 0) quantos = "Nenhum animal encontrado";
-    else if (animais.length === 1) quantos = "1 animal encontrado";
-    else quantos = `${animais.length} animais encontrados`;
+    if (total === 0) quantos = "Nenhum animal encontrado";
+    else if (total === 1) quantos = "1 animal encontrado";
+    else quantos = `${total} animais encontrados`;
   }
 
   // UC06: FA02 quando tem filtro; FA01 ("no seu estado") quando é Usuario sem filtro
@@ -161,15 +211,40 @@ export default function VitrineAnimais({ aoCarregar, nivelDoTitulo }) {
     }
 
     return (
-      <div className="grid gap-[22px] md:grid-cols-2 lg:grid-cols-3">
-        {animais.map((animal) => (
-          <CardAnimal
-            key={animal.id}
-            animal={animal}
-            nivelDoTitulo={nivelDoTitulo}
-          />
-        ))}
-      </div>
+      <>
+        <div
+          ref={grade}
+          className="grid gap-[22px] md:grid-cols-2 lg:grid-cols-3"
+        >
+          {animais.map((animal) => (
+            <CardAnimal
+              key={animal.id}
+              animal={animal}
+              nivelDoTitulo={nivelDoTitulo}
+            />
+          ))}
+        </div>
+
+        {animais.length < total && (
+          <div className="flex flex-col items-center gap-3 pt-2">
+            <p className="text-compacto text-texto-secundario">
+              Mostrando {animais.length} de {total} animais
+            </p>
+            {erroMais && (
+              <p role="alert" className="text-center text-compacto text-status-erro-texto">
+                Não foi possível carregar mais animais. Tente de novo.
+              </p>
+            )}
+            <Botao
+              variante="secundario"
+              onClick={verMais}
+              disabled={carregandoMais}
+            >
+              {carregandoMais ? "Carregando..." : "Ver mais animais"}
+            </Botao>
+          </div>
+        )}
+      </>
     );
   }
 

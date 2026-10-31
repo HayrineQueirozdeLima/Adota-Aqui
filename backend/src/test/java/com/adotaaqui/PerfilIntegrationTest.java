@@ -247,18 +247,18 @@ class PerfilIntegrationTest {
         String protetora = pessoa(CPF, "maria@example.com", "RO");
         String vizinho = pessoa(OUTRO_CPF, "joao@example.com", "RO");
         String animal = cadastrarAnimal(protetora);
-        vitrine(vizinho).andExpect(jsonPath("$[*].id", hasItem(animal)));
+        vitrine(vizinho).andExpect(jsonPath("$.itens[*].id", hasItem(animal)));
 
         mvc.perform(enviar(put("/api/usuarios/me"), protetora, edicaoDePessoa("maria@example.com", "SP")))
                 .andExpect(status().isOk());
-        vitrine(vizinho).andExpect(jsonPath("$[*].id", not(hasItem(animal))));
+        vitrine(vizinho).andExpect(jsonPath("$.itens[*].id", not(hasItem(animal))));
         mvc.perform(comToken(get("/api/animais/" + animal), vizinho))
                 .andExpect(jsonPath("$.protetor.estado").value("SP"))
                 .andExpect(jsonPath("$.podeDemonstrarInteresse").value(false));
 
         mvc.perform(enviar(put("/api/usuarios/me"), vizinho, edicaoDePessoa("joao@example.com", "SP")))
                 .andExpect(status().isOk());
-        vitrine(vizinho).andExpect(jsonPath("$[*].id", hasItem(animal)));
+        vitrine(vizinho).andExpect(jsonPath("$.itens[*].id", hasItem(animal)));
     }
 
     // ---------- trocar a senha ----------

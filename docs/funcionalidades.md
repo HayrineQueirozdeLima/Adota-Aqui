@@ -163,8 +163,9 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 2. Busca por nome e filtros: cidade, espécie, sexo, porte, raça (liberada depois de escolher a espécie), nível de energia e convivência ("Bom com crianças", "Bom com cães", "Bom com gatos").
 3. A cada mudança, o front espera 300 ms sem mudança nova (assim não busca a cada letra digitada na cidade) e chama `GET /api/animais` com os filtros no endereço.
 4. Cada cartão mostra nome, descrição (espécie, raça, porte e peso), tags de convivência, o protetor com cidade e estado, e o botão "Quero conhecer".
-5. Sem resultado com os filtros: "Nenhum resultado encontrado com essas informações.", com uma foto, a dica "Tente tirar algum filtro ou buscar por outro nome." e o botão "Ver todos os animais" (UC06 FA02). Sem nenhum animal no estado da pessoa: "Nenhum animal disponível no seu estado no momento." (UC06 FA01).
-6. Se a API não responder: "Não foi possível carregar os animais.", com o botão "Tentar de novo", que busca outra vez sem perder os filtros.
+5. Os animais vêm de 12 em 12, dos cadastrados mais recentes pros mais antigos. Embaixo da grade aparece "Mostrando 12 de 37 animais" e o botão "Ver mais animais", que traz a próxima página embaixo das que já estavam na tela e leva o foco pro primeiro animal novo. Na última página o botão some. Se a próxima página falhar, os animais que já estavam continuam, e aparece "Não foi possível carregar mais animais. Tente de novo.". Mudar um filtro volta pra primeira página.
+6. Sem resultado com os filtros: "Nenhum resultado encontrado com essas informações.", com uma foto, a dica "Tente tirar algum filtro ou buscar por outro nome." e o botão "Ver todos os animais" (UC06 FA02). Sem nenhum animal no estado da pessoa: "Nenhum animal disponível no seu estado no momento." (UC06 FA01).
+7. Se a API não responder: "Não foi possível carregar os animais.", com o botão "Tentar de novo", que busca outra vez sem perder os filtros.
 
 **Busca por nome.** O campo "Nome do animal ou do protetor" procura no nome do animal e no nome de quem cadastrou, pessoa ou abrigo: "mel" acha a Mel, e "quatro patas" acha os animais do Instituto Quatro Patas. Soma com os outros filtros e aceita até 80 caracteres.
 
@@ -173,9 +174,11 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 **Onde está no código.**
 
 - Front: `pages/Home`, `components/Apresentacao`, `components/ComoFunciona`, `components/VitrineAnimais`, `components/FiltrosAnimais`, `components/CardAnimal` e `services/animais.js`
-- Back: `AnimalController`, `AnimalService`, `AnimalFiltroRequest` e `AnimalSpecifications`
+- Back: `AnimalController`, `AnimalService`, `AnimalFiltroRequest`, `AnimalSpecifications` e `PaginaResponse`
 
-**Testes.** `AnimalIntegrationTest` (estado, status, filtros combinados, cidade e busca por nome sem acento), `ErroApiIntegrationTest` (filtro com valor inválido), `VitrineAnimais.test.jsx`, `CardAnimal.test.jsx` e `Home.test.jsx`.
+**Como fica no banco.** A coluna `cadastrado_em` da tabela `animal` guarda quando o animal foi cadastrado, e é por ela que a vitrine ordena. Nos animais que já existiam quando a coluna foi criada, o banco preencheu com a data daquele deploy.
+
+**Testes.** `AnimalIntegrationTest` (estado, status, filtros combinados, cidade, busca por nome sem acento, páginas, ordem e limites da paginação), `ErroApiIntegrationTest` (filtro com valor inválido), `VitrineAnimais.test.jsx` (inclusive o "Ver mais animais"), `CardAnimal.test.jsx` e `Home.test.jsx`.
 
 ---
 
@@ -237,7 +240,7 @@ O quadro do lado:
 - Animal disponível: dá pra mudar todos os dados. O status não muda por aqui: o animal só vira Adotado quando o protetor aprova um interesse.
 - Animal adotado: os dados ficam travados e só o status muda (RF06). Escolher "Disponível (devolução)" destrava os campos, pede confirmação ("Tornar {nome} disponível de novo?") e devolve o animal pra vitrine, já com os dados que a pessoa mudou nessa mesma tela. Continuando Adotado, qualquer dado alterado é recusado (`409`). O interesse aprovado continua no histórico.
 
-**Remover (delete).** "Remover {nome}" pede confirmação ("Remover {nome} de vez?") e chama `DELETE /api/animais/{id}`. Saem junto as vacinas, os endereços das fotos e os interesses do animal.
+**Remover (delete).** "Remover {nome}" pede confirmação ("Remover {nome} de vez?") e chama `DELETE /api/animais/{id}`. Saem junto as vacinas, as fotos e os interesses do animal. As fotos saem do banco e também do S3 (ver a regra abaixo).
 
 Depois de cada ação, Meus animais mostra um aviso: "{nome} foi publicado e já aparece na vitrine.", "As alterações em {nome} foram salvas." ou "{nome} foi removido.".
 
@@ -429,10 +432,11 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ## 12. O que ainda não está pronto
 
-| O quê                        | Situação                                                                             |
-| ---------------------------- | ------------------------------------------------------------------------------------ |
-| Apagar a imagem do S3        | Remover uma foto ou um animal tira o endereço do banco, mas o arquivo continua no S3 |
-| Paginação e ordem na vitrine | A vitrine traz todos os animais de uma vez, sem uma ordem definida                   |
+| O quê                                   | Situação                                                                                                                                       |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Foto de um cadastro que não foi salvo   | Quem envia fotos e desiste do formulário sem salvar deixa os arquivos no S3. Limpar essas fotos pediria uma tarefa agendada que procura arquivo sem animal |
+
+O que ficou de fora do escopo, e por quê, está em [aspectos relevantes](aspectos-relevantes.md#o-que-ficou-de-fora).
 
 ---
 

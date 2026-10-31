@@ -121,6 +121,8 @@ Quem guarda as fotos é a interface `ArmazenamentoFotos`, com duas versões esco
 
 O `FotoService` não confia no nome do arquivo: ele descobre o tipo pelos primeiros bytes e só aceita JPG, PNG e WEBP, de até 5 MB.
 
+Quando uma foto sai de um animal (na edição ou na remoção), a `LimpezaDeFotos` apaga o arquivo do S3. Ela só apaga depois que a transação termina bem, só a foto que a própria API guardou (a chave `animais/` mais um UUID) e só se nenhum outro animal usa a mesma URL. Se o S3 recusar, o animal fica salvo do mesmo jeito e o problema vai pro log.
+
 ## Autenticação
 
 A API não guarda sessão (`STATELESS`): cada requisição carrega o próprio token, e o back confere o token toda vez.
@@ -231,7 +233,8 @@ O cadastro (`POST /api/usuarios` ou `/api/abrigos`) segue o mesmo caminho e já 
 
 1. A pessoa escolhe os filtros ou digita o nome do animal ou do protetor. O front espera ela parar de mexer (300 ms) e chama `GET /api/animais` com os filtros no endereço, por exemplo `?especie=CAO&busca=mel`.
 2. O `AnimalService` monta a consulta com o `AnimalSpecifications`: só animais Disponíveis, mais os filtros escolhidos. Se quem está logado é um Usuario, entram só os animais do mesmo estado dele (RF14). Visitante e Abrigo veem todos os estados.
-3. A API devolve a lista, e o navegador carrega as fotos direto do S3, sem passar pela API.
+3. A API devolve uma página com até 12 animais, dos mais novos pros mais antigos, e o total encontrado. O navegador carrega as fotos direto do S3, sem passar pela API.
+4. O botão "Ver mais animais" chama a mesma busca com `pagina=1`, `pagina=2`..., e os animais novos entram embaixo dos que já estavam na tela.
 
 ### 3. Cadastro de animal com fotos
 

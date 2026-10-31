@@ -19,6 +19,11 @@ public class ArmazenamentoEmMemoria implements ArmazenamentoFotos {
         arquivos.put(chave, conteudo);
     }
 
+    @Override
+    public void apagar(String chave) {
+        arquivos.remove(chave);
+    }
+
     // Pros testes conferirem que o arquivo foi guardado
     public boolean contem(String chave) {
         return arquivos.containsKey(chave);

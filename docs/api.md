@@ -572,7 +572,8 @@ Lista os animais disponíveis para adoção, com filtros.
 - Só aparecem animais com status `DISPONIVEL`.
 - **Usuario logado:** vê só os animais do **mesmo estado** que o seu (RF14). Esse filtro é automático e não pode ser removido.
 - **Visitante e Abrigo:** veem animais de **todos os estados** (RF07, RF14).
-- Sem paginação no MVP.
+- **Ordem:** do cadastrado mais recente pro mais antigo.
+- **Paginação:** a resposta vem em páginas. Sem parâmetro nenhum, vem a primeira página, com até 12 animais.
 
 **Filtros** (todos opcionais, combináveis, passados na URL)
 
@@ -588,45 +589,55 @@ Lista os animais disponíveis para adoção, com filtros.
 | `convivenciaGato`    | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                                                                                                      |
 | `convivenciaCao`     | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                                                                                                      |
 | `energia`            | `MAIS_ANIMADO`, `MAIS_CALMO`                                                                                                                                                         |
+| `pagina`             | Número da página, começando em `0`. Padrão: `0`                                                                                                                                      |
+| `tamanho`            | Animais por página, de `1` a `48`. Padrão: `12`                                                                                                                                      |
 
-Exemplo: `GET /api/animais?especie=GATO&porte=PEQUENO&convivenciaCrianca=CONVIVE_BEM`
+Exemplo: `GET /api/animais?especie=GATO&porte=PEQUENO&convivenciaCrianca=CONVIVE_BEM&pagina=1`
 
 **Saída (`200 OK`)**
 
 ```json
-[
-  {
-    "id": "9b2e4f10-1c3d-4a5b-8e7f-6a5b4c3d2e1f",
-    "nome": "Mel",
-    "especie": "CAO",
-    "raca": "SRD_CAO",
-    "racaNome": "Sem raça definida",
-    "sexo": "FEMEA",
-    "porte": "MEDIO",
-    "peso": 14,
-    "castrado": true,
-    "energia": "MAIS_ANIMADO",
-    "convivencia": {
-      "crianca": "CONVIVE_BEM",
-      "gato": "NAO_TESTADO",
-      "cao": "CONVIVE_BEM"
-    },
-    "statusAdocao": "DISPONIVEL",
-    "fotoCapa": null,
-    "protetor": {
-      "nome": "Instituto Quatro Patas",
-      "cidade": "Santo André",
-      "estado": "SP"
+{
+  "itens": [
+    {
+      "id": "9b2e4f10-1c3d-4a5b-8e7f-6a5b4c3d2e1f",
+      "nome": "Mel",
+      "especie": "CAO",
+      "raca": "SRD_CAO",
+      "racaNome": "Sem raça definida",
+      "sexo": "FEMEA",
+      "porte": "MEDIO",
+      "peso": 14,
+      "castrado": true,
+      "energia": "MAIS_ANIMADO",
+      "convivencia": {
+        "crianca": "CONVIVE_BEM",
+        "gato": "NAO_TESTADO",
+        "cao": "CONVIVE_BEM"
+      },
+      "statusAdocao": "DISPONIVEL",
+      "fotoCapa": null,
+      "protetor": {
+        "nome": "Instituto Quatro Patas",
+        "cidade": "Santo André",
+        "estado": "SP"
+      }
     }
-  }
-]
+  ],
+  "pagina": 1,
+  "tamanho": 12,
+  "totalItens": 37,
+  "totalPaginas": 4
+}
 ```
+
+`totalItens` conta tudo o que os filtros acharam, e não só esta página. É com ele que o front mostra "Mostrando 12 de 37 animais" e sabe se ainda tem página pra buscar. Página depois da última volta com `itens` vazio.
 
 A listagem traz peso, castração, convivência, energia e status porque o card da vitrine mostra tudo isso (ver o Figma).
 
-Nenhum animal encontrado: `200 OK` com `[]`. O front exibe "Nenhum animal disponível no seu estado no momento" (sem filtros, UC06 FA01) ou "Nenhum resultado encontrado com essas informações" (com filtros, UC06 FA02).
+Nenhum animal encontrado: `200 OK` com `itens` vazio e `totalItens` igual a `0`. O front exibe "Nenhum animal disponível no seu estado no momento" (sem filtros, UC06 FA01) ou "Nenhum resultado encontrado com essas informações" (com filtros, UC06 FA02).
 
-**Erros:** `400` valor de filtro inválido (ex.: `porte=ENORME`); `401` token enviado, porém inválido ou expirado.
+**Erros:** `400` valor de filtro inválido (ex.: `porte=ENORME`), ou `pagina` e `tamanho` fora dos limites, com `campos`; `401` token enviado, porém inválido ou expirado.
 
 ---
 
@@ -729,6 +740,7 @@ Atualiza um animal. Como é `PUT`, o corpo leva **todos** os campos, inclusive o
 ```
 
 - As listas `fotos` e `vacinas` **substituem** as atuais. Vacina que não estiver na lista enviada é removida.
+- A foto que sai da lista é apagada também do armazenamento (S3), depois que a alteração é salva. Só é apagada a foto enviada pelo `POST /api/fotos` e que nenhum outro animal usa.
 
 **Regras de status (RF06, UC05 FA04, máquina de estados do Animal)**
 
@@ -759,7 +771,7 @@ Na devolução (de `ADOTADO` para `DISPONIVEL`), o interesse que resultou na ado
 Remove um animal definitivamente, junto com suas fotos, vacinas e interesses.
 **Acesso:** Protetor do animal. **Origem:** RF06, UC05 FA03
 
-Sem corpo. A confirmação ("os interesses recebidos também serão excluídos") é exibida pelo front antes de enviar.
+Sem corpo. A confirmação ("os interesses recebidos também serão excluídos") é exibida pelo front antes de enviar. As fotos do animal saem também do armazenamento (S3), com a mesma regra do `PUT`.
 
 **Saída (`204 No Content`)**
 

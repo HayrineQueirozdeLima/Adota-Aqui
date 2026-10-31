@@ -79,7 +79,7 @@ A ordem importa: o banco e o S3 primeiro, porque o back precisa dos dois pra sub
    }
    ```
 
-3. No IAM, crie um usuário só pra API, com uma política que deixa **apenas** gravar fotos na pasta `animais/` do bucket:
+3. No IAM, crie um usuário só pra API, com uma política que deixa **apenas** gravar e apagar fotos na pasta `animais/` do bucket:
 
    ```json
    {
@@ -87,12 +87,14 @@ A ordem importa: o banco e o S3 primeiro, porque o back precisa dos dois pra sub
      "Statement": [
        {
          "Effect": "Allow",
-         "Action": "s3:PutObject",
+         "Action": ["s3:PutObject", "s3:DeleteObject"],
          "Resource": "arn:aws:s3:::NOME-DO-BUCKET/animais/*"
        }
      ]
    }
    ```
+
+   O `s3:DeleteObject` é o que deixa a API apagar a foto que saiu de um animal. Se o usuário já existe com só o `s3:PutObject`, edite a política dele no IAM e troque a linha do `Action`. Sem essa permissão o site continua funcionando, mas a foto fica no bucket e o log do Render mostra "Não foi possível apagar a foto".
 
 4. Crie uma access key desse usuário e cole direto no Render (passo 3). A chave secreta só aparece uma vez.
 

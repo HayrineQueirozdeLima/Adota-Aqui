@@ -10,6 +10,7 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.net.URI;
@@ -49,6 +50,12 @@ public class ArmazenamentoS3 implements ArmazenamentoFotos {
                 .contentType(tipo)
                 .build();
         s3.putObject(pedido, RequestBody.fromBytes(conteudo));
+    }
+
+    // Precisa da permissão s3:DeleteObject no usuário da AWS (docs/deploy.md)
+    @Override
+    public void apagar(String chave) {
+        s3.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(chave).build());
     }
 
     @PreDestroy

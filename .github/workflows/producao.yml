@@ -48,7 +48,7 @@ jobs:
             echo "::error title=Vitrine::GET /api/animais respondeu $codigo. Pode ser o banco (Neon) ou as fotos (S3)"
             exit 1
           fi
-          echo "Animais na vitrine: $(jq length vitrine.json)"
+          echo "Animais na vitrine: $(jq .totalItens vitrine.json)"
 
       # Sem isso, o site abre, mas o navegador bloqueia todas as chamadas pra API
       - name: A API aceita o site (CORS)
@@ -90,5 +90,5 @@ jobs:
             echo ""
             echo "- Site: $SITE"
             echo "- API: $API"
-            echo "- Animais na vitrine: $(jq length vitrine.json)"
+            echo "- Animais na vitrine: $(jq .totalItens vitrine.json)"
           } >> "$GITHUB_STEP_SUMMARY"

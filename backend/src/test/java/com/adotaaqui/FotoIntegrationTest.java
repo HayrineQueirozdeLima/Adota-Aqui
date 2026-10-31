@@ -6,6 +6,7 @@ import com.adotaaqui.model.enums.TipoConta;
 import com.adotaaqui.repository.UsuarioRepository;
 import com.adotaaqui.security.JwtService;
 import com.adotaaqui.service.ArmazenamentoEmMemoria;
+import com.adotaaqui.service.FotoService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -42,6 +43,7 @@ class FotoIntegrationTest {
     @Autowired UsuarioRepository usuarios;
     @Autowired JwtService jwt;
     @Autowired ArmazenamentoEmMemoria armazenamento;
+    @Autowired FotoService fotoService;
 
     private UUID contaId;
     private String token;
@@ -89,6 +91,18 @@ class FotoIntegrationTest {
         assertThat(url).startsWith("http://localhost:8080/fotos/animais/").endsWith(".jpg")
                 .doesNotContain("minha foto");
         assertThat(armazenamento.contem(url.substring("http://localhost:8080/fotos/".length()))).isTrue();
+    }
+
+    // Só a foto que a própria API guardou pode ser apagada do armazenamento (LimpezaDeFotos)
+    @Test
+    void soReconheceComoNossaAFotoQueAApiGuardou() {
+        String base = "http://localhost:8080/fotos/";
+        String nome = UUID.randomUUID() + ".jpg";
+        assertThat(fotoService.chaveDe(base + "animais/" + nome)).contains("animais/" + nome);
+        assertThat(fotoService.chaveDe("https://example.com/animais/" + nome)).isEmpty();
+        assertThat(fotoService.chaveDe(base + "animais/../segredo.jpg")).isEmpty();
+        assertThat(fotoService.chaveDe(base + "outra-pasta/" + nome)).isEmpty();
+        assertThat(fotoService.chaveDe(null)).isEmpty();
     }
 
     @Test
