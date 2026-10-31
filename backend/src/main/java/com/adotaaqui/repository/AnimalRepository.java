@@ -31,6 +31,9 @@ public interface AnimalRepository extends JpaRepository<Animal, UUID>, JpaSpecif
     // Listagem pra Visitante e Abrigo: animais de todos os estados (RF07)
     List<Animal> findByStatusAdocao(StatusAdocao status);
 
+    // Números da Home (GET /api/estatisticas)
+    long countByStatusAdocao(StatusAdocao status);
+
     // Listagem pra Usuario logado: só animais do mesmo estado dele (RF14).
     // Como o animal não tem estado próprio, a consulta olha o estado de quem cadastrou.
     //

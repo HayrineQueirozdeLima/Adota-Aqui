@@ -23,7 +23,8 @@ Fontes: Especificação de Requisitos (RF01 a RF17), Casos de Uso (UC01 a UC10),
 7. [Perfil da conta](#7-perfil-da-conta)
 8. [Animais](#8-animais)
 9. [Interesses](#9-interesses)
-10. [Pontos em aberto](#10-pontos-em-aberto)
+10. [Números do site](#10-números-do-site)
+11. [Pontos em aberto](#11-pontos-em-aberto)
 
 ---
 
@@ -32,7 +33,7 @@ Fontes: Especificação de Requisitos (RF01 a RF17), Casos de Uso (UC01 a UC10),
 - **Mudou um endpoint no código? Atualize este arquivo no mesmo pull request.** Um contrato desatualizado é pior do que nenhum, porque o outro squad confia nele.
 - Nenhum squad muda um formato de entrada ou saída sozinho. Mudança de contrato é combinada entre Front End e Back End antes de ser implementada.
 - Cada endpoint indica a sua **origem** (RF/UC). Se um requisito mudar, procure aqui pelo código dele para achar os endpoints afetados.
-- Decisões ainda não fechadas ficam na seção [10. Pontos em aberto](#10-pontos-em-aberto) até o time decidir.
+- Decisões ainda não fechadas ficam na seção [11. Pontos em aberto](#11-pontos-em-aberto) até o time decidir.
 
 ---
 
@@ -172,6 +173,7 @@ Quando um valor não existe na lista de opções (um enum, como `porte` ou `espe
 | `DELETE` | `/api/interesses/{id}`         | Candidato do interesse | UC07 FA01                          | Sim    |
 | `GET`    | `/api/interesses/recebidos`    | Autenticado            | RF09, UC08                         | Sim    |
 | `PATCH`  | `/api/interesses/{id}/status`  | Protetor do animal     | RF10, UC08                         | Sim    |
+| `GET`    | `/api/estatisticas`            | Público                | ERS 6.7                            | Sim    |
 
 Endpoint novo entra nesta tabela como "Ainda não" assim que o formato é combinado. Assim o front já pode montar a tela com dados de exemplo enquanto o back faz a parte dele.
 
@@ -224,7 +226,7 @@ Autentica um Usuario (CPF) ou um Abrigo (CNPJ) e devolve o token.
 | `401`  | Documento não cadastrado **ou** senha incorreta. A mensagem é a mesma nos dois casos: "Documento ou senha inválidos" | UC03 FA01, FA02 |
 | `500`  | Falha ao autenticar ou gerar o token                                                                                 | UC03 FA04       |
 
-> A mesma mensagem para "documento não cadastrado" e "senha incorreta" impede que alguém descubra quais CPFs e CNPJs têm conta testando um por um. Ver [Pontos em aberto](#10-pontos-em-aberto).
+> A mesma mensagem para "documento não cadastrado" e "senha incorreta" impede que alguém descubra quais CPFs e CNPJs têm conta testando um por um. Ver [Pontos em aberto](#11-pontos-em-aberto).
 
 ---
 
@@ -268,7 +270,7 @@ Cria a conta de uma pessoa física e já a autentica.
 | `endereco.cidade`                        | Obrigatório                                                                                                   |
 | `endereco.estado`                        | Obrigatório. UF com 2 letras maiúsculas                                                                       |
 
-O usuário digita só **CEP e número** (RF01). O front consulta o ViaCEP com o CEP digitado, preenche logradouro, bairro, cidade e estado, e envia o endereço completo. Ver [Pontos em aberto](#10-pontos-em-aberto).
+O usuário digita só **CEP e número** (RF01). O front consulta o ViaCEP com o CEP digitado, preenche logradouro, bairro, cidade e estado, e envia o endereço completo. Ver [Pontos em aberto](#11-pontos-em-aberto).
 
 **Saída (`201 Created`)**
 
@@ -935,7 +937,7 @@ A desistência apaga o interesse (`DELETE /api/interesses/{id}`), então ele som
 Desistência: o candidato exclui o próprio interesse.
 **Acesso:** Candidato do interesse. **Origem:** UC07 FA01
 
-Sem corpo. Ver [Pontos em aberto](#10-pontos-em-aberto) sobre o motivo da desistência.
+Sem corpo. Ver [Pontos em aberto](#11-pontos-em-aberto) sobre o motivo da desistência.
 
 **Saída (`204 No Content`)**
 
@@ -1015,7 +1017,34 @@ A aprovação bloqueia o animal durante a transação. Cadastro, desistência e 
 
 ---
 
-## 10. Pontos em aberto
+## 10. Números do site
+
+### GET /api/estatisticas
+
+Os números do site que aparecem na página inicial.
+**Acesso:** Público. **Origem:** ERS, escopo futuro 6.7
+
+**Saída (`200 OK`)**
+
+```json
+{
+  "adocoes": 27,
+  "animaisDisponiveis": 43,
+  "abrigos": 12
+}
+```
+
+| Campo                | O que conta                                                                                                                                                       |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `adocoes`            | Interesses `APROVADO`. Uma devolução não tira a adoção da conta (o interesse continua aprovado, RF06). Um animal removido leva os interesses junto, e sai da conta |
+| `animaisDisponiveis` | Animais `DISPONIVEL`, de todos os estados, mesmo com um Usuario logado                                                                                            |
+| `abrigos`            | Contas de Abrigo                                                                                                                                                  |
+
+**Erros:** `401` token enviado, porém inválido ou expirado (como nas outras rotas públicas).
+
+---
+
+## 11. Pontos em aberto
 
 Decisões que o contrato precisou assumir antes da implementação. As que a implementação já resolveu estão na primeira tabela; ao decidir uma das que faltam, atualize o endpoint correspondente e mova o item.
 

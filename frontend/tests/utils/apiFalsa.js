@@ -1,4 +1,5 @@
 import { animaisExemplo, perfilExemplo } from "../../src/mocks/animais";
+import { estatisticasExemplo } from "../../src/mocks/estatisticas";
 import { interesseExemplo } from "../../src/mocks/interesses";
 import { perfilAbrigoExemplo, perfilUsuarioExemplo } from "../../src/mocks/perfil";
 import { racasExemplo } from "../../src/mocks/racas";
@@ -33,6 +34,7 @@ export function paginaDe(itens, { pagina = 0, tamanho = 12, totalItens = itens.l
 // uma resposta, ou undefined pra deixar as respostas padrão daqui de baixo cuidarem
 // POST /api/fotos devolve 201 com uma URL nova a cada foto (fotos.teste/animais/1.jpg, 2.jpg...)
 // GET /api/usuarios/me e /api/abrigos/me devolvem os perfis de exemplo (src/mocks/perfil.js)
+// GET /api/estatisticas devolve os números de exemplo (src/mocks/estatisticas.js)
 export function simularApi({
     responderAnimais,
     responderAnimal,
@@ -64,6 +66,10 @@ export function simularApi({
         }
         if (endereco.pathname === "/api/abrigos/me" && metodo === "GET") {
             return Promise.resolve(resposta(200, perfilAbrigoExemplo));
+        }
+
+        if (endereco.pathname === "/api/estatisticas") {
+            return Promise.resolve(resposta(200, estatisticasExemplo));
         }
 
         if (endereco.pathname === "/api/fotos" && metodo === "POST") {

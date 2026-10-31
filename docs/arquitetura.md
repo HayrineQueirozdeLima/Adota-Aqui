@@ -141,7 +141,7 @@ A API não guarda sessão (`STATELESS`): cada requisição carrega o próprio to
 
 | Quem                    | O que pode                                                                                                                                                 |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Visitante               | Ver a vitrine, o perfil dos animais e as raças, se cadastrar e entrar                                                                                      |
+| Visitante               | Ver a vitrine, o perfil dos animais, as raças e os números do site, se cadastrar e entrar                                                                   |
 | Usuario (pessoa física) | Tudo do visitante, mais cadastrar e gerenciar os próprios animais e os interesses recebidos, demonstrar interesse em animais do seu estado e desistir dele |
 | Abrigo                  | Cadastrar e gerenciar os próprios animais e os interesses recebidos. Não demonstra interesse                                                               |
 

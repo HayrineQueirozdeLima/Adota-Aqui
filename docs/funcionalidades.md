@@ -38,7 +38,7 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 | 1   | Cadastro de conta                   | RF01, RF02, RNF02            | `/cadastro`, `/cadastro/usuario`, `/cadastro/abrigo`              | `POST /api/usuarios`, `POST /api/abrigos`                                                                            |
 | 2   | Login, sessão e saída               | RF03, RNF03                  | `/login`, `/perfil`                                               | `POST /api/auth/login`                                                                                               |
 | 3   | Controle de acesso                  | RNF03, RF14                  | Todas                                                             | Todos                                                                                                                |
-| 4   | Página inicial e vitrine de animais | RF07, RF14                   | `/`, `/animais`                                                   | `GET /api/animais`, `GET /api/racas`                                                                                 |
+| 4   | Página inicial e vitrine de animais | RF07, RF14, ERS 6.7                | `/`, `/animais`                                                   | `GET /api/animais`, `GET /api/racas`, `GET /api/estatisticas`                                                        |
 | 5   | Perfil do animal                    | RF07, RF14                   | `/animais/:id`                                                    | `GET /api/animais/{id}`                                                                                              |
 | 6   | CRUD de animal e fotos              | RF04, RF05, RF06, RF16       | `/meus-animais`, `/meus-animais/novo`, `/meus-animais/:id/editar` | `GET /api/animais/meus`, `POST /api/animais`, `PUT /api/animais/{id}`, `DELETE /api/animais/{id}`, `POST /api/fotos` |
 | 7   | Demonstrar interesse e desistir     | RF08, RF09, RF13, RF14, RF15 | `/animais/:id/interesse`                                          | `POST /api/animais/{id}/interesses`, `DELETE /api/interesses/{id}`                                                   |
@@ -149,11 +149,13 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 
 ![Página inicial no computador](prints/12-home.png)
 
-**Página inicial.** Abre com a apresentação do Figma: a foto de um cão e um gato, o título "Todo animal merece um lar de verdade." e os botões "Ver animais disponíveis" e "Resgatei um animal". No celular e no tablet, a foto fica escurecida e o texto branco; no computador com o tema claro, a foto aparece inteira e o texto fica escuro. Logo abaixo vem a faixa laranja da guarda responsável (Leis nº 9.605/1998 e nº 14.064/2020), depois a vitrine e, no fim, "Como funciona a adoção", com os quatro passos. O link "Como adotar" do rodapé leva direto pra essa parte.
+**Página inicial.** Abre com a apresentação do Figma: a foto de um cão e um gato, o título "Todo animal merece um lar de verdade." e os botões "Ver animais disponíveis" e "Resgatei um animal". No celular e no tablet, a foto fica escurecida e o texto branco; no computador com o tema claro, a foto aparece inteira e o texto fica escuro. Logo abaixo vem a faixa laranja da guarda responsável (Leis nº 9.605/1998 e nº 14.064/2020), depois os números do site, a vitrine e, no fim, "Como funciona a adoção", com os quatro passos. O link "Como adotar" do rodapé leva direto pra essa parte.
 
 ![Vitrine no computador](prints/04-vitrine.png)
 
 <img src="prints/05-vitrine-celular.png" alt="Vitrine no celular" width="320">
+
+**Números do site.** A faixa "O Adota Aqui em números" mostra quantas adoções já foram feitas pelo site, quantos animais estão esperando um lar e quantos abrigos e ONGs estão cadastrados (`GET /api/estatisticas`, ERS 6.7). Adoção é interesse aprovado, então uma devolução não tira a adoção da conta. Os números contam o site todo, sem o filtro de estado. Enquanto carrega, os três cartões já ocupam o lugar, pra vitrine não pular. Se a API falhar, a faixa some sem mensagem de erro: ela é um extra, e o resto da página continua funcionando.
 
 **O que faz.** Lista os animais disponíveis pra adoção, com filtros (RF07, UC06). Aparece na página inicial e em `/animais`.
 
@@ -173,12 +175,12 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 
 **Onde está no código.**
 
-- Front: `pages/Home`, `components/Apresentacao`, `components/ComoFunciona`, `components/VitrineAnimais`, `components/FiltrosAnimais`, `components/CardAnimal` e `services/animais.js`
-- Back: `AnimalController`, `AnimalService`, `AnimalFiltroRequest`, `AnimalSpecifications` e `PaginaResponse`
+- Front: `pages/Home`, `components/Apresentacao`, `components/Estatisticas`, `components/ComoFunciona`, `components/VitrineAnimais`, `components/FiltrosAnimais`, `components/CardAnimal`, `services/animais.js` e `services/estatisticas.js`
+- Back: `AnimalController`, `AnimalService`, `AnimalFiltroRequest`, `AnimalSpecifications`, `PaginaResponse`, `EstatisticasController` e `EstatisticasService`
 
 **Como fica no banco.** A coluna `cadastrado_em` da tabela `animal` guarda quando o animal foi cadastrado, e é por ela que a vitrine ordena. Nos animais que já existiam quando a coluna foi criada, o banco preencheu com a data daquele deploy.
 
-**Testes.** `AnimalIntegrationTest` (estado, status, filtros combinados, cidade, busca por nome sem acento, páginas, ordem e limites da paginação), `ErroApiIntegrationTest` (filtro com valor inválido), `VitrineAnimais.test.jsx` (inclusive o "Ver mais animais"), `CardAnimal.test.jsx` e `Home.test.jsx`.
+**Testes.** `AnimalIntegrationTest` (estado, status, filtros combinados, cidade, busca por nome sem acento, páginas, ordem e limites da paginação), `ErroApiIntegrationTest` (filtro com valor inválido), `VitrineAnimais.test.jsx` (inclusive o "Ver mais animais"), `CardAnimal.test.jsx`, `Home.test.jsx`, `EstatisticasIntegrationTest` e `Estatisticas.test.jsx`.
 
 ---
 

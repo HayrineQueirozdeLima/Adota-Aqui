@@ -35,6 +35,14 @@ test("o topo apresenta o site e leva pra vitrine e pro cadastro de animal", asyn
   expect(screen.getByText("Guarda responsável é obrigatória.")).toBeInTheDocument();
 });
 
+test("mostra os números do site logo depois da apresentação", async () => {
+  await abrirHome();
+
+  const secao = await screen.findByRole("region", { name: "O Adota Aqui em números" });
+  expect(await within(secao).findByText("27")).toBeInTheDocument();
+  expect(within(secao).getByText("adoções feitas pelo site")).toBeInTheDocument();
+});
+
 test("mostra os quatro passos da adoção, na ordem", async () => {
   await abrirHome();
 
