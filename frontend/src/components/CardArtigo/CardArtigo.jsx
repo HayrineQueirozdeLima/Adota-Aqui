@@ -11,9 +11,9 @@ export const corDaCategoria = {
   ALIMENTACAO: "atencao",
 };
 
-// Uma dica na lista: capa, assunto, título (o link pra dica inteira), o começo do texto e quem escreveu
-export default function CardDica({ dica }) {
-  const { id, titulo, categoria, categoriaNome, resumo, fotoCapa, autor, publicadaEm } = dica;
+// Um artigo na lista: capa, assunto, título (o link pro artigo inteiro), o começo do texto e quem escreveu
+export default function CardArtigo({ artigo }) {
+  const { id, titulo, categoria, categoriaNome, resumo, fotoCapa, autor, publicadoEm } = artigo;
 
   return (
     <article className="flex flex-col overflow-hidden rounded-[16px] border border-borda-sutil bg-fundo-superficie">
@@ -25,7 +25,7 @@ export default function CardDica({ dica }) {
         </div>
         <h2 className="font-titulo text-card font-semibold text-texto-principal">
           <Link
-            to={`/dicas/${id}`}
+            to={`/blog/${id}`}
             className="rounded-sm hover:text-marca-roxo hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-marca-roxo"
           >
             {titulo}
@@ -35,7 +35,7 @@ export default function CardDica({ dica }) {
         <p className="mt-auto border-t border-borda-sutil pt-3 text-legenda text-texto-secundario">
           Por <span className="font-semibold text-texto-principal">{autor.nome}</span>, de {autor.cidade}/
           {autor.estado}.{" "}
-          <time dateTime={publicadaEm}>{formatarData(publicadaEm.slice(0, 10))}</time>
+          <time dateTime={publicadoEm}>{formatarData(publicadoEm.slice(0, 10))}</time>
         </p>
       </div>
     </article>

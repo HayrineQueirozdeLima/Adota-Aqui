@@ -6,7 +6,7 @@ import {
   TIPOS_DE_FOTO,
 } from "../../utils/formularioAnimal";
 
-// Uma foto só (a do depoimento e a capa da dica). Vai pro POST /api/fotos, como as fotos dos animais,
+// Uma foto só (a do depoimento e a capa do artigo do blog). Vai pro POST /api/fotos, como as fotos dos animais,
 // e o formulário guarda só a URL que volta. aoMudar recebe a URL nova, ou null quando a pessoa tira a foto
 export default function EnvioFotoUnica({ rotulo, foto, aoMudar, descricao }) {
   const { token, sair } = useAuth();

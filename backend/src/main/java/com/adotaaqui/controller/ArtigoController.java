@@ -1,12 +1,12 @@
 package com.adotaaqui.controller;
 
-import com.adotaaqui.dto.DicaFiltroRequest;
-import com.adotaaqui.dto.DicaRequest;
-import com.adotaaqui.dto.DicaResponse;
-import com.adotaaqui.dto.DicaResumoResponse;
-import com.adotaaqui.dto.MinhasDicasResponse;
+import com.adotaaqui.dto.ArtigoFiltroRequest;
+import com.adotaaqui.dto.ArtigoRequest;
+import com.adotaaqui.dto.ArtigoResponse;
+import com.adotaaqui.dto.ArtigoResumoResponse;
+import com.adotaaqui.dto.MeusArtigosResponse;
 import com.adotaaqui.dto.PaginaResponse;
-import com.adotaaqui.service.DicaService;
+import com.adotaaqui.service.ArtigoService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -23,39 +23,39 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.URI;
 import java.util.UUID;
 
-// Blog de dicas (docs/api.md, seção 12)
+// Blog para tutores (docs/api.md, seção 12)
 @RestController
-@RequestMapping("/api/dicas")
-public class DicaController {
-    private final DicaService service;
+@RequestMapping("/api/artigos")
+public class ArtigoController {
+    private final ArtigoService service;
 
-    public DicaController(DicaService service) {
+    public ArtigoController(ArtigoService service) {
         this.service = service;
     }
 
     @GetMapping
-    public PaginaResponse<DicaResumoResponse> listar(@Valid @ModelAttribute DicaFiltroRequest filtro) {
+    public PaginaResponse<ArtigoResumoResponse> listar(@Valid @ModelAttribute ArtigoFiltroRequest filtro) {
         return service.listar(filtro);
     }
 
-    @GetMapping("/minhas")
-    public MinhasDicasResponse minhas(Authentication conta) {
-        return service.minhas(conta);
+    @GetMapping("/meus")
+    public MeusArtigosResponse meus(Authentication conta) {
+        return service.meus(conta);
     }
 
     @GetMapping("/{id}")
-    public DicaResponse buscar(@PathVariable UUID id, Authentication conta) {
+    public ArtigoResponse buscar(@PathVariable UUID id, Authentication conta) {
         return service.buscar(id, conta);
     }
 
     @PostMapping
-    public ResponseEntity<DicaResponse> publicar(@Valid @RequestBody DicaRequest request, Authentication conta) {
-        DicaResponse resposta = service.publicar(request, conta);
-        return ResponseEntity.created(URI.create("/api/dicas/" + resposta.id())).body(resposta);
+    public ResponseEntity<ArtigoResponse> publicar(@Valid @RequestBody ArtigoRequest request, Authentication conta) {
+        ArtigoResponse resposta = service.publicar(request, conta);
+        return ResponseEntity.created(URI.create("/api/artigos/" + resposta.id())).body(resposta);
     }
 
     @PutMapping("/{id}")
-    public DicaResponse editar(@PathVariable UUID id, @Valid @RequestBody DicaRequest request, Authentication conta) {
+    public ArtigoResponse editar(@PathVariable UUID id, @Valid @RequestBody ArtigoRequest request, Authentication conta) {
         return service.editar(id, request, conta);
     }
 

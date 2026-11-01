@@ -60,9 +60,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/estatisticas").permitAll()
                         // Mural de histórias de adoção: visitante também lê
                         .requestMatchers(HttpMethod.GET, "/api/depoimentos").permitAll()
-                        // Dicas: qualquer pessoa lê. "Minhas dicas" precisa de login e vem antes, como o /animais/meus
-                        .requestMatchers(HttpMethod.GET, "/api/dicas/minhas").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/dicas", "/api/dicas/*").permitAll()
+                        // Artigos: qualquer pessoa lê. "Meus artigos" precisa de login e vem antes, como o /animais/meus
+                        .requestMatchers(HttpMethod.GET, "/api/artigos/meus").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/artigos", "/api/artigos/*").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex

@@ -78,11 +78,11 @@ O mural é público, então a API manda só o primeiro nome e o estado de quem c
 
 O prazo de 30 dias da ERS (6.3) precisava da data da aprovação, que o interesse não guardava. A coluna `aprovado_em` entrou junto, e os interesses aprovados antes dela ficam sem prazo, em vez de perder o direito por uma data que não existe.
 
-### Dicas só de protetor, em texto puro
+### Artigos só de protetor, em texto puro
 
-O blog de dicas (ERS 6.4) não tem moderação, então a regra de quem escreve faz esse papel: só abrigo, ou pessoa que já cadastrou um animal. Quem só está procurando um animal pra adotar lê, mas não publica. E só quem escreveu edita ou apaga.
+O blog para tutores (ERS 6.4) não tem moderação, então a regra de quem escreve faz esse papel: só abrigo, ou pessoa que já cadastrou um animal. Quem só está procurando um animal pra adotar lê, mas não publica. E só quem escreveu edita ou apaga.
 
-O texto é puro, sem HTML nem Markdown. O site separa os parágrafos pelas linhas em branco e mostra tudo como texto, então uma dica não consegue carregar um script ou um link disfarçado. Formatação mais rica pediria limpar o HTML no back, e pro tamanho de uma dica os parágrafos já resolvem.
+O texto é puro, sem HTML nem Markdown. O site separa os parágrafos pelas linhas em branco e mostra tudo como texto, então um artigo não consegue carregar um script ou um link disfarçado. Formatação mais rica pediria limpar o HTML no back, e pro tamanho de um artigo os parágrafos já resolvem.
 
 ### Animal adotado fica travado
 

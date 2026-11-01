@@ -1,6 +1,6 @@
 package com.adotaaqui.model;
 
-import com.adotaaqui.model.enums.CategoriaDica;
+import com.adotaaqui.model.enums.CategoriaArtigo;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -20,16 +20,16 @@ import org.hibernate.annotations.Check;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-// Uma dica pra quem vai adotar ou já adotou, escrita por um protetor (blog de dicas).
+// Um artigo pra quem vai adotar ou já adotou, escrito por um protetor (blog para tutores).
 // O autor é um Usuario ou um Abrigo, com a mesma regra do animal: um dos dois, nunca os dois
 @Entity
-@Table(name = "dica", indexes = {
-        @Index(name = "idx_dica_publicada_em", columnList = "publicada_em"),
-        @Index(name = "idx_dica_usuario", columnList = "usuario_id"),
-        @Index(name = "idx_dica_abrigo", columnList = "abrigo_id")
+@Table(name = "artigo", indexes = {
+        @Index(name = "idx_artigo_publicado_em", columnList = "publicado_em"),
+        @Index(name = "idx_artigo_usuario", columnList = "usuario_id"),
+        @Index(name = "idx_artigo_abrigo", columnList = "abrigo_id")
 })
 @Check(constraints = "(usuario_id IS NOT NULL AND abrigo_id IS NULL) OR (usuario_id IS NULL AND abrigo_id IS NOT NULL)")
-public class Dica {
+public class Artigo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -44,7 +44,7 @@ public class Dica {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
-    private CategoriaDica categoria;
+    private CategoriaArtigo categoria;
 
     // Opcional. Só a URL: a imagem fica no S3
     @Column(name = "foto_capa", length = 500)
@@ -58,18 +58,18 @@ public class Dica {
     @JoinColumn(name = "abrigo_id")
     private Abrigo abrigo;
 
-    @Column(name = "publicada_em", nullable = false, updatable = false)
-    private LocalDateTime publicadaEm = LocalDateTime.now();
+    @Column(name = "publicado_em", nullable = false, updatable = false)
+    private LocalDateTime publicadoEm = LocalDateTime.now();
 
     // Vazio enquanto ninguém editou
-    @Column(name = "atualizada_em")
-    private LocalDateTime atualizadaEm;
+    @Column(name = "atualizado_em")
+    private LocalDateTime atualizadoEm;
 
     @PrePersist
     @PreUpdate
     private void validarAutor() {
         if ((usuario == null) == (abrigo == null)) {
-            throw new IllegalStateException("A dica deve ter exatamente um autor: um Usuario ou um Abrigo.");
+            throw new IllegalStateException("O artigo deve ter exatamente um autor: um Usuario ou um Abrigo.");
         }
     }
 
@@ -93,11 +93,11 @@ public class Dica {
         this.conteudo = conteudo;
     }
 
-    public CategoriaDica getCategoria() {
+    public CategoriaArtigo getCategoria() {
         return categoria;
     }
 
-    public void setCategoria(CategoriaDica categoria) {
+    public void setCategoria(CategoriaArtigo categoria) {
         this.categoria = categoria;
     }
 
@@ -125,15 +125,15 @@ public class Dica {
         this.abrigo = abrigo;
     }
 
-    public LocalDateTime getPublicadaEm() {
-        return publicadaEm;
+    public LocalDateTime getPublicadoEm() {
+        return publicadoEm;
     }
 
-    public LocalDateTime getAtualizadaEm() {
-        return atualizadaEm;
+    public LocalDateTime getAtualizadoEm() {
+        return atualizadoEm;
     }
 
-    public void setAtualizadaEm(LocalDateTime atualizadaEm) {
-        this.atualizadaEm = atualizadaEm;
+    public void setAtualizadoEm(LocalDateTime atualizadoEm) {
+        this.atualizadoEm = atualizadoEm;
     }
 }

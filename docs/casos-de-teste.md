@@ -140,15 +140,15 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | CT-HIS-04 | Ver o mural                          | Funcional        | O mural abre pra qualquer pessoa, com o primeiro nome e o estado de quem contou (sem sobrenome, e-mail ou telefone), e traz mais histórias de 12 em 12 | `Historias.test.jsx`, `Home.test.jsx`, `DepoimentoIntegrationTest.java` |
 | CT-HIS-05 | Apagar a história                    | Funcional        | Pede confirmação, a história sai do mural junto com a foto do S3, e o convite pra contar volta enquanto estiver no prazo                            | `MeusInteresses.test.jsx`, `DepoimentoIntegrationTest.java`            |
 
-### Módulo 11: Blog de dicas
+### Módulo 11: Blog para tutores
 
 | ID        | Cenário                      | Tipo             | Resultado esperado                                                                                                                                         | Onde está o teste                                                          |
 | --------- | ---------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| CT-DIC-01 | Ler as dicas                 | Funcional        | O blog abre pra qualquer pessoa, filtra por assunto e traz mais dicas de 12 em 12. O título abre a dica inteira, com o texto em parágrafos                  | `Dicas.test.jsx`, `Dica.test.jsx`, `DicaIntegrationTest.java`              |
-| CT-DIC-02 | Escrever uma dica            | Funcional        | O protetor publica com título, assunto, capa opcional e texto, e cai na dica com o aviso "Sua dica foi publicada."                                         | `FormularioDica.test.jsx`, `DicaIntegrationTest.java`                      |
-| CT-DIC-03 | Enviar uma dica incompleta   | Validação        | Não envia, marca o que falta e leva o foco pro primeiro problema. A API recusa título, texto ou assunto fora da regra e capa que não veio do próprio site | `FormularioDica.test.jsx`, `DicaIntegrationTest.java`                      |
-| CT-DIC-04 | Quem pode escrever           | Regra de negócio | Só abrigo, ou pessoa que já cadastrou animal. As outras pessoas veem o convite pra cadastrar um animal, e a API responde 403                                | `FormularioDica.test.jsx`, `Dicas.test.jsx`, `DicaIntegrationTest.java`    |
-| CT-DIC-05 | Editar e apagar              | Funcional        | Só quem escreveu vê os botões e consegue pela API (as outras contas recebem 403). Apagar pede confirmação, e a capa trocada ou apagada sai do S3            | `Dica.test.jsx`, `FormularioDica.test.jsx`, `DicaIntegrationTest.java`     |
+| CT-BLG-01 | Ler os artigos                 | Funcional        | O blog abre pra qualquer pessoa, filtra por assunto e traz mais artigos de 12 em 12. O título abre o artigo inteiro, com o texto em parágrafos                  | `Blog.test.jsx`, `Artigo.test.jsx`, `ArtigoIntegrationTest.java`              |
+| CT-BLG-02 | Escrever um artigo            | Funcional        | O protetor publica com título, assunto, capa opcional e texto, e cai no artigo com o aviso "Seu artigo foi publicado."                                         | `FormularioArtigo.test.jsx`, `ArtigoIntegrationTest.java`                      |
+| CT-BLG-03 | Enviar um artigo incompleto   | Validação        | Não envia, marca o que falta e leva o foco pro primeiro problema. A API recusa título, texto ou assunto fora da regra e capa que não veio do próprio site | `FormularioArtigo.test.jsx`, `ArtigoIntegrationTest.java`                      |
+| CT-BLG-04 | Quem pode escrever           | Regra de negócio | Só abrigo, ou pessoa que já cadastrou animal. As outras pessoas veem o convite pra cadastrar um animal, e a API responde 403                                | `FormularioArtigo.test.jsx`, `Blog.test.jsx`, `ArtigoIntegrationTest.java`    |
+| CT-BLG-05 | Editar e apagar              | Funcional        | Só quem escreveu vê os botões e consegue pela API (as outras contas recebem 403). Apagar pede confirmação, e a capa trocada ou apagada sai do S3            | `Artigo.test.jsx`, `FormularioArtigo.test.jsx`, `ArtigoIntegrationTest.java`     |
 
 ### Módulo 12: Desempenho, acessibilidade e segurança
 
@@ -176,7 +176,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | 8. Minhas candidaturas                     | 5      | 5             | 0       |
 | 9. Meu perfil                              | 6      | 6             | 0       |
 | 10. Histórias de adoção                    | 5      | 5             | 0       |
-| 11. Blog de dicas                          | 5      | 5             | 0       |
+| 11. Blog para tutores                          | 5      | 5             | 0       |
 | 12. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
 | **Total**                                  | **78** | **75**        | **3**   |
 

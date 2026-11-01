@@ -1,7 +1,7 @@
 package com.adotaaqui.model.enums;
 
-// Os assuntos das dicas que os protetores publicam (blog de dicas)
-public enum CategoriaDica {
+// Os assuntos dos artigos que os protetores publicam (blog para tutores)
+public enum CategoriaArtigo {
     ADOCAO_RESPONSAVEL("Adoção responsável"),
     PRIMEIROS_DIAS("Primeiros dias em casa"),
     SAUDE("Saúde e vacinas"),
@@ -10,7 +10,7 @@ public enum CategoriaDica {
 
     private final String nome;
 
-    CategoriaDica(String nome) {
+    CategoriaArtigo(String nome) {
         this.nome = nome;
     }
 

@@ -141,9 +141,9 @@ A API não guarda sessão (`STATELESS`): cada requisição carrega o próprio to
 
 | Quem                    | O que pode                                                                                                                                                 |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Visitante               | Ver a vitrine, o perfil dos animais, as raças, os números do site, as histórias de adoção e as dicas, se cadastrar e entrar                                                                   |
-| Usuario (pessoa física) | Tudo do visitante, mais cadastrar e gerenciar os próprios animais e os interesses recebidos, demonstrar interesse em animais do seu estado e desistir dele, e contar como foi a adoção. Depois de cadastrar um animal, também escreve dicas |
-| Abrigo                  | Cadastrar e gerenciar os próprios animais e os interesses recebidos, e escrever dicas. Não demonstra interesse                                                               |
+| Visitante               | Ver a vitrine, o perfil dos animais, as raças, os números do site, as histórias de adoção e os artigos, se cadastrar e entrar                                                                   |
+| Usuario (pessoa física) | Tudo do visitante, mais cadastrar e gerenciar os próprios animais e os interesses recebidos, demonstrar interesse em animais do seu estado e desistir dele, e contar como foi a adoção. Depois de cadastrar um animal, também escreve artigos |
+| Abrigo                  | Cadastrar e gerenciar os próprios animais e os interesses recebidos, e escrever artigos. Não demonstra interesse                                                               |
 
 **CORS e CSRF.** O navegador só deixa o site chamar a API se o endereço dele estiver em `CORS_ORIGENS` (o site do Netlify, as prévias dos PRs e o `localhost`). A proteção CSRF fica desligada porque o token vai no cabeçalho, e não num cookie que o navegador mandaria sozinho.
 
@@ -162,13 +162,13 @@ Ninguém escreve `CREATE TABLE`: o **Hibernate cria e atualiza as tabelas** a pa
 | `vacina`      | `Vacina`                  | As vacinas de cada animal                                                  |
 | `interesse`   | `Interesse`               | Quem demonstrou interesse em qual animal, a triagem e o andamento          |
 | `depoimento`   | `Depoimento`              | A história de uma adoção (RF11): o texto, a foto e o interesse aprovado de onde ela veio |
-| `dica`        | `Dica`                    | Uma dica do blog (ERS 6.4): título, assunto, texto, capa e quem escreveu, `usuario_id` ou `abrigo_id` |
+| `artigo`        | `Artigo`                    | Um artigo do blog (ERS 6.4): título, assunto, texto, capa e quem escreveu, `usuario_id` ou `abrigo_id` |
 
 Regras que o próprio banco garante (revisadas na #40 e testadas em `RegrasDasEntidadesTest` e `IntegridadeDoBancoTest`):
 
 - **Contas únicas:** CPF, CNPJ e e-mail não se repetem (`unique`). O service confere antes e responde 409; se duas contas iguais chegarem ao mesmo tempo, o banco recusa a segunda e ela também recebe 409. O e-mail é único também entre pessoa e abrigo, mas isso só o service confere, porque são duas tabelas.
 - **Nada solto:** toda foto, vacina e interesse aponta pra um animal que existe, e todo animal e interesse aponta pra uma conta que existe (chaves estrangeiras). Uma conta que ainda tem animal não pode ser apagada.
-- **Um protetor só:** um `CHECK` na tabela `animal` recusa animal sem protetor ou com os dois. A tabela `dica` tem o mesmo `CHECK` pro autor.
+- **Um protetor só:** um `CHECK` na tabela `animal` recusa animal sem protetor ou com os dois. A tabela `artigo` tem o mesmo `CHECK` pro autor.
 - **Motivo da descontinuação:** um `CHECK` na tabela `interesse` recusa interesse Descontinuado sem motivo.
 - **Valores:** o peso, quando vem, é maior que zero, e a dose da vacina é 1 ou mais (`CHECK`). As colunas de enum só aceitam os valores do dicionário de domínios, porque o Hibernate cria um `CHECK` pra cada uma.
 - **Interesse repetido:** a pessoa não pode ter dois interesses ativos no mesmo animal. Quem garante é o service, com o animal travado (o mesmo lock da aprovação). Não tem `unique` no banco porque a regra vale só pros ativos: depois de uma descontinuação, a pessoa pode demonstrar interesse de novo.
@@ -188,9 +188,9 @@ O PostgreSQL cria índice sozinho pra chave primária e pra `unique`, mas não p
 | `idx_interesse_usuario_animal` | `interesse (usuario_id, animal_id)`       | Conferir interesse repetido e listar os interesses da pessoa |
 | `idx_interesse_animal_status`  | `interesse (animal_id, status_andamento)` | Painel do protetor e descontinuar os outros ao aprovar       |
 | `idx_vacina_animal`            | `vacina (animal_id)`                      | Vacinas no perfil do animal                                  |
-| `idx_dica_publicada_em`        | `dica (publicada_em)`                     | Blog de dicas, das mais novas pras mais antigas              |
-| `idx_dica_usuario`             | `dica (usuario_id)`                       | Dicas escritas pela pessoa                                   |
-| `idx_dica_abrigo`              | `dica (abrigo_id)`                        | Dicas escritas pelo abrigo                                   |
+| `idx_artigo_publicado_em`        | `artigo (publicado_em)`                     | Blog para tutores, dos mais novos pros mais antigos              |
+| `idx_artigo_usuario`             | `artigo (usuario_id)`                       | Artigos escritos pela pessoa                                   |
+| `idx_artigo_abrigo`              | `artigo (abrigo_id)`                        | Artigos escritos pelo abrigo                                   |
 
 As fotos não precisam de índice próprio: a chave primária de `animal_foto` já é `(animal_id, ordem)`.
 

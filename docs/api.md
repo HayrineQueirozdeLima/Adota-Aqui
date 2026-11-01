@@ -25,7 +25,7 @@ Fontes: Especificação de Requisitos (RF01 a RF17), Casos de Uso (UC01 a UC10),
 9. [Interesses](#9-interesses)
 10. [Números do site](#10-números-do-site)
 11. [Histórias de adoção](#11-histórias-de-adoção)
-12. [Blog de dicas](#12-blog-de-dicas)
+12. [Blog para tutores](#12-blog-para-tutores)
 13. [Pontos em aberto](#13-pontos-em-aberto)
 
 ---
@@ -104,7 +104,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 | **Candidato do interesse** | Apenas o Usuario que registrou aquele interesse                |
 | **Protetor**               | Abrigo, ou Usuario que já cadastrou pelo menos um animal       |
 | **Autor do depoimento**    | Apenas o Usuario que escreveu aquele depoimento                |
-| **Autor da dica**          | Apenas a conta (Usuario ou Abrigo) que escreveu aquela dica    |
+| **Autor do artigo**          | Apenas a conta (Usuario ou Abrigo) que escreveu aquele artigo    |
 
 O front esconde botões e redireciona conforme o nível de acesso, mas **quem garante a regra é a API** (RNF03). Toda verificação de permissão é feita no Back End.
 
@@ -182,18 +182,18 @@ Quando um valor não existe na lista de opções (um enum, como `porte` ou `espe
 | `POST`   | `/api/interesses/{id}/depoimento` | Candidato do interesse | RF11, UC09                      | Sim    |
 | `GET`    | `/api/depoimentos`             | Público                | RF11                               | Sim    |
 | `DELETE` | `/api/depoimentos/{id}`        | Autor do depoimento    | RF11                               | Sim    |
-| `GET`    | `/api/dicas`                   | Público                | ERS 6.4                            | Sim    |
-| `GET`    | `/api/dicas/{id}`              | Público                | ERS 6.4                            | Sim    |
-| `GET`    | `/api/dicas/minhas`            | Autenticado            | ERS 6.4                            | Sim    |
-| `POST`   | `/api/dicas`                   | Protetor               | ERS 6.4                            | Sim    |
-| `PUT`    | `/api/dicas/{id}`              | Autor da dica          | ERS 6.4                            | Sim    |
-| `DELETE` | `/api/dicas/{id}`              | Autor da dica          | ERS 6.4                            | Sim    |
+| `GET`    | `/api/artigos`                   | Público                | ERS 6.4                            | Sim    |
+| `GET`    | `/api/artigos/{id}`              | Público                | ERS 6.4                            | Sim    |
+| `GET`    | `/api/artigos/meus`            | Autenticado            | ERS 6.4                            | Sim    |
+| `POST`   | `/api/artigos`                   | Protetor               | ERS 6.4                            | Sim    |
+| `PUT`    | `/api/artigos/{id}`              | Autor do artigo          | ERS 6.4                            | Sim    |
+| `DELETE` | `/api/artigos/{id}`              | Autor do artigo          | ERS 6.4                            | Sim    |
 
 Endpoint novo entra nesta tabela como "Ainda não" assim que o formato é combinado. Assim o front já pode montar a tela com dados de exemplo enquanto o back faz a parte dele.
 
 O depoimento (RF11, UC09) era opcional e entrou depois do MVP: os endpoints estão na seção [Histórias de adoção](#11-histórias-de-adoção).
 
-O blog de dicas (ERS 6.4) também entrou depois do MVP: os endpoints estão na seção [Blog de dicas](#12-blog-de-dicas).
+O blog para tutores (ERS 6.4) também entrou depois do MVP: os endpoints estão na seção [Blog para tutores](#12-blog-para-tutores).
 
 ---
 
@@ -1150,9 +1150,9 @@ Tira a história do mural. A foto sai também do armazenamento (S3).
 
 ---
 
-## 12. Blog de dicas
+## 12. Blog para tutores
 
-Dicas pra quem vai adotar e pra quem já adotou, escritas pelos protetores (ERS 6.4, Blog Educativo). Qualquer pessoa lê. Escreve quem é protetor: uma conta de abrigo, ou uma pessoa que já cadastrou pelo menos um animal.
+Artigos pra quem vai adotar e pra quem já adotou, escritos pelos protetores (ERS 6.4, Blog Educativo). A ideia é a comunidade se ajudar: quem já resgatou, cuidou ou abriga animais conta o que aprendeu na prática. Qualquer pessoa lê. Escreve quem é protetor: uma conta de abrigo, ou uma pessoa que já cadastrou pelo menos um animal.
 
 O texto é puro, com quebras de linha. O site mostra como texto, nunca como HTML, e separa os parágrafos pelas linhas em branco.
 
@@ -1166,9 +1166,9 @@ O texto é puro, com quebras de linha. O site mostra como texto, nunca como HTML
 | `COMPORTAMENTO`      | Comportamento          |
 | `ALIMENTACAO`        | Alimentação            |
 
-### GET /api/dicas
+### GET /api/artigos
 
-As dicas, das mais novas pras mais antigas, em páginas (`pagina` e `tamanho`, como no `GET /api/animais`). Com `categoria`, só as daquele assunto.
+Os artigos, dos mais novos pros mais antigos, em páginas (`pagina` e `tamanho`, como no `GET /api/animais`). Com `categoria`, só os daquele assunto.
 **Acesso:** Público. **Origem:** ERS 6.4
 
 **Saída (`200 OK`)**
@@ -1184,7 +1184,7 @@ As dicas, das mais novas pras mais antigas, em páginas (`pagina` e `tamanho`, c
       "resumo": "Deixe o gato começar por um cômodo só, com água, comida, caixa de areia e um esconderijo. Nos primeiros dias, ele pode se esconder e comer pouco...",
       "fotoCapa": null,
       "autor": { "nome": "Instituto Quatro Patas", "tipo": "ABRIGO", "cidade": "Santo André", "estado": "SP" },
-      "publicadaEm": "2026-10-29T10:00:00"
+      "publicadoEm": "2026-10-29T10:00:00"
     }
   ],
   "pagina": 0,
@@ -1198,27 +1198,27 @@ O `resumo` é o começo do texto, com até uns 180 caracteres, sem cortar palavr
 
 **Erros:** `400` `categoria` que não existe, ou `pagina` ou `tamanho` fora dos limites; `401` token enviado, porém inválido ou expirado.
 
-### GET /api/dicas/{id}
+### GET /api/artigos/{id}
 
-A dica inteira: o mesmo formato da lista, com `conteudo` no lugar do `resumo`, mais `atualizadaEm` (vazio enquanto ninguém editou) e `ehMinha` (com token, diz se a conta logada escreveu a dica e pode editar e apagar).
+O artigo inteiro: o mesmo formato da lista, com `conteudo` no lugar do `resumo`, mais `atualizadoEm` (vazio enquanto ninguém editou) e `ehMeu` (com token, diz se a conta logada escreveu o artigo e pode editar e apagar).
 **Acesso:** Público. **Origem:** ERS 6.4
 
-**Erros:** `400` id inválido; `401` token enviado, porém inválido ou expirado; `404` a dica não existe.
+**Erros:** `400` id inválido; `401` token enviado, porém inválido ou expirado; `404` o artigo não existe.
 
-### GET /api/dicas/minhas
+### GET /api/artigos/meus
 
-As dicas da conta logada, das mais novas pras mais antigas, e se ela pode publicar.
+Os artigos da conta logada, dos mais novos pros mais antigos, e se ela pode publicar.
 **Acesso:** Autenticado. **Origem:** ERS 6.4
 
 ```json
-{ "podePublicar": true, "dicas": [] }
+{ "podePublicar": true, "artigos": [] }
 ```
 
-Os itens de `dicas` têm o formato da lista. O front usa o `podePublicar` pra mostrar o "Escrever uma dica".
+Os itens de `artigos` têm o formato da lista. O front usa o `podePublicar` pra mostrar o "Escrever um artigo".
 
-### POST /api/dicas
+### POST /api/artigos
 
-Publica uma dica. A conta do token é a autora.
+Publica um artigo. A conta do token é a autora.
 **Acesso:** Abrigo, ou Usuario que já cadastrou animal. **Origem:** ERS 6.4
 
 **Entrada**
@@ -1239,7 +1239,7 @@ Publica uma dica. A conta do token é a autora.
 | `conteudo`  | Obrigatório, de 50 a 10000 caracteres                                     |
 | `fotoCapa`  | Opcional. Tem que ser uma foto enviada pelo `POST /api/fotos`             |
 
-**Saída (`201 Created`):** a dica inteira, com o header `Location: /api/dicas/{id}`.
+**Saída (`201 Created`):** o artigo inteiro, com o header `Location: /api/artigos/{id}`.
 
 **Erros**
 
@@ -1249,23 +1249,23 @@ Publica uma dica. A conta do token é a autora.
 | `401`  | Sem token ou token inválido                                         |
 | `403`  | Pessoa que ainda não cadastrou nenhum animal                         |
 
-### PUT /api/dicas/{id}
+### PUT /api/artigos/{id}
 
-Edita a dica. Manda todos os campos, com as mesmas regras do `POST`. Grava a data em `atualizadaEm`. A capa trocada ou tirada sai também do armazenamento (S3).
+Edita o artigo. Manda todos os campos, com as mesmas regras do `POST`. Grava a data em `atualizadoEm`. A capa trocada ou tirada sai também do armazenamento (S3).
 **Acesso:** Somente quem escreveu. **Origem:** ERS 6.4
 
-**Saída (`200 OK`):** a dica inteira.
+**Saída (`200 OK`):** o artigo inteiro.
 
-**Erros:** `400` campo inválido; `401` sem token; `403` dica de outra conta; `404` a dica não existe.
+**Erros:** `400` campo inválido; `401` sem token; `403` artigo de outra conta; `404` o artigo não existe.
 
-### DELETE /api/dicas/{id}
+### DELETE /api/artigos/{id}
 
-Apaga a dica. A capa sai também do armazenamento (S3).
+Apaga o artigo. A capa sai também do armazenamento (S3).
 **Acesso:** Somente quem escreveu. **Origem:** ERS 6.4
 
 **Saída (`204 No Content`).**
 
-**Erros:** `401` sem token; `403` dica de outra conta; `404` a dica não existe.
+**Erros:** `401` sem token; `403` artigo de outra conta; `404` o artigo não existe.
 
 ---
 

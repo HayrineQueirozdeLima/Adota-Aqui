@@ -1,14 +1,14 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { AuthProvider } from "../src/contexts/AuthContext";
-import { dicaExemplo } from "../src/mocks/dicas";
-import Dica from "../src/pages/Dica/Dica";
+import { artigoExemplo } from "../src/mocks/artigos";
+import Artigo from "../src/pages/Artigo/Artigo";
 import { resposta, simularApi } from "./utils/apiFalsa";
 
-// Uma dica inteira, em /dicas/:id
+// Um artigo inteiro, em /blog/:id
 
 const CHAVE = "adotaaqui.sessao";
-const ID = dicaExemplo.id;
+const ID = artigoExemplo.id;
 
 function entrar() {
   localStorage.setItem(
@@ -23,37 +23,37 @@ function entrar() {
   );
 }
 
-// "dica" troca campos da dica de exemplo. "responder" decide a resposta do GET (recebe o número da tentativa)
+// "artigo" troca campos do artigo de exemplo. "responder" decide a resposta do GET (recebe o número da tentativa)
 let apagou;
-function simular({ dica = {}, responder, respostaDoApagar } = {}) {
+function simular({ artigo = {}, responder, respostaDoApagar } = {}) {
   apagou = false;
   let tentativas = 0;
   simularApi({
     outras: (metodo, caminho) => {
-      if (caminho !== `/api/dicas/${ID}`) return undefined;
+      if (caminho !== `/api/artigos/${ID}`) return undefined;
       if (metodo === "DELETE") {
         apagou = true;
         return respostaDoApagar ?? resposta(204, null);
       }
       tentativas += 1;
-      return responder?.(tentativas) ?? resposta(200, { ...dicaExemplo, ...dica });
+      return responder?.(tentativas) ?? resposta(200, { ...artigoExemplo, ...artigo });
     },
   });
 }
 
-// Mostra o aviso que a tela manda pra lista de dicas
-function ListaDeDicas() {
+// Mostra o aviso que a tela manda pra lista de artigos
+function ListaDeArtigos() {
   const { state } = useLocation();
-  return <p>Lista de dicas: {state?.aviso}</p>;
+  return <p>Lista de artigos: {state?.aviso}</p>;
 }
 
 function abrir(estado) {
   render(
-    <MemoryRouter initialEntries={[{ pathname: `/dicas/${ID}`, state: estado }]}>
+    <MemoryRouter initialEntries={[{ pathname: `/blog/${ID}`, state: estado }]}>
       <AuthProvider>
         <Routes>
-          <Route path="/dicas/:id" element={<Dica />} />
-          <Route path="/dicas" element={<ListaDeDicas />} />
+          <Route path="/blog/:id" element={<Artigo />} />
+          <Route path="/blog" element={<ListaDeArtigos />} />
         </Routes>
       </AuthProvider>
     </MemoryRouter>,
@@ -73,26 +73,26 @@ test("mostra o título, o assunto, quem escreveu e o texto em parágrafos", asyn
     await screen.findByRole("heading", { level: 1, name: "Os primeiros dias do gato em casa" }),
   ).toBeInTheDocument();
   expect(screen.getByText("Primeiros dias em casa")).toBeInTheDocument();
-  expect(screen.getByText(/\(abrigo\), de Santo André\/SP\. Publicada em 29\/10\/2026\./)).toBeInTheDocument();
+  expect(screen.getByText(/\(abrigo\), de Santo André\/SP\. Publicado em 29\/10\/2026\./)).toBeInTheDocument();
   expect(screen.getByText(/Deixe o gato começar por um cômodo só/).tagName).toBe("P");
   expect(screen.getByText("Antes de liberar a casa toda, confira se as janelas estão teladas.")).toBeInTheDocument();
-  expect(screen.getByRole("link", { name: "Todas as dicas" })).toHaveAttribute("href", "/dicas");
-  expect(screen.queryByRole("link", { name: "Editar dica" })).not.toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Voltar pro blog" })).toHaveAttribute("href", "/blog");
+  expect(screen.queryByRole("link", { name: "Editar artigo" })).not.toBeInTheDocument();
   expect(document.title).toBe("Os primeiros dias do gato em casa | Adota Aqui");
 });
 
-test("dica de pessoa, editada e com capa: mostra a data da edição e a foto", async () => {
+test("artigo de pessoa, editado e com capa: mostra a data da edição e a foto", async () => {
   simular({
-    dica: {
+    artigo: {
       autor: { nome: "Maria Pinheiro", tipo: "USUARIO", cidade: "Porto Alegre", estado: "RS" },
-      atualizadaEm: "2026-10-30T09:00:00",
+      atualizadoEm: "2026-10-30T09:00:00",
       fotoCapa: "https://fotos.teste/animais/capa.jpg",
     },
   });
   abrir();
 
   expect(
-    await screen.findByText(/, de Porto Alegre\/RS\. Publicada em 29\/10\/2026 e atualizada em 30\/10\/2026\./),
+    await screen.findByText(/, de Porto Alegre\/RS\. Publicado em 29\/10\/2026 e atualizado em 30\/10\/2026\./),
   ).toBeInTheDocument();
   expect(screen.queryByText(/\(abrigo\)/)).not.toBeInTheDocument();
   expect(document.querySelector('img[src="https://fotos.teste/animais/capa.jpg"]')).toHaveAttribute("alt", "");
@@ -100,53 +100,53 @@ test("dica de pessoa, editada e com capa: mostra a data da edição e a foto", a
 
 test("quem escreveu edita e apaga, e volta pra lista com o aviso", async () => {
   entrar();
-  simular({ dica: { ehMinha: true } });
-  abrir({ aviso: "Sua dica foi publicada." });
+  simular({ artigo: { ehMeu: true } });
+  abrir({ aviso: "Seu artigo foi publicado." });
 
-  expect(await screen.findByText("Sua dica foi publicada.")).toHaveAttribute("role", "status");
-  expect(screen.getByRole("link", { name: "Editar dica" })).toHaveAttribute("href", `/dicas/${ID}/editar`);
+  expect(await screen.findByText("Seu artigo foi publicado.")).toHaveAttribute("role", "status");
+  expect(screen.getByRole("link", { name: "Editar artigo" })).toHaveAttribute("href", `/blog/${ID}/editar`);
 
-  const apagar = screen.getByRole("button", { name: "Apagar dica" });
+  const apagar = screen.getByRole("button", { name: "Apagar artigo" });
   fireEvent.click(apagar);
   expect(apagar).toHaveAttribute("aria-expanded", "true");
-  expect(screen.getByText("Apagar esta dica de vez?")).toBeInTheDocument();
+  expect(screen.getByText("Apagar este artigo de vez?")).toBeInTheDocument();
 
   // Voltar fecha a confirmação e devolve o foco
   fireEvent.click(screen.getByRole("button", { name: "Voltar" }));
-  expect(screen.queryByText("Apagar esta dica de vez?")).not.toBeInTheDocument();
+  expect(screen.queryByText("Apagar este artigo de vez?")).not.toBeInTheDocument();
   expect(document.activeElement).toBe(apagar);
 
   fireEvent.click(apagar);
   fireEvent.click(screen.getByRole("button", { name: "Confirmar" }));
 
   expect(
-    await screen.findByText('Lista de dicas: A dica "Os primeiros dias do gato em casa" foi apagada.'),
+    await screen.findByText('Lista de artigos: O artigo "Os primeiros dias do gato em casa" foi apagado.'),
   ).toBeInTheDocument();
   expect(apagou).toBe(true);
 });
 
-test("se não der pra apagar, avisa e continua na dica", async () => {
+test("se não der pra apagar, avisa e continua no artigo", async () => {
   entrar();
   simular({
-    dica: { ehMinha: true },
-    respostaDoApagar: resposta(403, { status: 403, mensagem: "Só quem escreveu pode apagar a dica" }),
+    artigo: { ehMeu: true },
+    respostaDoApagar: resposta(403, { status: 403, mensagem: "Só quem escreveu pode apagar o artigo" }),
   });
   abrir();
 
-  fireEvent.click(await screen.findByRole("button", { name: "Apagar dica" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Apagar artigo" }));
   fireEvent.click(screen.getByRole("button", { name: "Confirmar" }));
 
-  expect(await screen.findByRole("alert")).toHaveTextContent("Só quem escreveu pode apagar a dica");
+  expect(await screen.findByRole("alert")).toHaveTextContent("Só quem escreveu pode apagar o artigo");
   expect(screen.getByRole("button", { name: "Confirmar" })).toBeEnabled();
 });
 
-test("dica que não existe mostra o aviso e o caminho pra lista", async () => {
-  simular({ responder: () => resposta(404, { status: 404, mensagem: "Dica não encontrada" }) });
+test("artigo que não existe mostra o aviso e o caminho pra lista", async () => {
+  simular({ responder: () => resposta(404, { status: 404, mensagem: "Artigo não encontrado" }) });
   abrir();
 
-  expect(await screen.findByRole("heading", { level: 1, name: "Dica não encontrada" })).toBeInTheDocument();
-  expect(screen.getByRole("link", { name: "Ver todas as dicas" })).toHaveAttribute("href", "/dicas");
-  expect(document.title).toBe("Dica não encontrada | Adota Aqui");
+  expect(await screen.findByRole("heading", { level: 1, name: "Artigo não encontrado" })).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Ver todos os artigos" })).toHaveAttribute("href", "/blog");
+  expect(document.title).toBe("Artigo não encontrado | Adota Aqui");
 });
 
 test("se a API falhar, avisa e deixa tentar de novo", async () => {
@@ -157,7 +157,7 @@ test("se a API falhar, avisa e deixa tentar de novo", async () => {
   abrir();
 
   expect(
-    await screen.findByRole("heading", { level: 1, name: "Não foi possível carregar a dica" }),
+    await screen.findByRole("heading", { level: 1, name: "Não foi possível carregar o artigo" }),
   ).toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "Tentar de novo" }));
   await waitFor(() =>

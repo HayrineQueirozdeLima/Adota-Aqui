@@ -1,6 +1,6 @@
 import { useId } from "react";
 
-// Igual ao CampoTexto, mas pra texto comprido (depoimento, dica): rótulo em cima,
+// Igual ao CampoTexto, mas pra texto comprido (depoimento, artigo do blog): rótulo em cima,
 // erro ou dica embaixo e, com "maximo", o contador de caracteres ("120/1000").
 // Tudo que não é das props abaixo vai direto pro <textarea> (value, onChange, placeholder...)
 export default function CampoTextoLongo({

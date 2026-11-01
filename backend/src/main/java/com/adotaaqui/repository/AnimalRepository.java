@@ -24,7 +24,7 @@ public interface AnimalRepository extends JpaRepository<Animal, UUID>, JpaSpecif
 
     List<Animal> findByAbrigoId(UUID abrigoId);
 
-    // Quem já cadastrou animal é protetor e pode publicar dicas
+    // Quem já cadastrou animal é protetor e pode publicar artigos
     boolean existsByUsuarioId(UUID usuarioId);
 
     // Algum animal ainda usa essa foto? Antes de apagar o arquivo do armazenamento

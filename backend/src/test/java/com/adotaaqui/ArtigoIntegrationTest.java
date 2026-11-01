@@ -6,7 +6,7 @@ import com.adotaaqui.model.Usuario;
 import com.adotaaqui.model.enums.TipoConta;
 import com.adotaaqui.repository.AbrigoRepository;
 import com.adotaaqui.repository.AnimalRepository;
-import com.adotaaqui.repository.DicaRepository;
+import com.adotaaqui.repository.ArtigoRepository;
 import com.adotaaqui.repository.UsuarioRepository;
 import com.adotaaqui.security.JwtService;
 import com.adotaaqui.service.ArmazenamentoEmMemoria;
@@ -40,13 +40,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// Blog de dicas: protetores escrevem, qualquer pessoa lê
+// Blog para tutores: protetores escrevem, qualquer pessoa lê
 @SpringBootTest
 @AutoConfigureMockMvc
-class DicaIntegrationTest {
+class ArtigoIntegrationTest {
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper mapper;
-    @Autowired DicaRepository dicas;
+    @Autowired ArtigoRepository artigos;
     @Autowired AnimalRepository animais;
     @Autowired UsuarioRepository usuarios;
     @Autowired AbrigoRepository abrigos;
@@ -64,7 +64,7 @@ class DicaIntegrationTest {
     @BeforeEach
     @AfterEach
     void limpar() {
-        dicas.deleteAll();
+        artigos.deleteAll();
         animais.deleteAll();
         usuarios.deleteAll();
         abrigos.deleteAll();
@@ -74,13 +74,13 @@ class DicaIntegrationTest {
     @Test
     void abrigoPublicaEQualquerPessoaLe() throws Exception {
         Conta abrigo = abrigo();
-        String id = mapper.readTree(mvc.perform(publicar(abrigo, dica("Os primeiros dias em casa", "PRIMEIROS_DIAS")))
+        String id = mapper.readTree(mvc.perform(publicar(abrigo, artigo("Os primeiros dias em casa", "PRIMEIROS_DIAS")))
                         .andExpect(status().isCreated()).andExpect(header().exists("Location"))
                         .andReturn().getResponse().getContentAsString())
                 .path("id").asText();
 
         // Na lista, sem login: o resumo e o autor, sem e-mail nem telefone
-        String lista = mvc.perform(get("/api/dicas")).andExpect(status().isOk())
+        String lista = mvc.perform(get("/api/artigos")).andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalItens").value(1))
                 .andExpect(jsonPath("$.itens[0].titulo").value("Os primeiros dias em casa"))
                 .andExpect(jsonPath("$.itens[0].categoriaNome").value("Primeiros dias em casa"))
@@ -90,22 +90,22 @@ class DicaIntegrationTest {
                 .andReturn().getResponse().getContentAsString();
         assertThat(lista).doesNotContain("@example.com", "6932221111");
 
-        mvc.perform(get("/api/dicas/" + id)).andExpect(status().isOk())
+        mvc.perform(get("/api/artigos/" + id)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.conteudo").value(TEXTO))
-                .andExpect(jsonPath("$.ehMinha").value(false))
-                .andExpect(jsonPath("$.atualizadaEm").isEmpty());
-        mvc.perform(auth(get("/api/dicas/" + id), abrigo)).andExpect(jsonPath("$.ehMinha").value(true));
-        mvc.perform(get("/api/dicas/" + UUID.randomUUID())).andExpect(status().isNotFound());
+                .andExpect(jsonPath("$.ehMeu").value(false))
+                .andExpect(jsonPath("$.atualizadoEm").isEmpty());
+        mvc.perform(auth(get("/api/artigos/" + id), abrigo)).andExpect(jsonPath("$.ehMeu").value(true));
+        mvc.perform(get("/api/artigos/" + UUID.randomUUID())).andExpect(status().isNotFound());
     }
 
     @Test
     void textoGrandeViraResumoSemCortarPalavra() throws Exception {
         Conta abrigo = abrigo();
         String longo = (TEXTO + " ").repeat(5).strip();
-        mvc.perform(publicar(abrigo, dica("Um texto bem comprido", "SAUDE").put("conteudo", longo)))
+        mvc.perform(publicar(abrigo, artigo("Um texto bem comprido", "SAUDE").put("conteudo", longo)))
                 .andExpect(status().isCreated());
 
-        String resumo = mapper.readTree(mvc.perform(get("/api/dicas")).andReturn().getResponse().getContentAsString())
+        String resumo = mapper.readTree(mvc.perform(get("/api/artigos")).andReturn().getResponse().getContentAsString())
                 .path("itens").get(0).path("resumo").asText();
         assertThat(resumo).endsWith("...").hasSizeLessThanOrEqualTo(183);
         assertThat(longo).startsWith(resumo.substring(0, resumo.length() - 3));
@@ -115,107 +115,107 @@ class DicaIntegrationTest {
     @Test
     void pessoaSoPublicaDepoisDeCadastrarUmAnimal() throws Exception {
         Conta pessoa = usuario();
-        mvc.perform(auth(get("/api/dicas/minhas"), pessoa))
+        mvc.perform(auth(get("/api/artigos/meus"), pessoa))
                 .andExpect(jsonPath("$.podePublicar").value(false))
-                .andExpect(jsonPath("$.dicas").isEmpty());
-        mvc.perform(publicar(pessoa, dica("Ainda não sou protetora", "COMPORTAMENTO")))
+                .andExpect(jsonPath("$.artigos").isEmpty());
+        mvc.perform(publicar(pessoa, artigo("Ainda não sou protetora", "COMPORTAMENTO")))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.mensagem")
-                        .value("Só protetores publicam dicas. Cadastre um animal antes de escrever a sua"));
+                        .value("Só protetores publicam artigos. Cadastre um animal antes de escrever o seu"));
 
         animal(pessoa);
-        mvc.perform(auth(get("/api/dicas/minhas"), pessoa)).andExpect(jsonPath("$.podePublicar").value(true));
-        mvc.perform(publicar(pessoa, dica("Agora já sou protetora", "COMPORTAMENTO")))
+        mvc.perform(auth(get("/api/artigos/meus"), pessoa)).andExpect(jsonPath("$.podePublicar").value(true));
+        mvc.perform(publicar(pessoa, artigo("Agora já sou protetora", "COMPORTAMENTO")))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.autor.tipo").value("USUARIO"));
-        mvc.perform(auth(get("/api/dicas/minhas"), pessoa)).andExpect(jsonPath("$.dicas.length()").value(1));
+        mvc.perform(auth(get("/api/artigos/meus"), pessoa)).andExpect(jsonPath("$.artigos.length()").value(1));
     }
 
     @Test
     void soQuemEscreveuEditaEApaga() throws Exception {
         Conta autor = abrigo();
         Conta outro = abrigo();
-        String id = criar(autor, dica("Vacinas do primeiro ano", "SAUDE"));
-        ObjectNode alterada = dica("Vacinas do primeiro ano, atualizado", "SAUDE");
+        String id = criar(autor, artigo("Vacinas do primeiro ano", "SAUDE"));
+        ObjectNode alterado = artigo("Vacinas do primeiro ano, atualizado", "SAUDE");
 
-        mvc.perform(auth(put("/api/dicas/" + id), outro).contentType(MediaType.APPLICATION_JSON)
-                .content(alterada.toString())).andExpect(status().isForbidden());
-        mvc.perform(auth(put("/api/dicas/" + id), autor).contentType(MediaType.APPLICATION_JSON)
-                        .content(alterada.toString())).andExpect(status().isOk())
+        mvc.perform(auth(put("/api/artigos/" + id), outro).contentType(MediaType.APPLICATION_JSON)
+                .content(alterado.toString())).andExpect(status().isForbidden());
+        mvc.perform(auth(put("/api/artigos/" + id), autor).contentType(MediaType.APPLICATION_JSON)
+                        .content(alterado.toString())).andExpect(status().isOk())
                 .andExpect(jsonPath("$.titulo").value("Vacinas do primeiro ano, atualizado"))
-                .andExpect(jsonPath("$.atualizadaEm").isNotEmpty());
+                .andExpect(jsonPath("$.atualizadoEm").isNotEmpty());
 
-        mvc.perform(auth(delete("/api/dicas/" + id), outro)).andExpect(status().isForbidden());
-        mvc.perform(auth(delete("/api/dicas/" + id), autor)).andExpect(status().isNoContent());
-        mvc.perform(get("/api/dicas/" + id)).andExpect(status().isNotFound());
+        mvc.perform(auth(delete("/api/artigos/" + id), outro)).andExpect(status().isForbidden());
+        mvc.perform(auth(delete("/api/artigos/" + id), autor)).andExpect(status().isNoContent());
+        mvc.perform(get("/api/artigos/" + id)).andExpect(status().isNotFound());
     }
 
     @Test
     void camposSaoConferidos() throws Exception {
         Conta abrigo = abrigo();
-        mvc.perform(publicar(abrigo, dica("Oi", "SAUDE"))).andExpect(status().isBadRequest())
+        mvc.perform(publicar(abrigo, artigo("Oi", "SAUDE"))).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.campos.titulo").value("O título deve ter de 5 a 120 caracteres"));
-        mvc.perform(publicar(abrigo, dica("Título bom", "SAUDE").put("conteudo", "Curto demais.")))
+        mvc.perform(publicar(abrigo, artigo("Título bom", "SAUDE").put("conteudo", "Curto demais.")))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.campos.conteudo").value("A dica deve ter de 50 a 10000 caracteres"));
-        ObjectNode semCategoria = dica("Título bom", "SAUDE");
+                .andExpect(jsonPath("$.campos.conteudo").value("O artigo deve ter de 50 a 10000 caracteres"));
+        ObjectNode semCategoria = artigo("Título bom", "SAUDE");
         semCategoria.remove("categoria");
         mvc.perform(publicar(abrigo, semCategoria)).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.campos.categoria").value("Escolha o assunto da dica"));
-        mvc.perform(publicar(abrigo, dica("Título bom", "ASTROLOGIA"))).andExpect(status().isBadRequest());
-        mvc.perform(publicar(abrigo, dica("Capa de fora", "SAUDE").put("fotoCapa", "https://example.com/capa.jpg")))
+                .andExpect(jsonPath("$.campos.categoria").value("Escolha o assunto do artigo"));
+        mvc.perform(publicar(abrigo, artigo("Título bom", "ASTROLOGIA"))).andExpect(status().isBadRequest());
+        mvc.perform(publicar(abrigo, artigo("Capa de fora", "SAUDE").put("fotoCapa", "https://example.com/capa.jpg")))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.mensagem").value("Envie a foto pelo próprio site"));
-        assertThat(dicas.count()).isZero();
+        assertThat(artigos.count()).isZero();
     }
 
     @Test
-    void filtraPorAssuntoEVemEmPaginasDaMaisNovaPraMaisAntiga() throws Exception {
+    void filtraPorAssuntoEVemEmPaginasDoMaisNovoProMaisAntigo() throws Exception {
         Conta abrigo = abrigo();
-        String antiga = criar(abrigo, dica("Vacinas do filhote", "SAUDE"));
-        String nova = criar(abrigo, dica("Vermífugo em dia", "SAUDE"));
-        criar(abrigo, dica("Ração ou comida caseira", "ALIMENTACAO"));
-        jdbc.update("update dica set publicada_em = ? where id = ?",
-                Timestamp.valueOf(LocalDateTime.now().minusDays(2)), UUID.fromString(antiga));
+        String antigo = criar(abrigo, artigo("Vacinas do filhote", "SAUDE"));
+        String novo = criar(abrigo, artigo("Vermífugo em dia", "SAUDE"));
+        criar(abrigo, artigo("Ração ou comida caseira", "ALIMENTACAO"));
+        jdbc.update("update artigo set publicado_em = ? where id = ?",
+                Timestamp.valueOf(LocalDateTime.now().minusDays(2)), UUID.fromString(antigo));
 
-        mvc.perform(get("/api/dicas").param("categoria", "SAUDE").param("tamanho", "1"))
-                .andExpect(jsonPath("$.itens[0].id").value(nova))
+        mvc.perform(get("/api/artigos").param("categoria", "SAUDE").param("tamanho", "1"))
+                .andExpect(jsonPath("$.itens[0].id").value(novo))
                 .andExpect(jsonPath("$.totalItens").value(2))
                 .andExpect(jsonPath("$.totalPaginas").value(2));
-        mvc.perform(get("/api/dicas").param("categoria", "SAUDE").param("tamanho", "1").param("pagina", "1"))
-                .andExpect(jsonPath("$.itens[0].id").value(antiga));
-        mvc.perform(get("/api/dicas")).andExpect(jsonPath("$.totalItens").value(3));
-        mvc.perform(get("/api/dicas").param("categoria", "ASTROLOGIA")).andExpect(status().isBadRequest());
-        mvc.perform(get("/api/dicas").param("pagina", "-1")).andExpect(status().isBadRequest());
+        mvc.perform(get("/api/artigos").param("categoria", "SAUDE").param("tamanho", "1").param("pagina", "1"))
+                .andExpect(jsonPath("$.itens[0].id").value(antigo));
+        mvc.perform(get("/api/artigos")).andExpect(jsonPath("$.totalItens").value(3));
+        mvc.perform(get("/api/artigos").param("categoria", "ASTROLOGIA")).andExpect(status().isBadRequest());
+        mvc.perform(get("/api/artigos").param("pagina", "-1")).andExpect(status().isBadRequest());
     }
 
     @Test
-    void capaTrocadaOuDicaApagadaSaiDoArmazenamento() throws Exception {
+    void capaTrocadaOuArtigoApagadoSaiDoArmazenamento() throws Exception {
         Conta abrigo = abrigo();
         String primeira = enviarFoto(abrigo);
         String segunda = enviarFoto(abrigo);
-        String id = criar(abrigo, dica("Com capa", "COMPORTAMENTO").put("fotoCapa", primeira));
+        String id = criar(abrigo, artigo("Com capa", "COMPORTAMENTO").put("fotoCapa", primeira));
 
-        mvc.perform(auth(put("/api/dicas/" + id), abrigo).contentType(MediaType.APPLICATION_JSON)
-                        .content(dica("Com outra capa", "COMPORTAMENTO").put("fotoCapa", segunda).toString()))
+        mvc.perform(auth(put("/api/artigos/" + id), abrigo).contentType(MediaType.APPLICATION_JSON)
+                        .content(artigo("Com outra capa", "COMPORTAMENTO").put("fotoCapa", segunda).toString()))
                 .andExpect(status().isOk());
         assertThat(armazenamento.contem(chave(primeira))).isFalse();
         assertThat(armazenamento.contem(chave(segunda))).isTrue();
 
-        mvc.perform(auth(delete("/api/dicas/" + id), abrigo)).andExpect(status().isNoContent());
+        mvc.perform(auth(delete("/api/artigos/" + id), abrigo)).andExpect(status().isNoContent());
         assertThat(armazenamento.contem(chave(segunda))).isFalse();
     }
 
     @Test
-    void escreverEVerAsMinhasPrecisaDeLogin() throws Exception {
-        mvc.perform(post("/api/dicas").contentType(MediaType.APPLICATION_JSON)
-                .content(dica("Sem login", "SAUDE").toString())).andExpect(status().isUnauthorized());
-        mvc.perform(get("/api/dicas/minhas")).andExpect(status().isUnauthorized());
+    void escreverEVerOsMeusPrecisaDeLogin() throws Exception {
+        mvc.perform(post("/api/artigos").contentType(MediaType.APPLICATION_JSON)
+                .content(artigo("Sem login", "SAUDE").toString())).andExpect(status().isUnauthorized());
+        mvc.perform(get("/api/artigos/meus")).andExpect(status().isUnauthorized());
     }
 
     // ---------- ajudantes ----------
 
-    private ObjectNode dica(String titulo, String categoria) {
+    private ObjectNode artigo(String titulo, String categoria) {
         ObjectNode corpo = mapper.createObjectNode();
         corpo.put("titulo", titulo);
         corpo.put("conteudo", TEXTO);
@@ -224,7 +224,7 @@ class DicaIntegrationTest {
     }
 
     private MockHttpServletRequestBuilder publicar(Conta conta, ObjectNode corpo) {
-        return auth(post("/api/dicas"), conta).contentType(MediaType.APPLICATION_JSON).content(corpo.toString());
+        return auth(post("/api/artigos"), conta).contentType(MediaType.APPLICATION_JSON).content(corpo.toString());
     }
 
     private String criar(Conta conta, ObjectNode corpo) throws Exception {
@@ -263,7 +263,7 @@ class DicaIntegrationTest {
         Usuario usuario = new Usuario();
         usuario.setCpf(String.format("%011d", numero));
         usuario.setNome("Pessoa " + numero);
-        usuario.setEmail("dica" + numero + "@example.com");
+        usuario.setEmail("artigo" + numero + "@example.com");
         usuario.setTelefone("69999998888");
         usuario.setSenha("hash-de-fixture");
         usuario.setEndereco(endereco());
@@ -277,7 +277,7 @@ class DicaIntegrationTest {
         abrigo.setCnpj(String.format("%014d", numero));
         abrigo.setNome("Abrigo " + numero);
         abrigo.setRazaoSocial("Abrigo " + numero);
-        abrigo.setEmail("dica-abrigo" + numero + "@example.com");
+        abrigo.setEmail("artigo-abrigo" + numero + "@example.com");
         abrigo.setTelefone("6932221111");
         abrigo.setSenha("hash-de-fixture");
         abrigo.setEndereco(endereco());

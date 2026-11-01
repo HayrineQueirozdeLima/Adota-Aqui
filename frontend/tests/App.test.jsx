@@ -76,14 +76,14 @@ test("na lista de animais, os títulos seguem a ordem: h1 da página e h2 em cad
   ).toHaveLength(0);
 });
 
-// "/dicas/nova" e "/dicas/:id" casam com o mesmo endereço: o roteador escolhe a rota com a parte fixa,
-// que pede login. Se escolhesse a outra, a tela buscaria uma dica chamada "nova"
-test("o /dicas/nova é o formulário de escrever, que pede login, e não uma dica", async () => {
+// "/blog/novo" e "/blog/:id" casam com o mesmo endereço: o roteador escolhe a rota com a parte fixa,
+// que pede login. Se escolhesse a outra, a tela buscaria um artigo com o id "novo"
+test("o /blog/novo é o formulário de escrever, que pede login, e não um artigo", async () => {
   render(
-    <MemoryRouter initialEntries={["/dicas/nova"]}>
+    <MemoryRouter initialEntries={["/blog/novo"]}>
       <App />
     </MemoryRouter>,
   );
   await waitFor(() => expect(document.title).toBe("Entrar | Adota Aqui"));
-  expect(fetch).not.toHaveBeenCalledWith(expect.stringContaining("/api/dicas/nova"), expect.anything());
+  expect(fetch).not.toHaveBeenCalledWith(expect.stringContaining("/api/artigos/novo"), expect.anything());
 });
