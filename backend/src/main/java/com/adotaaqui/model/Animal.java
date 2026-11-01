@@ -27,8 +27,10 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.Check;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -116,6 +118,12 @@ public class Animal {
     @Enumerated(EnumType.STRING)
     @Column(name = "status_adocao", nullable = false, length = 20)
     private StatusAdocao statusAdocao = StatusAdocao.DISPONIVEL;
+
+    // Quando o animal foi cadastrado: a vitrine mostra os mais novos primeiro.
+    // O default do banco serve pros animais que já existiam quando a coluna foi criada no Neon
+    @ColumnDefault("current_timestamp")
+    @Column(name = "cadastrado_em", nullable = false, updatable = false)
+    private LocalDateTime cadastradoEm = LocalDateTime.now();
 
     // Quem cadastrou o animal (o "protetor"): um desses dois fica preenchido e o outro fica nulo
     @ManyToOne(fetch = FetchType.LAZY)
@@ -317,5 +325,9 @@ public class Animal {
 
     public List<Interesse> getInteresses() {
         return interesses;
+    }
+
+    public LocalDateTime getCadastradoEm() {
+        return cadastradoEm;
     }
 }

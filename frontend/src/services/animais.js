@@ -21,8 +21,11 @@ export const filtrosVazios = {
 
 // GET /api/animais
 // com o token de um Usuario, a própria API já devolve só os animais do estado dele (RF14)
-export function listarAnimais(filtros = filtrosVazios, token = null) {
-    return requisicao(`/api/animais${montarConsulta(filtros)}`, { token });
+// a resposta vem em páginas de 12, dos mais novos pros mais antigos:
+// { itens, pagina, tamanho, totalItens, totalPaginas }. A primeira página é a 0
+export function listarAnimais(filtros = filtrosVazios, token = null, pagina = 0) {
+    const consulta = pagina > 0 ? { ...filtros, pagina } : filtros;
+    return requisicao(`/api/animais${montarConsulta(consulta)}`, { token });
 }
 
 // GET /api/animais/{id}: o perfil completo de um animal

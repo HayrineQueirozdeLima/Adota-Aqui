@@ -6,6 +6,7 @@ import com.adotaaqui.dto.AnimalRequest;
 import com.adotaaqui.dto.AnimalResponse;
 import com.adotaaqui.dto.AtualizarAnimalRequest;
 import com.adotaaqui.dto.InteresseResumoResponse;
+import com.adotaaqui.dto.PaginaResponse;
 import com.adotaaqui.dto.VacinaRequest;
 import com.adotaaqui.exception.DadosInvalidosException;
 import com.adotaaqui.exception.RecursoNaoEncontradoException;
@@ -24,6 +25,8 @@ import com.adotaaqui.repository.InteresseRepository;
 import com.adotaaqui.repository.UsuarioRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -49,13 +52,18 @@ public class AnimalService {
     private final UsuarioRepository usuarios;
     private final AbrigoRepository abrigos;
     private final InteresseRepository interesses;
+    private final LimpezaDeFotos limpezaDeFotos;
 
-    public AnimalService(AnimalRepository animais, UsuarioRepository usuarios,
-                         AbrigoRepository abrigos, InteresseRepository interesses) {
+    // A vitrine mostra os mais novos primeiro. O id desempata, pra ordem não mudar de uma página pra outra
+    private static final Sort MAIS_NOVOS_PRIMEIRO = Sort.by(Sort.Order.desc("cadastradoEm"), Sort.Order.asc("id"));
+
+    public AnimalService(AnimalRepository animais, UsuarioRepository usuarios, AbrigoRepository abrigos,
+                         InteresseRepository interesses, LimpezaDeFotos limpezaDeFotos) {
         this.animais = animais;
         this.usuarios = usuarios;
         this.abrigos = abrigos;
         this.interesses = interesses;
+        this.limpezaDeFotos = limpezaDeFotos;
     }
 
     @Transactional
@@ -74,11 +82,12 @@ public class AnimalService {
         return resposta(animal, conta);
     }
 
-    public List<AnimalListagemResponse> listar(AnimalFiltroRequest filtro, Authentication autenticacao) {
+    public PaginaResponse<AnimalListagemResponse> listar(AnimalFiltroRequest filtro, Authentication autenticacao) {
         Conta conta = conta(autenticacao, false);
         String estado = conta != null && conta.usuario() != null ? conta.usuario().getEndereco().getEstado() : null;
-        return animais.findAll(AnimalSpecifications.disponiveis(filtro, estado)).stream()
-                .map(AnimalMapper::item).toList();
+        PageRequest pagina = PageRequest.of(filtro.paginaPedida(), filtro.tamanhoPedido(), MAIS_NOVOS_PRIMEIRO);
+        return PaginaResponse.de(animais.findAll(AnimalSpecifications.disponiveis(filtro, estado), pagina),
+                AnimalMapper::item);
     }
 
     public List<AnimalListagemResponse> listarMeus(Authentication autenticacao) {
@@ -104,6 +113,7 @@ public class AnimalService {
         Conta conta = conta(autenticacao, true);
         Animal animal = animais.findByIdParaAtualizacao(id).orElseThrow(AnimalService::naoEncontrado);
         exigirDono(animal, conta);
+        List<String> fotosAntes = List.copyOf(animal.getFotos());
         if (animal.getStatusAdocao() == StatusAdocao.ADOTADO) {
             if (request.getStatusAdocao() == StatusAdocao.ADOTADO) {
                 // Continua adotado: os dados ficam como estão (RF06)
@@ -126,6 +136,8 @@ public class AnimalService {
             atualizarDados(animal, request);
         }
         animais.flush();
+        // As fotos que o protetor tirou saem também do S3
+        limpezaDeFotos.apagarDepoisDeSalvar(fotosAntes.stream().filter(url -> !animal.getFotos().contains(url)).toList());
         return resposta(animal, conta);
     }
 
@@ -134,9 +146,11 @@ public class AnimalService {
         Conta conta = conta(autenticacao, true);
         Animal animal = animais.findByIdParaAtualizacao(id).orElseThrow(AnimalService::naoEncontrado);
         exigirDono(animal, conta);
+        List<String> fotos = List.copyOf(animal.getFotos());
         // Remoção por entidade preserva os callbacks e a cascata dos dependentes.
         animais.delete(animal);
         animais.flush();
+        limpezaDeFotos.apagarDepoisDeSalvar(fotos);
     }
 
     private void validarRaca(AnimalRequest request) {

@@ -2,8 +2,8 @@
 
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
-- **Versão:** 1.5 (outubro de 2026)
-- **Total:** 65 casos, 62 já automatizados e 3 manuais
+- **Versão:** 1.6 (outubro de 2026)
+- **Total:** 67 casos, 64 já automatizados e 3 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
 
@@ -60,6 +60,7 @@ A coluna **Automatizado em** mostra o arquivo de teste que já confere o caso. O
 | CT-FLT-05 | Limpar filtros                                              | Funcional        | O botão "Limpar filtros" apaga a busca e os filtros e volta a lista completa                                                                                                | `VitrineAnimais.test.jsx`                               |
 | CT-FLT-06 | Pessoa física logada                                        | Regra de negócio | Só aparecem animais do estado dela (RF14). Sem nenhum, aparece "Nenhum animal disponível no seu estado no momento."                                                         | `VitrineAnimais.test.jsx`, `AnimalIntegrationTest.java` |
 | CT-FLT-07 | Buscar pelo nome do animal ou do protetor                   | Funcional        | Acha por parte do nome, sem diferença de acento e maiúscula, tanto o nome do animal ("mel") quanto o de quem cadastrou ("joao", "quatro patas"). Soma com os outros filtros | `VitrineAnimais.test.jsx`, `AnimalIntegrationTest.java` |
+| CT-FLT-08 | Ver mais animais | Funcional | Os animais vêm de 12 em 12, dos mais novos pros mais antigos. "Ver mais animais" traz a próxima página embaixo, sem repetir animal, e leva o foco pro primeiro animal novo. Mudar um filtro volta pra primeira página | `VitrineAnimais.test.jsx`, `AnimalIntegrationTest.java` |
 
 ### Módulo 4: Perfil do animal e interesse
 
@@ -95,6 +96,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | CT-CAD-05 | Remover animal                             | Funcional        | Pede confirmação. Depois, o animal some junto com as vacinas e os interesses                                              | `EditarAnimal.test.jsx`, `AnimalIntegrationTest.java`   |
 | CT-CAD-06 | Editar animal adotado                      | Regra de negócio | Continuando Adotado, só o status pode mudar (RF06). Na devolução pra Disponível, os dados mudam no mesmo salvamento       | `EditarAnimal.test.jsx`, `AnimalIntegrationTest.java`   |
 | CT-CAD-07 | Outra conta tenta editar ou remover        | Segurança        | A tela não mostra o formulário e a API recusa                                                                             | `EditarAnimal.test.jsx`, `AnimalIntegrationTest.java`   |
+| CT-CAD-08 | Foto que sai do animal | Funcional | A foto tirada na edição, ou as fotos de um animal removido, somem também do S3. Foto que outro animal usa continua lá | `AnimalIntegrationTest.java`, `FotoIntegrationTest.java` |
 
 ### Módulo 7: Interesses recebidos
 
@@ -145,15 +147,15 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | ------------------------------------------ | ------ | ------------- | ------- |
 | 1. Navegação e página inicial              | 8      | 7             | 1       |
 | 2. Cadastro, login e sessão                | 9      | 9             | 0       |
-| 3. Vitrine, busca e filtros                | 7      | 7             | 0       |
+| 3. Vitrine, busca e filtros                | 8      | 8             | 0       |
 | 4. Perfil do animal e interesse            | 7      | 7             | 0       |
 | 5. Formulários                             | 4      | 4             | 0       |
-| 6. Cadastro de animal e Meus animais       | 7      | 7             | 0       |
+| 6. Cadastro de animal e Meus animais       | 8      | 8             | 0       |
 | 7. Interesses recebidos                    | 5      | 5             | 0       |
 | 8. Minhas candidaturas                     | 5      | 5             | 0       |
 | 9. Meu perfil                              | 6      | 6             | 0       |
 | 10. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
-| **Total**                                  | **65** | **62**        | **3**   |
+| **Total**                                  | **67** | **64**        | **3**   |
 
 A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta tabela: ela é medida pelo JaCoCo e pelo Jest a cada push, como explica o [plano de testes](plano-de-testes.md). Esta tabela mostra outra coisa: quantos comportamentos importantes já têm teste automático e quantos ainda dependem de alguém testar à mão.
 

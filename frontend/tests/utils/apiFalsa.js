@@ -16,8 +16,13 @@ export function resposta(status, corpo) {
     };
 }
 
+// Monta uma página da API, como o GET /api/animais devolve: { itens, pagina, tamanho, totalItens, totalPaginas }
+export function paginaDe(itens, { pagina = 0, tamanho = 12, totalItens = itens.length } = {}) {
+    return { itens, pagina, tamanho, totalItens, totalPaginas: Math.ceil(totalItens / tamanho) };
+}
+
 // /api/racas devolve as raças de exemplo da espécie pedida.
-// /api/animais devolve os animais de exemplo, ou o que "responderAnimais" decidir
+// /api/animais devolve uma página com os animais de exemplo, ou o que "responderAnimais" decidir
 // (recebe os parâmetros da busca e as opções do fetch, e devolve uma resposta).
 // /api/animais/{id} devolve o perfil de exemplo, ou o que "responderAnimal" decidir
 // (recebe o id e as opções do fetch)
@@ -97,7 +102,7 @@ export function simularApi({
         const parametros = Object.fromEntries(endereco.searchParams);
         const respostaAnimais = responderAnimais
             ? responderAnimais(parametros, opcoes)
-            : resposta(200, animaisExemplo);
+            : resposta(200, paginaDe(animaisExemplo));
         return Promise.resolve(respostaAnimais);
     });
 }

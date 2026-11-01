@@ -48,7 +48,7 @@ Remover um animal apaga junto as fotos, as vacinas e os interesses dele (UC05 FA
 - **O que se perde:** o histórico de interesses daquele animal some junto. Por isso a tela pede confirmação ("Remover {nome} de vez?"). Pra um animal adotado, não precisa remover: como Adotado, ele já sai da vitrine e o histórico fica guardado.
 - **O que não vai em cascata:** as contas. O site não apaga conta, e no próprio banco a chave estrangeira impede apagar uma conta que ainda tem animal.
 
-O arquivo da foto continua no S3 depois da remoção (ver [O que ficou de fora](#o-que-ficou-de-fora)).
+O arquivo da foto também sai do S3, mas só depois que a remoção é salva (ver "Fotos passam pela API").
 
 ### Sessão sem estado, com JWT e BCrypt
 
@@ -79,6 +79,8 @@ A adoção também só acontece pela aprovação de um interesse. Marcar Adotado
 ### Fotos passam pela API
 
 O navegador não manda a foto direto pro S3: manda pro `POST /api/fotos`, e o back grava. Assim a chave da AWS fica só no Render, e o back confere o arquivo antes de guardar. O banco guarda só as URLs (RF16), e o navegador carrega as imagens direto do S3, sem passar pela API.
+
+Quando a foto sai de um animal, na edição ou na remoção, o arquivo sai também do S3 (`LimpezaDeFotos`). Isso só acontece depois que a alteração é salva no banco: se a transação falhar, a foto continua lá. E só sai a foto que a própria API guardou e que nenhum outro animal usa.
 
 Na máquina de vocês, as fotos ficam na memória, e ninguém precisa de conta na AWS pra desenvolver. Qual dos dois vale é uma variável (`FOTOS_ARMAZENAMENTO`), e os services não sabem a diferença, porque os dois implementam a mesma interface (`ArmazenamentoFotos`).
 
@@ -193,5 +195,3 @@ A ERS (seção 6) já separava o que não cabia nos dois meses do curso. Ficaram
 | Depoimento e mural de adoções (RF11, UC09)       | Era opcional na ERS e ficou pra depois do fluxo principal                                                                                                                                    |
 | Blog, animais desaparecidos, estatísticas e mapa | Funcionalidades novas, fora do fluxo de adoção                                                                                                                                               |
 | Aviso por e-mail de interesse novo               | No MVP, o aviso é o próprio painel: interesse novo aparece como Pendente (`docs/api.md`, decisão 3)                                                                                          |
-| Paginação da vitrine                             | A vitrine traz todos os disponíveis de uma vez. No volume do curso fica rápido, mas com muitos animais vai precisar                                                                          |
-| Apagar a imagem do S3                            | Remover uma foto ou um animal tira a URL do banco, mas o arquivo continua no S3                                                                                                              |

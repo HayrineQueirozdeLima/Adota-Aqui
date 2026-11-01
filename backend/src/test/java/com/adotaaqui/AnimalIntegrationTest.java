@@ -20,6 +20,7 @@ import com.adotaaqui.repository.AnimalRepository;
 import com.adotaaqui.repository.InteresseRepository;
 import com.adotaaqui.repository.UsuarioRepository;
 import com.adotaaqui.security.JwtService;
+import com.adotaaqui.service.ArmazenamentoEmMemoria;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -33,12 +34,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,7 +61,11 @@ class AnimalIntegrationTest {
     @Autowired JwtService jwt;
     @Autowired JdbcTemplate jdbc;
     @Autowired TransactionTemplate transacao;
+    @Autowired ArmazenamentoEmMemoria armazenamento;
     private int sequencia;
+
+    // Os primeiros bytes de um JPG bastam pro back aceitar a foto (ver FotoIntegrationTest)
+    private static final byte[] JPEG = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 'J', 'F', 'I', 'F'};
 
     private record Conta(UUID id, String token, boolean abrigo) {}
 
@@ -104,20 +112,112 @@ class AnimalIntegrationTest {
         criar(sp, corpo());
         String adotado = criar(ro, corpo()).path("id").asText();
         adotar(adotado);
-        mvc.perform(get("/api/animais")).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(2));
-        mvc.perform(auth(get("/api/animais"), ro)).andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].id").value(id));
-        mvc.perform(auth(get("/api/animais"), sp)).andExpect(jsonPath("$.length()").value(2));
+        mvc.perform(get("/api/animais")).andExpect(status().isOk()).andExpect(jsonPath("$.itens.length()").value(2));
+        mvc.perform(auth(get("/api/animais"), ro)).andExpect(jsonPath("$.itens.length()").value(1))
+                .andExpect(jsonPath("$.itens[0].id").value(id));
+        mvc.perform(auth(get("/api/animais"), sp)).andExpect(jsonPath("$.itens.length()").value(2));
         mvc.perform(auth(get("/api/animais/meus"), ro)).andExpect(jsonPath("$.length()").value(2));
         mvc.perform(get("/api/animais").param("cidade", "porto velho").param("especie", "CAO")
                         .param("raca", "SRD_CAO").param("porte", "MEDIO").param("sexo", "FEMEA")
                         .param("energia", "MAIS_CALMO").param("convivenciaCrianca", "NAO_TESTADO")
                         .param("convivenciaGato", "CONVIVE_BEM").param("convivenciaCao", "NAO_CONVIVE_BEM"))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(1));
-        mvc.perform(get("/api/animais").param("especie", "GATO")).andExpect(content().json("[]"));
-        mvc.perform(get("/api/animais").param("cidade", "Inexistente")).andExpect(content().json("[]"));
+                .andExpect(status().isOk()).andExpect(jsonPath("$.itens.length()").value(1));
+        mvc.perform(get("/api/animais").param("especie", "GATO")).andExpect(jsonPath("$.itens").isEmpty());
+        mvc.perform(get("/api/animais").param("cidade", "Inexistente")).andExpect(jsonPath("$.itens").isEmpty());
         mvc.perform(auth(get("/api/animais").param("cidade", "São Paulo").param("estado", "SP"), ro))
-                .andExpect(content().json("[]"));
+                .andExpect(jsonPath("$.itens").isEmpty());
+    }
+
+    @Test
+    void vitrineVemEmPaginasDoMaisNovoProMaisAntigo() throws Exception {
+        Conta dono = conta(true, "RO");
+        String primeiro = criar(dono, corpo().put("nome", "Primeiro")).path("id").asText();
+        String segundo = criar(dono, corpo().put("nome", "Segundo")).path("id").asText();
+        String terceiro = criar(dono, corpo().put("nome", "Terceiro")).path("id").asText();
+        // Datas fixas, pra ordem não depender da velocidade do teste
+        cadastradoEm(primeiro, LocalDateTime.of(2026, 10, 1, 8, 0));
+        cadastradoEm(segundo, LocalDateTime.of(2026, 10, 2, 8, 0));
+        cadastradoEm(terceiro, LocalDateTime.of(2026, 10, 3, 8, 0));
+
+        mvc.perform(get("/api/animais").param("tamanho", "2")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.itens.length()").value(2))
+                .andExpect(jsonPath("$.itens[0].id").value(terceiro))
+                .andExpect(jsonPath("$.itens[1].id").value(segundo))
+                .andExpect(jsonPath("$.pagina").value(0))
+                .andExpect(jsonPath("$.tamanho").value(2))
+                .andExpect(jsonPath("$.totalItens").value(3))
+                .andExpect(jsonPath("$.totalPaginas").value(2));
+        mvc.perform(get("/api/animais").param("tamanho", "2").param("pagina", "1"))
+                .andExpect(jsonPath("$.itens.length()").value(1))
+                .andExpect(jsonPath("$.itens[0].id").value(primeiro));
+        // Sem os parâmetros: primeira página, com até 12
+        mvc.perform(get("/api/animais"))
+                .andExpect(jsonPath("$.pagina").value(0)).andExpect(jsonPath("$.tamanho").value(12));
+        // Depois da última página: lista vazia, e o total continua certo
+        mvc.perform(get("/api/animais").param("pagina", "5"))
+                .andExpect(jsonPath("$.itens").isEmpty()).andExpect(jsonPath("$.totalItens").value(3));
+    }
+
+    @Test
+    void paginaOuTamanhoForaDoLimiteResponde400() throws Exception {
+        mvc.perform(get("/api/animais").param("pagina", "-1")).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.campos.pagina").value("A página deve ser 0 ou maior"));
+        mvc.perform(get("/api/animais").param("tamanho", "0")).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.campos.tamanho").value("O tamanho da página deve ser de 1 a 48"));
+        mvc.perform(get("/api/animais").param("tamanho", "49")).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.campos.tamanho").value("O tamanho da página deve ser de 1 a 48"));
+    }
+
+    @Test
+    void fotoQueSaiDoAnimalSaiTambemDoArmazenamento() throws Exception {
+        Conta dono = conta(false, "RO");
+        String capa = enviarFoto(dono);
+        String outra = enviarFoto(dono);
+        ObjectNode corpo = corpo();
+        corpo.putArray("fotos").add(capa).add(outra);
+        String id = criar(dono, corpo).path("id").asText();
+
+        // Na edição, o protetor tirou a segunda foto
+        ObjectNode editado = corpo().put("statusAdocao", "DISPONIVEL");
+        editado.putArray("fotos").add(capa);
+        mvc.perform(auth(put("/api/animais/" + id), dono).contentType(MediaType.APPLICATION_JSON)
+                .content(editado.toString())).andExpect(status().isOk());
+        assertThat(armazenamento.contem(chave(outra))).isFalse();
+        assertThat(armazenamento.contem(chave(capa))).isTrue();
+
+        // Removeu o animal: a capa sai também
+        mvc.perform(auth(delete("/api/animais/" + id), dono)).andExpect(status().isNoContent());
+        assertThat(armazenamento.contem(chave(capa))).isFalse();
+    }
+
+    @Test
+    void fotoQueOutroAnimalUsaOuQueNaoFoiGuardadaPelaApiContinua() throws Exception {
+        Conta dono = conta(true, "RO");
+        String compartilhada = enviarFoto(dono);
+        ObjectNode corpo = corpo();
+        corpo.putArray("fotos").add(compartilhada).add("https://example.com/de-outro-site.jpg");
+        String primeiro = criar(dono, corpo).path("id").asText();
+        criar(dono, corpo);
+
+        mvc.perform(auth(delete("/api/animais/" + primeiro), dono)).andExpect(status().isNoContent());
+        assertThat(armazenamento.contem(chave(compartilhada))).isTrue();
+    }
+
+    @Test
+    void edicaoRecusadaNaoApagaNenhumaFoto() throws Exception {
+        Conta dono = conta(false, "RO");
+        String foto = enviarFoto(dono);
+        ObjectNode corpo = corpo();
+        corpo.putArray("fotos").add(foto);
+        String id = criar(dono, corpo).path("id").asText();
+        adotar(id);
+
+        // Adotado e mudando as fotos sem devolver: 409, e a foto fica onde estava
+        ObjectNode semFoto = corpo().put("statusAdocao", "ADOTADO");
+        semFoto.putArray("fotos").add("https://example.com/outra.jpg");
+        mvc.perform(auth(put("/api/animais/" + id), dono).contentType(MediaType.APPLICATION_JSON)
+                .content(semFoto.toString())).andExpect(status().isConflict());
+        assertThat(armazenamento.contem(chave(foto))).isTrue();
     }
 
     @ParameterizedTest
@@ -164,14 +264,14 @@ class AnimalIntegrationTest {
         String saoPaulo = criar(conta(true, "SP"), corpo()).path("id").asText();
 
         mvc.perform(get("/api/animais").param("cidade", "porto"))
-                .andExpect(jsonPath("$.length()").value(1)).andExpect(jsonPath("$[0].id").value(portoVelho));
+                .andExpect(jsonPath("$.itens.length()").value(1)).andExpect(jsonPath("$.itens[0].id").value(portoVelho));
         mvc.perform(get("/api/animais").param("cidade", "VELHO"))
-                .andExpect(jsonPath("$.length()").value(1)).andExpect(jsonPath("$[0].id").value(portoVelho));
+                .andExpect(jsonPath("$.itens.length()").value(1)).andExpect(jsonPath("$.itens[0].id").value(portoVelho));
         mvc.perform(get("/api/animais").param("cidade", "sao paulo"))
-                .andExpect(jsonPath("$.length()").value(1)).andExpect(jsonPath("$[0].id").value(saoPaulo));
+                .andExpect(jsonPath("$.itens.length()").value(1)).andExpect(jsonPath("$.itens[0].id").value(saoPaulo));
         // "o" aparece nas duas cidades
         mvc.perform(get("/api/animais").param("cidade", "o"))
-                .andExpect(jsonPath("$.length()").value(2));
+                .andExpect(jsonPath("$.itens.length()").value(2));
     }
 
     @Test
@@ -183,19 +283,19 @@ class AnimalIntegrationTest {
 
         // nome do animal, por parte do nome
         mvc.perform(get("/api/animais").param("busca", "TOBI"))
-                .andExpect(jsonPath("$.length()").value(1)).andExpect(jsonPath("$[0].id").value(tobias));
+                .andExpect(jsonPath("$.itens.length()").value(1)).andExpect(jsonPath("$.itens[0].id").value(tobias));
         // nome de quem cadastrou, pessoa física, digitado sem acento
         mvc.perform(get("/api/animais").param("busca", "joao"))
-                .andExpect(jsonPath("$.length()").value(1)).andExpect(jsonPath("$[0].id").value(tobias));
+                .andExpect(jsonPath("$.itens.length()").value(1)).andExpect(jsonPath("$.itens[0].id").value(tobias));
         // nome de quem cadastrou, abrigo
         mvc.perform(get("/api/animais").param("busca", "quatro patas"))
-                .andExpect(jsonPath("$.length()").value(1)).andExpect(jsonPath("$[0].id").value(mel));
+                .andExpect(jsonPath("$.itens.length()").value(1)).andExpect(jsonPath("$.itens[0].id").value(mel));
         // a busca soma com os outros filtros: a Mel é cão, então não aparece entre os gatos
         mvc.perform(get("/api/animais").param("busca", "mel").param("especie", "GATO"))
-                .andExpect(content().json("[]"));
-        mvc.perform(get("/api/animais").param("busca", "Bidu")).andExpect(content().json("[]"));
+                .andExpect(jsonPath("$.itens").isEmpty());
+        mvc.perform(get("/api/animais").param("busca", "Bidu")).andExpect(jsonPath("$.itens").isEmpty());
         // só espaço não filtra nada
-        mvc.perform(get("/api/animais").param("busca", "   ")).andExpect(jsonPath("$.length()").value(2));
+        mvc.perform(get("/api/animais").param("busca", "   ")).andExpect(jsonPath("$.itens.length()").value(2));
         mvc.perform(get("/api/animais").param("busca", "a".repeat(81)))
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.campos.busca").isNotEmpty());
     }
@@ -375,6 +475,21 @@ class AnimalIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON).content(corpo.toString()))
                 .andExpect(status().isCreated()).andExpect(header().exists("Location"))
                 .andReturn().getResponse().getContentAsString());
+    }
+
+    private String enviarFoto(Conta conta) throws Exception {
+        MockMultipartFile arquivo = new MockMultipartFile("arquivo", "foto.jpg", "image/jpeg", JPEG);
+        return mapper.readTree(mvc.perform(auth(multipart("/api/fotos").file(arquivo), conta))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString()).path("url").asText();
+    }
+
+    // "http://localhost:8080/fotos/animais/abc.jpg" vira "animais/abc.jpg", a chave no armazenamento
+    private static String chave(String url) {
+        return url.substring(url.indexOf("animais/"));
+    }
+
+    private void cadastradoEm(String id, LocalDateTime quando) {
+        jdbc.update("update animal set cadastrado_em = ? where id = ?", Timestamp.valueOf(quando), UUID.fromString(id));
     }
 
     private MockHttpServletRequestBuilder auth(MockHttpServletRequestBuilder request, Conta conta) {
