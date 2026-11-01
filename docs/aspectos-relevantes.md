@@ -78,6 +78,12 @@ O mural é público, então a API manda só o primeiro nome e o estado de quem c
 
 O prazo de 30 dias da ERS (6.3) precisava da data da aprovação, que o interesse não guardava. A coluna `aprovado_em` entrou junto, e os interesses aprovados antes dela ficam sem prazo, em vez de perder o direito por uma data que não existe.
 
+### Artigos só de protetor, em texto puro
+
+O blog para tutores (ERS 6.4) não tem moderação, então a regra de quem escreve faz esse papel: só abrigo, ou pessoa que já cadastrou um animal. Quem só está procurando um animal pra adotar lê, mas não publica. E só quem escreveu edita ou apaga.
+
+O texto é puro, sem HTML nem Markdown. O site separa os parágrafos pelas linhas em branco e mostra tudo como texto, então um artigo não consegue carregar um script ou um link disfarçado. Formatação mais rica pediria limpar o HTML no back, e pro tamanho de um artigo os parágrafos já resolvem.
+
 ### Animal adotado fica travado
 
 Com o animal Adotado, os dados ficam como estão: o formulário só deixa mudar o status (RF06). Pra editar, o protetor volta o status pra Disponível, o que é uma devolução (UC05 FA04), e aí os campos abrem na mesma tela. O interesse aprovado continua no histórico.
@@ -200,5 +206,5 @@ A ERS (seção 6) já separava o que não cabia nos dois meses do curso. Ficaram
 | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Formulário completo de candidatura               | Coletaria dados de outras pessoas da casa, o que pede um cuidado com a LGPD maior que o aviso do RF13. No lugar, entrou a triagem curta do RF15, com a opção de responder direto ao protetor |
 | Doações e apadrinhamento                         | Precisam de um serviço de pagamento, com cobrança recorrente no caso do apadrinhamento                                                                                                       |
-| Blog, animais desaparecidos e mapa               | Funcionalidades novas, fora do fluxo de adoção                                                                                                                                               |
+| Animais desaparecidos e mapa                     | Funcionalidades novas, fora do fluxo de adoção                                                                                                                                               |
 | Aviso por e-mail de interesse novo               | No MVP, o aviso é o próprio painel: interesse novo aparece como Pendente (`docs/api.md`, decisão 3)                                                                                          |

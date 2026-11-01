@@ -113,3 +113,12 @@ export function descricaoDaVacina({ dose, dataAplicacao }) {
         .join(', ');
     return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
+
+// Os assuntos dos artigos (blog), com os mesmos valores do enum CategoriaArtigo do back
+export const categoriasDeArtigo = [
+    { valor: 'ADOCAO_RESPONSAVEL', nome: 'Adoção responsável' },
+    { valor: 'PRIMEIROS_DIAS', nome: 'Primeiros dias em casa' },
+    { valor: 'SAUDE', nome: 'Saúde e vacinas' },
+    { valor: 'COMPORTAMENTO', nome: 'Comportamento' },
+    { valor: 'ALIMENTACAO', nome: 'Alimentação' },
+];

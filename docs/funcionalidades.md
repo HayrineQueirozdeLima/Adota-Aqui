@@ -20,7 +20,8 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 10. [Meu perfil](#10-meu-perfil)
 11. [O que vale pro sistema todo](#11-o-que-vale-pro-sistema-todo)
 12. [Histórias de adoção (depoimentos)](#12-histórias-de-adoção-depoimentos)
-13. [O que ainda não está pronto](#13-o-que-ainda-não-está-pronto)
+13. [Blog para tutores](#13-blog-para-tutores)
+14. [O que ainda não está pronto](#14-o-que-ainda-não-está-pronto)
 
 ## Quem usa o sistema
 
@@ -30,7 +31,7 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 | Usuario   | Pessoa física, login com CPF  | Ver os animais do próprio estado, demonstrar interesse, acompanhar as candidaturas e desistir. Também pode cadastrar animais que resgatou e cuidar dos interesses recebidos |
 | Abrigo    | ONG ou abrigo, login com CNPJ | Ver a vitrine de todos os estados, cadastrar animais e cuidar dos interesses recebidos. Não demonstra interesse                                                             |
 
-**Protetor** é quem cadastrou o animal, seja Usuario ou Abrigo.
+**Protetor** é quem cadastrou o animal, seja Usuario ou Abrigo. No blog para tutores, escreve o Abrigo ou a pessoa que já cadastrou pelo menos um animal.
 
 ## Resumo
 
@@ -47,6 +48,7 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 | 9   | Minhas candidaturas                 | RF09, UC07                   | `/meus-interesses`                                                | `GET /api/interesses/meus`, `DELETE /api/interesses/{id}`                                                            |
 | 10  | Meu perfil                          | RF17, RF14, UC10             | `/perfil`                                                         | `GET` e `PUT` em `/api/usuarios/me` e `/api/abrigos/me`, `PATCH` em `.../me/senha`                                   |
 | 11  | Histórias de adoção | RF11, UC09 | `/historias`, `/meus-interesses/:id/depoimento` | `POST /api/interesses/{id}/depoimento`, `GET /api/depoimentos`, `DELETE /api/depoimentos/{id}` |
+| 12  | Blog para tutores | ERS 6.4 | `/blog`, `/blog/:id`, `/blog/novo`, `/blog/:id/editar` | `GET`, `POST`, `PUT` e `DELETE` em `/api/artigos`, `GET /api/artigos/meus` |
 
 Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da API](api.md).
 
@@ -130,13 +132,13 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 
 **No front.**
 
-- As rotas que precisam de login (`/meus-animais`, cadastro e edição de animal, `/interesses-recebidos` e `/perfil`) passam pela `RotaProtegida`. Sem login, a pessoa vai pro `/login` e volta pra mesma página depois de entrar.
+- As rotas que precisam de login (`/meus-animais`, cadastro e edição de animal, `/interesses-recebidos`, `/perfil` e escrever ou editar um artigo) passam pela `RotaProtegida`. Sem login, a pessoa vai pro `/login` e volta pra mesma página depois de entrar.
 - Demonstrar interesse e Minhas candidaturas são só pra pessoa física. Abrigo que tenta abrir essas páginas vai pra página inicial.
 - O menu muda conforme quem está logado. Visitante vê "Cadastrar" e "Entrar". Quem está logado vê "Explorar", "Meus animais", "Interesses recebidos" e, só pessoa física, "Minhas candidaturas".
 
 **Na API.**
 
-- Públicos: login, os dois cadastros, a vitrine, o perfil do animal e a lista de raças. O resto exige token.
+- Públicos: login, os dois cadastros, a vitrine, o perfil do animal, a lista de raças, os números do site, o mural de histórias e a leitura dos artigos. O resto exige token.
 - Sem token: `401` "Autenticação necessária". Token inválido ou vencido: `401` "Token inválido ou expirado".
 - O papel (`ROLE_USUARIO` ou `ROLE_ABRIGO`) vem do token. Antes de editar, remover ou mudar um status, o service confere se a conta é a dona do animal. Quem não é recebe `403`.
 - CORS: a API só aceita chamadas dos endereços configurados em `CORS_ORIGENS` (o site e os deploy previews do Netlify).
@@ -468,7 +470,44 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ---
 
-## 13. O que ainda não está pronto
+## 13. Blog para tutores
+
+**O que faz.** Os protetores escrevem artigos pra quem vai adotar e pra quem já adotou: adoção responsável, primeiros dias em casa, saúde e vacinas, comportamento e alimentação (ERS 6.4, Blog Educativo). Qualquer pessoa lê, sem login.
+
+![Blog para tutores](prints/16-blog.png)
+
+**Como funciona.**
+
+1. O blog fica em `/blog`, também no rodapé ("Blog para tutores"). Logo no começo, o quadro "Pra que serve este blog" explica a ideia: a comunidade se ajudar, com quem já resgatou, cuidou ou abriga animais contando o que aprendeu na prática pra quem vai adotar ou acabou de adotar. O mesmo quadro diz como começar a escrever: o visitante é convidado a entrar na conta, e quem entrou mas ainda não cadastrou animal, a cadastrar um.
+2. Cada artigo aparece num card com a capa (se tiver), o assunto, o título, o começo do texto, quem escreveu, a cidade e a data. Vem de 12 em 12, dos mais novos pros mais antigos, com o "Ver mais artigos". Os botões de assunto filtram a lista. Quem já escreveu algum artigo vê também o "Escritos por mim".
+3. O título abre o artigo inteiro em `/blog/{id}`, com o texto em parágrafos (separados pelas linhas em branco) e a data da última edição, se tiver.
+4. Protetor vê o "Escrever um artigo", que abre `/blog/novo`: título, assunto, foto de capa opcional e o texto, com o contador de caracteres. Faltando alguma coisa, marca o que falta e leva o foco pro primeiro problema.
+5. Depois de publicar, a pessoa vai pro artigo com o aviso "Seu artigo foi publicado.". Quem escreveu vê ali o "Editar artigo" e o "Apagar artigo", que pede confirmação e volta pro blog com o aviso.
+6. Pessoa que ainda não cadastrou animal e abre `/blog/novo` vê o convite pra cadastrar um. Quem abre a edição de um artigo de outra conta vê o aviso de que só quem escreveu pode editar.
+
+![Um artigo aberto](prints/17-artigo.png)
+
+**Regras.**
+
+- Escreve quem é protetor: um Abrigo, ou uma pessoa que já cadastrou pelo menos um animal. Os outros recebem `403`.
+- Só quem escreveu edita e apaga. A API confere a conta do token, e não o que o front mostra.
+- Título de 5 a 120 caracteres, texto de 50 a 10000 caracteres e um dos 5 assuntos.
+- O texto é puro, sem HTML. O site mostra como texto, então ninguém consegue colocar um script ou um link escondido num artigo.
+- A capa tem que ter sido enviada pelo próprio site (`POST /api/fotos`), como no depoimento. Trocar ou tirar a capa, ou apagar o artigo, apaga a imagem antiga do S3.
+- Da conta que escreveu, o artigo mostra só o nome, o tipo, a cidade e o estado, como na vitrine.
+
+**Como fica no banco.** Tabela `artigo` (id, `titulo`, `conteudo` em `text`, `categoria`, `foto_capa`, `usuario_id` ou `abrigo_id`, `publicado_em` e `atualizado_em`), com a mesma regra do animal: um autor só, pessoa ou abrigo (`check` no banco).
+
+**Onde está no código.**
+
+- Front: `pages/Blog`, `pages/Artigo`, `pages/FormularioArtigo`, `components/CardArtigo` e `services/artigos.js`
+- Back: `ArtigoController`, `ArtigoService`, `ArtigoRepository`, `Artigo`, `CategoriaArtigo`, `ArtigoRequest`, `ArtigoResponse`, `ArtigoResumoResponse`, `ArtigoFiltroRequest` e `MeusArtigosResponse`
+
+**Testes.** `ArtigoIntegrationTest` (quem pode publicar, só o autor edita e apaga, validações, filtro por assunto, páginas, capa de outro site e a limpeza da capa no S3), `Blog.test.jsx`, `Artigo.test.jsx`, `FormularioArtigo.test.jsx`, `App.test.jsx` e `Rodape.test.jsx`.
+
+---
+
+## 14. O que ainda não está pronto
 
 | O quê                                   | Situação                                                                                                                                       |
 | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |

@@ -42,6 +42,7 @@ O dicionário de domínios é uma tabela que lista, para cada atributo com opç�
 | ProgramacaoViagem  | `LEVO_O_ANIMAL_COMIGO`, `DEIXO_NOS_CUIDADOS_DE_ALGUEM_DE_CONFIANCA`, `PREFIRO_RESPONDER_DIRETAMENTE_AO_PROTETOR`                                              | triagem.programação_viagem              |
 | MomentoContato     | `MANHA`, `TARDE`, `NOITE`, `QUALQUER_HORARIO`                                                                                                                 | triagem.momento_contato                 |
 | Raca               | lista por espécie (tabela abaixo); cada raça pertence a uma única espécie                                                                                     | Animal.raça                             |
+| CategoriaArtigo      | `ADOCAO_RESPONSAVEL`, `PRIMEIROS_DIAS`, `SAUDE`, `COMPORTAMENTO`, `ALIMENTACAO`                                                                               | Artigo.categoria (seção 8)                |
 
 ### Raças por espécie
 
@@ -89,6 +90,8 @@ erDiagram
     ANIMAL ||--o{ VACINA : "possui"
     ANIMAL ||--o{ ANIMAL_FOTO : "possui"
     INTERESSE ||--o| DEPOIMENTO : "gera (seção 7)"
+    USUARIO |o--o{ ARTIGO : "escreve (XOR, seção 8)"
+    ABRIGO |o--o{ ARTIGO : "escreve (XOR, seção 8)"
 
     USUARIO {
         uuid id PK
@@ -300,9 +303,12 @@ Níveis de acesso: **Pública** (Visitante), **Autenticada** (Usuario ou Abrigo)
 | `/meus-interesses`         | Minhas candidaturas: interesses que eu demonstrei, com status, contato do protetor e o motivo da descontinuação. Dá pra desistir dos que estão em andamento                                                         | Somente Usuario                    | UC07, RF09                |
 | `/meus-interesses/:id/depoimento` | Contar como foi a adoção: texto, foto opcional e autorização pra publicar no mural | Somente Usuario | UC09, RF11 |
 | `/historias`               | Mural de histórias de adoção | Pública | RF11 |
+| `/blog`                   | Blog para tutores, com os filtros por assunto e o "Escrever um artigo" pra quem é protetor | Pública | ERS 6.4 |
+| `/blog/:id`               | Um artigo inteiro. Quem escreveu vê "Editar artigo" e "Apagar artigo" | Pública | ERS 6.4 |
+| `/blog/novo` e `/blog/:id/editar` | Escrever e editar um artigo: título, assunto, capa opcional e texto | Autenticada (protetor; editar só o autor) | ERS 6.4 |
 | `*`                        | Página não encontrada                                                                                                                                                                                               | Pública                            | -                         |
 
-No React, isso vira três tipos de rota: as públicas soltas, a `RotaProtegida` sem restrição de perfil (`/meus-animais/*`, `/interesses-recebidos` e `/perfil`) e a `RotaProtegida apenasUsuario` (`/animais/:id/interesse` e `/meus-interesses`). O depoimento (seção 7) ficou na `/meus-interesses/:id/depoimento`, também só de pessoa física, e o mural `/historias` é público.
+No React, isso vira três tipos de rota: as públicas soltas, a `RotaProtegida` sem restrição de perfil (`/meus-animais/*`, `/interesses-recebidos` e `/perfil`) e a `RotaProtegida apenasUsuario` (`/animais/:id/interesse` e `/meus-interesses`). O depoimento (seção 7) ficou na `/meus-interesses/:id/depoimento`, também só de pessoa física, e o mural `/historias` é público. O blog para tutores (seção 8) é público pra ler, e escrever e editar ficam na `RotaProtegida` sem restrição de perfil.
 
 ## 7. Depoimento (UC09, RF11)
 
@@ -326,3 +332,35 @@ erDiagram
 ```
 
 Regras: só quem tem o interesse APROVADO pode registrar, e só na adoção atual do animal (o service confere o status, o dono do interesse, o animal Adotado e o prazo); o texto é obrigatório e a foto é opcional; e a remoção do animal continua em cascata (apagar o animal apaga os interesses, e o banco apaga o depoimento junto, com `on delete cascade`). As telas são a `/meus-interesses/:id/depoimento` e o mural `/historias` (ver [funcionalidades](../funcionalidades.md#12-histórias-de-adoção-depoimentos)).
+
+## 8. Blog para tutores (ERS 6.4)
+
+Também entrou depois do MVP. É uma tabela nova, sem mudar as que já existiam. O autor segue a mesma regra do animal: um Usuario **ou** um Abrigo, nunca os dois, com um `CHECK` no banco.
+
+```mermaid
+erDiagram
+    USUARIO |o--o{ ARTIGO : "escreve (XOR)"
+    ABRIGO |o--o{ ARTIGO : "escreve (XOR)"
+
+    USUARIO {
+        uuid id PK
+    }
+
+    ABRIGO {
+        uuid id PK
+    }
+
+    ARTIGO {
+        uuid id PK
+        varchar(120) titulo
+        text conteudo "texto puro"
+        varchar(30) categoria "enum"
+        varchar(500) foto_capa "opcional, S3"
+        uuid usuario_id FK "XOR abrigo_id"
+        uuid abrigo_id FK "XOR usuario_id"
+        timestamp publicado_em
+        timestamp atualizado_em "vazio até a 1a edição"
+    }
+```
+
+Regras: escreve quem é protetor (um Abrigo, ou um Usuario com pelo menos um animal cadastrado), e só o autor edita e apaga (o service confere as duas coisas); título de 5 a 120 caracteres e texto de 50 a 10000; a capa tem que ter vindo do `POST /api/fotos` e sai do S3 quando é trocada ou quando o artigo é apagado. As telas são a `/blog`, a `/blog/:id` e o formulário (ver [funcionalidades](../funcionalidades.md#13-blog-para-tutores)).

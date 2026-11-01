@@ -25,7 +25,8 @@ Fontes: Especificação de Requisitos (RF01 a RF17), Casos de Uso (UC01 a UC10),
 9. [Interesses](#9-interesses)
 10. [Números do site](#10-números-do-site)
 11. [Histórias de adoção](#11-histórias-de-adoção)
-12. [Pontos em aberto](#12-pontos-em-aberto)
+12. [Blog para tutores](#12-blog-para-tutores)
+13. [Pontos em aberto](#13-pontos-em-aberto)
 
 ---
 
@@ -34,7 +35,7 @@ Fontes: Especificação de Requisitos (RF01 a RF17), Casos de Uso (UC01 a UC10),
 - **Mudou um endpoint no código? Atualize este arquivo no mesmo pull request.** Um contrato desatualizado é pior do que nenhum, porque o outro squad confia nele.
 - Nenhum squad muda um formato de entrada ou saída sozinho. Mudança de contrato é combinada entre Front End e Back End antes de ser implementada.
 - Cada endpoint indica a sua **origem** (RF/UC). Se um requisito mudar, procure aqui pelo código dele para achar os endpoints afetados.
-- Decisões ainda não fechadas ficam na seção [12. Pontos em aberto](#12-pontos-em-aberto) até o time decidir.
+- Decisões ainda não fechadas ficam na seção [13. Pontos em aberto](#13-pontos-em-aberto) até o time decidir.
 
 ---
 
@@ -101,6 +102,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 | **Somente Abrigo**         | Apenas conta institucional (CNPJ)                              |
 | **Protetor do animal**     | Apenas a conta (Usuario ou Abrigo) que cadastrou aquele animal |
 | **Candidato do interesse** | Apenas o Usuario que registrou aquele interesse                |
+| **Protetor**               | Abrigo, ou Usuario que já cadastrou pelo menos um animal       |
+| **Autor do depoimento**    | Apenas o Usuario que escreveu aquele depoimento                |
+| **Autor do artigo**          | Apenas a conta (Usuario ou Abrigo) que escreveu aquele artigo    |
 
 O front esconde botões e redireciona conforme o nível de acesso, mas **quem garante a regra é a API** (RNF03). Toda verificação de permissão é feita no Back End.
 
@@ -178,10 +182,18 @@ Quando um valor não existe na lista de opções (um enum, como `porte` ou `espe
 | `POST`   | `/api/interesses/{id}/depoimento` | Candidato do interesse | RF11, UC09                      | Sim    |
 | `GET`    | `/api/depoimentos`             | Público                | RF11                               | Sim    |
 | `DELETE` | `/api/depoimentos/{id}`        | Autor do depoimento    | RF11                               | Sim    |
+| `GET`    | `/api/artigos`                   | Público                | ERS 6.4                            | Sim    |
+| `GET`    | `/api/artigos/{id}`              | Público                | ERS 6.4                            | Sim    |
+| `GET`    | `/api/artigos/meus`            | Autenticado            | ERS 6.4                            | Sim    |
+| `POST`   | `/api/artigos`                   | Protetor               | ERS 6.4                            | Sim    |
+| `PUT`    | `/api/artigos/{id}`              | Autor do artigo          | ERS 6.4                            | Sim    |
+| `DELETE` | `/api/artigos/{id}`              | Autor do artigo          | ERS 6.4                            | Sim    |
 
 Endpoint novo entra nesta tabela como "Ainda não" assim que o formato é combinado. Assim o front já pode montar a tela com dados de exemplo enquanto o back faz a parte dele.
 
 O depoimento (RF11, UC09) era opcional e entrou depois do MVP: os endpoints estão na seção [Histórias de adoção](#11-histórias-de-adoção).
+
+O blog para tutores (ERS 6.4) também entrou depois do MVP: os endpoints estão na seção [Blog para tutores](#12-blog-para-tutores).
 
 ---
 
@@ -230,7 +242,7 @@ Autentica um Usuario (CPF) ou um Abrigo (CNPJ) e devolve o token.
 | `401`  | Documento não cadastrado **ou** senha incorreta. A mensagem é a mesma nos dois casos: "Documento ou senha inválidos" | UC03 FA01, FA02 |
 | `500`  | Falha ao autenticar ou gerar o token                                                                                 | UC03 FA04       |
 
-> A mesma mensagem para "documento não cadastrado" e "senha incorreta" impede que alguém descubra quais CPFs e CNPJs têm conta testando um por um. Ver [Pontos em aberto](#12-pontos-em-aberto).
+> A mesma mensagem para "documento não cadastrado" e "senha incorreta" impede que alguém descubra quais CPFs e CNPJs têm conta testando um por um. Ver [Pontos em aberto](#13-pontos-em-aberto).
 
 ---
 
@@ -274,7 +286,7 @@ Cria a conta de uma pessoa física e já a autentica.
 | `endereco.cidade`                        | Obrigatório                                                                                                   |
 | `endereco.estado`                        | Obrigatório. UF com 2 letras maiúsculas                                                                       |
 
-O usuário digita só **CEP e número** (RF01). O front consulta o ViaCEP com o CEP digitado, preenche logradouro, bairro, cidade e estado, e envia o endereço completo. Ver [Pontos em aberto](#12-pontos-em-aberto).
+O usuário digita só **CEP e número** (RF01). O front consulta o ViaCEP com o CEP digitado, preenche logradouro, bairro, cidade e estado, e envia o endereço completo. Ver [Pontos em aberto](#13-pontos-em-aberto).
 
 **Saída (`201 Created`)**
 
@@ -945,7 +957,7 @@ A desistência apaga o interesse (`DELETE /api/interesses/{id}`), então ele som
 Desistência: o candidato exclui o próprio interesse.
 **Acesso:** Candidato do interesse. **Origem:** UC07 FA01
 
-Sem corpo. Ver [Pontos em aberto](#12-pontos-em-aberto) sobre o motivo da desistência.
+Sem corpo. Ver [Pontos em aberto](#13-pontos-em-aberto) sobre o motivo da desistência.
 
 **Saída (`204 No Content`)**
 
@@ -1138,7 +1150,126 @@ Tira a história do mural. A foto sai também do armazenamento (S3).
 
 ---
 
-## 12. Pontos em aberto
+## 12. Blog para tutores
+
+Artigos pra quem vai adotar e pra quem já adotou, escritos pelos protetores (ERS 6.4, Blog Educativo). A ideia é a comunidade se ajudar: quem já resgatou, cuidou ou abriga animais conta o que aprendeu na prática. Qualquer pessoa lê. Escreve quem é protetor: uma conta de abrigo, ou uma pessoa que já cadastrou pelo menos um animal.
+
+O texto é puro, com quebras de linha. O site mostra como texto, nunca como HTML, e separa os parágrafos pelas linhas em branco.
+
+### Assuntos (`categoria`)
+
+| Valor                | Nome no site           |
+| -------------------- | ---------------------- |
+| `ADOCAO_RESPONSAVEL` | Adoção responsável     |
+| `PRIMEIROS_DIAS`     | Primeiros dias em casa |
+| `SAUDE`              | Saúde e vacinas        |
+| `COMPORTAMENTO`      | Comportamento          |
+| `ALIMENTACAO`        | Alimentação            |
+
+### GET /api/artigos
+
+Os artigos, dos mais novos pros mais antigos, em páginas (`pagina` e `tamanho`, como no `GET /api/animais`). Com `categoria`, só os daquele assunto.
+**Acesso:** Público. **Origem:** ERS 6.4
+
+**Saída (`200 OK`)**
+
+```json
+{
+  "itens": [
+    {
+      "id": "f1e2d3c4-0000-4000-8000-000000000001",
+      "titulo": "Os primeiros dias do gato em casa",
+      "categoria": "PRIMEIROS_DIAS",
+      "categoriaNome": "Primeiros dias em casa",
+      "resumo": "Deixe o gato começar por um cômodo só, com água, comida, caixa de areia e um esconderijo. Nos primeiros dias, ele pode se esconder e comer pouco...",
+      "fotoCapa": null,
+      "autor": { "nome": "Instituto Quatro Patas", "tipo": "ABRIGO", "cidade": "Santo André", "estado": "SP" },
+      "publicadoEm": "2026-10-29T10:00:00"
+    }
+  ],
+  "pagina": 0,
+  "tamanho": 12,
+  "totalItens": 1,
+  "totalPaginas": 1
+}
+```
+
+O `resumo` é o começo do texto, com até uns 180 caracteres, sem cortar palavra no meio. Do autor saem o nome, o tipo de conta, a cidade e o estado, como na vitrine. O e-mail e o telefone não aparecem.
+
+**Erros:** `400` `categoria` que não existe, ou `pagina` ou `tamanho` fora dos limites; `401` token enviado, porém inválido ou expirado.
+
+### GET /api/artigos/{id}
+
+O artigo inteiro: o mesmo formato da lista, com `conteudo` no lugar do `resumo`, mais `atualizadoEm` (vazio enquanto ninguém editou) e `ehMeu` (com token, diz se a conta logada escreveu o artigo e pode editar e apagar).
+**Acesso:** Público. **Origem:** ERS 6.4
+
+**Erros:** `400` id inválido; `401` token enviado, porém inválido ou expirado; `404` o artigo não existe.
+
+### GET /api/artigos/meus
+
+Os artigos da conta logada, dos mais novos pros mais antigos, e se ela pode publicar.
+**Acesso:** Autenticado. **Origem:** ERS 6.4
+
+```json
+{ "podePublicar": true, "artigos": [] }
+```
+
+Os itens de `artigos` têm o formato da lista. O front usa o `podePublicar` pra mostrar o "Escrever um artigo".
+
+### POST /api/artigos
+
+Publica um artigo. A conta do token é a autora.
+**Acesso:** Abrigo, ou Usuario que já cadastrou animal. **Origem:** ERS 6.4
+
+**Entrada**
+
+```json
+{
+  "titulo": "Os primeiros dias do gato em casa",
+  "categoria": "PRIMEIROS_DIAS",
+  "conteudo": "Deixe o gato começar por um cômodo só...\n\nNos primeiros dias, ele pode se esconder...",
+  "fotoCapa": null
+}
+```
+
+| Campo       | Regra                                                                     |
+| ----------- | ------------------------------------------------------------------------- |
+| `titulo`    | Obrigatório, de 5 a 120 caracteres                                        |
+| `categoria` | Obrigatório, um dos assuntos da tabela acima                              |
+| `conteudo`  | Obrigatório, de 50 a 10000 caracteres                                     |
+| `fotoCapa`  | Opcional. Tem que ser uma foto enviada pelo `POST /api/fotos`             |
+
+**Saída (`201 Created`):** o artigo inteiro, com o header `Location: /api/artigos/{id}`.
+
+**Erros**
+
+| Código | Quando                                                              |
+| ------ | ------------------------------------------------------------------- |
+| `400`  | Campo vazio, curto ou longo demais, assunto que não existe, ou capa de outro site |
+| `401`  | Sem token ou token inválido                                         |
+| `403`  | Pessoa que ainda não cadastrou nenhum animal                         |
+
+### PUT /api/artigos/{id}
+
+Edita o artigo. Manda todos os campos, com as mesmas regras do `POST`. Grava a data em `atualizadoEm`. A capa trocada ou tirada sai também do armazenamento (S3).
+**Acesso:** Somente quem escreveu. **Origem:** ERS 6.4
+
+**Saída (`200 OK`):** o artigo inteiro.
+
+**Erros:** `400` campo inválido; `401` sem token; `403` artigo de outra conta; `404` o artigo não existe.
+
+### DELETE /api/artigos/{id}
+
+Apaga o artigo. A capa sai também do armazenamento (S3).
+**Acesso:** Somente quem escreveu. **Origem:** ERS 6.4
+
+**Saída (`204 No Content`).**
+
+**Erros:** `401` sem token; `403` artigo de outra conta; `404` o artigo não existe.
+
+---
+
+## 13. Pontos em aberto
 
 Decisões que o contrato precisou assumir antes da implementação. As que a implementação já resolveu estão na primeira tabela; ao decidir uma das que faltam, atualize o endpoint correspondente e mova o item.
 

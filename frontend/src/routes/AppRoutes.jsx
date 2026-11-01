@@ -17,6 +17,9 @@ import InteressesRecebidos from "../pages/InteressesRecebidos/InteressesRecebido
 import MeusInteresses from "../pages/MeusInteresses/MeusInteresses";
 import EscreverDepoimento from "../pages/EscreverDepoimento/EscreverDepoimento";
 import Historias from "../pages/Historias/Historias";
+import Blog from "../pages/Blog/Blog";
+import Artigo from "../pages/Artigo/Artigo";
+import FormularioArtigo from "../pages/FormularioArtigo/FormularioArtigo";
 import Perfil from "../pages/Perfil/Perfil";
 import NaoEncontrada from "../pages/NaoEncontrada/NaoEncontrada";
 import RotaProtegida from "./RotaProtegida";
@@ -42,6 +45,8 @@ export default function AppRoutes() {
           <Route path="/animais" element={<ListaAnimais />} />
           <Route path="/animais/:id" element={<PerfilAnimal />} />
           <Route path="/historias" element={<Historias />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:id" element={<Artigo />} />
 
           {/* Precisam de login: sem login, a RotaProtegida manda pro /login */}
           <Route element={<RotaProtegida />}>
@@ -53,6 +58,8 @@ export default function AppRoutes() {
               element={<InteressesRecebidos />}
             />
             <Route path="/perfil" element={<Perfil />} />
+            <Route path="/blog/novo" element={<FormularioArtigo />} />
+            <Route path="/blog/:id/editar" element={<FormularioArtigo />} />
           </Route>
 
           {/* Só pessoa física: Abrigo não demonstra interesse (RF14) */}
