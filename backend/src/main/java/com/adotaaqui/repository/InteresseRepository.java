@@ -43,6 +43,9 @@ public interface InteresseRepository extends JpaRepository<Interesse, UUID> {
     // do mesmo animal são descontinuados (RF10). É esse método que acha eles.
     List<Interesse> findByAnimalIdAndStatusAndamentoIn(UUID animalId, Collection<StatusInteresse> status);
 
+    // Adoções feitas pelo site, pros números da Home (GET /api/estatisticas)
+    long countByStatusAndamento(StatusInteresse status);
+
     // Evita interesse duplicado: a pessoa não pode ter dois interesses ativos
     // (PENDENTE ou EM_CONTATO) no mesmo animal
     boolean existsByUsuarioIdAndAnimalIdAndStatusAndamentoIn(UUID usuarioId, UUID animalId,

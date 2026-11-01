@@ -56,6 +56,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/animais/meus").authenticated()
                         // Vitrine, perfil do animal e raças: visitante também vê (RF07)
                         .requestMatchers(HttpMethod.GET, "/api/animais", "/api/animais/*", "/api/racas").permitAll()
+                        // Números da Home: visitante também vê
+                        .requestMatchers(HttpMethod.GET, "/api/estatisticas").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex

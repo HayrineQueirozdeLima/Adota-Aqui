@@ -2,10 +2,11 @@ import { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Apresentacao from "../../components/Apresentacao/Apresentacao";
 import ComoFunciona from "../../components/ComoFunciona/ComoFunciona";
+import Estatisticas from "../../components/Estatisticas/Estatisticas";
 import VitrineAnimais from "../../components/VitrineAnimais/VitrineAnimais";
 import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 
-// Home (Figma: Home): apresentação, vitrine e como funciona a adoção. O rodapé vem do Layout
+// Home (Figma: Home): apresentação, os números do site, vitrine e como funciona a adoção. O rodapé vem do Layout
 export default function Home() {
   const { hash, key } = useLocation();
   const [vitrinePronta, setVitrinePronta] = useState(false);
@@ -24,6 +25,7 @@ export default function Home() {
   return (
     <main>
       <Apresentacao />
+      <Estatisticas />
       <section
         aria-labelledby="vitrine-titulo"
         className="mx-auto w-full max-w-[1440px] px-5 py-8 md:px-14"
