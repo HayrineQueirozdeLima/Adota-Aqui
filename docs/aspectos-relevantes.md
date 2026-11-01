@@ -70,6 +70,14 @@ Aprovar é a operação mais delicada do sistema, e acontece numa transação s�
 
 Já a desistência do candidato apaga o interesse, em vez de criar um status "Desistiu". Ela só vale pra interesse em andamento, que ainda não teve decisão do protetor, então não tem resultado a guardar, e a pessoa pode demonstrar interesse de novo depois, se quiser. Aprovado e Descontinuado não podem ser apagados.
 
+### Depoimento preso à adoção
+
+O depoimento (RF11) não é um post solto: ele fica ligado ao interesse aprovado, com `unique` no banco, e é dali que vêm o adotante e o animal. Assim, só quem adotou de verdade escreve, e uma vez por adoção. A regra da "adoção atual" (aprovada, com o animal Adotado e sem outra aprovação depois) cobre a devolução: depois de uma devolução e de uma nova adoção, a vez passa pra quem adotou por último.
+
+O mural é público, então a API manda só o primeiro nome e o estado de quem contou, e a pessoa autoriza a publicação antes de enviar (LGPD). A foto tem que ter passado pelo `POST /api/fotos`: uma URL de outro site no mural seria uma imagem que ninguém conferiu.
+
+O prazo de 30 dias da ERS (6.3) precisava da data da aprovação, que o interesse não guardava. A coluna `aprovado_em` entrou junto, e os interesses aprovados antes dela ficam sem prazo, em vez de perder o direito por uma data que não existe.
+
 ### Animal adotado fica travado
 
 Com o animal Adotado, os dados ficam como estão: o formulário só deixa mudar o status (RF06). Pra editar, o protetor volta o status pra Disponível, o que é uma devolução (UC05 FA04), e aí os campos abrem na mesma tela. O interesse aprovado continua no histórico.
@@ -192,6 +200,5 @@ A ERS (seção 6) já separava o que não cabia nos dois meses do curso. Ficaram
 | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Formulário completo de candidatura               | Coletaria dados de outras pessoas da casa, o que pede um cuidado com a LGPD maior que o aviso do RF13. No lugar, entrou a triagem curta do RF15, com a opção de responder direto ao protetor |
 | Doações e apadrinhamento                         | Precisam de um serviço de pagamento, com cobrança recorrente no caso do apadrinhamento                                                                                                       |
-| Depoimento e mural de adoções (RF11, UC09)       | Era opcional na ERS e ficou pra depois do fluxo principal                                                                                                                                    |
 | Blog, animais desaparecidos e mapa               | Funcionalidades novas, fora do fluxo de adoção                                                                                                                                               |
 | Aviso por e-mail de interesse novo               | No MVP, o aviso é o próprio painel: interesse novo aparece como Pendente (`docs/api.md`, decisão 3)                                                                                          |

@@ -19,7 +19,8 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 9. [Minhas candidaturas](#9-minhas-candidaturas)
 10. [Meu perfil](#10-meu-perfil)
 11. [O que vale pro sistema todo](#11-o-que-vale-pro-sistema-todo)
-12. [O que ainda não está pronto](#12-o-que-ainda-não-está-pronto)
+12. [Histórias de adoção (depoimentos)](#12-histórias-de-adoção-depoimentos)
+13. [O que ainda não está pronto](#13-o-que-ainda-não-está-pronto)
 
 ## Quem usa o sistema
 
@@ -45,6 +46,7 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 | 8   | Painel de interesses recebidos      | RF09, RF10, RF12             | `/interesses-recebidos`                                           | `GET /api/interesses/recebidos`, `PATCH /api/interesses/{id}/status`                                                 |
 | 9   | Minhas candidaturas                 | RF09, UC07                   | `/meus-interesses`                                                | `GET /api/interesses/meus`, `DELETE /api/interesses/{id}`                                                            |
 | 10  | Meu perfil                          | RF17, RF14, UC10             | `/perfil`                                                         | `GET` e `PUT` em `/api/usuarios/me` e `/api/abrigos/me`, `PATCH` em `.../me/senha`                                   |
+| 11  | Histórias de adoção | RF11, UC09 | `/historias`, `/meus-interesses/:id/depoimento` | `POST /api/interesses/{id}/depoimento`, `GET /api/depoimentos`, `DELETE /api/depoimentos/{id}` |
 
 Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da API](api.md).
 
@@ -362,7 +364,7 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 2. Em cada cartão, o contato do protetor: nome, e-mail e WhatsApp.
 3. As em andamento (Em contato e Pendente) vêm primeiro, depois a Aprovada e as Descontinuadas.
 4. Filtros por status: Todas, Pendente, Em contato, Aprovado e Descontinuado, cada um com a quantidade.
-5. Aprovada mostra "Adoção aprovada. Combine os próximos passos com o protetor." Descontinuada mostra o motivo que o protetor escreveu.
+5. Aprovada mostra "Adoção aprovada. Combine os próximos passos com o protetor." e, até 30 dias depois da aprovação, o convite pra contar como foi a adoção (ver [Histórias de adoção](#12-histórias-de-adoção-depoimentos)). Descontinuada mostra o motivo que o protetor escreveu.
 6. "Ver ficha" só aparece com o animal disponível: animal adotado só abre pro protetor dele.
 7. "Desistir da adoção" só aparece nas candidaturas Pendente ou Em contato. Pede confirmação, apaga o interesse (o mesmo `DELETE` do perfil do animal) e o cartão some da lista, com um aviso no topo.
 8. Sem nenhuma candidatura, aparece um convite pra ver os animais disponíveis.
@@ -432,7 +434,41 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ---
 
-## 12. O que ainda não está pronto
+## 12. Histórias de adoção (depoimentos)
+
+**O que faz.** Quem adotou pelo site conta como está a vida com o animal, com uma foto se quiser, e a história vai pro mural público de histórias de adoção (RF11, UC09, ERS 6.3). A Home mostra as 3 mais novas.
+
+**Como funciona.**
+
+1. Quando o protetor aprova o interesse, a candidatura aprovada passa a mostrar "Contar como foi a adoção" em Minhas candidaturas, com o prazo: "Dá pra contar até 28/11/2026." (30 dias depois da aprovação, ERS 6.3).
+2. O botão abre `/meus-interesses/{id}/depoimento`: "Como está sendo a vida com {nome}?", o texto (de 10 a 1000 caracteres, com o contador), uma foto opcional (UC09 FA02) e a autorização pra publicar no mural.
+3. Sem texto ou sem autorizar, não envia, marca o que falta e leva o foco pro primeiro problema (UC09 FA01).
+4. Publicada, a pessoa volta pra Minhas candidaturas com o aviso "Sua história com {nome} foi publicada no mural.", e o cartão passa a mostrar o link do mural e "Apagar minha história", que pede confirmação.
+5. O mural fica em `/historias`, aberto pra qualquer pessoa, também no rodapé ("Histórias de adoção"). Cada história mostra a foto (a do depoimento ou, sem ela, a do animal), o nome do animal, o texto, o primeiro nome e o estado de quem contou, o protetor e a data. Vem de 12 em 12, com o "Ver mais histórias".
+6. Na Home, a seção "Histórias de quem adotou" mostra as 3 mais novas e o link "Ver todas as histórias". Sem nenhuma história, ou com a API fora do ar, a seção nem aparece.
+
+**Regras.**
+
+- Só a pessoa que adotou escreve, uma vez por adoção, e só se for a adoção atual do animal: aprovada, com o animal Adotado e sem outra aprovação depois (uma devolução seguida de uma nova adoção passa a vez pra quem adotou por último).
+- Prazo de 30 dias a partir da aprovação. Interesse aprovado antes de existir a data da aprovação fica sem prazo.
+- O mural é público, então a pessoa precisa autorizar, e do adotante só aparecem o primeiro nome e o estado. O sobrenome, o e-mail e o telefone não saem da API.
+- A foto tem que ter sido enviada pelo próprio site (`POST /api/fotos`). URL de outro site é recusada, pra ninguém colocar no mural uma imagem que não passou pela conferência.
+- Quem escreveu pode apagar a história quando quiser, e a foto sai também do S3. Ainda no prazo, dá pra contar de novo.
+- Remover o animal apaga junto os depoimentos das adoções dele (o banco apaga em cascata) e as fotos do S3.
+- Erros: sem login `401`, conta de abrigo ou interesse de outra pessoa `403`, interesse que não existe `404`, adoção não aprovada, prazo acabado ou história já contada `409`.
+
+**Como fica no banco.** Tabela `depoimento` (id, `interesse_id` único, texto até 1000 caracteres, `foto_url` e `data_hora`), com chave estrangeira pro interesse e `on delete cascade`. O interesse ganhou a coluna `aprovado_em`, preenchida quando o protetor aprova.
+
+**Onde está no código.**
+
+- Front: `pages/Historias`, `pages/EscreverDepoimento`, `components/CardDepoimento`, `components/HistoriasRecentes`, `components/Candidatura`, `components/CampoTextoLongo`, `components/EnvioFotoUnica` e `services/depoimentos.js`
+- Back: `DepoimentoController`, `DepoimentoService`, `DepoimentoRepository`, `Depoimento`, `DepoimentoRequest`, `DepoimentoResponse` e `PaginaRequest`
+
+**Testes.** `DepoimentoIntegrationTest` (o fluxo pela API, primeiro nome e estado no mural, prazo, só quem adotou, uma vez só, devolução, validações, apagar, remover o animal e as páginas do mural), `Historias.test.jsx`, `EscreverDepoimento.test.jsx`, `MeusInteresses.test.jsx` e `Home.test.jsx`.
+
+---
+
+## 13. O que ainda não está pronto
 
 | O quê                                   | Situação                                                                                                                                       |
 | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |

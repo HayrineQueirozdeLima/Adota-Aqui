@@ -43,6 +43,17 @@ test("mostra os números do site logo depois da apresentação", async () => {
   expect(within(secao).getByText("adoções feitas pelo site")).toBeInTheDocument();
 });
 
+test("mostra as histórias mais novas de quem adotou, com o link pro mural", async () => {
+  await abrirHome();
+
+  const secao = await screen.findByRole("region", { name: "Histórias de quem adotou" });
+  expect(await within(secao).findByRole("heading", { level: 3, name: "Mel" })).toBeInTheDocument();
+  expect(within(secao).getByRole("link", { name: "Ver todas as histórias" })).toHaveAttribute(
+    "href",
+    "/historias",
+  );
+});
+
 test("mostra os quatro passos da adoção, na ordem", async () => {
   await abrirHome();
 

@@ -3,7 +3,7 @@
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
 - **Versão:** 1.6 (outubro de 2026)
-- **Total:** 68 casos, 65 já automatizados e 3 manuais
+- **Total:** 73 casos, 70 já automatizados e 3 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
 
@@ -130,7 +130,17 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | CT-PRF-05 | Trocar a senha        | Funcional        | Pede a senha atual e a confirmação. Depois, o login só funciona com a senha nova                                     | `Perfil.test.jsx`, `PerfilIntegrationTest.java` |
 | CT-PRF-06 | Senha atual errada    | Segurança        | A mensagem aparece embaixo da senha atual e a pessoa continua logada                                                 | `Perfil.test.jsx`, `PerfilIntegrationTest.java` |
 
-### Módulo 10: Desempenho, acessibilidade e segurança
+### Módulo 10: Histórias de adoção
+
+| ID        | Cenário                              | Tipo             | Resultado esperado                                                                                                                                  | Onde está o teste                                                      |
+| --------- | ------------------------------------ | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| CT-HIS-01 | Contar como foi a adoção             | Funcional        | Na candidatura aprovada aparece o convite, com o prazo. A história com texto, foto e autorização vai pro mural e a pessoa volta com o aviso        | `EscreverDepoimento.test.jsx`, `MeusInteresses.test.jsx`, `DepoimentoIntegrationTest.java` |
+| CT-HIS-02 | Enviar sem texto ou sem autorizar    | Validação        | Não envia, marca o que falta e leva o foco pro primeiro problema. A mensagem some quando a pessoa corrige                                            | `EscreverDepoimento.test.jsx`, `DepoimentoIntegrationTest.java`        |
+| CT-HIS-03 | Quem pode contar                     | Regra de negócio | Só quem adotou, uma vez por adoção, na adoção atual e até 30 dias depois da aprovação. Abrigo e outras pessoas recebem 403                         | `DepoimentoIntegrationTest.java`                                       |
+| CT-HIS-04 | Ver o mural                          | Funcional        | O mural abre pra qualquer pessoa, com o primeiro nome e o estado de quem contou (sem sobrenome, e-mail ou telefone), e traz mais histórias de 12 em 12 | `Historias.test.jsx`, `Home.test.jsx`, `DepoimentoIntegrationTest.java` |
+| CT-HIS-05 | Apagar a história                    | Funcional        | Pede confirmação, a história sai do mural junto com a foto do S3, e o convite pra contar volta enquanto estiver no prazo                            | `MeusInteresses.test.jsx`, `DepoimentoIntegrationTest.java`            |
+
+### Módulo 11: Desempenho, acessibilidade e segurança
 
 | ID        | Cenário                            | Tipo           | Resultado esperado                                                                                                                                                                                                           | Automatizado em                                                                             |
 | --------- | ---------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
@@ -155,8 +165,9 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | 7. Interesses recebidos                    | 5      | 5             | 0       |
 | 8. Minhas candidaturas                     | 5      | 5             | 0       |
 | 9. Meu perfil                              | 6      | 6             | 0       |
-| 10. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
-| **Total**                                  | **68** | **65**        | **3**   |
+| 10. Histórias de adoção                    | 5      | 5             | 0       |
+| 11. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
+| **Total**                                  | **73** | **70**        | **3**   |
 
 A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta tabela: ela é medida pelo JaCoCo e pelo Jest a cada push, como explica o [plano de testes](plano-de-testes.md). Esta tabela mostra outra coisa: quantos comportamentos importantes já têm teste automático e quantos ainda dependem de alguém testar à mão.
 

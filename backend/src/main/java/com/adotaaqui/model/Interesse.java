@@ -54,6 +54,11 @@ public class Interesse {
     @Column(name = "motivo_descontinuacao", length = 255)
     private String motivoDescontinuacao;
 
+    // Quando o protetor aprovou. Conta o prazo pra contar como foi a adoção (depoimento, RF11).
+    // Fica vazio nos interesses aprovados antes de a coluna existir
+    @Column(name = "aprovado_em")
+    private LocalDateTime aprovadoEm;
+
     // ----- Triagem (RF15) -----
     // Todas são obrigatórias. Em quase todas a pessoa pode marcar
     // "prefiro responder diretamente ao protetor", menos no momento de contato.
@@ -202,5 +207,13 @@ public class Interesse {
 
     public void setAnimal(Animal animal) {
         this.animal = animal;
+    }
+
+    public LocalDateTime getAprovadoEm() {
+        return aprovadoEm;
+    }
+
+    public void setAprovadoEm(LocalDateTime aprovadoEm) {
+        this.aprovadoEm = aprovadoEm;
     }
 }

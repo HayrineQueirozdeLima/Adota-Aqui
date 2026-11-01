@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import Botao from "../Botao/Botao";
 import Tag from "../Tag/Tag";
 import { useAuth } from "../../contexts/AuthContext";
+import { apagarDepoimento } from "../../services/depoimentos";
 import { desistirDoInteresse } from "../../services/interesses";
 import { mascaraTelefone } from "../../utils/mascaras";
-import { haQuantoTempo, resumoDoAnimal } from "../../utils/rotulos";
+import { formatarData, haQuantoTempo, resumoDoAnimal } from "../../utils/rotulos";
 
 // As mesmas cores do painel do protetor (Figma: Minhas candidaturas)
 const status = {
@@ -22,7 +24,8 @@ const estiloDoLink =
 // pra pessoa também poder iniciar a conversa.
 //   Ver ficha: só com o animal disponível. Animal adotado só aparece pro protetor
 //   Desistir: só com o interesse pendente ou em contato (UC07 FA01). O interesse é apagado
-export default function Candidatura({ candidatura, aoDesistir }) {
+//   Contar como foi: na adoção aprovada, até 30 dias depois (RF11). A API diz se ainda dá
+export default function Candidatura({ candidatura, aoDesistir, aoApagarHistoria }) {
   const {
     id,
     dataHora,
@@ -30,6 +33,9 @@ export default function Candidatura({ candidatura, aoDesistir }) {
     motivoDescontinuacao,
     animal,
     contatoProtetor,
+    depoimentoId,
+    podeContarAdocao,
+    prazoDepoimento,
   } = candidatura;
   const { token, sair } = useAuth();
   const [confirmando, setConfirmando] = useState(false);
@@ -43,6 +49,34 @@ export default function Candidatura({ candidatura, aoDesistir }) {
   const telefone = mascaraTelefone(contatoProtetor.telefone);
   const idBotaoDesistir = `desistir-${id}`;
   const idConfirmacao = `confirmar-desistencia-${id}`;
+  const idBotaoApagar = `apagar-historia-${id}`;
+  const idConfirmacaoApagar = `confirmar-apagar-historia-${id}`;
+  const [confirmandoApagar, setConfirmandoApagar] = useState(false);
+  const [apagando, setApagando] = useState(false);
+  const [erroApagar, setErroApagar] = useState("");
+
+  function voltarDoApagar() {
+    setConfirmandoApagar(false);
+    document.getElementById(idBotaoApagar)?.focus();
+  }
+
+  async function apagarHistoria() {
+    setApagando(true);
+    setErroApagar("");
+    try {
+      await apagarDepoimento(depoimentoId, token);
+      setConfirmandoApagar(false);
+      setApagando(false);
+      aoApagarHistoria(candidatura);
+    } catch (erroDaApi) {
+      if (erroDaApi.status === 401) {
+        sair();
+        return;
+      }
+      setErroApagar(erroDaApi.message);
+      setApagando(false);
+    }
+  }
 
   function alternarConfirmacao() {
     setConfirmando((atual) => !atual);
@@ -104,6 +138,50 @@ export default function Candidatura({ candidatura, aoDesistir }) {
               <p className="mt-[6px] text-compacto text-status-disponivel-texto">
                 Adoção aprovada. Combine os próximos passos com o protetor.
               </p>
+            )}
+            {podeContarAdocao && (
+              <div className="mt-3 flex flex-col items-start gap-1.5">
+                <Botao
+                  variante="secundario"
+                  para={`/meus-interesses/${id}/depoimento`}
+                  aria-label={`Contar como foi a adoção de ${animal.nome}`}
+                >
+                  Contar como foi a adoção
+                </Botao>
+                {prazoDepoimento && (
+                  <p className="text-legenda text-texto-secundario">
+                    Sua história vai pro mural de histórias de adoção. Dá pra
+                    contar até {formatarData(prazoDepoimento)}.
+                  </p>
+                )}
+              </div>
+            )}
+            {depoimentoId && (
+              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-compacto text-texto-secundario">
+                <p>
+                  Sua história está no{" "}
+                  <Link
+                    to="/historias"
+                    className="py-0.5 font-semibold text-marca-roxo underline underline-offset-2"
+                  >
+                    mural de histórias
+                  </Link>
+                  .
+                </p>
+                <button
+                  id={idBotaoApagar}
+                  type="button"
+                  aria-expanded={confirmandoApagar}
+                  aria-controls={idConfirmacaoApagar}
+                  onClick={() => {
+                    setConfirmandoApagar((atual) => !atual);
+                    setErroApagar("");
+                  }}
+                  className="min-h-6 font-semibold text-status-erro-texto underline underline-offset-2"
+                >
+                  Apagar minha história
+                </button>
+              </div>
             )}
             {statusAndamento === "DESCONTINUADO" && motivoDescontinuacao && (
               <p className="mt-[6px] text-compacto text-texto-secundario">
@@ -169,6 +247,40 @@ export default function Candidatura({ candidatura, aoDesistir }) {
           )}
         </div>
       </div>
+
+      {confirmandoApagar && (
+        <div
+          id={idConfirmacaoApagar}
+          className="mt-4 rounded-[12px] border border-borda-sutil bg-fundo-pagina p-4"
+        >
+          <p className="font-titulo font-semibold text-texto-principal">
+            Apagar sua história com {animal.nome}?
+          </p>
+          <p className="mt-1 text-compacto text-texto-secundario">
+            Ela sai do mural na hora, junto com a foto.
+          </p>
+          {erroApagar && (
+            <p
+              role="alert"
+              className="mt-2 text-compacto text-status-erro-texto"
+            >
+              {erroApagar}
+            </p>
+          )}
+          <div className="mt-3 flex flex-col gap-2 md:flex-row md:flex-wrap">
+            <Botao onClick={apagarHistoria} disabled={apagando}>
+              {apagando ? "Apagando..." : "Apagar história"}
+            </Botao>
+            <Botao
+              variante="secundario"
+              onClick={voltarDoApagar}
+              disabled={apagando}
+            >
+              Voltar
+            </Botao>
+          </div>
+        </div>
+      )}
 
       {confirmando && (
         <div

@@ -72,6 +72,7 @@ export const interessesRecebidosExemplo = [
 // Exemplo do GET /api/interesses/meus (Minhas candidaturas), usado nos testes.
 // Uma candidatura em cada status. Pro candidato, vem o contatoProtetor, e o animal traz o statusAdocao:
 // a ficha de animal adotado não abre pra quem não é o protetor
+// Os campos do depoimento (RF11): a Amora foi aprovada e ainda pode contar como foi a adoção
 export const minhasCandidaturasExemplo = [
     {
         id: 'm1',
@@ -81,6 +82,9 @@ export const minhasCandidaturasExemplo = [
         animal: { ...mel, especie: 'CAO', racaNome: 'Sem raça definida', porte: 'MEDIO', statusAdocao: 'DISPONIVEL' },
         triagem: { ...interesseExemplo.triagem },
         contatoProtetor: { nome: 'Marina Prado', telefone: '69988771122', email: 'marina@example.com' },
+        depoimentoId: null,
+        podeContarAdocao: false,
+        prazoDepoimento: null,
     },
     {
         id: 'm2',
@@ -98,6 +102,9 @@ export const minhasCandidaturasExemplo = [
         },
         triagem: { ...interesseExemplo.triagem },
         contatoProtetor: { nome: 'Instituto Quatro Patas', telefone: '6932221111', email: 'contato@quatropatas.org' },
+        depoimentoId: null,
+        podeContarAdocao: false,
+        prazoDepoimento: null,
     },
     {
         id: 'm3',
@@ -115,6 +122,9 @@ export const minhasCandidaturasExemplo = [
         },
         triagem: { ...interesseExemplo.triagem },
         contatoProtetor: { nome: 'Marina Prado', telefone: '69988771122', email: 'marina@example.com' },
+        depoimentoId: null,
+        podeContarAdocao: true,
+        prazoDepoimento: '2026-11-28',
     },
     {
         id: 'm4',
@@ -132,5 +142,8 @@ export const minhasCandidaturasExemplo = [
         },
         triagem: { ...interesseExemplo.triagem },
         contatoProtetor: { nome: 'Maria Pinheiro', telefone: '51999443311', email: 'maria@example.com' },
+        depoimentoId: null,
+        podeContarAdocao: false,
+        prazoDepoimento: null,
     },
 ];

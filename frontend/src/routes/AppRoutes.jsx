@@ -15,6 +15,8 @@ import CadastroAnimal from "../pages/CadastroAnimal/CadastroAnimal";
 import EditarAnimal from "../pages/EditarAnimal/EditarAnimal";
 import InteressesRecebidos from "../pages/InteressesRecebidos/InteressesRecebidos";
 import MeusInteresses from "../pages/MeusInteresses/MeusInteresses";
+import EscreverDepoimento from "../pages/EscreverDepoimento/EscreverDepoimento";
+import Historias from "../pages/Historias/Historias";
 import Perfil from "../pages/Perfil/Perfil";
 import NaoEncontrada from "../pages/NaoEncontrada/NaoEncontrada";
 import RotaProtegida from "./RotaProtegida";
@@ -39,6 +41,7 @@ export default function AppRoutes() {
           <Route path="/" element={<Home />} />
           <Route path="/animais" element={<ListaAnimais />} />
           <Route path="/animais/:id" element={<PerfilAnimal />} />
+          <Route path="/historias" element={<Historias />} />
 
           {/* Precisam de login: sem login, a RotaProtegida manda pro /login */}
           <Route element={<RotaProtegida />}>
@@ -59,6 +62,10 @@ export default function AppRoutes() {
               element={<DemonstrarInteresse />}
             />
             <Route path="/meus-interesses" element={<MeusInteresses />} />
+            <Route
+              path="/meus-interesses/:id/depoimento"
+              element={<EscreverDepoimento />}
+            />
           </Route>
 
           {/* Qualquer endereço que não existe cai aqui.*/}

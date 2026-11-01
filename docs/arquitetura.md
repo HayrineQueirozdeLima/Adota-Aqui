@@ -141,8 +141,8 @@ A API não guarda sessão (`STATELESS`): cada requisição carrega o próprio to
 
 | Quem                    | O que pode                                                                                                                                                 |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Visitante               | Ver a vitrine, o perfil dos animais, as raças e os números do site, se cadastrar e entrar                                                                   |
-| Usuario (pessoa física) | Tudo do visitante, mais cadastrar e gerenciar os próprios animais e os interesses recebidos, demonstrar interesse em animais do seu estado e desistir dele |
+| Visitante               | Ver a vitrine, o perfil dos animais, as raças, os números do site e as histórias de adoção, se cadastrar e entrar                                                                   |
+| Usuario (pessoa física) | Tudo do visitante, mais cadastrar e gerenciar os próprios animais e os interesses recebidos, demonstrar interesse em animais do seu estado e desistir dele, e contar como foi a adoção |
 | Abrigo                  | Cadastrar e gerenciar os próprios animais e os interesses recebidos. Não demonstra interesse                                                               |
 
 **CORS e CSRF.** O navegador só deixa o site chamar a API se o endereço dele estiver em `CORS_ORIGENS` (o site do Netlify, as prévias dos PRs e o `localhost`). A proteção CSRF fica desligada porque o token vai no cabeçalho, e não num cookie que o navegador mandaria sozinho.
@@ -161,6 +161,7 @@ Ninguém escreve `CREATE TABLE`: o **Hibernate cria e atualiza as tabelas** a pa
 | `animal_foto` | Lista `fotos` do `Animal` | As URLs das fotos, na ordem (a primeira é a capa). A imagem fica no S3     |
 | `vacina`      | `Vacina`                  | As vacinas de cada animal                                                  |
 | `interesse`   | `Interesse`               | Quem demonstrou interesse em qual animal, a triagem e o andamento          |
+| `depoimento`   | `Depoimento`              | A história de uma adoção (RF11): o texto, a foto e o interesse aprovado de onde ela veio |
 
 Regras que o próprio banco garante (revisadas na #40 e testadas em `RegrasDasEntidadesTest` e `IntegridadeDoBancoTest`):
 
@@ -170,7 +171,8 @@ Regras que o próprio banco garante (revisadas na #40 e testadas em `RegrasDasEn
 - **Motivo da descontinuação:** um `CHECK` na tabela `interesse` recusa interesse Descontinuado sem motivo.
 - **Valores:** o peso, quando vem, é maior que zero, e a dose da vacina é 1 ou mais (`CHECK`). As colunas de enum só aceitam os valores do dicionário de domínios, porque o Hibernate cria um `CHECK` pra cada uma.
 - **Interesse repetido:** a pessoa não pode ter dois interesses ativos no mesmo animal. Quem garante é o service, com o animal travado (o mesmo lock da aprovação). Não tem `unique` no banco porque a regra vale só pros ativos: depois de uma descontinuação, a pessoa pode demonstrar interesse de novo.
-- **Remoção em cascata:** remover um animal apaga junto as fotos, as vacinas e os interesses dele.
+- **Remoção em cascata:** remover um animal apaga junto as fotos, as vacinas e os interesses dele. Os depoimentos desses interesses saem também: a chave estrangeira do `depoimento` tem `on delete cascade`.
+- **Um depoimento por adoção:** `interesse_id` é `unique` na tabela `depoimento`.
 - **Aprovação sem conflito:** ao aprovar um interesse, o back trava a linha do animal (`findByIdParaAtualizacao`, um lock pessimista) até terminar. Assim, duas aprovações ao mesmo tempo não adotam o mesmo animal duas vezes.
 
 ### Índices
