@@ -23,6 +23,7 @@ import {
   statusDoInteresse,
 } from "../../utils/rotulos";
 import fotoNaoEncontrado from "../../assets/fotos/pagina-nao-encontrada.webp";
+import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 
 // Perfil do animal (Figma: "Ficha do animal"), em /animais/:id
 export default function PerfilAnimal() {
@@ -32,6 +33,13 @@ export default function PerfilAnimal() {
   // "carregando" | "pronto" | "nao-encontrado" | "erro"
   const [situacao, setSituacao] = useState("carregando");
   const [tentativa, setTentativa] = useState(0);
+  useTituloDaPagina(
+    situacao === "pronto"
+      ? animal.nome
+      : situacao === "nao-encontrado"
+        ? "Animal não encontrado"
+        : null,
+  );
 
   // Busca de novo se mudar o animal, se alguém entrar ou sair da conta, ou no "Tentar de novo"
   useEffect(() => {

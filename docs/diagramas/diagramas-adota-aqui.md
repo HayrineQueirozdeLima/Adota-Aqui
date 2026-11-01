@@ -26,54 +26,55 @@ O dicionário de domínios é uma tabela que lista, para cada atributo com opç�
 
 ### Domínios enumerados
 
-| Domínio | Valores permitidos | Onde é usado |
-| --- | --- | --- |
-| Especie | `CAO`, `GATO` | Animal.espécie |
-| SexoAnimal | `FEMEA`, `MACHO` | Animal.sexo |
-| Porte | `PEQUENO`, `MEDIO`, `GRANDE` | Animal.porte |
-| StatusConvivencia | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO` | Animal.convivência (criança, gato, cão) |
-| NivelEnergia | `MAIS_ANIMADO`, `MAIS_CALMO` | Animal.energia |
-| StatusAdocao | `DISPONIVEL`, `ADOTADO` | Animal.status_adoção |
-| StatusInteresse | `PENDENTE`, `EM_CONTATO`, `APROVADO`, `DESCONTINUADO` | Interesse.status_andamento |
-| TipoMoradia | `CASA_COM_QUINTAL`, `CASA_SEM_QUINTAL`, `APARTAMENTO_TELADO`, `APARTAMENTO_NAO_TELADO`, `PREFIRO_RESPONDER_DIRETAMENTE_AO_PROTETOR` | triagem.moradia |
-| ConvivenciaCrianca | `SIM`, `NAO`, `PREFIRO_RESPONDER_DIRETAMENTE_AO_PROTETOR` | triagem.crianças |
-| TempoSozinho | `O_ANIMAL_NAO_FICARA_SOZINHO_EM_CASA`, `ATE_2_HORAS`, `ATE_4_HORAS`, `ATE_8_HORAS`, `MAIS_DE_8_HORAS`, `PREFIRO_RESPONDER_DIRETAMENTE_AO_PROTETOR` | triagem.tempo_sozinho |
-| ConvivenciaAnimal | `NAO_TENHO_OUTROS_ANIMAIS_EM_CASA`, `SIM_GATOS`, `SIM_CACHORROS`, `SIM_GATOS_E_CACHORROS`, `SIM_OUTRAS_ESPECIES`, `PREFIRO_RESPONDER_DIRETAMENTE_AO_PROTETOR` | triagem.outros_animais |
-| ProgramacaoViagem | `LEVO_O_ANIMAL_COMIGO`, `DEIXO_NOS_CUIDADOS_DE_ALGUEM_DE_CONFIANCA`, `PREFIRO_RESPONDER_DIRETAMENTE_AO_PROTETOR` | triagem.programação_viagem |
-| MomentoContato | `MANHA`, `TARDE`, `NOITE`, `QUALQUER_HORARIO` | triagem.momento_contato |
-| Raca | lista por espécie (tabela abaixo); cada raça pertence a uma única espécie | Animal.raça |
+| Domínio            | Valores permitidos                                                                                                                                            | Onde é usado                            |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| Especie            | `CAO`, `GATO`                                                                                                                                                 | Animal.espécie                          |
+| SexoAnimal         | `FEMEA`, `MACHO`                                                                                                                                              | Animal.sexo                             |
+| Porte              | `PEQUENO`, `MEDIO`, `GRANDE`                                                                                                                                  | Animal.porte                            |
+| StatusConvivencia  | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                                                                               | Animal.convivência (criança, gato, cão) |
+| NivelEnergia       | `MAIS_ANIMADO`, `MAIS_CALMO`                                                                                                                                  | Animal.energia                          |
+| StatusAdocao       | `DISPONIVEL`, `ADOTADO`                                                                                                                                       | Animal.status_adoção                    |
+| StatusInteresse    | `PENDENTE`, `EM_CONTATO`, `APROVADO`, `DESCONTINUADO`                                                                                                         | Interesse.status_andamento              |
+| TipoMoradia        | `CASA_COM_QUINTAL`, `CASA_SEM_QUINTAL`, `APARTAMENTO_TELADO`, `APARTAMENTO_NAO_TELADO`, `PREFIRO_RESPONDER_DIRETAMENTE_AO_PROTETOR`                           | triagem.moradia                         |
+| ConvivenciaCrianca | `SIM`, `NAO`, `PREFIRO_RESPONDER_DIRETAMENTE_AO_PROTETOR`                                                                                                     | triagem.crianças                        |
+| TempoSozinho       | `O_ANIMAL_NAO_FICARA_SOZINHO_EM_CASA`, `ATE_2_HORAS`, `ATE_4_HORAS`, `ATE_8_HORAS`, `MAIS_DE_8_HORAS`, `PREFIRO_RESPONDER_DIRETAMENTE_AO_PROTETOR`            | triagem.tempo_sozinho                   |
+| ConvivenciaAnimal  | `NAO_TENHO_OUTROS_ANIMAIS_EM_CASA`, `SIM_GATOS`, `SIM_CACHORROS`, `SIM_GATOS_E_CACHORROS`, `SIM_OUTRAS_ESPECIES`, `PREFIRO_RESPONDER_DIRETAMENTE_AO_PROTETOR` | triagem.outros_animais                  |
+| ProgramacaoViagem  | `LEVO_O_ANIMAL_COMIGO`, `DEIXO_NOS_CUIDADOS_DE_ALGUEM_DE_CONFIANCA`, `PREFIRO_RESPONDER_DIRETAMENTE_AO_PROTETOR`                                              | triagem.programação_viagem              |
+| MomentoContato     | `MANHA`, `TARDE`, `NOITE`, `QUALQUER_HORARIO`                                                                                                                 | triagem.momento_contato                 |
+| Raca               | lista por espécie (tabela abaixo); cada raça pertence a uma única espécie                                                                                     | Animal.raça                             |
+| CategoriaArtigo      | `ADOCAO_RESPONSAVEL`, `PRIMEIROS_DIAS`, `SAUDE`, `COMPORTAMENTO`, `ALIMENTACAO`                                                                               | Artigo.categoria (seção 8)                |
 
 ### Raças por espécie
 
 A raça é um enum no back-end, e cada valor carrega a sua espécie. O front busca as opções filtradas pela espécie escolhida (por exemplo `GET /api/racas?especie=CAO`), então a lista fica em um só lugar.
 
-| Espécie | Raças |
-| --- | --- |
-| CAO | `SRD`, `LABRADOR`, `GOLDEN_RETRIEVER`, `PASTOR_ALEMAO`, `POODLE`, `SHIH_TZU`, `YORKSHIRE`, `PINSCHER`, `PIT_BULL`, `ROTTWEILER`, `BULLDOG`, `BEAGLE`, `BORDER_COLLIE`, `HUSKY_SIBERIANO`, `LHASA_APSO`, `MALTES`, `DACHSHUND`, `SPITZ_ALEMAO`, `BOXER`, `CHIHUAHUA`, `COCKER_SPANIEL`, `PUG`, `SCHNAUZER`, `OUTRA` |
-| GATO | `SRD`, `SIAMES`, `PERSA`, `ANGORA`, `MAINE_COON`, `RAGDOLL`, `BENGAL`, `SPHYNX`, `BRITISH_SHORTHAIR`, `ABISSINIO`, `BIRMANES`, `OUTRA` |
+| Espécie | Raças                                                                                                                                                                                                                                                                                                              |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| CAO     | `SRD`, `LABRADOR`, `GOLDEN_RETRIEVER`, `PASTOR_ALEMAO`, `POODLE`, `SHIH_TZU`, `YORKSHIRE`, `PINSCHER`, `PIT_BULL`, `ROTTWEILER`, `BULLDOG`, `BEAGLE`, `BORDER_COLLIE`, `HUSKY_SIBERIANO`, `LHASA_APSO`, `MALTES`, `DACHSHUND`, `SPITZ_ALEMAO`, `BOXER`, `CHIHUAHUA`, `COCKER_SPANIEL`, `PUG`, `SCHNAUZER`, `OUTRA` |
+| GATO    | `SRD`, `SIAMES`, `PERSA`, `ANGORA`, `MAINE_COON`, `RAGDOLL`, `BENGAL`, `SPHYNX`, `BRITISH_SHORTHAIR`, `ABISSINIO`, `BIRMANES`, `OUTRA`                                                                                                                                                                             |
 
 `SRD` significa sem raça definida (vira-lata). `OUTRA` evita travar o cadastro de uma raça que não está na lista. Como `SRD` e `OUTRA` existem para as duas espécies, no código elas ficam como `SRD_CAO`, `SRD_GATO`, `OUTRA_CAO` e `OUTRA_GATO`.
 
 ### Regras de formato
 
-| Atributo | Regra |
-| --- | --- |
-| cpf | 11 dígitos numéricos, único |
-| cnpj | 14 dígitos numéricos, único |
-| email | formato de e-mail, único |
-| telefone | DDD + número, só dígitos |
-| senha | guardada como hash BCrypt, nunca em texto puro |
-| cep | 8 dígitos |
-| estado | UF com 2 letras maiúsculas (preenchida a partir do CEP) |
-| cidade, logradouro, bairro | texto, preenchidos a partir do CEP |
-| numero | texto curto (aceita "s/n" e complemento) |
-| fotos | uma ou mais URLs de imagem (S3); pelo menos 1 (RF16) |
-| peso | decimal em kg, maior que 0, opcional |
-| data_nasc_estimada | data, não pode ser futura |
-| castrado | verdadeiro ou falso |
-| dose | inteiro, 1 ou mais |
-| data_aplicação | data, não pode ser futura |
-| motivo_descontinuação | texto, obrigatório quando o status é `DESCONTINUADO` |
+| Atributo                   | Regra                                                   |
+| -------------------------- | ------------------------------------------------------- |
+| cpf                        | 11 dígitos numéricos, único                             |
+| cnpj                       | 14 dígitos numéricos, único                             |
+| email                      | formato de e-mail, único                                |
+| telefone                   | DDD + número, só dígitos                                |
+| senha                      | guardada como hash BCrypt, nunca em texto puro          |
+| cep                        | 8 dígitos                                               |
+| estado                     | UF com 2 letras maiúsculas (preenchida a partir do CEP) |
+| cidade, logradouro, bairro | texto, preenchidos a partir do CEP                      |
+| numero                     | texto curto (aceita "s/n" e complemento)                |
+| fotos                      | uma ou mais URLs de imagem (S3); pelo menos 1 (RF16)    |
+| peso                       | decimal em kg, maior que 0, opcional                    |
+| data_nasc_estimada         | data, não pode ser futura                               |
+| castrado                   | verdadeiro ou falso                                     |
+| dose                       | inteiro, 1 ou mais                                      |
+| data_aplicação             | data, não pode ser futura                               |
+| motivo_descontinuação      | texto, obrigatório quando o status é `DESCONTINUADO`    |
 
 ## 3. DER lógico
 
@@ -88,6 +89,9 @@ erDiagram
     ANIMAL ||--o{ INTERESSE : "recebe"
     ANIMAL ||--o{ VACINA : "possui"
     ANIMAL ||--o{ ANIMAL_FOTO : "possui"
+    INTERESSE ||--o| DEPOIMENTO : "gera (seção 7)"
+    USUARIO |o--o{ ARTIGO : "escreve (XOR, seção 8)"
+    ABRIGO |o--o{ ARTIGO : "escreve (XOR, seção 8)"
 
     USUARIO {
         uuid id PK
@@ -138,6 +142,7 @@ erDiagram
         boolean is_castrado
         text historia
         varchar(20) status_adocao "enum"
+        timestamp cadastrado_em "ordem da vitrine"
     }
 
     ANIMAL_FOTO {
@@ -161,6 +166,7 @@ erDiagram
         timestamp data_hora
         varchar(20) status_andamento "enum"
         varchar(255) motivo_descontinuacao
+        timestamp aprovado_em "prazo do depoimento"
         varchar(60) moradia "enum"
         varchar(60) criancas "enum"
         varchar(60) tempo_sozinho "enum"
@@ -178,23 +184,23 @@ O banco de verdade, criado pelo Hibernate e visto num cliente de banco de dados,
 
 ### Regras de integridade
 
-| Tabela | Regra | Como garantir |
-| --- | --- | --- |
-| usuario | `cpf` e `email` únicos | `unique = true` na entidade |
-| abrigo | `cnpj` e `email` únicos | `unique = true` na entidade |
-| usuario e abrigo | e-mail único também entre as duas tabelas | Service (`existsByEmail` nos dois repositories) |
-| animal | a `raca` deve pertencer à `especie` informada | Service (`raca.pertenceA(especie)`), retornando 400 se não bater |
-| animal | exatamente um dono: `usuario_id` OU `abrigo_id` (XOR) | `CHECK ((usuario_id IS NOT NULL AND abrigo_id IS NULL) OR (usuario_id IS NULL AND abrigo_id IS NOT NULL))` via `@Check` + validação na entidade |
-| animal | `peso`, quando vem, maior que zero | `CHECK (peso IS NULL OR peso > 0)` via `@Check` + validação do DTO |
-| animal | remover o animal remove fotos, vacinas e interesses (UC05) | `cascade = ALL` + `orphanRemoval = true` |
-| animal | dono (usuario/abrigo) não é apagado no MVP | FK sem cascade: o banco recusa apagar uma conta que ainda tem animal |
-| animal_foto | PK composta (`animal_id`, `ordem`); a primeira foto é a capa | `@ElementCollection` + `@OrderColumn` |
-| vacina | `dose`, quando vem, 1 ou mais | `CHECK (dose IS NULL OR dose >= 1)` via `@Check` + validação do DTO |
-| todas | colunas de enum só aceitam os valores do dicionário | `CHECK` que o Hibernate cria pra cada coluna `@Enumerated` |
-| interesse | `motivo_descontinuacao` obrigatório quando `status_andamento = DESCONTINUADO` | `CHECK (status_andamento <> 'DESCONTINUADO' OR motivo_descontinuacao IS NOT NULL)` + Service |
-| interesse | um Usuario só pode ter 1 interesse ATIVO (PENDENTE ou EM CONTATO) por animal | Service (`existsBy...StatusIn`), com o animal travado |
-| interesse | só 1 interesse APROVADO por animal | Service, dentro da mesma transação que muda o animal para ADOTADO |
-| interesse | Usuario não demonstra interesse em animal que ele mesmo cadastrou | Service (`animal.usuario_id <> interesse.usuario_id`) |
+| Tabela           | Regra                                                                         | Como garantir                                                                                                                                   |
+| ---------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| usuario          | `cpf` e `email` únicos                                                        | `unique = true` na entidade                                                                                                                     |
+| abrigo           | `cnpj` e `email` únicos                                                       | `unique = true` na entidade                                                                                                                     |
+| usuario e abrigo | e-mail único também entre as duas tabelas                                     | Service (`existsByEmail` nos dois repositories)                                                                                                 |
+| animal           | a `raca` deve pertencer à `especie` informada                                 | Service (`raca.pertenceA(especie)`), retornando 400 se não bater                                                                                |
+| animal           | exatamente um dono: `usuario_id` OU `abrigo_id` (XOR)                         | `CHECK ((usuario_id IS NOT NULL AND abrigo_id IS NULL) OR (usuario_id IS NULL AND abrigo_id IS NOT NULL))` via `@Check` + validação na entidade |
+| animal           | `peso`, quando vem, maior que zero                                            | `CHECK (peso IS NULL OR peso > 0)` via `@Check` + validação do DTO                                                                              |
+| animal           | remover o animal remove fotos, vacinas e interesses (UC05)                    | `cascade = ALL` + `orphanRemoval = true`                                                                                                        |
+| animal           | dono (usuario/abrigo) não é apagado no MVP                                    | FK sem cascade: o banco recusa apagar uma conta que ainda tem animal                                                                            |
+| animal_foto      | PK composta (`animal_id`, `ordem`); a primeira foto é a capa                  | `@ElementCollection` + `@OrderColumn`                                                                                                           |
+| vacina           | `dose`, quando vem, 1 ou mais                                                 | `CHECK (dose IS NULL OR dose >= 1)` via `@Check` + validação do DTO                                                                             |
+| todas            | colunas de enum só aceitam os valores do dicionário                           | `CHECK` que o Hibernate cria pra cada coluna `@Enumerated`                                                                                      |
+| interesse        | `motivo_descontinuacao` obrigatório quando `status_andamento = DESCONTINUADO` | `CHECK (status_andamento <> 'DESCONTINUADO' OR motivo_descontinuacao IS NOT NULL)` + Service                                                    |
+| interesse        | um Usuario só pode ter 1 interesse ATIVO (PENDENTE ou EM CONTATO) por animal  | Service (`existsBy...StatusIn`), com o animal travado                                                                                           |
+| interesse        | só 1 interesse APROVADO por animal                                            | Service, dentro da mesma transação que muda o animal para ADOTADO                                                                               |
+| interesse        | Usuario não demonstra interesse em animal que ele mesmo cadastrou             | Service (`animal.usuario_id <> interesse.usuario_id`)                                                                                           |
 
 Índices (o PostgreSQL não cria índice automático em FK): `animal(status_adocao)`, `animal(usuario_id)`, `animal(abrigo_id)`, `interesse(usuario_id, animal_id)`, `interesse(animal_id, status_andamento)` e `vacina(animal_id)`. Estão nas entidades, e a medição de cada um está na [arquitetura](../arquitetura.md#índices).
 
@@ -279,29 +285,34 @@ stateDiagram-v2
 
 Níveis de acesso: **Pública** (Visitante), **Autenticada** (Usuario ou Abrigo), **Somente Usuario**. O front esconde e redireciona; quem realmente impede o acesso é a API (JWT com perfil + checagem de dono do animal, RNF03), que responde 401/403.
 
-| Rota | Tela | Acesso | Casos de uso / requisitos |
-| --- | --- | --- | --- |
-| `/` | Home: apresentação, vitrine e "Como funciona a adoção" | Pública | UC06 |
-| `/animais` | Listagem com busca por nome do animal ou do protetor e filtros (espécie, raça, porte, sexo, convivência, energia, cidade). Visitante e Abrigo veem todos os estados; só o Usuario logado vê apenas o próprio estado | Pública | UC06, RF07, RF14 |
-| `/animais/:id` | Perfil completo do animal. Botão "Quero conhecer {nome}" só para Usuario do mesmo estado (Abrigo não vê o botão); vira "Desistir da adoção" se já houver interesse | Pública | UC06, UC07 |
-| `/animais/:id/interesse` | Aviso de guarda responsável (aceite obrigatório) e triagem em 3 partes | Somente Usuario | UC07, RF13, RF15 |
-| `/login` | Login com CPF ou CNPJ e senha | Pública (redireciona se já logado) | UC03, RF03 |
-| `/cadastro` | Escolha do tipo de conta | Pública | UC01, UC02 |
-| `/cadastro/usuario` | Cadastro de pessoa física | Pública | UC01, RF01 |
-| `/cadastro/abrigo` | Cadastro de ONG/abrigo | Pública | UC02, RF02 |
-| `/meus-animais` | Animais que eu cadastrei (editar/remover) | Autenticada | UC05 |
-| `/meus-animais/novo` | Cadastrar animal (dados, fotos, vacinas) | Autenticada | UC04, RF04, RF05, RF16 |
-| `/meus-animais/:id/editar` | Editar ou remover. Se ADOTADO, só o status é editável | Autenticada + dono do animal | UC05, RF06 |
-| `/interesses-recebidos` | Painel dos interesses nos meus animais: contatos, status, aprovar/descontinuar | Autenticada (Protetor) | UC08, RF09, RF10 |
-| `/perfil` | Meu perfil. Por enquanto só tem "Sair da conta"; a edição dos dados (RF17) ainda não foi feita | Autenticada | UC10 |
-| `/meus-interesses` | Minhas candidaturas: interesses que eu demonstrei, com status. A tela ainda é só o título, esperando o `GET /api/interesses/meus` | Somente Usuario | UC07 |
-| `*` | Página não encontrada | Pública | - |
+| Rota                       | Tela                                                                                                                                                                                                                | Acesso                             | Casos de uso / requisitos |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- | ------------------------- |
+| `/`                        | Home: apresentação, vitrine e "Como funciona a adoção"                                                                                                                                                              | Pública                            | UC06                      |
+| `/animais`                 | Listagem com busca por nome do animal ou do protetor e filtros (espécie, raça, porte, sexo, convivência, energia, cidade). Visitante e Abrigo veem todos os estados; só o Usuario logado vê apenas o próprio estado | Pública                            | UC06, RF07, RF14          |
+| `/animais/:id`             | Perfil completo do animal. Botão "Quero conhecer {nome}" só para Usuario do mesmo estado (Abrigo não vê o botão); vira "Desistir da adoção" se já houver interesse                                                  | Pública                            | UC06, UC07                |
+| `/animais/:id/interesse`   | Aviso de guarda responsável (aceite obrigatório) e triagem em 3 partes                                                                                                                                              | Somente Usuario                    | UC07, RF13, RF15          |
+| `/login`                   | Login com CPF ou CNPJ e senha                                                                                                                                                                                       | Pública (redireciona se já logado) | UC03, RF03                |
+| `/cadastro`                | Escolha do tipo de conta                                                                                                                                                                                            | Pública                            | UC01, UC02                |
+| `/cadastro/usuario`        | Cadastro de pessoa física                                                                                                                                                                                           | Pública                            | UC01, RF01                |
+| `/cadastro/abrigo`         | Cadastro de ONG/abrigo                                                                                                                                                                                              | Pública                            | UC02, RF02                |
+| `/meus-animais`            | Animais que eu cadastrei (editar/remover)                                                                                                                                                                           | Autenticada                        | UC05                      |
+| `/meus-animais/novo`       | Cadastrar animal (dados, fotos, vacinas)                                                                                                                                                                            | Autenticada                        | UC04, RF04, RF05, RF16    |
+| `/meus-animais/:id/editar` | Editar ou remover. Se ADOTADO, só o status é editável                                                                                                                                                               | Autenticada + dono do animal       | UC05, RF06                |
+| `/interesses-recebidos`    | Painel dos interesses nos meus animais: contatos, status, aprovar/descontinuar                                                                                                                                      | Autenticada (Protetor)             | UC08, RF09, RF10          |
+| `/perfil`                  | Meu perfil: editar os dados e o endereço, trocar a senha e sair da conta. CPF e CNPJ não mudam                                                                                                                      | Autenticada                        | UC10, RF17                |
+| `/meus-interesses`         | Minhas candidaturas: interesses que eu demonstrei, com status, contato do protetor e o motivo da descontinuação. Dá pra desistir dos que estão em andamento                                                         | Somente Usuario                    | UC07, RF09                |
+| `/meus-interesses/:id/depoimento` | Contar como foi a adoção: texto, foto opcional e autorização pra publicar no mural | Somente Usuario | UC09, RF11 |
+| `/historias`               | Mural de histórias de adoção | Pública | RF11 |
+| `/blog`                   | Blog para tutores, com os filtros por assunto e o "Escrever um artigo" pra quem é protetor | Pública | ERS 6.4 |
+| `/blog/:id`               | Um artigo inteiro. Quem escreveu vê "Editar artigo" e "Apagar artigo" | Pública | ERS 6.4 |
+| `/blog/novo` e `/blog/:id/editar` | Escrever e editar um artigo: título, assunto, capa opcional e texto | Autenticada (protetor; editar só o autor) | ERS 6.4 |
+| `*`                        | Página não encontrada                                                                                                                                                                                               | Pública                            | -                         |
 
-No React, isso vira três tipos de rota: as públicas soltas, a `RotaProtegida` sem restrição de perfil (`/meus-animais/*`, `/interesses-recebidos` e `/perfil`) e a `RotaProtegida apenasUsuario` (`/animais/:id/interesse` e `/meus-interesses`). A `/minhas-adocoes`, do depoimento opcional (seção 7), não foi criada.
+No React, isso vira três tipos de rota: as públicas soltas, a `RotaProtegida` sem restrição de perfil (`/meus-animais/*`, `/interesses-recebidos` e `/perfil`) e a `RotaProtegida apenasUsuario` (`/animais/:id/interesse` e `/meus-interesses`). O depoimento (seção 7) ficou na `/meus-interesses/:id/depoimento`, também só de pessoa física, e o mural `/historias` é público. O blog para tutores (seção 8) é público pra ler, e escrever e editar ficam na `RotaProtegida` sem restrição de perfil.
 
-## 7. Extensão opcional: Depoimento (UC09, RF11)
+## 7. Depoimento (UC09, RF11)
 
-Fora do DER principal, porque só entra se sobrar tempo. **Não foi implementada.** Se entrar, é uma tabela nova ligada ao `interesse` (que já liga Usuario e Animal), sem mexer nas tabelas existentes.
+Era uma extensão opcional e entrou depois do MVP, do jeito que estava planejado aqui: uma tabela nova ligada ao `interesse` (que já liga Usuario e Animal). A única mudança nas tabelas existentes foi a coluna `aprovado_em` no `interesse`, que conta o prazo de 30 dias pra contar como foi (ERS 6.3).
 
 ```mermaid
 erDiagram
@@ -314,10 +325,42 @@ erDiagram
     DEPOIMENTO {
         uuid id PK
         uuid interesse_id FK, UK "1 por adocao"
-        text texto
+        varchar(1000) texto
         varchar(500) foto_url "opcional, S3"
         timestamp data_hora
     }
 ```
 
-Regras: só quem tem o interesse APROVADO pode registrar (Service confere `interesse.status = APROVADO` e `interesse.usuario` = usuário logado); o texto é obrigatório e a foto é opcional; e a remoção do animal continua em cascata (apagar o animal apaga os interesses, e apagar um interesse apaga o depoimento). Se entrar, a tela dessa extensão seria a rota `/minhas-adocoes`.
+Regras: só quem tem o interesse APROVADO pode registrar, e só na adoção atual do animal (o service confere o status, o dono do interesse, o animal Adotado e o prazo); o texto é obrigatório e a foto é opcional; e a remoção do animal continua em cascata (apagar o animal apaga os interesses, e o banco apaga o depoimento junto, com `on delete cascade`). As telas são a `/meus-interesses/:id/depoimento` e o mural `/historias` (ver [funcionalidades](../funcionalidades.md#12-histórias-de-adoção-depoimentos)).
+
+## 8. Blog para tutores (ERS 6.4)
+
+Também entrou depois do MVP. É uma tabela nova, sem mudar as que já existiam. O autor segue a mesma regra do animal: um Usuario **ou** um Abrigo, nunca os dois, com um `CHECK` no banco.
+
+```mermaid
+erDiagram
+    USUARIO |o--o{ ARTIGO : "escreve (XOR)"
+    ABRIGO |o--o{ ARTIGO : "escreve (XOR)"
+
+    USUARIO {
+        uuid id PK
+    }
+
+    ABRIGO {
+        uuid id PK
+    }
+
+    ARTIGO {
+        uuid id PK
+        varchar(120) titulo
+        text conteudo "texto puro"
+        varchar(30) categoria "enum"
+        varchar(500) foto_capa "opcional, S3"
+        uuid usuario_id FK "XOR abrigo_id"
+        uuid abrigo_id FK "XOR usuario_id"
+        timestamp publicado_em
+        timestamp atualizado_em "vazio até a 1a edição"
+    }
+```
+
+Regras: escreve quem é protetor (um Abrigo, ou um Usuario com pelo menos um animal cadastrado), e só o autor edita e apaga (o service confere as duas coisas); título de 5 a 120 caracteres e texto de 50 a 10000; a capa tem que ter vindo do `POST /api/fotos` e sai do S3 quando é trocada ou quando o artigo é apagado. As telas são a `/blog`, a `/blog/:id` e o formulário (ver [funcionalidades](../funcionalidades.md#13-blog-para-tutores)).

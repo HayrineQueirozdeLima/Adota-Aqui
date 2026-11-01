@@ -2,12 +2,14 @@ import { useNavigate } from "react-router-dom";
 import FormularioAnimal from "../../components/FormularioAnimal/FormularioAnimal";
 import { useAuth } from "../../contexts/AuthContext";
 import { cadastrarAnimal } from "../../services/animais";
+import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 
 // Cadastrar animal (UC04, RF04/RF05), em /meus-animais/novo.
 // Usuario e Abrigo cadastram do mesmo jeito: o protetor é a conta do token.
 export default function CadastroAnimal() {
   const { token } = useAuth();
   const navegar = useNavigate();
+  useTituloDaPagina("Cadastrar animal");
 
   async function publicar(dados) {
     const criado = await cadastrarAnimal(dados, token);

@@ -134,6 +134,33 @@ test("a raça só libera depois da espécie e vem da API", async () => {
   expect(screen.getByLabelText("Raça")).toBeEnabled();
 });
 
+// Sem a lista de raças, o campo ficava só com "Escolha" e a pessoa não sabia por quê
+test("se as raças não carregarem, avisa no campo e tenta de novo quando o campo é aberto", async () => {
+  let tentativas = 0;
+  simular((metodo, caminho) => {
+    if (caminho !== "/api/racas") return undefined;
+    tentativas += 1;
+    // na segunda vez, a resposta padrão da API de mentira
+    return tentativas === 1
+      ? resposta(500, { status: 500, mensagem: "Erro interno" })
+      : undefined;
+  });
+  abrir();
+
+  digitar("Espécie", "GATO");
+  expect(
+    await screen.findByText(/Não foi possível carregar as raças/),
+  ).toBeInTheDocument();
+
+  fireEvent.focus(screen.getByLabelText("Raça"));
+
+  expect(
+    await screen.findByRole("option", { name: "Siamês" }),
+  ).toBeInTheDocument();
+  expect(screen.queryByText(/Não foi possível carregar as raças/)).toBeNull();
+  expect(tentativas).toBe(2);
+});
+
 test("a máscara do nascimento monta MM/AAAA", () => {
   abrir();
   digitar("Nascimento estimado", "042023");

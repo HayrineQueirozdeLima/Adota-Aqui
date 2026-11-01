@@ -54,23 +54,21 @@ export function validarLogin({ documento, senha }) {
     return erros;
 }
 
-export function validarCadastro(dados, tipo) {
-    const erros = {};
-    const vazio = (valor) => !String(valor ?? '').trim();
+const vazio = (valor) => !String(valor ?? '').trim();
 
+// Os pedaços que o cadastro e a edição do perfil conferem do mesmo jeito.
+// Cada um acrescenta os erros que achar no objeto "erros", na ordem dos campos na tela
+
+function conferirNome(dados, tipo, erros) {
     if (tipo === 'ABRIGO') {
-        if (!cnpjValido(dados.cnpj)) {
-            erros.cnpj = vazio(dados.cnpj) ? 'Informe o CNPJ.' : 'CNPJ inválido. Confira os números.';
-        }
         if (vazio(dados.razaoSocial)) erros.razaoSocial = 'Informe a razão social.';
         if (vazio(dados.nome)) erros.nome = 'Informe o nome da instituição.';
-    } else {
-        if (!cpfValido(dados.cpf)) {
-            erros.cpf = vazio(dados.cpf) ? 'Informe o CPF.' : 'CPF inválido. Confira os números.';
-        }
-        if (vazio(dados.nome)) erros.nome = 'Informe seu nome.';
+    } else if (vazio(dados.nome)) {
+        erros.nome = 'Informe seu nome.';
     }
+}
 
+function conferirContato(dados, erros) {
     if (!emailValido(dados.email)) {
         erros.email = vazio(dados.email) ? 'Informe o e-mail.' : 'E-mail inválido. Confira o endereço.';
     }
@@ -79,6 +77,29 @@ export function validarCadastro(dados, tipo) {
     if (telefone.length < 10) {
         erros.telefone = telefone ? 'Informe DDD e número: 10 ou 11 dígitos.' : 'Informe o telefone com DDD.';
     }
+}
+
+function conferirEndereco({ endereco }, erros) {
+    if (somenteNumeros(endereco.cep).length !== 8) erros['endereco.cep'] = 'Informe o CEP com 8 dígitos.';
+    if (vazio(endereco.cidade)) erros['endereco.cidade'] = 'Informe a cidade.';
+    if (!/^[A-Za-z]{2}$/.test(endereco.estado.trim())) {
+        erros['endereco.estado'] = 'Use a sigla do estado, com 2 letras.';
+    }
+    if (vazio(endereco.numero)) erros['endereco.numero'] = 'Informe o número (ou "s/n").';
+}
+
+export function validarCadastro(dados, tipo) {
+    const erros = {};
+
+    if (tipo === 'ABRIGO') {
+        if (!cnpjValido(dados.cnpj)) {
+            erros.cnpj = vazio(dados.cnpj) ? 'Informe o CNPJ.' : 'CNPJ inválido. Confira os números.';
+        }
+    } else if (!cpfValido(dados.cpf)) {
+        erros.cpf = vazio(dados.cpf) ? 'Informe o CPF.' : 'CPF inválido. Confira os números.';
+    }
+    conferirNome(dados, tipo, erros);
+    conferirContato(dados, erros);
 
     if (dados.senha.length < 8) {
         erros.senha = 'A senha precisa ter pelo menos 8 caracteres.';
@@ -91,13 +112,38 @@ export function validarCadastro(dados, tipo) {
         erros.confirmacaoSenha = 'As senhas não conferem.';
     }
 
-    const { endereco } = dados;
-    if (somenteNumeros(endereco.cep).length !== 8) erros['endereco.cep'] = 'Informe o CEP com 8 dígitos.';
-    if (vazio(endereco.cidade)) erros['endereco.cidade'] = 'Informe a cidade.';
-    if (!/^[A-Za-z]{2}$/.test(endereco.estado.trim())) {
-        erros['endereco.estado'] = 'Use a sigla do estado, com 2 letras.';
-    }
-    if (vazio(endereco.numero)) erros['endereco.numero'] = 'Informe o número (ou "s/n").';
+    conferirEndereco(dados, erros);
+    return erros;
+}
 
+// Editar perfil (UC10): os mesmos campos do cadastro, menos o documento, que não muda, e a senha,
+// que tem a conferência dela logo abaixo
+export function validarPerfil(dados, tipo) {
+    const erros = {};
+    conferirNome(dados, tipo, erros);
+    conferirContato(dados, erros);
+    conferirEndereco(dados, erros);
+    return erros;
+}
+
+// Trocar a senha é opcional: com os três campos vazios, não troca.
+// Começou a preencher, os três passam a ser obrigatórios (UC10 FA01 e FA05)
+export function validarTrocaDeSenha({ senhaAtual, novaSenha, confirmacaoNovaSenha }) {
+    const erros = {};
+    if (!senhaAtual && !novaSenha && !confirmacaoNovaSenha) return erros;
+
+    if (!senhaAtual) erros.senhaAtual = 'Informe a senha atual.';
+    if (!novaSenha) {
+        erros.novaSenha = 'Informe a nova senha.';
+    } else if (novaSenha.length < 8) {
+        erros.novaSenha = 'A nova senha precisa ter pelo menos 8 caracteres.';
+    } else if (novaSenha.length > 72) {
+        erros.novaSenha = 'A senha pode ter no máximo 72 caracteres.';
+    }
+    if (!confirmacaoNovaSenha) {
+        erros.confirmacaoNovaSenha = 'Repita a nova senha.';
+    } else if (confirmacaoNovaSenha !== novaSenha) {
+        erros.confirmacaoNovaSenha = 'As senhas não conferem.';
+    }
     return erros;
 }

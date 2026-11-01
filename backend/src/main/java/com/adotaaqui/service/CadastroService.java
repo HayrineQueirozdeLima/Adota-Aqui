@@ -90,11 +90,12 @@ public class CadastroService {
         }
     }
 
-    private String normalizarEmail(String email) {
+    // Usados também pelo PerfilService, na edição do perfil
+    static String normalizarEmail(String email) {
         return email.trim().toLowerCase();
     }
 
-    private Endereco toEndereco(EnderecoDto dto) {
+    static Endereco toEndereco(EnderecoDto dto) {
         Endereco endereco = new Endereco();
         endereco.setCep(DocumentoUtils.normalizar(dto.getCep()));
         endereco.setEstado(dto.getEstado().trim().toUpperCase());

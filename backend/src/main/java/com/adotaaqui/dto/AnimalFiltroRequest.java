@@ -6,6 +6,8 @@ import com.adotaaqui.model.enums.Porte;
 import com.adotaaqui.model.enums.Raca;
 import com.adotaaqui.model.enums.SexoAnimal;
 import com.adotaaqui.model.enums.StatusConvivencia;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 
 /** Filtros opcionais da vitrine. Estado e disponibilidade são impostos pelo Service. */
@@ -32,6 +34,14 @@ public class AnimalFiltroRequest {
     private StatusConvivencia convivenciaCao;
 
     private NivelEnergia energia;
+
+    // Paginação: a primeira página é a 0. Sem os parâmetros, vem a primeira página com 12 animais
+    @Min(value = 0, message = "A página deve ser 0 ou maior")
+    private Integer pagina;
+
+    @Min(value = 1, message = "O tamanho da página deve ser de 1 a 48")
+    @Max(value = 48, message = "O tamanho da página deve ser de 1 a 48")
+    private Integer tamanho;
 
     public Especie getEspecie() {
         return especie;
@@ -111,6 +121,31 @@ public class AnimalFiltroRequest {
 
     public void setEnergia(NivelEnergia energia) {
         this.energia = energia;
+    }
+
+    public Integer getPagina() {
+        return pagina;
+    }
+
+    public void setPagina(Integer pagina) {
+        this.pagina = pagina;
+    }
+
+    public Integer getTamanho() {
+        return tamanho;
+    }
+
+    public void setTamanho(Integer tamanho) {
+        this.tamanho = tamanho;
+    }
+
+    // Os valores que a busca usa, com o padrão quando o parâmetro não veio
+    public int paginaPedida() {
+        return pagina == null ? 0 : pagina;
+    }
+
+    public int tamanhoPedido() {
+        return tamanho == null ? 12 : tamanho;
     }
 }
 

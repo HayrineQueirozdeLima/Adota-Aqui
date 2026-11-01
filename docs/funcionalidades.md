@@ -2,7 +2,7 @@
 
 O que já funciona no Adota Aqui: o que cada funcionalidade faz, como ela funciona por dentro (tela, API e banco), as regras que ela segue e onde ficam o código e os testes.
 
-Situação em 17/10/2026, fim da Sprint 4. A regra é a mesma do resto da pasta: entrou funcionalidade nova, entra uma seção nova aqui, no mesmo PR.
+Situação em 24/10/2026, fim da Sprint 5. A regra é a mesma do resto da pasta: entrou funcionalidade nova, entra uma seção nova aqui, no mesmo PR. O porquê das principais regras (login por documento, ids UUID, remoção em cascata, aprovação travada) está em [aspectos relevantes](aspectos-relevantes.md).
 
 Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`), por isso os animais aparecem sem foto. No site, as fotos vêm do Amazon S3.
 
@@ -16,18 +16,22 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 6. [Cadastro, edição e remoção de animal (CRUD)](#6-cadastro-edição-e-remoção-de-animal-crud)
 7. [Demonstrar interesse e desistir](#7-demonstrar-interesse-e-desistir)
 8. [Painel de interesses recebidos](#8-painel-de-interesses-recebidos)
-9. [O que vale pro sistema todo](#9-o-que-vale-pro-sistema-todo)
-10. [O que ainda não está pronto](#10-o-que-ainda-não-está-pronto)
+9. [Minhas candidaturas](#9-minhas-candidaturas)
+10. [Meu perfil](#10-meu-perfil)
+11. [O que vale pro sistema todo](#11-o-que-vale-pro-sistema-todo)
+12. [Histórias de adoção (depoimentos)](#12-histórias-de-adoção-depoimentos)
+13. [Blog para tutores](#13-blog-para-tutores)
+14. [O que ainda não está pronto](#14-o-que-ainda-não-está-pronto)
 
 ## Quem usa o sistema
 
-| Perfil    | Como entra                    | O que pode fazer                                                                                                                                |
-| --------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Visitante | Sem login                     | Ver a vitrine (animais de todos os estados) e o perfil de cada animal                                                                           |
-| Usuario   | Pessoa física, login com CPF  | Ver os animais do próprio estado, demonstrar interesse e desistir. Também pode cadastrar animais que resgatou e cuidar dos interesses recebidos |
-| Abrigo    | ONG ou abrigo, login com CNPJ | Ver a vitrine de todos os estados, cadastrar animais e cuidar dos interesses recebidos. Não demonstra interesse                                 |
+| Perfil    | Como entra                    | O que pode fazer                                                                                                                                                            |
+| --------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Visitante | Sem login                     | Ver a vitrine (animais de todos os estados) e o perfil de cada animal                                                                                                       |
+| Usuario   | Pessoa física, login com CPF  | Ver os animais do próprio estado, demonstrar interesse, acompanhar as candidaturas e desistir. Também pode cadastrar animais que resgatou e cuidar dos interesses recebidos |
+| Abrigo    | ONG ou abrigo, login com CNPJ | Ver a vitrine de todos os estados, cadastrar animais e cuidar dos interesses recebidos. Não demonstra interesse                                                             |
 
-**Protetor** é quem cadastrou o animal, seja Usuario ou Abrigo.
+**Protetor** é quem cadastrou o animal, seja Usuario ou Abrigo. No blog para tutores, escreve o Abrigo ou a pessoa que já cadastrou pelo menos um animal.
 
 ## Resumo
 
@@ -36,11 +40,15 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 | 1   | Cadastro de conta                   | RF01, RF02, RNF02            | `/cadastro`, `/cadastro/usuario`, `/cadastro/abrigo`              | `POST /api/usuarios`, `POST /api/abrigos`                                                                            |
 | 2   | Login, sessão e saída               | RF03, RNF03                  | `/login`, `/perfil`                                               | `POST /api/auth/login`                                                                                               |
 | 3   | Controle de acesso                  | RNF03, RF14                  | Todas                                                             | Todos                                                                                                                |
-| 4   | Página inicial e vitrine de animais | RF07, RF14                   | `/`, `/animais`                                                   | `GET /api/animais`, `GET /api/racas`                                                                                 |
+| 4   | Página inicial e vitrine de animais | RF07, RF14, ERS 6.7                | `/`, `/animais`                                                   | `GET /api/animais`, `GET /api/racas`, `GET /api/estatisticas`                                                        |
 | 5   | Perfil do animal                    | RF07, RF14                   | `/animais/:id`                                                    | `GET /api/animais/{id}`                                                                                              |
 | 6   | CRUD de animal e fotos              | RF04, RF05, RF06, RF16       | `/meus-animais`, `/meus-animais/novo`, `/meus-animais/:id/editar` | `GET /api/animais/meus`, `POST /api/animais`, `PUT /api/animais/{id}`, `DELETE /api/animais/{id}`, `POST /api/fotos` |
 | 7   | Demonstrar interesse e desistir     | RF08, RF09, RF13, RF14, RF15 | `/animais/:id/interesse`                                          | `POST /api/animais/{id}/interesses`, `DELETE /api/interesses/{id}`                                                   |
 | 8   | Painel de interesses recebidos      | RF09, RF10, RF12             | `/interesses-recebidos`                                           | `GET /api/interesses/recebidos`, `PATCH /api/interesses/{id}/status`                                                 |
+| 9   | Minhas candidaturas                 | RF09, UC07                   | `/meus-interesses`                                                | `GET /api/interesses/meus`, `DELETE /api/interesses/{id}`                                                            |
+| 10  | Meu perfil                          | RF17, RF14, UC10             | `/perfil`                                                         | `GET` e `PUT` em `/api/usuarios/me` e `/api/abrigos/me`, `PATCH` em `.../me/senha`                                   |
+| 11  | Histórias de adoção | RF11, UC09 | `/historias`, `/meus-interesses/:id/depoimento` | `POST /api/interesses/{id}/depoimento`, `GET /api/depoimentos`, `DELETE /api/depoimentos/{id}` |
+| 12  | Blog para tutores | ERS 6.4 | `/blog`, `/blog/:id`, `/blog/novo`, `/blog/:id/editar` | `GET`, `POST`, `PUT` e `DELETE` em `/api/artigos`, `GET /api/artigos/meus` |
 
 Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da API](api.md).
 
@@ -124,13 +132,13 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 
 **No front.**
 
-- As rotas que precisam de login (`/meus-animais`, cadastro e edição de animal, `/interesses-recebidos` e `/perfil`) passam pela `RotaProtegida`. Sem login, a pessoa vai pro `/login` e volta pra mesma página depois de entrar.
+- As rotas que precisam de login (`/meus-animais`, cadastro e edição de animal, `/interesses-recebidos`, `/perfil` e escrever ou editar um artigo) passam pela `RotaProtegida`. Sem login, a pessoa vai pro `/login` e volta pra mesma página depois de entrar.
 - Demonstrar interesse e Minhas candidaturas são só pra pessoa física. Abrigo que tenta abrir essas páginas vai pra página inicial.
 - O menu muda conforme quem está logado. Visitante vê "Cadastrar" e "Entrar". Quem está logado vê "Explorar", "Meus animais", "Interesses recebidos" e, só pessoa física, "Minhas candidaturas".
 
 **Na API.**
 
-- Públicos: login, os dois cadastros, a vitrine, o perfil do animal e a lista de raças. O resto exige token.
+- Públicos: login, os dois cadastros, a vitrine, o perfil do animal, a lista de raças, os números do site, o mural de histórias e a leitura dos artigos. O resto exige token.
 - Sem token: `401` "Autenticação necessária". Token inválido ou vencido: `401` "Token inválido ou expirado".
 - O papel (`ROLE_USUARIO` ou `ROLE_ABRIGO`) vem do token. Antes de editar, remover ou mudar um status, o service confere se a conta é a dona do animal. Quem não é recebe `403`.
 - CORS: a API só aceita chamadas dos endereços configurados em `CORS_ORIGENS` (o site e os deploy previews do Netlify).
@@ -145,11 +153,13 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 
 ![Página inicial no computador](prints/12-home.png)
 
-**Página inicial.** Abre com a apresentação do Figma: a foto de um cão e um gato, o título "Todo animal merece um lar de verdade." e os botões "Ver animais disponíveis" e "Resgatei um animal". No celular e no tablet, a foto fica escurecida e o texto branco; no computador com o tema claro, a foto aparece inteira e o texto fica escuro. Logo abaixo vem a faixa laranja da guarda responsável (Leis nº 9.605/1998 e nº 14.064/2020), depois a vitrine e, no fim, "Como funciona a adoção", com os quatro passos. O link "Como adotar" do rodapé leva direto pra essa parte.
+**Página inicial.** Abre com a apresentação do Figma: a foto de um cão e um gato, o título "Todo animal merece um lar de verdade." e os botões "Ver animais disponíveis" e "Resgatei um animal". No celular e no tablet, a foto fica escurecida e o texto branco; no computador com o tema claro, a foto aparece inteira e o texto fica escuro. Logo abaixo vem a faixa laranja da guarda responsável (Leis nº 9.605/1998 e nº 14.064/2020), depois os números do site, a vitrine e, no fim, "Como funciona a adoção", com os quatro passos. O link "Como adotar" do rodapé leva direto pra essa parte.
 
 ![Vitrine no computador](prints/04-vitrine.png)
 
 <img src="prints/05-vitrine-celular.png" alt="Vitrine no celular" width="320">
+
+**Números do site.** A faixa "O Adota Aqui em números" mostra quantas adoções já foram feitas pelo site, quantos animais estão esperando um lar e quantos abrigos e ONGs estão cadastrados (`GET /api/estatisticas`, ERS 6.7). Adoção é interesse aprovado, então uma devolução não tira a adoção da conta. Os números contam o site todo, sem o filtro de estado. Enquanto carrega, os três cartões já ocupam o lugar, pra vitrine não pular. Se a API falhar, a faixa some sem mensagem de erro: ela é um extra, e o resto da página continua funcionando.
 
 **O que faz.** Lista os animais disponíveis pra adoção, com filtros (RF07, UC06). Aparece na página inicial e em `/animais`.
 
@@ -159,8 +169,9 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 2. Busca por nome e filtros: cidade, espécie, sexo, porte, raça (liberada depois de escolher a espécie), nível de energia e convivência ("Bom com crianças", "Bom com cães", "Bom com gatos").
 3. A cada mudança, o front espera 300 ms sem mudança nova (assim não busca a cada letra digitada na cidade) e chama `GET /api/animais` com os filtros no endereço.
 4. Cada cartão mostra nome, descrição (espécie, raça, porte e peso), tags de convivência, o protetor com cidade e estado, e o botão "Quero conhecer".
-5. Sem resultado com os filtros: "Nenhum resultado encontrado com essas informações.", com uma foto, a dica "Tente tirar algum filtro ou buscar por outro nome." e o botão "Ver todos os animais" (UC06 FA02). Sem nenhum animal no estado da pessoa: "Nenhum animal disponível no seu estado no momento." (UC06 FA01).
-6. Se a API não responder: "Não foi possível carregar os animais.", com o botão "Tentar de novo", que busca outra vez sem perder os filtros.
+5. Os animais vêm de 12 em 12, dos cadastrados mais recentes pros mais antigos. Embaixo da grade aparece "Mostrando 12 de 37 animais" e o botão "Ver mais animais", que traz a próxima página embaixo das que já estavam na tela e leva o foco pro primeiro animal novo. Na última página o botão some. Se a próxima página falhar, os animais que já estavam continuam, e aparece "Não foi possível carregar mais animais. Tente de novo.". Mudar um filtro volta pra primeira página.
+6. Sem resultado com os filtros: "Nenhum resultado encontrado com essas informações.", com uma foto, a dica "Tente tirar algum filtro ou buscar por outro nome." e o botão "Ver todos os animais" (UC06 FA02). Sem nenhum animal no estado da pessoa: "Nenhum animal disponível no seu estado no momento." (UC06 FA01).
+7. Se a API não responder: "Não foi possível carregar os animais.", com o botão "Tentar de novo", que busca outra vez sem perder os filtros.
 
 **Busca por nome.** O campo "Nome do animal ou do protetor" procura no nome do animal e no nome de quem cadastrou, pessoa ou abrigo: "mel" acha a Mel, e "quatro patas" acha os animais do Instituto Quatro Patas. Soma com os outros filtros e aceita até 80 caracteres.
 
@@ -168,10 +179,12 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 
 **Onde está no código.**
 
-- Front: `pages/Home`, `components/Apresentacao`, `components/ComoFunciona`, `components/VitrineAnimais`, `components/FiltrosAnimais`, `components/CardAnimal` e `services/animais.js`
-- Back: `AnimalController`, `AnimalService`, `AnimalFiltroRequest` e `AnimalSpecifications`
+- Front: `pages/Home`, `components/Apresentacao`, `components/Estatisticas`, `components/ComoFunciona`, `components/VitrineAnimais`, `components/FiltrosAnimais`, `components/CardAnimal`, `services/animais.js` e `services/estatisticas.js`
+- Back: `AnimalController`, `AnimalService`, `AnimalFiltroRequest`, `AnimalSpecifications`, `PaginaResponse`, `EstatisticasController` e `EstatisticasService`
 
-**Testes.** `AnimalIntegrationTest` (estado, status, filtros combinados, cidade e busca por nome sem acento), `ErroApiIntegrationTest` (filtro com valor inválido), `VitrineAnimais.test.jsx`, `CardAnimal.test.jsx` e `Home.test.jsx`.
+**Como fica no banco.** A coluna `cadastrado_em` da tabela `animal` guarda quando o animal foi cadastrado, e é por ela que a vitrine ordena. Nos animais que já existiam quando a coluna foi criada, o banco preencheu com a data daquele deploy.
+
+**Testes.** `AnimalIntegrationTest` (estado, status, filtros combinados, cidade, busca por nome sem acento, páginas, ordem e limites da paginação), `ErroApiIntegrationTest` (filtro com valor inválido), `VitrineAnimais.test.jsx` (inclusive o "Ver mais animais"), `CardAnimal.test.jsx`, `Home.test.jsx`, `EstatisticasIntegrationTest` e `Estatisticas.test.jsx`.
 
 ---
 
@@ -231,9 +244,9 @@ O quadro do lado:
 **Editar (update).** O mesmo formulário, já preenchido, manda tudo pro `PUT /api/animais/{id}`.
 
 - Animal disponível: dá pra mudar todos os dados. O status não muda por aqui: o animal só vira Adotado quando o protetor aprova um interesse.
-- Animal adotado: os dados ficam travados e só o status muda (RF06). Escolher "Disponível (devolução)" pede confirmação ("Tornar {nome} disponível de novo?") e devolve o animal pra vitrine. A devolução é salva sem mudar os dados (se mudar, o back responde `409`); depois dela, o animal pode ser editado normalmente. Isso diverge do RF06, que deixa editar na mesma tela da devolução, e está na seção 10. O interesse aprovado continua no histórico.
+- Animal adotado: os dados ficam travados e só o status muda (RF06). Escolher "Disponível (devolução)" destrava os campos, pede confirmação ("Tornar {nome} disponível de novo?") e devolve o animal pra vitrine, já com os dados que a pessoa mudou nessa mesma tela. Continuando Adotado, qualquer dado alterado é recusado (`409`). O interesse aprovado continua no histórico.
 
-**Remover (delete).** "Remover {nome}" pede confirmação ("Remover {nome} de vez?") e chama `DELETE /api/animais/{id}`. Saem junto as vacinas, os endereços das fotos e os interesses do animal.
+**Remover (delete).** "Remover {nome}" pede confirmação ("Remover {nome} de vez?") e chama `DELETE /api/animais/{id}`. Saem junto as vacinas, as fotos e os interesses do animal. As fotos saem do banco e também do S3 (ver a regra abaixo).
 
 Depois de cada ação, Meus animais mostra um aviso: "{nome} foi publicado e já aparece na vitrine.", "As alterações em {nome} foram salvas." ou "{nome} foi removido.".
 
@@ -341,7 +354,72 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ---
 
-## 9. O que vale pro sistema todo
+## 9. Minhas candidaturas
+
+![Minhas candidaturas](prints/14-minhas-candidaturas.png)
+
+**O que faz.** A pessoa acompanha os animais em que demonstrou interesse: em que pé está cada candidatura e o contato do protetor, pra ela também poder puxar a conversa (RF09, UC07). Só pessoa física tem essa tela.
+
+**Como funciona.**
+
+1. Um cartão por candidatura, com a foto, o nome e o status do animal, a espécie, a raça e o porte, e há quanto tempo o interesse foi enviado.
+2. Em cada cartão, o contato do protetor: nome, e-mail e WhatsApp.
+3. As em andamento (Em contato e Pendente) vêm primeiro, depois a Aprovada e as Descontinuadas.
+4. Filtros por status: Todas, Pendente, Em contato, Aprovado e Descontinuado, cada um com a quantidade.
+5. Aprovada mostra "Adoção aprovada. Combine os próximos passos com o protetor." e, até 30 dias depois da aprovação, o convite pra contar como foi a adoção (ver [Histórias de adoção](#12-histórias-de-adoção-depoimentos)). Descontinuada mostra o motivo que o protetor escreveu.
+6. "Ver ficha" só aparece com o animal disponível: animal adotado só abre pro protetor dele.
+7. "Desistir da adoção" só aparece nas candidaturas Pendente ou Em contato. Pede confirmação, apaga o interesse (o mesmo `DELETE` do perfil do animal) e o cartão some da lista, com um aviso no topo.
+8. Sem nenhuma candidatura, aparece um convite pra ver os animais disponíveis.
+
+**Regras.**
+
+- Cada pessoa só vê as próprias candidaturas: a conta sai do token.
+- Sem login: `401`. Conta de abrigo: `403` "Contas de abrigo não têm candidaturas. Para adotar, use uma conta pessoal (CPF)".
+- O interesse traz um resumo do animal com o `statusAdocao`, que é o que decide se o "Ver ficha" aparece (`docs/api.md`, formato do interesse).
+
+**Onde está no código.**
+
+- Front: `pages/MeusInteresses`, `components/Candidatura` e `services/interesses.js`
+- Back: `InteresseController`, `InteresseService` e `InteresseRepository` (`findByUsuarioIdOrderByDataHoraDescIdDesc`)
+
+**Testes.** `InteresseIntegrationTest` (só as da pessoa, contato do protetor, motivo, `401` e `403`) e `MeusInteresses.test.jsx`.
+
+---
+
+## 10. Meu perfil
+
+![Meu perfil](prints/15-meu-perfil.png)
+
+**O que faz.** A pessoa ou o abrigo vê e edita os dados da conta e troca a senha (RF17, UC10). O CPF e o CNPJ aparecem, mas não mudam, porque é com eles que se entra.
+
+**Como funciona.**
+
+1. A tela abre com os dados da conta: documento (só leitura), nome, telefone, e-mail e endereço. O abrigo também tem a razão social.
+2. O endereço funciona igual ao do cadastro: o CEP preenche cidade, estado e logradouro pelo ViaCEP, e os campos continuam editáveis.
+3. Um aviso explica que mudar o estado muda o que a pessoa vê na vitrine e onde os animais dela aparecem (RF14).
+4. A troca de senha fica na mesma tela e é opcional: com os três campos em branco, a senha não muda. Começou a preencher, os três passam a ser obrigatórios.
+5. "Salvar alterações" manda os dados (`PUT`) e, se a senha foi preenchida, troca a senha logo depois (`PATCH`). Se nada mudou, avisa que não há o que salvar.
+6. "Cancelar" volta tudo pro que está salvo. O nome novo aparece no menu na hora, sem entrar de novo.
+7. "Sair da conta" continua na mesma tela.
+
+**Regras.**
+
+- A conta sai do token (`/me`), nunca de um id no endereço. Pessoa usa `/api/usuarios/me` e abrigo usa `/api/abrigos/me`; o outro tipo recebe `403`.
+- O e-mail continua único entre pessoas e abrigos, sem diferença de maiúsculas: `409` "Já existe uma conta cadastrada com este e-mail", mostrado embaixo do campo.
+- A senha nova segue a regra do cadastro (8 a 72 caracteres) e precisa ser confirmada.
+- Senha atual errada: `400`, e não `401`, pra não deslogar a pessoa. A mensagem aparece embaixo da senha atual.
+- Mudar o estado muda a vitrine da pessoa e leva junto os animais dela: o animal não guarda estado, usa o de quem cadastrou.
+
+**Onde está no código.**
+
+- Front: `pages/Perfil`, `services/perfil.js`, `utils/validacoes.js` (`validarPerfil` e `validarTrocaDeSenha`) e `contexts/AuthContext.jsx` (`atualizarNome`)
+- Back: `PerfilController` e `PerfilService`
+
+**Testes.** `PerfilIntegrationTest` (ver, editar, e-mail repetido, outro tipo de conta, troca de senha, senha atual errada e a mudança de estado na vitrine) e `Perfil.test.jsx`.
+
+---
+
+## 11. O que vale pro sistema todo
 
 - **Erros no mesmo formato.** Toda resposta de erro da API tem `status`, `erro`, `mensagem`, `campos` (quando o erro é num campo) e `timestamp`, em português. O front mostra a `mensagem` e põe cada erro de `campos` embaixo do campo certo (`GlobalExceptionHandler`, `ErroResponse` e `services/api.js`).
 - **Servidor acordando.** O Render desliga a API depois de 15 minutos sem uso. Quando uma tela passa de 4 segundos carregando, aparece "O servidor estava parado e está acordando. Isso pode levar até 1 minuto." (`components/Carregando`).
@@ -350,6 +428,7 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ![Painel de interesses recebidos no tema escuro](prints/13-tema-escuro.png)
 
+- **Título da aba e rolagem.** Cada página põe o nome dela no título da aba do navegador ("Meus animais | Adota Aqui"), e toda página nova abre no topo. O "Como adotar" do rodapé rola até a seção, e o voltar do navegador devolve a pessoa onde ela estava (`hooks/useTituloDaPagina.js` e `components/RolarParaOTopo`).
 - **Rodapé** em todas as telas que têm o menu do topo, com o logo, a frase do Figma e os links da plataforma: explorar animais, como adotar, cadastro e cadastrar um animal (`components/Rodape`, `Rodape.test.jsx`).
 - **Página não encontrada** pra qualquer endereço que não existe, com foto e os botões "Ver animais disponíveis" e "Ir para a página inicial". Animal que não existe (perfil, interesse ou edição) mostra a mesma foto com "Animal não encontrado".
 - **Integração contínua.** A cada push e PR na `dev` e na `main`, o GitHub Actions roda os testes do back (`mvn verify`) e do front (build e `npm run test:coverage`) e guarda os relatórios de cobertura (JaCoCo e lcov). A cobertura aparece no resumo de cada execução, e o CI falha se a de linhas ficar abaixo de 70% (RNF04). O PR só entra com os dois verdes.
@@ -357,15 +436,84 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ---
 
-## 10. O que ainda não está pronto
+## 12. Histórias de adoção (depoimentos)
 
-| O quê                                     | Situação                                                                                                                             |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Minhas candidaturas (`/meus-interesses`)  | A tela ainda é só o título, e não existe endpoint que liste os interesses da pessoa. O menu e a tela de confirmação já levam pra ela |
-| Editar perfil e trocar senha (RF17, UC10) | Os DTOs existem, mas ainda não há endpoint nem tela. Meu perfil só tem "Sair da conta"                                               |
-| Apagar a imagem do S3                     | Remover uma foto ou um animal tira o endereço do banco, mas o arquivo continua no S3                                                 |
-| Paginação e ordem na vitrine              | A vitrine traz todos os animais de uma vez, sem uma ordem definida                                                                   |
-| Editar na mesma tela da devolução (RF06)  | O formulário libera os campos quando o status volta pra Disponível, mas o back recusa (`409`) se algum dado mudar junto. Por enquanto: salvar a devolução e depois editar |
+**O que faz.** Quem adotou pelo site conta como está a vida com o animal, com uma foto se quiser, e a história vai pro mural público de histórias de adoção (RF11, UC09, ERS 6.3). A Home mostra as 3 mais novas.
+
+**Como funciona.**
+
+1. Quando o protetor aprova o interesse, a candidatura aprovada passa a mostrar "Contar como foi a adoção" em Minhas candidaturas, com o prazo: "Dá pra contar até 28/11/2026." (30 dias depois da aprovação, ERS 6.3).
+2. O botão abre `/meus-interesses/{id}/depoimento`: "Como está sendo a vida com {nome}?", o texto (de 10 a 1000 caracteres, com o contador), uma foto opcional (UC09 FA02) e a autorização pra publicar no mural.
+3. Sem texto ou sem autorizar, não envia, marca o que falta e leva o foco pro primeiro problema (UC09 FA01).
+4. Publicada, a pessoa volta pra Minhas candidaturas com o aviso "Sua história com {nome} foi publicada no mural.", e o cartão passa a mostrar o link do mural e "Apagar minha história", que pede confirmação.
+5. O mural fica em `/historias`, aberto pra qualquer pessoa, também no rodapé ("Histórias de adoção"). Cada história mostra a foto (a do depoimento ou, sem ela, a do animal), o nome do animal, o texto, o primeiro nome e o estado de quem contou, o protetor e a data. Vem de 12 em 12, com o "Ver mais histórias".
+6. Na Home, a seção "Histórias de quem adotou" mostra as 3 mais novas e o link "Ver todas as histórias". Sem nenhuma história, ou com a API fora do ar, a seção nem aparece.
+
+**Regras.**
+
+- Só a pessoa que adotou escreve, uma vez por adoção, e só se for a adoção atual do animal: aprovada, com o animal Adotado e sem outra aprovação depois (uma devolução seguida de uma nova adoção passa a vez pra quem adotou por último).
+- Prazo de 30 dias a partir da aprovação. Interesse aprovado antes de existir a data da aprovação fica sem prazo.
+- O mural é público, então a pessoa precisa autorizar, e do adotante só aparecem o primeiro nome e o estado. O sobrenome, o e-mail e o telefone não saem da API.
+- A foto tem que ter sido enviada pelo próprio site (`POST /api/fotos`). URL de outro site é recusada, pra ninguém colocar no mural uma imagem que não passou pela conferência.
+- Quem escreveu pode apagar a história quando quiser, e a foto sai também do S3. Ainda no prazo, dá pra contar de novo.
+- Remover o animal apaga junto os depoimentos das adoções dele (o banco apaga em cascata) e as fotos do S3.
+- Erros: sem login `401`, conta de abrigo ou interesse de outra pessoa `403`, interesse que não existe `404`, adoção não aprovada, prazo acabado ou história já contada `409`.
+
+**Como fica no banco.** Tabela `depoimento` (id, `interesse_id` único, texto até 1000 caracteres, `foto_url` e `data_hora`), com chave estrangeira pro interesse e `on delete cascade`. O interesse ganhou a coluna `aprovado_em`, preenchida quando o protetor aprova.
+
+**Onde está no código.**
+
+- Front: `pages/Historias`, `pages/EscreverDepoimento`, `components/CardDepoimento`, `components/HistoriasRecentes`, `components/Candidatura`, `components/CampoTextoLongo`, `components/EnvioFotoUnica` e `services/depoimentos.js`
+- Back: `DepoimentoController`, `DepoimentoService`, `DepoimentoRepository`, `Depoimento`, `DepoimentoRequest`, `DepoimentoResponse` e `PaginaRequest`
+
+**Testes.** `DepoimentoIntegrationTest` (o fluxo pela API, primeiro nome e estado no mural, prazo, só quem adotou, uma vez só, devolução, validações, apagar, remover o animal e as páginas do mural), `Historias.test.jsx`, `EscreverDepoimento.test.jsx`, `MeusInteresses.test.jsx` e `Home.test.jsx`.
+
+---
+
+## 13. Blog para tutores
+
+**O que faz.** Os protetores escrevem artigos pra quem vai adotar e pra quem já adotou: adoção responsável, primeiros dias em casa, saúde e vacinas, comportamento e alimentação (ERS 6.4, Blog Educativo). Qualquer pessoa lê, sem login.
+
+![Blog para tutores](prints/16-blog.png)
+
+**Como funciona.**
+
+1. O blog fica em `/blog`, também no rodapé ("Blog para tutores"). Logo no começo, o quadro "Pra que serve este blog" explica a ideia: a comunidade se ajudar, com quem já resgatou, cuidou ou abriga animais contando o que aprendeu na prática pra quem vai adotar ou acabou de adotar. O mesmo quadro diz como começar a escrever: o visitante é convidado a entrar na conta, e quem entrou mas ainda não cadastrou animal, a cadastrar um.
+2. Cada artigo aparece num card com a capa (se tiver), o assunto, o título, o começo do texto, quem escreveu, a cidade e a data. Vem de 12 em 12, dos mais novos pros mais antigos, com o "Ver mais artigos". Os botões de assunto filtram a lista. Quem já escreveu algum artigo vê também o "Escritos por mim".
+3. O título abre o artigo inteiro em `/blog/{id}`, com o texto em parágrafos (separados pelas linhas em branco) e a data da última edição, se tiver.
+4. Protetor vê o "Escrever um artigo", que abre `/blog/novo`: título, assunto, foto de capa opcional e o texto, com o contador de caracteres. Faltando alguma coisa, marca o que falta e leva o foco pro primeiro problema.
+5. Depois de publicar, a pessoa vai pro artigo com o aviso "Seu artigo foi publicado.". Quem escreveu vê ali o "Editar artigo" e o "Apagar artigo", que pede confirmação e volta pro blog com o aviso.
+6. Pessoa que ainda não cadastrou animal e abre `/blog/novo` vê o convite pra cadastrar um. Quem abre a edição de um artigo de outra conta vê o aviso de que só quem escreveu pode editar.
+
+![Um artigo aberto](prints/17-artigo.png)
+
+**Regras.**
+
+- Escreve quem é protetor: um Abrigo, ou uma pessoa que já cadastrou pelo menos um animal. Os outros recebem `403`.
+- Só quem escreveu edita e apaga. A API confere a conta do token, e não o que o front mostra.
+- Título de 5 a 120 caracteres, texto de 50 a 10000 caracteres e um dos 5 assuntos.
+- O texto é puro, sem HTML. O site mostra como texto, então ninguém consegue colocar um script ou um link escondido num artigo.
+- A capa tem que ter sido enviada pelo próprio site (`POST /api/fotos`), como no depoimento. Trocar ou tirar a capa, ou apagar o artigo, apaga a imagem antiga do S3.
+- Da conta que escreveu, o artigo mostra só o nome, o tipo, a cidade e o estado, como na vitrine.
+
+**Como fica no banco.** Tabela `artigo` (id, `titulo`, `conteudo` em `text`, `categoria`, `foto_capa`, `usuario_id` ou `abrigo_id`, `publicado_em` e `atualizado_em`), com a mesma regra do animal: um autor só, pessoa ou abrigo (`check` no banco).
+
+**Onde está no código.**
+
+- Front: `pages/Blog`, `pages/Artigo`, `pages/FormularioArtigo`, `components/CardArtigo` e `services/artigos.js`
+- Back: `ArtigoController`, `ArtigoService`, `ArtigoRepository`, `Artigo`, `CategoriaArtigo`, `ArtigoRequest`, `ArtigoResponse`, `ArtigoResumoResponse`, `ArtigoFiltroRequest` e `MeusArtigosResponse`
+
+**Testes.** `ArtigoIntegrationTest` (quem pode publicar, só o autor edita e apaga, validações, filtro por assunto, páginas, capa de outro site e a limpeza da capa no S3), `Blog.test.jsx`, `Artigo.test.jsx`, `FormularioArtigo.test.jsx`, `App.test.jsx` e `Rodape.test.jsx`.
+
+---
+
+## 14. O que ainda não está pronto
+
+| O quê                                   | Situação                                                                                                                                       |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Foto de um cadastro que não foi salvo   | Quem envia fotos e desiste do formulário sem salvar deixa os arquivos no S3. Limpar essas fotos pediria uma tarefa agendada que procura arquivo sem animal |
+
+O que ficou de fora do escopo, e por quê, está em [aspectos relevantes](aspectos-relevantes.md#o-que-ficou-de-fora).
 
 ---
 

@@ -16,9 +16,15 @@ final class InteresseMapper {
 
     // Visão do candidato: vem com o contato do protetor (RF09)
     static InteresseResponse paraCandidato(Interesse interesse) {
+        return paraCandidato(interesse, DepoimentoService.Situacao.NENHUMA);
+    }
+
+    // Em Minhas candidaturas, vem também a situação do depoimento (RF11)
+    static InteresseResponse paraCandidato(Interesse interesse, DepoimentoService.Situacao depoimento) {
         Animal animal = interesse.getAnimal();
         return new InteresseResponse(interesse.getId(), interesse.getDataHora(), interesse.getStatusAndamento(),
-                interesse.getMotivoDescontinuacao(), resumo(animal), triagem(interesse), contatoDoProtetor(animal));
+                interesse.getMotivoDescontinuacao(), resumo(animal), triagem(interesse), contatoDoProtetor(animal),
+                depoimento.depoimentoId(), depoimento.podeContar(), depoimento.prazo());
     }
 
     // Visão do protetor: vem com o contato do candidato (o inverso do paraCandidato, que traz o do protetor)
@@ -32,7 +38,8 @@ final class InteresseMapper {
 
     static AnimalResumoResponse resumo(Animal animal) {
         String fotoCapa = animal.getFotos().isEmpty() ? null : animal.getFotos().get(0);
-        return new AnimalResumoResponse(animal.getId(), animal.getNome(), fotoCapa);
+        return new AnimalResumoResponse(animal.getId(), animal.getNome(), fotoCapa, animal.getEspecie(),
+                animal.getRaca().getNome(), animal.getPorte(), animal.getStatusAdocao());
     }
 
     static TriagemDto triagem(Interesse interesse) {

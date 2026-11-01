@@ -43,6 +43,9 @@ export default function FormularioAnimal({
   const [valores, setValores] = useState(inicial);
   const [status, setStatus] = useState(statusOriginal);
   const [racas, setRacas] = useState([]);
+  // Se a lista de raças não carregar, avisa no campo. Abrir o campo de novo tenta outra vez
+  const [erroRacas, setErroRacas] = useState("");
+  const [buscaDeRacas, setBuscaDeRacas] = useState(0);
   const [erros, setErros] = useState({});
   const [erroEnvio, setErroEnvio] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -59,17 +62,22 @@ export default function FormularioAnimal({
   useEffect(() => {
     if (!valores.especie) return undefined;
     let cancelado = false;
+    setErroRacas("");
     listarRacas(valores.especie)
       .then((lista) => {
         if (!cancelado) setRacas(lista);
       })
       .catch(() => {
-        if (!cancelado) setRacas([]);
+        if (cancelado) return;
+        setRacas([]);
+        setErroRacas(
+          "Não foi possível carregar as raças. Confira sua conexão e abra este campo de novo.",
+        );
       });
     return () => {
       cancelado = true;
     };
-  }, [valores.especie]);
+  }, [valores.especie, buscaDeRacas]);
 
   function mudar(campo, valor) {
     setValores((atuais) => ({ ...atuais, [campo]: valor }));
@@ -248,8 +256,11 @@ export default function FormularioAnimal({
                 vazio={valores.especie ? "Escolha" : "Escolha a espécie antes"}
                 value={valores.raca}
                 onChange={(e) => mudar("raca", e.target.value)}
+                onFocus={() =>
+                  erroRacas && setBuscaDeRacas((total) => total + 1)
+                }
                 disabled={!valores.especie}
-                erro={erros.raca}
+                erro={erros.raca || erroRacas}
               />
             </div>
             <div className="mt-4 grid gap-4 sm:grid-cols-4">
@@ -437,7 +448,7 @@ export default function FormularioAnimal({
           )}
 
           <section className="rounded-[16px] bg-marca-roxo-suave p-5">
-            <h2 className="font-titulo text-overline uppercase text-texto-terciario">
+            <h2 className="font-titulo text-overline uppercase text-texto-secundario">
               Antes de publicar
             </h2>
             <p className="mt-3 text-compacto text-texto-secundario">

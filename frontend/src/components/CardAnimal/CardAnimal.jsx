@@ -12,17 +12,11 @@ import {
 
 // card da listagem de animais (Home e /animais)
 // recebe um animal no formato do GET /api/animais (docs/api.md)
-export default function CardAnimal({ animal }) {
-  const {
-    id,
-    nome,
-    sexo,
-    castrado,
-    energia,
-    convivencia,
-    fotoCapa,
-    protetor,
-  } = animal;
+// nivelDoTitulo: o nome do animal é h3 na Home (embaixo do h2 da vitrine) e h2 na /animais (embaixo do h1)
+export default function CardAnimal({ animal, nivelDoTitulo = 3 }) {
+  const Titulo = `h${nivelDoTitulo}`;
+  const { id, nome, sexo, castrado, energia, convivencia, fotoCapa, protetor } =
+    animal;
 
   // "Cão, sem raça definida, porte médio, 14 kg"
   const descricao = resumoDoAnimal(animal);
@@ -51,18 +45,16 @@ export default function CardAnimal({ animal }) {
             className="h-full w-full object-cover"
           />
         ) : (
-          <span className="text-legenda text-texto-terciario">
-            Sem foto
-          </span>
+          <span className="text-legenda text-texto-secundario">Sem foto</span>
         )}
       </div>
 
       <div className="flex flex-1 flex-col justify-between px-[18px] pb-[18px] pt-4">
         <div className="flex flex-col gap-[11px]">
           <div className="flex items-center justify-between">
-            <h3 className="font-titulo font-semibold text-card text-texto-principal">
+            <Titulo className="font-titulo font-semibold text-card text-texto-principal">
               {nome}
-            </h3>
+            </Titulo>
             <Tag variante="disponivel">Disponível</Tag>
           </div>
 

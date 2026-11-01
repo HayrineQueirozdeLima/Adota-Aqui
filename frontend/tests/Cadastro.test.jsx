@@ -190,7 +190,9 @@ describe("cadastro de pessoa física", () => {
     fireEvent.click(screen.getByRole("button", { name: "Criar conta" }));
     fireEvent.click(screen.getByRole("button", { name: "Criando conta..." }));
 
-    expect(screen.getByRole("button", { name: "Criando conta..." })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Criando conta..." }),
+    ).toBeDisabled();
     expect(
       fetch.mock.calls.filter(([url]) => url.endsWith("/api/usuarios")),
     ).toHaveLength(1);
@@ -311,17 +313,34 @@ describe("cadastro de abrigo", () => {
 });
 
 describe("escolha do tipo de conta", () => {
-  test("leva aos dois formulários de cadastro", () => {
+  function abrirEscolha() {
     render(
-      <MemoryRouter>
-        <EscolhaCadastro />
+      <MemoryRouter initialEntries={["/cadastro"]}>
+        <AuthProvider>
+          <Routes>
+            <Route path="/cadastro" element={<EscolhaCadastro />} />
+            <Route path="/animais" element={<p>Vitrine</p>} />
+          </Routes>
+        </AuthProvider>
       </MemoryRouter>,
     );
+  }
+
+  test("leva aos dois formulários de cadastro", () => {
+    abrirEscolha();
     expect(
       screen.getByRole("link", { name: /Pessoa física \(CPF\)/ }),
     ).toHaveAttribute("href", "/cadastro/usuario");
     expect(
       screen.getByRole("link", { name: /ONG ou abrigo \(CNPJ\)/ }),
     ).toHaveAttribute("href", "/cadastro/abrigo");
+  });
+
+  // O link "Abrigos e protetores independentes" do rodapé leva pra cá até quem já tem conta
+  test("quem já está logado vai direto pra vitrine", () => {
+    localStorage.setItem("adotaaqui.sessao", JSON.stringify(sessao));
+    abrirEscolha();
+    expect(screen.getByText("Vitrine")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Pessoa física/ })).toBeNull();
   });
 });

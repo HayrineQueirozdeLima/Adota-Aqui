@@ -51,7 +51,7 @@ frontend/src/
 ├── routes/       todas as rotas (AppRoutes) e a RotaProtegida
 ├── contexts/     o AuthContext, que guarda quem está logado
 ├── services/     as chamadas à API, um arquivo por assunto, e a consulta ao ViaCEP
-├── hooks/        hooks próprios (useValorAtrasado, useFocoNoPrimeiroErro, useTema)
+├── hooks/        hooks próprios (useValorAtrasado, useFocoNoPrimeiroErro, useTema, useTituloDaPagina)
 ├── utils/        máscaras, validações e os textos que traduzem os valores da API
 ├── config/       o endereço da API (ambiente.js)
 ├── styles/       o CSS global e as cores dos dois temas
@@ -59,7 +59,7 @@ frontend/src/
 └── mocks/        dados de exemplo usados pelos testes
 ```
 
-**Rotas.** Todas ficam no `AppRoutes`. As públicas (vitrine, perfil do animal, login e cadastro) abrem para qualquer pessoa. As que precisam de login ficam dentro da `RotaProtegida`, que manda pro `/login` quem não entrou e, depois do login, devolve a pessoa pra tela de onde ela veio. Demonstrar interesse e Meus interesses usam a `RotaProtegida` com `apenasUsuario`, que barra o Abrigo (RF14: só pessoa física adota).
+**Rotas.** Todas ficam no `AppRoutes`. As públicas (vitrine, perfil do animal, login e cadastro) abrem para qualquer pessoa. As que precisam de login ficam dentro da `RotaProtegida`, que manda pro `/login` quem não entrou e, depois do login, devolve a pessoa pra tela de onde ela veio. Demonstrar interesse e Minhas candidaturas usam a `RotaProtegida` com `apenasUsuario`, que barra o Abrigo (RF14: só pessoa física adota). Como o React troca de página sem recarregar, o `RolarParaOTopo` leva cada página nova pro topo, e cada página põe o nome dela no título da aba com o `useTituloDaPagina`.
 
 **Sessão.** O login e o cadastro devolvem `{ token, tipoConta, id, nome, expiraEm }`. O `AuthContext` guarda isso no `localStorage` quando a pessoa marca "Manter conta conectada", ou no `sessionStorage` quando não marca, e aí a sessão acaba quando a aba fecha. Quando o token vence (24 horas), a sessão é encerrada sozinha.
 
@@ -121,6 +121,8 @@ Quem guarda as fotos é a interface `ArmazenamentoFotos`, com duas versões esco
 
 O `FotoService` não confia no nome do arquivo: ele descobre o tipo pelos primeiros bytes e só aceita JPG, PNG e WEBP, de até 5 MB.
 
+Quando uma foto sai de um animal (na edição ou na remoção), a `LimpezaDeFotos` apaga o arquivo do S3. Ela só apaga depois que a transação termina bem, só a foto que a própria API guardou (a chave `animais/` mais um UUID) e só se nenhum outro animal usa a mesma URL. Se o S3 recusar, o animal fica salvo do mesmo jeito e o problema vai pro log.
+
 ## Autenticação
 
 A API não guarda sessão (`STATELESS`): cada requisição carrega o próprio token, e o back confere o token toda vez.
@@ -139,9 +141,9 @@ A API não guarda sessão (`STATELESS`): cada requisição carrega o próprio to
 
 | Quem                    | O que pode                                                                                                                                                 |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Visitante               | Ver a vitrine, o perfil dos animais e as raças, se cadastrar e entrar                                                                                      |
-| Usuario (pessoa física) | Tudo do visitante, mais cadastrar e gerenciar os próprios animais e os interesses recebidos, demonstrar interesse em animais do seu estado e desistir dele |
-| Abrigo                  | Cadastrar e gerenciar os próprios animais e os interesses recebidos. Não demonstra interesse                                                               |
+| Visitante               | Ver a vitrine, o perfil dos animais, as raças, os números do site, as histórias de adoção e os artigos, se cadastrar e entrar                                                                   |
+| Usuario (pessoa física) | Tudo do visitante, mais cadastrar e gerenciar os próprios animais e os interesses recebidos, demonstrar interesse em animais do seu estado e desistir dele, e contar como foi a adoção. Depois de cadastrar um animal, também escreve artigos |
+| Abrigo                  | Cadastrar e gerenciar os próprios animais e os interesses recebidos, e escrever artigos. Não demonstra interesse                                                               |
 
 **CORS e CSRF.** O navegador só deixa o site chamar a API se o endereço dele estiver em `CORS_ORIGENS` (o site do Netlify, as prévias dos PRs e o `localhost`). A proteção CSRF fica desligada porque o token vai no cabeçalho, e não num cookie que o navegador mandaria sozinho.
 
@@ -159,16 +161,19 @@ Ninguém escreve `CREATE TABLE`: o **Hibernate cria e atualiza as tabelas** a pa
 | `animal_foto` | Lista `fotos` do `Animal` | As URLs das fotos, na ordem (a primeira é a capa). A imagem fica no S3     |
 | `vacina`      | `Vacina`                  | As vacinas de cada animal                                                  |
 | `interesse`   | `Interesse`               | Quem demonstrou interesse em qual animal, a triagem e o andamento          |
+| `depoimento`   | `Depoimento`              | A história de uma adoção (RF11): o texto, a foto e o interesse aprovado de onde ela veio |
+| `artigo`        | `Artigo`                    | Um artigo do blog (ERS 6.4): título, assunto, texto, capa e quem escreveu, `usuario_id` ou `abrigo_id` |
 
 Regras que o próprio banco garante (revisadas na #40 e testadas em `RegrasDasEntidadesTest` e `IntegridadeDoBancoTest`):
 
 - **Contas únicas:** CPF, CNPJ e e-mail não se repetem (`unique`). O service confere antes e responde 409; se duas contas iguais chegarem ao mesmo tempo, o banco recusa a segunda e ela também recebe 409. O e-mail é único também entre pessoa e abrigo, mas isso só o service confere, porque são duas tabelas.
 - **Nada solto:** toda foto, vacina e interesse aponta pra um animal que existe, e todo animal e interesse aponta pra uma conta que existe (chaves estrangeiras). Uma conta que ainda tem animal não pode ser apagada.
-- **Um protetor só:** um `CHECK` na tabela `animal` recusa animal sem protetor ou com os dois.
+- **Um protetor só:** um `CHECK` na tabela `animal` recusa animal sem protetor ou com os dois. A tabela `artigo` tem o mesmo `CHECK` pro autor.
 - **Motivo da descontinuação:** um `CHECK` na tabela `interesse` recusa interesse Descontinuado sem motivo.
 - **Valores:** o peso, quando vem, é maior que zero, e a dose da vacina é 1 ou mais (`CHECK`). As colunas de enum só aceitam os valores do dicionário de domínios, porque o Hibernate cria um `CHECK` pra cada uma.
 - **Interesse repetido:** a pessoa não pode ter dois interesses ativos no mesmo animal. Quem garante é o service, com o animal travado (o mesmo lock da aprovação). Não tem `unique` no banco porque a regra vale só pros ativos: depois de uma descontinuação, a pessoa pode demonstrar interesse de novo.
-- **Remoção em cascata:** remover um animal apaga junto as fotos, as vacinas e os interesses dele.
+- **Remoção em cascata:** remover um animal apaga junto as fotos, as vacinas e os interesses dele. Os depoimentos desses interesses saem também: a chave estrangeira do `depoimento` tem `on delete cascade`.
+- **Um depoimento por adoção:** `interesse_id` é `unique` na tabela `depoimento`.
 - **Aprovação sem conflito:** ao aprovar um interesse, o back trava a linha do animal (`findByIdParaAtualizacao`, um lock pessimista) até terminar. Assim, duas aprovações ao mesmo tempo não adotam o mesmo animal duas vezes.
 
 ### Índices
@@ -183,6 +188,9 @@ O PostgreSQL cria índice sozinho pra chave primária e pra `unique`, mas não p
 | `idx_interesse_usuario_animal` | `interesse (usuario_id, animal_id)`       | Conferir interesse repetido e listar os interesses da pessoa |
 | `idx_interesse_animal_status`  | `interesse (animal_id, status_andamento)` | Painel do protetor e descontinuar os outros ao aprovar       |
 | `idx_vacina_animal`            | `vacina (animal_id)`                      | Vacinas no perfil do animal                                  |
+| `idx_artigo_publicado_em`        | `artigo (publicado_em)`                     | Blog para tutores, dos mais novos pros mais antigos              |
+| `idx_artigo_usuario`             | `artigo (usuario_id)`                       | Artigos escritos pela pessoa                                   |
+| `idx_artigo_abrigo`              | `artigo (abrigo_id)`                        | Artigos escritos pelo abrigo                                   |
 
 As fotos não precisam de índice próprio: a chave primária de `animal_foto` já é `(animal_id, ordem)`.
 
@@ -231,7 +239,8 @@ O cadastro (`POST /api/usuarios` ou `/api/abrigos`) segue o mesmo caminho e já 
 
 1. A pessoa escolhe os filtros ou digita o nome do animal ou do protetor. O front espera ela parar de mexer (300 ms) e chama `GET /api/animais` com os filtros no endereço, por exemplo `?especie=CAO&busca=mel`.
 2. O `AnimalService` monta a consulta com o `AnimalSpecifications`: só animais Disponíveis, mais os filtros escolhidos. Se quem está logado é um Usuario, entram só os animais do mesmo estado dele (RF14). Visitante e Abrigo veem todos os estados.
-3. A API devolve a lista, e o navegador carrega as fotos direto do S3, sem passar pela API.
+3. A API devolve uma página com até 12 animais, dos mais novos pros mais antigos, e o total encontrado. O navegador carrega as fotos direto do S3, sem passar pela API.
+4. O botão "Ver mais animais" chama a mesma busca com `pagina=1`, `pagina=2`..., e os animais novos entram embaixo dos que já estavam na tela.
 
 ### 3. Cadastro de animal com fotos
 
@@ -257,5 +266,6 @@ O cadastro (`POST /api/usuarios` ou `/api/abrigos`) segue o mesmo caminho e já 
 - **Front:** Jest e Testing Library (`npm run test:coverage`).
 - **CI:** o GitHub Actions roda os dois a cada push e a cada PR para a `dev` e a `main`, nos jobs `backend` e `frontend`, e mostra a cobertura no resumo da execução. Se a cobertura de linhas de um dos dois ficar abaixo de 70%, o job falha. A proteção das branches só deixa o PR entrar com os dois verdes.
 - **Deploy:** o Render e o Netlify publicam a `main`, e o Render só depois que o CI passa (ver [deploy](deploy.md)).
+- **Produção:** o workflow "Conferir produção" (`.github/workflows/producao.yml`) abre o site e a API publicados todo dia de manhã, ou pelo botão na aba Actions, e falha se algum deles estiver fora do ar, se o CORS não liberar o site ou se o site estiver chamando outra API.
 
-O que é testado e por quê está no [plano de testes](plano-de-testes.md).
+O que é testado e por quê está no [plano de testes](plano-de-testes.md), e o resultado final, no [relatório de testes](relatorio-de-testes.md). As decisões por trás desta arquitetura e os problemas que ela resolveu estão em [aspectos relevantes](aspectos-relevantes.md).

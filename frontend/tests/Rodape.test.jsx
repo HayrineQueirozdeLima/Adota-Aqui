@@ -16,6 +16,8 @@ test("os links da plataforma levam pras telas do site", () => {
   const destinos = {
     "Explorar animais": "/animais",
     "Como adotar": "/#como-funciona",
+    "Histórias de adoção": "/historias",
+    "Blog para tutores": "/blog",
     "Abrigos e protetores independentes": "/cadastro",
     "Cadastrar um animal": "/meus-animais/novo",
   };

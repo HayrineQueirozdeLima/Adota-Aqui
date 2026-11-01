@@ -6,4 +6,7 @@ public interface ArmazenamentoFotos {
 
     // chave = caminho do arquivo dentro do bucket (ex.: "animais/3f6c...jpg")
     void salvar(String chave, byte[] conteudo, String tipo);
+
+    // Apaga o arquivo. Se ele não existir mais, não é erro
+    void apagar(String chave);
 }

@@ -8,6 +8,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { listarMeusAnimais } from "../../services/animais";
 import { resumoDoAnimal } from "../../utils/rotulos";
 import fotoPrimeiroAnimal from "../../assets/fotos/primeiro-animal.webp";
+import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 
 // Meus animais (Figma: "Meus animais"), em /meus-animais: os animais da conta, de qualquer status
 export default function MeusAnimais() {
@@ -19,6 +20,7 @@ export default function MeusAnimais() {
   const [filtro, setFiltro] = useState("TODOS");
   // Muda a cada "Tentar de novo", pra busca rodar outra vez
   const [tentativa, setTentativa] = useState(0);
+  useTituloDaPagina("Meus animais");
 
   useEffect(() => {
     let cancelado = false;
@@ -89,7 +91,9 @@ export default function MeusAnimais() {
           <p className="font-titulo text-item font-semibold text-texto-principal">
             Não foi possível carregar seus animais.
           </p>
-          <p className="mt-1 text-compacto text-texto-secundario">Confira sua conexão e tente de novo.</p>
+          <p className="mt-1 text-compacto text-texto-secundario">
+            Confira sua conexão e tente de novo.
+          </p>
           <Botao variante="secundario" onClick={tentarDeNovo} className="mt-4">
             Tentar de novo
           </Botao>
@@ -98,7 +102,11 @@ export default function MeusAnimais() {
 
       {situacao === "pronto" && animais.length === 0 && (
         <div className="mt-6 rounded-[16px] border border-borda-sutil bg-fundo-superficie p-8 text-center">
-          <img src={fotoPrimeiroAnimal} alt="" className="mx-auto w-full max-w-[320px] rounded-[12px]" />
+          <img
+            src={fotoPrimeiroAnimal}
+            alt=""
+            className="mx-auto w-full max-w-[320px] rounded-[12px]"
+          />
           <p className="mt-5 text-corpo text-texto-secundario">
             Você ainda não cadastrou nenhum animal.
           </p>
@@ -139,13 +147,7 @@ export default function MeusAnimais() {
 }
 
 function ItemAnimal({ animal }) {
-  const {
-    id,
-    nome,
-    fotoCapa,
-    statusAdocao,
-    protetor,
-  } = animal;
+  const { id, nome, fotoCapa, statusAdocao, protetor } = animal;
   const adotado = statusAdocao === "ADOTADO";
   const descricao = `${resumoDoAnimal(animal)}, em ${protetor.cidade}/${protetor.estado}`;
 
@@ -189,7 +191,10 @@ function ItemAnimal({ animal }) {
           </Botao>
         ) : (
           <>
-            <Botao para={`/interesses-recebidos?animal=${id}`} aria-label={`Ver interesses em ${nome}`}>
+            <Botao
+              para={`/interesses-recebidos?animal=${id}`}
+              aria-label={`Ver interesses em ${nome}`}
+            >
               Ver interesses
             </Botao>
             <Botao

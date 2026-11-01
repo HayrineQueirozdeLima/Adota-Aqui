@@ -10,6 +10,7 @@ import {
   editarAnimal,
   removerAnimal,
 } from "../../services/animais";
+import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 import { animalParaFormulario } from "../../utils/formularioAnimal";
 import fotoNaoEncontrado from "../../assets/fotos/pagina-nao-encontrada.webp";
 
@@ -21,6 +22,15 @@ export default function EditarAnimal() {
   const [animal, setAnimal] = useState(null);
   // "carregando" | "pronto" | "nao-encontrado" | "erro"
   const [situacao, setSituacao] = useState("carregando");
+  // muda no "Tentar de novo", pra buscar o animal de novo
+  const [tentativa, setTentativa] = useState(0);
+  useTituloDaPagina(
+    situacao === "pronto"
+      ? `Editar ${animal.nome}`
+      : situacao === "nao-encontrado"
+        ? "Animal não encontrado"
+        : null,
+  );
 
   useEffect(() => {
     let cancelado = false;
@@ -45,7 +55,12 @@ export default function EditarAnimal() {
     return () => {
       cancelado = true;
     };
-  }, [id, token, sair]);
+  }, [id, token, sair, tentativa]);
+
+  function tentarDeNovo() {
+    setSituacao("carregando");
+    setTentativa((total) => total + 1);
+  }
 
   // PUT leva todos os campos, mais o status (docs/api.md, PUT /api/animais/{id})
   async function salvar(dados, statusAdocao) {
@@ -77,7 +92,10 @@ export default function EditarAnimal() {
   if (situacao === "erro") {
     return (
       <AvisoPagina titulo="Não foi possível carregar o animal" alerta>
-        <p>Confira sua conexão e recarregue a página.</p>
+        <p>Confira sua conexão e tente de novo.</p>
+        <Botao onClick={tentarDeNovo} className="mt-5">
+          Tentar de novo
+        </Botao>
       </AvisoPagina>
     );
   }

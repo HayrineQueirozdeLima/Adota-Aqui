@@ -7,6 +7,7 @@ import GrupoOpcoes from "../../components/GrupoOpcoes/GrupoOpcoes";
 import Tag from "../../components/Tag/Tag";
 import { useAuth } from "../../contexts/AuthContext";
 import { useFocoNoPrimeiroErro } from "../../hooks/useFocoNoPrimeiroErro";
+import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 import { buscarAnimal } from "../../services/animais";
 import { demonstrarInteresse } from "../../services/interesses";
 import { mascaraTelefone } from "../../utils/mascaras";
@@ -23,6 +24,14 @@ export default function DemonstrarInteresse() {
   // "carregando" | "pronto" | "nao-encontrado" | "erro" | "concluido"
   const [situacao, setSituacao] = useState("carregando");
   const [interesse, setInteresse] = useState(null);
+  // muda no "Tentar de novo", pra buscar o animal de novo
+  const [tentativa, setTentativa] = useState(0);
+  const titulos = {
+    pronto: animal && `Demonstrar interesse em ${animal.nome}`,
+    concluido: "Interesse registrado",
+    "nao-encontrado": "Animal não encontrado",
+  };
+  useTituloDaPagina(titulos[situacao] ?? null);
 
   useEffect(() => {
     let cancelado = false;
@@ -50,7 +59,12 @@ export default function DemonstrarInteresse() {
     return () => {
       cancelado = true;
     };
-  }, [id, token, sair]);
+  }, [id, token, sair, tentativa]);
+
+  function tentarDeNovo() {
+    setSituacao("carregando");
+    setTentativa((total) => total + 1);
+  }
 
   function concluir(interesseCriado) {
     setInteresse(interesseCriado);
@@ -79,7 +93,10 @@ export default function DemonstrarInteresse() {
   if (situacao === "erro") {
     return (
       <AvisoPagina titulo="Não foi possível carregar o animal" alerta>
-        <p>Confira sua conexão e recarregue a página.</p>
+        <p>Confira sua conexão e tente de novo.</p>
+        <Botao onClick={tentarDeNovo} className="mt-5">
+          Tentar de novo
+        </Botao>
       </AvisoPagina>
     );
   }
@@ -412,8 +429,8 @@ function ResumoAnimal({ animal }) {
             className="size-20 shrink-0 rounded-[12px] object-cover"
           />
         ) : (
-          <span className="flex size-20 shrink-0 items-center justify-center rounded-[12px] bg-marca-roxo-suave text-legenda text-texto-terciario">
-            foto
+          <span className="flex size-20 shrink-0 items-center justify-center rounded-[12px] bg-marca-roxo-suave text-center text-legenda text-texto-secundario">
+            Sem foto
           </span>
         )}
         <div className="flex flex-col items-start gap-1.5">

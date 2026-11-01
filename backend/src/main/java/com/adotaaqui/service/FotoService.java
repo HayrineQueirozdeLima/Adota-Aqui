@@ -10,13 +10,18 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 // Upload das fotos dos animais (POST /api/fotos, RF16)
 @Service
 public class FotoService {
 
     static final long LIMITE_EM_BYTES = 5L * 1024 * 1024;
+
+    // O formato das chaves que o enviar() cria: só um arquivo desses pode ser apagado
+    private static final Pattern CHAVE_NOSSA = Pattern.compile("animais/[0-9a-f-]{36}\\.(jpg|png|webp)");
 
     private final ArmazenamentoFotos armazenamento;
     private final String urlBase;
@@ -44,6 +49,15 @@ public class FotoService {
         String chave = "animais/" + UUID.randomUUID() + "." + tipo.extensao;
         armazenamento.salvar(chave, conteudo, tipo.mime);
         return new FotoResponse(urlBase + "/" + chave);
+    }
+
+    // A chave do arquivo no armazenamento, se a URL for de uma foto que a gente mesmo guardou.
+    // URL de outro site (ou montada à mão) fica vazia, e ninguém tenta apagar nada fora do bucket
+    public Optional<String> chaveDe(String url) {
+        String inicio = urlBase + "/";
+        if (url == null || !url.startsWith(inicio)) return Optional.empty();
+        String chave = url.substring(inicio.length());
+        return CHAVE_NOSSA.matcher(chave).matches() ? Optional.of(chave) : Optional.empty();
     }
 
     private static byte[] ler(MultipartFile arquivo) {

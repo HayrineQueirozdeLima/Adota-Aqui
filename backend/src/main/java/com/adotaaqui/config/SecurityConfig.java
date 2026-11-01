@@ -56,6 +56,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/animais/meus").authenticated()
                         // Vitrine, perfil do animal e raças: visitante também vê (RF07)
                         .requestMatchers(HttpMethod.GET, "/api/animais", "/api/animais/*", "/api/racas").permitAll()
+                        // Números da Home: visitante também vê
+                        .requestMatchers(HttpMethod.GET, "/api/estatisticas").permitAll()
+                        // Mural de histórias de adoção: visitante também lê
+                        .requestMatchers(HttpMethod.GET, "/api/depoimentos").permitAll()
+                        // Artigos: qualquer pessoa lê. "Meus artigos" precisa de login e vem antes, como o /animais/meus
+                        .requestMatchers(HttpMethod.GET, "/api/artigos/meus").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/artigos", "/api/artigos/*").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex

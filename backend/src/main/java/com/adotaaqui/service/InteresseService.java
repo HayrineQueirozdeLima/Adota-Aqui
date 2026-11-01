@@ -25,6 +25,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -42,14 +43,16 @@ public class InteresseService {
     private final AnimalRepository animais;
     private final UsuarioRepository usuarios;
     private final AbrigoRepository abrigos;
+    private final DepoimentoService depoimentos;
     static final String MOTIVO_APROVACAO = "Outro candidato foi aprovado para este animal.";
 
     public InteresseService(InteresseRepository interesses, AnimalRepository animais, UsuarioRepository usuarios,
-                            AbrigoRepository abrigos) {
+                            AbrigoRepository abrigos, DepoimentoService depoimentos) {
         this.interesses = interesses;
         this.animais = animais;
         this.usuarios = usuarios;
         this.abrigos = abrigos;
+        this.depoimentos = depoimentos;
     }
 
     // POST /api/animais/{id}/interesses
@@ -103,6 +106,18 @@ public class InteresseService {
         interesses.delete(interesse);
     }
 
+    // GET /api/interesses/meus: as candidaturas do Usuario logado, com qualquer status (RF09, UC07).
+    // Cada uma traz o contato do protetor, e a descontinuada traz o motivo
+    public List<InteresseResponse> meus(Authentication autenticacao) {
+        Usuario candidato = candidato(autenticacao,
+                "Contas de abrigo não têm candidaturas. Para adotar, use uma conta pessoal (CPF)");
+        List<Interesse> lista = interesses.findByUsuarioIdOrderByDataHoraDescIdDesc(candidato.getId());
+        var situacoes = depoimentos.situacoes(lista);
+        return lista.stream()
+                .map(interesse -> InteresseMapper.paraCandidato(interesse, situacoes.get(interesse.getId())))
+                .toList();
+    }
+
     // GET /api/interesses/recebidos (UC08). Os filtros são opcionais: o que vier nulo não filtra
     public List<InteresseRecebidoResponse> recebidos(InteresseFiltroRequest filtro, Authentication autenticacao) {
         Protetor protetor = protetor(autenticacao);
@@ -153,6 +168,7 @@ public class InteresseService {
         }
         interesse.setStatusAndamento(destino);
         interesse.setMotivoDescontinuacao(destino == StatusInteresse.DESCONTINUADO ? motivo.strip() : null);
+        if (destino == StatusInteresse.APROVADO) interesse.setAprovadoEm(LocalDateTime.now());
         interesses.flush();
         return InteresseMapper.paraProtetor(interesse);
     }

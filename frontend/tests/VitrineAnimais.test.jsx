@@ -5,6 +5,7 @@ import { AuthProvider } from "../src/contexts/AuthContext";
 import { animaisExemplo } from "../src/mocks/animais";
 import {
   buscasDeAnimais,
+  paginaDe,
   resposta,
   simularApi,
   ultimaBuscaDeAnimais,
@@ -148,9 +149,7 @@ describe("busca na API", () => {
 
     expect(screen.getByLabelText("Buscar por nome").value).toBe("");
     expect(screen.queryByRole("button", { name: "Limpar filtros" })).toBeNull();
-    await waitFor(() =>
-      expect(ultimaBuscaDeAnimais().parametros).toEqual({}),
-    );
+    await waitFor(() => expect(ultimaBuscaDeAnimais().parametros).toEqual({}));
     expect(await nomesNaTela()).toHaveLength(6);
   });
 
@@ -180,7 +179,7 @@ describe("busca na API", () => {
   test("avisa quando nada combina com o filtro e deixa ver todos de novo", async () => {
     simularApi({
       responderAnimais: (parametros) =>
-        resposta(200, parametros.porte ? [] : animaisExemplo),
+        resposta(200, paginaDe(parametros.porte ? [] : animaisExemplo)),
     });
     renderizar();
     await nomesNaTela();
@@ -196,6 +195,26 @@ describe("busca na API", () => {
     expect(await nomesNaTela()).toHaveLength(6);
   });
 
+  // Quem usa leitor de tela não vê a grade mudar: a quantidade é anunciada depois de cada busca
+  test("anuncia quantos animais a busca trouxe", async () => {
+    simularApi({
+      responderAnimais: (parametros) =>
+        resposta(200, paginaDe(parametros.porte ? [] : animaisExemplo)),
+    });
+    renderizar();
+    await nomesNaTela();
+    expect(screen.getByText("6 animais encontrados")).toHaveAttribute(
+      "role",
+      "status",
+    );
+
+    escolher("Porte", "GRANDE");
+    expect(await screen.findByText("Nenhum animal encontrado")).toHaveAttribute(
+      "role",
+      "status",
+    );
+  });
+
   test("avisa quando a API falha e deixa tentar de novo", async () => {
     let tentativas = 0;
     simularApi({
@@ -203,7 +222,7 @@ describe("busca na API", () => {
         tentativas += 1;
         return tentativas === 1
           ? resposta(500, { status: 500, mensagem: "Erro interno" })
-          : resposta(200, animaisExemplo);
+          : resposta(200, paginaDe(animaisExemplo));
       },
     });
     renderizar();
@@ -245,7 +264,7 @@ describe("quem está vendo", () => {
 
   test("Usuario sem animais no estado vê a mensagem do UC06 FA01", async () => {
     entrarComo("USUARIO");
-    simularApi({ responderAnimais: () => resposta(200, []) });
+    simularApi({ responderAnimais: () => resposta(200, paginaDe([])) });
     renderizar();
 
     expect(
@@ -274,7 +293,7 @@ describe("quem está vendo", () => {
       responderAnimais: (parametros, opcoes) =>
         opcoes.headers.Authorization
           ? resposta(401, { status: 401, mensagem: "Autenticação necessária" })
-          : resposta(200, animaisExemplo),
+          : resposta(200, paginaDe(animaisExemplo)),
     });
     renderizar();
 
@@ -283,5 +302,114 @@ describe("quem está vendo", () => {
     ).toBeInTheDocument();
     expect(await nomesNaTela()).toHaveLength(6);
     expect(localStorage.getItem(CHAVE)).toBeNull();
+  });
+});
+
+// A API manda 12 animais por vez. Aqui, pra encurtar, cada página tem os 6 de exemplo
+describe("paginação", () => {
+  const segundaPagina = animaisExemplo.map((animal) => ({
+    ...animal,
+    id: `${animal.id}-2`,
+    nome: `${animal.nome} 2`,
+  }));
+
+  function simularDuasPaginas({ falharUmaVez = false } = {}) {
+    let falhas = falharUmaVez ? 1 : 0;
+    simularApi({
+      responderAnimais: (parametros) => {
+        if (!parametros.pagina) {
+          return resposta(200, paginaDe(animaisExemplo, { tamanho: 6, totalItens: 12 }));
+        }
+        if (falhas > 0) {
+          falhas -= 1;
+          return resposta(500, { status: 500, mensagem: "Erro interno" });
+        }
+        return resposta(
+          200,
+          paginaDe(segundaPagina, { pagina: 1, tamanho: 6, totalItens: 12 }),
+        );
+      },
+    });
+  }
+
+  test("o Ver mais traz a próxima página e leva o foco pro primeiro animal novo", async () => {
+    simularDuasPaginas();
+    renderizar();
+    expect(await nomesNaTela()).toHaveLength(6);
+    expect(screen.getByText("Mostrando 6 de 12 animais")).toBeInTheDocument();
+    expect(screen.getByText("12 animais encontrados")).toBeInTheDocument();
+
+    clicar("Ver mais animais");
+    await waitFor(() =>
+      expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(12),
+    );
+    expect(ultimaBuscaDeAnimais().parametros).toEqual({ pagina: "1" });
+    expect(screen.getAllByRole("heading", { level: 3 })[6]).toHaveTextContent("Mel 2");
+    expect(document.activeElement).toBe(
+      screen.getByRole("link", { name: "Quero conhecer Mel 2" }),
+    );
+    // Chegou no fim: o botão some
+    expect(
+      screen.queryByRole("button", { name: "Ver mais animais" }),
+    ).not.toBeInTheDocument();
+  });
+
+  test("se a próxima página falhar, avisa e deixa tentar de novo sem perder o que já apareceu", async () => {
+    simularDuasPaginas({ falharUmaVez: true });
+    renderizar();
+    await nomesNaTela();
+
+    clicar("Ver mais animais");
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Não foi possível carregar mais animais",
+    );
+    expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(6);
+
+    clicar("Ver mais animais");
+    await waitFor(() =>
+      expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(12),
+    );
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  test("mudar um filtro volta pra primeira página", async () => {
+    simularDuasPaginas();
+    renderizar();
+    await nomesNaTela();
+    clicar("Ver mais animais");
+    await waitFor(() =>
+      expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(12),
+    );
+
+    clicar("Cães");
+    await waitFor(() =>
+      expect(ultimaBuscaDeAnimais().parametros).toEqual({ especie: "CAO" }),
+    );
+    await waitFor(() =>
+      expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(6),
+    );
+    expect(screen.getByText("Mostrando 6 de 12 animais")).toBeInTheDocument();
+  });
+
+  test("um animal que já apareceu não entra duas vezes", async () => {
+    // Alguém cadastrou um animal no meio: a segunda página repete a Amora
+    simularApi({
+      responderAnimais: (parametros) =>
+        parametros.pagina
+          ? resposta(200, paginaDe([animaisExemplo[2], ...segundaPagina.slice(0, 2)], {
+              pagina: 1,
+              tamanho: 6,
+              totalItens: 9,
+            }))
+          : resposta(200, paginaDe(animaisExemplo, { tamanho: 6, totalItens: 9 })),
+    });
+    renderizar();
+    await nomesNaTela();
+
+    clicar("Ver mais animais");
+    await waitFor(() =>
+      expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(8),
+    );
+    expect(screen.getAllByRole("heading", { level: 3, name: "Amora" })).toHaveLength(1);
   });
 });

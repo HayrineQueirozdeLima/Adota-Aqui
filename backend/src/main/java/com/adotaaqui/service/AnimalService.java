@@ -6,6 +6,7 @@ import com.adotaaqui.dto.AnimalRequest;
 import com.adotaaqui.dto.AnimalResponse;
 import com.adotaaqui.dto.AtualizarAnimalRequest;
 import com.adotaaqui.dto.InteresseResumoResponse;
+import com.adotaaqui.dto.PaginaResponse;
 import com.adotaaqui.dto.VacinaRequest;
 import com.adotaaqui.exception.DadosInvalidosException;
 import com.adotaaqui.exception.RecursoNaoEncontradoException;
@@ -20,10 +21,13 @@ import com.adotaaqui.model.enums.StatusInteresse;
 import com.adotaaqui.repository.AbrigoRepository;
 import com.adotaaqui.repository.AnimalRepository;
 import com.adotaaqui.repository.AnimalSpecifications;
+import com.adotaaqui.repository.DepoimentoRepository;
 import com.adotaaqui.repository.InteresseRepository;
 import com.adotaaqui.repository.UsuarioRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -49,13 +53,21 @@ public class AnimalService {
     private final UsuarioRepository usuarios;
     private final AbrigoRepository abrigos;
     private final InteresseRepository interesses;
+    private final LimpezaDeFotos limpezaDeFotos;
+    private final DepoimentoRepository depoimentos;
 
-    public AnimalService(AnimalRepository animais, UsuarioRepository usuarios,
-                         AbrigoRepository abrigos, InteresseRepository interesses) {
+    // A vitrine mostra os mais novos primeiro. O id desempata, pra ordem não mudar de uma página pra outra
+    private static final Sort MAIS_NOVOS_PRIMEIRO = Sort.by(Sort.Order.desc("cadastradoEm"), Sort.Order.asc("id"));
+
+    public AnimalService(AnimalRepository animais, UsuarioRepository usuarios, AbrigoRepository abrigos,
+                         InteresseRepository interesses, LimpezaDeFotos limpezaDeFotos,
+                         DepoimentoRepository depoimentos) {
         this.animais = animais;
         this.usuarios = usuarios;
         this.abrigos = abrigos;
         this.interesses = interesses;
+        this.limpezaDeFotos = limpezaDeFotos;
+        this.depoimentos = depoimentos;
     }
 
     @Transactional
@@ -74,11 +86,12 @@ public class AnimalService {
         return resposta(animal, conta);
     }
 
-    public List<AnimalListagemResponse> listar(AnimalFiltroRequest filtro, Authentication autenticacao) {
+    public PaginaResponse<AnimalListagemResponse> listar(AnimalFiltroRequest filtro, Authentication autenticacao) {
         Conta conta = conta(autenticacao, false);
         String estado = conta != null && conta.usuario() != null ? conta.usuario().getEndereco().getEstado() : null;
-        return animais.findAll(AnimalSpecifications.disponiveis(filtro, estado)).stream()
-                .map(AnimalMapper::item).toList();
+        PageRequest pagina = PageRequest.of(filtro.paginaPedida(), filtro.tamanhoPedido(), MAIS_NOVOS_PRIMEIRO);
+        return PaginaResponse.de(animais.findAll(AnimalSpecifications.disponiveis(filtro, estado), pagina),
+                AnimalMapper::item);
     }
 
     public List<AnimalListagemResponse> listarMeus(Authentication autenticacao) {
@@ -104,11 +117,21 @@ public class AnimalService {
         Conta conta = conta(autenticacao, true);
         Animal animal = animais.findByIdParaAtualizacao(id).orElseThrow(AnimalService::naoEncontrado);
         exigirDono(animal, conta);
+        List<String> fotosAntes = List.copyOf(animal.getFotos());
         if (animal.getStatusAdocao() == StatusAdocao.ADOTADO) {
-            if (!mesmosDados(animal, request)) {
-                throw new RegraNegocioException("Animal adotado permite alterar somente o status. Reabra antes de editar os dados");
+            if (request.getStatusAdocao() == StatusAdocao.ADOTADO) {
+                // Continua adotado: os dados ficam como estão (RF06)
+                if (!mesmosDados(animal, request)) {
+                    throw new RegraNegocioException("Animal adotado permite alterar somente o status. "
+                            + "Para editar os dados, volte o status para Disponível");
+                }
+            } else {
+                // Devolução (UC05 FA04): volta pra Disponível e os dados podem mudar no mesmo salvamento.
+                // O interesse aprovado da adoção anterior continua no histórico
+                validarRaca(request);
+                atualizarDados(animal, request);
+                animal.setStatusAdocao(StatusAdocao.DISPONIVEL);
             }
-            animal.setStatusAdocao(request.getStatusAdocao());
         } else {
             if (request.getStatusAdocao() != StatusAdocao.DISPONIVEL) {
                 throw new RegraNegocioException("A adoção deve ser registrada pela aprovação de um interesse");
@@ -117,6 +140,8 @@ public class AnimalService {
             atualizarDados(animal, request);
         }
         animais.flush();
+        // As fotos que o protetor tirou saem também do S3
+        limpezaDeFotos.apagarDepoisDeSalvar(fotosAntes.stream().filter(url -> !animal.getFotos().contains(url)).toList());
         return resposta(animal, conta);
     }
 
@@ -125,9 +150,13 @@ public class AnimalService {
         Conta conta = conta(autenticacao, true);
         Animal animal = animais.findByIdParaAtualizacao(id).orElseThrow(AnimalService::naoEncontrado);
         exigirDono(animal, conta);
+        // As fotos do animal e as dos depoimentos das adoções dele, que o banco apaga junto (on delete cascade)
+        List<String> fotos = new ArrayList<>(animal.getFotos());
+        fotos.addAll(depoimentos.fotosDoAnimal(id));
         // Remoção por entidade preserva os callbacks e a cascata dos dependentes.
         animais.delete(animal);
         animais.flush();
+        limpezaDeFotos.apagarDepoisDeSalvar(fotos);
     }
 
     private void validarRaca(AnimalRequest request) {
@@ -257,4 +286,3 @@ public class AnimalService {
         return new RecursoNaoEncontradoException("Animal não encontrado");
     }
 }
-

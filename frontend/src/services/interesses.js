@@ -20,6 +20,12 @@ export function desistirDoInteresse(interesseId, token) {
     });
 }
 
+// GET /api/interesses/meus: as candidaturas do Usuario logado, com qualquer status (RF09).
+// Cada uma vem com o contatoProtetor, e a descontinuada traz o motivo
+export function listarMeusInteresses(token) {
+    return requisicao('/api/interesses/meus', { token });
+}
+
 // GET /api/interesses/recebidos: o painel do protetor, com os interesses de todos os animais da conta.
 // Cada item vem com o "candidato" (nome, telefone e e-mail de quem demonstrou interesse)
 export function listarInteressesRecebidos(token) {

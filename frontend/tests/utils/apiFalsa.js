@@ -1,5 +1,9 @@
 import { animaisExemplo, perfilExemplo } from "../../src/mocks/animais";
+import { depoimentosExemplo } from "../../src/mocks/depoimentos";
+import { artigoExemplo, artigosExemplo } from "../../src/mocks/artigos";
+import { estatisticasExemplo } from "../../src/mocks/estatisticas";
 import { interesseExemplo } from "../../src/mocks/interesses";
+import { perfilAbrigoExemplo, perfilUsuarioExemplo } from "../../src/mocks/perfil";
 import { racasExemplo } from "../../src/mocks/racas";
 
 // "API de mentira" pros testes: troca o fetch do navegador por uma função que responde na hora,
@@ -15,8 +19,13 @@ export function resposta(status, corpo) {
     };
 }
 
+// Monta uma página da API, como o GET /api/animais devolve: { itens, pagina, tamanho, totalItens, totalPaginas }
+export function paginaDe(itens, { pagina = 0, tamanho = 12, totalItens = itens.length } = {}) {
+    return { itens, pagina, tamanho, totalItens, totalPaginas: Math.ceil(totalItens / tamanho) };
+}
+
 // /api/racas devolve as raças de exemplo da espécie pedida.
-// /api/animais devolve os animais de exemplo, ou o que "responderAnimais" decidir
+// /api/animais devolve uma página com os animais de exemplo, ou o que "responderAnimais" decidir
 // (recebe os parâmetros da busca e as opções do fetch, e devolve uma resposta).
 // /api/animais/{id} devolve o perfil de exemplo, ou o que "responderAnimal" decidir
 // (recebe o id e as opções do fetch)
@@ -26,6 +35,11 @@ export function resposta(status, corpo) {
 // "outras" atende qualquer outra rota: recebe (método, caminho, opções do fetch) e devolve
 // uma resposta, ou undefined pra deixar as respostas padrão daqui de baixo cuidarem
 // POST /api/fotos devolve 201 com uma URL nova a cada foto (fotos.teste/animais/1.jpg, 2.jpg...)
+// GET /api/usuarios/me e /api/abrigos/me devolvem os perfis de exemplo (src/mocks/perfil.js)
+// GET /api/estatisticas devolve os números de exemplo (src/mocks/estatisticas.js)
+// GET /api/depoimentos devolve uma página com as histórias de exemplo (src/mocks/depoimentos.js)
+// GET /api/artigos devolve uma página com os artigos de exemplo, /api/artigos/meus diz que a conta não
+// pode publicar e /api/artigos/{id} devolve o artigo de exemplo (src/mocks/artigos.js)
 export function simularApi({
     responderAnimais,
     responderAnimal,
@@ -46,9 +60,36 @@ export function simularApi({
             return Promise.resolve(resposta(200, []));
         }
 
-        // painel do protetor: por padrão, nenhum interesse recebido
-        if (endereco.pathname === "/api/interesses/recebidos") {
+        // painel do protetor e minhas candidaturas: por padrão, nenhum interesse
+        if (endereco.pathname === "/api/interesses/recebidos" || endereco.pathname === "/api/interesses/meus") {
             return Promise.resolve(resposta(200, []));
+        }
+
+        // perfil da conta: por padrão, os exemplos de src/mocks/perfil.js
+        if (endereco.pathname === "/api/usuarios/me" && metodo === "GET") {
+            return Promise.resolve(resposta(200, perfilUsuarioExemplo));
+        }
+        if (endereco.pathname === "/api/abrigos/me" && metodo === "GET") {
+            return Promise.resolve(resposta(200, perfilAbrigoExemplo));
+        }
+
+        if (endereco.pathname === "/api/artigos" && metodo === "GET") {
+            return Promise.resolve(resposta(200, paginaDe(artigosExemplo)));
+        }
+        if (endereco.pathname === "/api/artigos/meus") {
+            return Promise.resolve(resposta(200, { podePublicar: false, artigos: [] }));
+        }
+        const artigo = endereco.pathname.match(/^\/api\/artigos\/([^/]+)$/);
+        if (artigo && metodo === "GET") {
+            return Promise.resolve(resposta(200, { ...artigoExemplo, id: decodeURIComponent(artigo[1]) }));
+        }
+
+        if (endereco.pathname === "/api/depoimentos" && metodo === "GET") {
+            return Promise.resolve(resposta(200, paginaDe(depoimentosExemplo)));
+        }
+
+        if (endereco.pathname === "/api/estatisticas") {
+            return Promise.resolve(resposta(200, estatisticasExemplo));
         }
 
         if (endereco.pathname === "/api/fotos" && metodo === "POST") {
@@ -87,7 +128,7 @@ export function simularApi({
         const parametros = Object.fromEntries(endereco.searchParams);
         const respostaAnimais = responderAnimais
             ? responderAnimais(parametros, opcoes)
-            : resposta(200, animaisExemplo);
+            : resposta(200, paginaDe(animaisExemplo));
         return Promise.resolve(respostaAnimais);
     });
 }
