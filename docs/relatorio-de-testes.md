@@ -4,16 +4,16 @@ Fechamento da issue #47: todos os testes rodados uma última vez e a cobertura g
 
 ## Resultado
 
-Medido pelo CI do GitHub na `dev`, no commit `99dc6d6` (24/10/2026, depois da #101): [execução no GitHub Actions](https://github.com/HayrineQueirozdeLima/Adota-Aqui/actions/runs/40125119028).
+Medido pelo CI do GitHub na `dev`, no commit `df6a2fa` (29/10/2026, depois da #102 e da #103), que é o código da entrega final na `main`: [execução no GitHub Actions](https://github.com/HayrineQueirozdeLima/Adota-Aqui/actions/runs/40805883527).
 
 |                          | Back (JUnit 5 e JaCoCo) | Front (Jest e Testing Library) | Mínimo do curso |
 | ------------------------ | ----------------------- | ------------------------------ | --------------- |
 | Testes                   | 130, em 15 classes      | 207, em 25 arquivos            | -               |
-| Linhas cobertas          | **95,1%**               | **95,09%**                     | 70%             |
-| Ramos cobertos (if/else) | 84,2%                   | 87,92%                         | -               |
+| Linhas cobertas          | **95,1%**               | **95,7%**                      | 70%             |
+| Ramos cobertos (if/else) | 84,3%                   | 89,16%                         | -               |
 | Resultado                | Todos passando          | Todos passando                 | -               |
 
-A quantidade de testes já conta os da #44 e da #98. Depois do último PR da `dev` pra `main`, atualize a tabela com os números do resumo daquela execução (passo a passo abaixo).
+A quantidade de testes já conta os da #44 e da #98. Se entrar código novo na `main`, atualize a tabela com os números do resumo da execução do CI (passo a passo abaixo).
 
 O CI barra qualquer PR que deixe a cobertura de linhas abaixo de 70%, no back (JaCoCo) e no front (Jest). Então todo commit que está na `dev` e na `main` já passou por essa régua.
 
@@ -51,7 +51,6 @@ Dos 3 casos manuais dos casos de teste, a responsividade (CT-NAV-02) foi conferi
 4. Ainda na execução, em Artifacts, baixe `cobertura-backend` e `cobertura-frontend`. Abra o `index.html` de cada um e tire um print da primeira tela, com o total.
 5. Salve os prints em `docs/prints/cobertura-back.png` e `docs/prints/cobertura-front.png` e coloque aqui embaixo. O GitHub apaga os artefatos depois de 90 dias, e o print fica no repositório.
 
-<!-- Depois do passo 5:
 ![Cobertura do back](prints/cobertura-back.png)
+
 ![Cobertura do front](prints/cobertura-front.png)
--->

@@ -176,9 +176,9 @@ A consulta `docs/banco/conferencia.sql` descreve o banco (colunas, regras e índ
 
 6. Rode a consulta no Neon de novo até as impressões baterem, e anote abaixo.
 
-| Data | Quem conferiu | Bateu? | O que precisou corrigir |
-| ---- | ------------- | ------ | ----------------------- |
-|      |               |        |                         |
+| Data       | Quem conferiu | Bateu?                                                                  | O que precisou corrigir                                                                                                                                                                  |
+| ---------- | ------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 31/10/2026 | Hayrine       | Colunas, índices e as listas dos enums, sim. Faltavam 2 regras          | O `CHECK` do peso (`animal`) e o da dose (`vacina`), da #40, não estavam no Neon. Corrigido rodando o `docs/banco/integridade.sql` no SQL Editor. O NOT NULL saiu da parte das regras da consulta (ver o comentário no `conferencia.sql`) |
 
 ## Antes da apresentação
 

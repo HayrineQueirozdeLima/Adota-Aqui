@@ -31,7 +31,7 @@ O caminho de uma requisição é sempre o mesmo: o **controller** chama o **serv
 ## O que já está pronto
 
 - As entidades (`Usuario`, `Abrigo`, `Animal`, `Vacina`, `Interesse` e `Endereco`) e os enums, iguais ao DER lógico e ao dicionário de domínios.
-- Cadastro e login com JWT, CRUD de animal com fotos no S3, vitrine com filtros e busca por nome, demonstração de interesse e o painel em que o protetor aprova ou descontinua os interesses.
+- Cadastro e login com JWT, CRUD de animal com fotos no S3, vitrine com filtros e busca por nome, demonstração de interesse e desistência, o painel em que o protetor aprova ou descontinua os interesses, as candidaturas de quem demonstrou interesse e o perfil da conta (editar os dados e trocar a senha).
 - O tratamento de erro num formato único para toda a API.
 
 O que cada funcionalidade faz, tela por tela, está no [`docs/funcionalidades.md`](../docs/funcionalidades.md), e como as camadas se encaixam, no [`docs/arquitetura.md`](../docs/arquitetura.md).
@@ -63,4 +63,4 @@ mvn test
 
 O `mvn verify` roda os mesmos testes e ainda gera o relatório de cobertura em `target/site/jacoco/index.html`. É ele que o CI usa.
 
-Os testes usam um banco H2 em memória, então não precisa do PostgreSQL. A meta do curso é **70% de cobertura**, então escreve o teste junto com o código, não deixa pro final.
+Os testes usam um banco H2 em memória, então não precisa do PostgreSQL. A meta do curso é **70% de cobertura**, então escreve o teste junto com o código, não deixa pro final.
