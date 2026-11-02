@@ -36,8 +36,9 @@ export default function CardAnimal({ animal, nivelDoTitulo = 3 }) {
 
   return (
     <article className="flex flex-col overflow-hidden rounded-[16px] border border-borda-sutil bg-fundo-superficie">
-      {/* Foto. Enquanto não tiver foto, fica o fundo roxo-suave com o aviso "Sem foto" */}
-      <div className="flex h-[210px] items-center justify-center bg-marca-roxo-suave">
+      {/* Foto quadrada, pra não cortar o animal quando o card fica largo.
+          Enquanto não tiver foto, fica o fundo roxo-suave com o aviso "Sem foto" */}
+      <div className="flex aspect-square items-center justify-center bg-marca-roxo-suave">
         {fotoCapa ? (
           <img
             src={fotoCapa}
@@ -90,7 +91,10 @@ export default function CardAnimal({ animal, nivelDoTitulo = 3 }) {
         </div>
 
         <div className="flex justify-end pt-3.5">
-          <Botao para={`/animais/${id}`}>Quero conhecer {nome}</Botao>
+          {/* Nome comprido não estoura o card: o texto corta com reticências (o nome inteiro está no título) */}
+          <Botao para={`/animais/${id}`} className="max-w-full">
+            <span className="min-w-0 truncate">Quero conhecer {nome}</span>
+          </Botao>
         </div>
       </div>
     </article>

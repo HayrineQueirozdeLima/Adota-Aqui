@@ -212,9 +212,11 @@ export default function VitrineAnimais({ aoCarregar, nivelDoTitulo }) {
 
     return (
       <>
+        {/* Cada card tem pelo menos 260px de largura. Cabem quantos a tela deixar, e numa tela larga
+            o card não estica: entra mais um na linha */}
         <div
           ref={grade}
-          className="grid gap-[22px] md:grid-cols-2 lg:grid-cols-3"
+          className="grid grid-cols-[repeat(auto-fill,minmax(16.25rem,1fr))] gap-[22px]"
         >
           {animais.map((animal) => (
             <CardAnimal
