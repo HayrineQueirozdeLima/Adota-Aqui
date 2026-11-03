@@ -207,6 +207,26 @@ describe("carregar", () => {
   });
 });
 
+// No celular, a ordem da página é a ordem do HTML: os botões ficam logo depois de "Alterar senha",
+// antes dos quadros do lado (tipo de conta e sessão). No computador, o CSS sobe os botões (lg:order)
+test("os botões de cancelar e salvar vêm depois dos campos e antes dos quadros do lado", async () => {
+  entrar();
+  simularPerfil();
+  abrir();
+  await esperarFormulario();
+
+  const ultimoCampo = screen.getByLabelText("Confirmar nova senha");
+  const salvar = screen.getByRole("button", { name: "Salvar alterações" });
+  const sair = screen.getByRole("button", { name: "Sair da conta" });
+  expect(
+    ultimoCampo.compareDocumentPosition(salvar) &
+      Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  expect(
+    salvar.compareDocumentPosition(sair) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+});
+
 describe("salvar os dados", () => {
   beforeEach(() => entrar());
 

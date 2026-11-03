@@ -2,8 +2,8 @@
 
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
-- **Versão:** 1.6 (outubro de 2026)
-- **Total:** 78 casos, 75 já automatizados e 3 manuais
+- **Versão:** 1.7 (novembro de 2026)
+- **Total:** 79 casos, 76 já automatizados e 3 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
 
@@ -85,6 +85,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | CT-FRM-02 | Enviar com campos obrigatórios em branco | Validação | Não envia, marca cada campo com a mensagem e leva o foco pro primeiro erro                                            | `CadastroAnimal.test.jsx`, `Validacoes.test.jsx`    |
 | CT-FRM-03 | E-mail sem @ e telefone com letras       | Validação | O e-mail mostra erro de formato. O telefone não aceita letras e pede 10 ou 11 números                                 | `Validacoes.test.jsx`                               |
 | CT-FRM-04 | Clicar duas vezes em enviar              | UI        | O botão fica desativado e muda o texto ("Criando conta...", "Enviando...") até a resposta chegar, sem envio duplicado | `Cadastro.test.jsx`, `DemonstrarInteresse.test.jsx` |
+| CT-FRM-05 | Salvar no celular | UI | No cadastro e na edição de animal e em Meu perfil, no celular e no tablet, Cancelar e Salvar ficam depois do último campo, com o aviso de erro do envio logo acima. No computador, ficam no topo, ao lado do título | `CadastroAnimal.test.jsx`, `EditarAnimal.test.jsx`, `Perfil.test.jsx` (a ordem na página). A posição no computador entra no CT-NAV-02 |
 
 ### Módulo 6: Cadastro de animal e Meus animais
 
@@ -170,7 +171,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | 2. Cadastro, login e sessão                | 9      | 9             | 0       |
 | 3. Vitrine, busca e filtros                | 8      | 8             | 0       |
 | 4. Perfil do animal e interesse            | 7      | 7             | 0       |
-| 5. Formulários                             | 4      | 4             | 0       |
+| 5. Formulários                             | 5      | 5             | 0       |
 | 6. Cadastro de animal e Meus animais       | 8      | 8             | 0       |
 | 7. Interesses recebidos                    | 5      | 5             | 0       |
 | 8. Minhas candidaturas                     | 5      | 5             | 0       |
@@ -178,7 +179,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | 10. Histórias de adoção                    | 5      | 5             | 0       |
 | 11. Blog para tutores                          | 5      | 5             | 0       |
 | 12. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
-| **Total**                                  | **78** | **75**        | **3**   |
+| **Total**                                  | **79** | **76**        | **3**   |
 
 A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta tabela: ela é medida pelo JaCoCo e pelo Jest a cada push, como explica o [plano de testes](plano-de-testes.md). Esta tabela mostra outra coisa: quantos comportamentos importantes já têm teste automático e quantos ainda dependem de alguém testar à mão.
 

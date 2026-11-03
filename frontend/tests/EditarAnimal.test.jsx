@@ -112,6 +112,25 @@ test("salva com PUT levando todos os campos e o status, e volta pra Meus animais
   ]);
 });
 
+// No celular, a ordem da página é a ordem do HTML: o Salvar fica depois do último campo,
+// pra ninguém precisar rolar até o topo. No computador, o CSS sobe os botões (lg:order)
+test("os botões de cancelar e salvar vêm depois dos campos", async () => {
+  abrir();
+  await esperarFormulario();
+
+  const ultimoCampo = screen.getByLabelText("Trajetória do animal");
+  const salvar = screen.getByRole("button", { name: "Salvar alterações" });
+  const cancelar = screen.getByRole("link", { name: "Cancelar" });
+  expect(
+    ultimoCampo.compareDocumentPosition(cancelar) &
+      Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  expect(
+    ultimoCampo.compareDocumentPosition(salvar) &
+      Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+});
+
 describe("animal adotado (RF06)", () => {
   beforeEach(() => {
     simular({ animal: { statusAdocao: "ADOTADO" } });

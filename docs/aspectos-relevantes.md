@@ -119,6 +119,12 @@ Quem consulta o ViaCEP é o navegador, e o back recebe o endereço completo (`do
 
 O que dá pra deixar no repositório fica lá: `render.yaml`, `netlify.toml` e `backend/Dockerfile`. As senhas e chaves ficam só no painel do Render. Quando o back sobe ligado no banco de produção, a `ConferenciaDoDeploy` confere se a chave do JWT, as fotos no S3 e o CORS foram configurados, e se faltar algum, ele não sobe ([deploy](deploy.md)).
 
+### Botões de salvar no fim do formulário no celular
+
+No Figma, os botões de salvar ficam no topo, ao lado do título. No computador isso funciona, mas no celular o formulário do animal e o Meu perfil são longos, e a pessoa tinha que rolar tudo de volta pra salvar. Agora, no HTML, os botões vêm depois do último campo, com o aviso de erro do envio logo acima deles, e no computador o CSS (`lg:order`, com o formulário virando grade) sobe os dois pro lugar do Figma.
+
+Ficou assim, e não com dois pares de botões (um escondido em cada tamanho de tela), pra ter um botão só na página: o leitor de tela não acha dois "Salvar alterações", e os testes procuram o botão pelo nome sem ambiguidade. A ordem do teclado segue o HTML: a pessoa passa pelos campos e chega no salvar.
+
 ### Tema claro e escuro, e acessibilidade
 
 As cores são variáveis CSS com os nomes do Figma, e o tema escuro troca só os valores. Assim nenhuma tela precisa de classe pra cada tema, e um componente novo já nasce funcionando nos dois. A escolha fica salva no navegador, e sem escolha vale a do sistema operacional.

@@ -238,6 +238,7 @@ O quadro do lado:
 2. O formulário tem partes: identificação (nome, espécie, raça, porte, sexo, peso, nascimento estimado em MM/AAAA e se é castrado), convivência e energia, vacinas (quantas quiser), trajetória do animal e fotos.
 3. Cada foto escolhida sobe na hora pro `POST /api/fotos`, que guarda o arquivo no Amazon S3 e devolve o endereço. A primeira é a principal, e dá pra trocar qual é a principal ou remover uma foto.
 4. "Publicar animal" manda tudo pro `POST /api/animais`. O animal já nasce Disponível e aparece na vitrine.
+5. No computador, "Cancelar" e "Publicar animal" ficam no topo, ao lado do título, como no Figma. No celular e no tablet, ficam no fim do formulário, depois do último quadro, pra ninguém precisar rolar até o topo pra salvar. O aviso de erro do envio e a confirmação da devolução aparecem logo acima desses botões. O mesmo vale pra edição ("Salvar alterações").
 
 **Ver (read).** Meus animais (`GET /api/animais/meus`) lista os animais da conta, disponíveis e adotados, com os filtros Todos, Disponível e Adotado. Animal disponível tem "Ver interesses" e "Editar". Adotado tem "Editar status". Conta sem nenhum animal vê uma foto, "Você ainda não cadastrou nenhum animal." e o botão pra cadastrar o primeiro. Se a lista não carregar, aparece "Tentar de novo".
 
@@ -401,6 +402,7 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 5. "Salvar alterações" manda os dados (`PUT`) e, se a senha foi preenchida, troca a senha logo depois (`PATCH`). Se nada mudou, avisa que não há o que salvar.
 6. "Cancelar" volta tudo pro que está salvo. O nome novo aparece no menu na hora, sem entrar de novo.
 7. "Sair da conta" continua na mesma tela.
+8. No computador, "Cancelar" e "Salvar alterações" ficam no topo, ao lado do título. No celular e no tablet, ficam logo depois de "Alterar senha", com o aviso de erro logo acima, antes dos quadros "Tipo de conta" e "Sessão".
 
 **Regras.**
 
