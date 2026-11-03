@@ -63,6 +63,19 @@ test("mostra os quatro passos da adoção, na ordem", async () => {
   expect(within(secao).getByText("Passo 04")).toBeInTheDocument();
 });
 
+test("termina chamando pra conhecer o projeto na página Quem somos", async () => {
+  await abrirHome();
+
+  const secao = screen.getByRole("region", { name: "Conheça o Adota Aqui" });
+  expect(within(secao).getByRole("link", { name: "Conhecer o projeto" })).toHaveAttribute(
+    "href",
+    "/quem-somos",
+  );
+  // É a última seção da Home, depois dos passos da adoção
+  const passos = screen.getByRole("region", { name: "Como funciona a adoção" });
+  expect(passos.compareDocumentPosition(secao) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+});
+
 test("o link Como adotar rola até os passos, e de novo quando a vitrine termina de carregar", async () => {
   // o jsdom não rola a tela: guarda em quem o scrollIntoView foi chamado
   const rolados = [];

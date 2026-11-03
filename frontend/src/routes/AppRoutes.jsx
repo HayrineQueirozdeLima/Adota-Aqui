@@ -19,6 +19,7 @@ import EscreverDepoimento from "../pages/EscreverDepoimento/EscreverDepoimento";
 import Historias from "../pages/Historias/Historias";
 import Blog from "../pages/Blog/Blog";
 import Protetores from "../pages/Protetores/Protetores";
+import QuemSomos from "../pages/QuemSomos/QuemSomos";
 import Artigo from "../pages/Artigo/Artigo";
 import FormularioArtigo from "../pages/FormularioArtigo/FormularioArtigo";
 import Perfil from "../pages/Perfil/Perfil";
@@ -49,6 +50,7 @@ export default function AppRoutes() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:id" element={<Artigo />} />
           <Route path="/protetores" element={<Protetores />} />
+          <Route path="/quem-somos" element={<QuemSomos />} />
 
           {/* Precisam de login: sem login, a RotaProtegida manda pro /login */}
           <Route element={<RotaProtegida />}>

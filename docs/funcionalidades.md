@@ -22,7 +22,8 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 12. [Histórias de adoção (depoimentos)](#12-histórias-de-adoção-depoimentos)
 13. [Blog para tutores](#13-blog-para-tutores)
 14. [Abrigos e protetores](#14-abrigos-e-protetores)
-15. [O que ainda não está pronto](#15-o-que-ainda-não-está-pronto)
+15. [Quem somos](#15-quem-somos)
+16. [O que ainda não está pronto](#16-o-que-ainda-não-está-pronto)
 
 ## Quem usa o sistema
 
@@ -51,6 +52,7 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 | 11  | Histórias de adoção | RF11, UC09 | `/historias`, `/meus-interesses/:id/depoimento` | `POST /api/interesses/{id}/depoimento`, `GET /api/depoimentos`, `DELETE /api/depoimentos/{id}` |
 | 12  | Blog para tutores | ERS 6.4 | `/blog`, `/blog/:id`, `/blog/novo`, `/blog/:id/editar` | `GET`, `POST`, `PUT` e `DELETE` em `/api/artigos`, `GET /api/artigos/meus` |
 | 13  | Abrigos e protetores | RF07, ERS 4 | `/protetores` | `GET /api/protetores` |
+| 14  | Quem somos | Fora da ERS | `/quem-somos` e a chamada no fim da Home | Nenhum |
 
 Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da API](api.md).
 
@@ -433,7 +435,7 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 ![Painel de interesses recebidos no tema escuro](prints/13-tema-escuro.png)
 
 - **Título da aba e rolagem.** Cada página põe o nome dela no título da aba do navegador ("Meus animais | Adota Aqui"), e toda página nova abre no topo. O "Como adotar" do rodapé rola até a seção, e o voltar do navegador devolve a pessoa onde ela estava (`hooks/useTituloDaPagina.js` e `components/RolarParaOTopo`).
-- **Rodapé** em todas as telas que têm o menu do topo, com o logo, a frase do Figma e os links da plataforma: explorar animais, como adotar, histórias de adoção, blog para tutores, abrigos e protetores independentes e cadastrar um animal (`components/Rodape`, `Rodape.test.jsx`).
+- **Rodapé** em todas as telas que têm o menu do topo, com o logo, a frase do Figma e os links da plataforma: quem somos, explorar animais, como adotar, histórias de adoção, blog para tutores, abrigos e protetores independentes e cadastrar um animal (`components/Rodape`, `Rodape.test.jsx`).
 - **Página não encontrada** pra qualquer endereço que não existe, com foto e os botões "Ver animais disponíveis" e "Ir para a página inicial". Animal que não existe (perfil, interesse ou edição) mostra a mesma foto com "Animal não encontrado".
 - **Integração contínua.** A cada push e PR na `dev` e na `main`, o GitHub Actions roda os testes do back (`mvn verify`) e do front (build e `npm run test:coverage`) e guarda os relatórios de cobertura (JaCoCo e lcov). A cobertura aparece no resumo de cada execução, e o CI falha se a de linhas ficar abaixo de 70% (RNF04). O PR só entra com os dois verdes.
 - **Deploy (RNF06).** Front no Netlify, API no Render (com Docker), banco PostgreSQL no Neon e fotos no Amazon S3. Os endereços estão no [README principal](../README.md).
@@ -539,7 +541,23 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ---
 
-## 15. O que ainda não está pronto
+## 15. Quem somos
+
+**O que faz.** Conta como o projeto surgiu, de onde veio a ideia, o que motiva o time e o que o Adota Aqui se propõe a fazer. Por enquanto, sem o nome de quem desenvolveu.
+
+**Como funciona.**
+
+1. A página fica em `/quem-somos` e no rodapé ("Quem somos"). Tem quatro partes: como surgiu o projeto, de onde veio a ideia, o que motiva a gente e o que o Adota Aqui se propõe a fazer, com o lembrete de que a decisão final é sempre de quem cuida do animal.
+2. No fim, "Quer fazer parte?" leva pra vitrine, pra página de abrigos e protetores e pro cadastro de animal.
+3. A Home termina com a seção "Conheça o Adota Aqui", depois dos passos da adoção, com o botão "Conhecer o projeto".
+
+**Onde está no código.** `pages/QuemSomos` (os textos ficam todos no começo do arquivo, pra ficar fácil de mudar) e `components/ConhecaOProjeto`.
+
+**Testes.** `QuemSomos.test.jsx`, `Home.test.jsx`, `App.test.jsx` e `Rodape.test.jsx`.
+
+---
+
+## 16. O que ainda não está pronto
 
 | O quê                                   | Situação                                                                                                                                       |
 | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
