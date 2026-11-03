@@ -37,6 +37,18 @@ public interface AnimalRepository extends JpaRepository<Animal, UUID>, JpaSpecif
     // Números da Home (GET /api/estatisticas)
     long countByStatusAdocao(StatusAdocao status);
 
+    // Quantos animais com esse status cada protetor tem, pra página de abrigos e protetores.
+    // LEFT JOIN nos dois porque cada animal tem só um protetor: ou a pessoa, ou o abrigo
+    @Query("""
+            SELECT new com.adotaaqui.repository.ContagemPorProtetor(u.id, ab.id, COUNT(a))
+            FROM Animal a
+            LEFT JOIN a.usuario u
+            LEFT JOIN a.abrigo ab
+            WHERE a.statusAdocao = :status
+            GROUP BY u.id, ab.id
+            """)
+    List<ContagemPorProtetor> contarPorProtetor(@Param("status") StatusAdocao status);
+
     // Listagem pra Usuario logado: só animais do mesmo estado dele (RF14).
     // Como o animal não tem estado próprio, a consulta olha o estado de quem cadastrou.
     //

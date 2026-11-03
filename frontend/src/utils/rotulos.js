@@ -38,7 +38,8 @@ export function rotuloEnergia(energia, sexo) {
 // "Instituto Quatro Patas" vira "IQ": as iniciais das duas primeiras palavras
 export function iniciais(nome) {
     return nome
-        .split(' ')
+        .split(/\s+/)
+        .filter(Boolean)
         .slice(0, 2)
         .map((palavra) => palavra[0].toUpperCase())
         .join('');
@@ -122,3 +123,37 @@ export const categoriasDeArtigo = [
     { valor: 'COMPORTAMENTO', nome: 'Comportamento' },
     { valor: 'ALIMENTACAO', nome: 'Alimentação' },
 ];
+
+// Página de abrigos e protetores: os tipos, com os mesmos valores do TipoConta do back
+export const tiposDeProtetor = { ABRIGO: 'Abrigo', USUARIO: 'Protetor independente' };
+
+// Os estados, na ordem do nome, pro filtro de estado. A chave é a sigla que fica no endereço
+export const estados = {
+    AC: 'Acre',
+    AL: 'Alagoas',
+    AP: 'Amapá',
+    AM: 'Amazonas',
+    BA: 'Bahia',
+    CE: 'Ceará',
+    DF: 'Distrito Federal',
+    ES: 'Espírito Santo',
+    GO: 'Goiás',
+    MA: 'Maranhão',
+    MT: 'Mato Grosso',
+    MS: 'Mato Grosso do Sul',
+    MG: 'Minas Gerais',
+    PA: 'Pará',
+    PB: 'Paraíba',
+    PR: 'Paraná',
+    PE: 'Pernambuco',
+    PI: 'Piauí',
+    RJ: 'Rio de Janeiro',
+    RN: 'Rio Grande do Norte',
+    RS: 'Rio Grande do Sul',
+    RO: 'Rondônia',
+    RR: 'Roraima',
+    SC: 'Santa Catarina',
+    SP: 'São Paulo',
+    SE: 'Sergipe',
+    TO: 'Tocantins',
+};

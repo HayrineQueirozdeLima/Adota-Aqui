@@ -4,6 +4,7 @@ import { artigoExemplo, artigosExemplo } from "../../src/mocks/artigos";
 import { estatisticasExemplo } from "../../src/mocks/estatisticas";
 import { interesseExemplo } from "../../src/mocks/interesses";
 import { perfilAbrigoExemplo, perfilUsuarioExemplo } from "../../src/mocks/perfil";
+import { protetoresExemplo } from "../../src/mocks/protetores";
 import { racasExemplo } from "../../src/mocks/racas";
 
 // "API de mentira" pros testes: troca o fetch do navegador por uma função que responde na hora,
@@ -40,6 +41,7 @@ export function paginaDe(itens, { pagina = 0, tamanho = 12, totalItens = itens.l
 // GET /api/depoimentos devolve uma página com as histórias de exemplo (src/mocks/depoimentos.js)
 // GET /api/artigos devolve uma página com os artigos de exemplo, /api/artigos/meus diz que a conta não
 // pode publicar e /api/artigos/{id} devolve o artigo de exemplo (src/mocks/artigos.js)
+// GET /api/protetores devolve uma página com os abrigos e protetores de exemplo (src/mocks/protetores.js)
 export function simularApi({
     responderAnimais,
     responderAnimal,
@@ -86,6 +88,10 @@ export function simularApi({
 
         if (endereco.pathname === "/api/depoimentos" && metodo === "GET") {
             return Promise.resolve(resposta(200, paginaDe(depoimentosExemplo)));
+        }
+
+        if (endereco.pathname === "/api/protetores" && metodo === "GET") {
+            return Promise.resolve(resposta(200, paginaDe(protetoresExemplo)));
         }
 
         if (endereco.pathname === "/api/estatisticas") {

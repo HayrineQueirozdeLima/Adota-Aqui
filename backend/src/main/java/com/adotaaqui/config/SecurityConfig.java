@@ -63,6 +63,8 @@ public class SecurityConfig {
                         // Artigos: qualquer pessoa lê. "Meus artigos" precisa de login e vem antes, como o /animais/meus
                         .requestMatchers(HttpMethod.GET, "/api/artigos/meus").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/artigos", "/api/artigos/*").permitAll()
+                        // Página de abrigos e protetores: visitante também vê
+                        .requestMatchers(HttpMethod.GET, "/api/protetores").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex

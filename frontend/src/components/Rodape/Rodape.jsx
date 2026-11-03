@@ -8,7 +8,7 @@ const plataforma = [
   { texto: "Como adotar", para: { pathname: "/", hash: "#como-funciona" } },
   { texto: "Histórias de adoção", para: "/historias" },
   { texto: "Blog para tutores", para: "/blog" },
-  { texto: "Abrigos e protetores independentes", para: "/cadastro" },
+  { texto: "Abrigos e protetores independentes", para: "/protetores" },
   { texto: "Cadastrar um animal", para: "/meus-animais/novo" },
 ];
 

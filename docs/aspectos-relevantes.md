@@ -84,6 +84,12 @@ O blog para tutores (ERS 6.4) não tem moderação, então a regra de quem escre
 
 O texto é puro, sem HTML nem Markdown. O site separa os parágrafos pelas linhas em branco e mostra tudo como texto, então um artigo não consegue carregar um script ou um link disfarçado. Formatação mais rica pediria limpar o HTML no back, e pro tamanho de um artigo os parágrafos já resolvem.
 
+### A lista de protetores mostra só o que já é público
+
+A página de abrigos e protetores mostra o nome, a cidade, o estado, o tipo e as contagens, que é o que já aparece no card de cada animal (RF07). E-mail, telefone e documento ficam de fora, e o contato continua saindo só quando alguém demonstra interesse (RF09). Pessoa só entra na lista depois de cadastrar um animal: quem só está procurando pra adotar não aparece.
+
+A lista junta duas tabelas (`abrigo` e `usuario`) numa ordem só, a alfabética. O `ProtetorService` busca as duas, filtra, põe em ordem com o `Collator` do português (assim "Ágata" fica com os nomes da letra A) e corta a página no Java. Com centenas de protetores isso é rápido e funciona igual no H2 e no PostgreSQL. Se um dia passar de alguns milhares, vale trocar por uma consulta só no banco, com `UNION` e a paginação lá dentro.
+
 ### Animal adotado fica travado
 
 Com o animal Adotado, os dados ficam como estão: o formulário só deixa mudar o status (RF06). Pra editar, o protetor volta o status pra Disponível, o que é uma devolução (UC05 FA04), e aí os campos abrem na mesma tela. O interesse aprovado continua no histórico.
