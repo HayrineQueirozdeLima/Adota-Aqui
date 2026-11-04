@@ -84,6 +84,12 @@ O blog para tutores (ERS 6.4) não tem moderação, então a regra de quem escre
 
 O texto é puro, sem HTML nem Markdown. O site separa os parágrafos pelas linhas em branco e mostra tudo como texto, então um artigo não consegue carregar um script ou um link disfarçado. Formatação mais rica pediria limpar o HTML no back, e pro tamanho de um artigo os parágrafos já resolvem.
 
+### A lista de protetores mostra só o que já é público
+
+A página de abrigos e protetores mostra o nome, a cidade, o estado, o tipo e as contagens, que é o que já aparece no card de cada animal (RF07). E-mail, telefone e documento ficam de fora, e o contato continua saindo só quando alguém demonstra interesse (RF09). Pessoa só entra na lista depois de cadastrar um animal: quem só está procurando pra adotar não aparece.
+
+A lista junta duas tabelas (`abrigo` e `usuario`) numa ordem só, a alfabética. O `ProtetorService` busca as duas, filtra, põe em ordem com o `Collator` do português (assim "Ágata" fica com os nomes da letra A) e corta a página no Java. Com centenas de protetores isso é rápido e funciona igual no H2 e no PostgreSQL. Se um dia passar de alguns milhares, vale trocar por uma consulta só no banco, com `UNION` e a paginação lá dentro.
+
 ### Animal adotado fica travado
 
 Com o animal Adotado, os dados ficam como estão: o formulário só deixa mudar o status (RF06). Pra editar, o protetor volta o status pra Disponível, o que é uma devolução (UC05 FA04), e aí os campos abrem na mesma tela. O interesse aprovado continua no histórico.
@@ -118,6 +124,12 @@ Quem consulta o ViaCEP é o navegador, e o back recebe o endereço completo (`do
 ### O deploy em código, e conferido
 
 O que dá pra deixar no repositório fica lá: `render.yaml`, `netlify.toml` e `backend/Dockerfile`. As senhas e chaves ficam só no painel do Render. Quando o back sobe ligado no banco de produção, a `ConferenciaDoDeploy` confere se a chave do JWT, as fotos no S3 e o CORS foram configurados, e se faltar algum, ele não sobe ([deploy](deploy.md)).
+
+### Botões de salvar no fim do formulário no celular
+
+No Figma, os botões de salvar ficam no topo, ao lado do título. No computador isso funciona, mas no celular o formulário do animal e o Meu perfil são longos, e a pessoa tinha que rolar tudo de volta pra salvar. Agora, no HTML, os botões vêm depois do último campo, com o aviso de erro do envio logo acima deles, e no computador o CSS (`lg:order`, com o formulário virando grade) sobe os dois pro lugar do Figma.
+
+Ficou assim, e não com dois pares de botões (um escondido em cada tamanho de tela), pra ter um botão só na página: o leitor de tela não acha dois "Salvar alterações", e os testes procuram o botão pelo nome sem ambiguidade. A ordem do teclado segue o HTML: a pessoa passa pelos campos e chega no salvar.
 
 ### Tema claro e escuro, e acessibilidade
 

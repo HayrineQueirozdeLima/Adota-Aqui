@@ -336,7 +336,7 @@ describe("escolha do tipo de conta", () => {
     ).toHaveAttribute("href", "/cadastro/abrigo");
   });
 
-  // O link "Abrigos e protetores independentes" do rodapé leva pra cá até quem já tem conta
+  // Quem já tem conta e abre o /cadastro não precisa escolher o tipo de conta de novo
   test("quem já está logado vai direto pra vitrine", () => {
     localStorage.setItem("adotaaqui.sessao", JSON.stringify(sessao));
     abrirEscolha();

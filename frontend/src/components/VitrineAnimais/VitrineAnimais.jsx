@@ -16,9 +16,13 @@ const ESPERA_ANTES_DE_BUSCAR_MS = 300;
 // fica na /animais e também aparece na Home do site
 // aoCarregar (opcional) é chamado quando uma busca termina, com ou sem erro
 // nivelDoTitulo vai pro nome do animal em cada card (ver CardAnimal)
-export default function VitrineAnimais({ aoCarregar, nivelDoTitulo }) {
+// buscaInicial (opcional) já começa preenchida na busca por nome (ex.: o "Ver animais" de um protetor)
+export default function VitrineAnimais({ aoCarregar, nivelDoTitulo, buscaInicial = "" }) {
   const { usuario, token, sair } = useAuth();
-  const [filtros, setFiltros] = useState(filtrosVazios);
+  const [filtros, setFiltros] = useState(() => ({
+    ...filtrosVazios,
+    busca: buscaInicial,
+  }));
   const [animais, setAnimais] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(false);

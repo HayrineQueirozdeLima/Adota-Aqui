@@ -2,8 +2,8 @@
 
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
-- **Versão:** 1.6 (outubro de 2026)
-- **Total:** 78 casos, 75 já automatizados e 3 manuais
+- **Versão:** 1.7 (novembro de 2026)
+- **Total:** 85 casos, 82 já automatizados e 3 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
 
@@ -11,7 +11,7 @@ Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o 
 
 Garantir que o Adota Aqui funciona do jeito que os requisitos pedem: cadastro e login seguros, vitrine com filtros, perfil do animal, demonstração de interesse com termo e triagem, cadastro de animais e o painel em que o protetor aprova a adoção. Também entram usabilidade, acessibilidade, segurança e desempenho.
 
-**Coberto:** página inicial e navegação, cadastro e login, vitrine, busca e filtros, perfil do animal, demonstração de interesse e desistência, cadastro de animal e Meus animais, painel de interesses recebidos, Minhas candidaturas, Meu perfil, acessibilidade, segurança e desempenho.
+**Coberto:** página inicial e navegação, cadastro e login, vitrine, busca e filtros, perfil do animal, demonstração de interesse e desistência, cadastro de animal e Meus animais, painel de interesses recebidos, Minhas candidaturas, Meu perfil, histórias de adoção, blog, abrigos e protetores, Quem somos, acessibilidade, segurança e desempenho.
 
 **Fora do escopo desta fase:**
 
@@ -31,10 +31,11 @@ A coluna **Automatizado em** mostra o arquivo de teste que já confere o caso. O
 | CT-NAV-03 | Menu conforme a conta   | Funcional      | Visitante vê "Cadastrar" e "Entrar". Logado vê "Explorar", "Meus animais" e "Interesses recebidos", e só pessoa física vê "Minhas candidaturas"                                                                                                                                        | `Navbar.test.jsx`                         |
 | CT-NAV-04 | Endereço que não existe | Funcional      | Aparece "Página não encontrada", com o menu e os botões "Ver animais disponíveis" e "Ir para a página inicial"                                                                                                                                                                         | `App.test.jsx`                            |
 | CT-NAV-05 | Trocar o tema           | UI             | O botão do topo troca entre claro e escuro, e a escolha continua depois de recarregar a página. Quem nunca escolheu vê o tema do sistema operacional                                                                                                                                   | `BotaoTema.test.jsx`                      |
-| CT-NAV-06 | Links do rodapé         | Funcional      | "Explorar animais", "Como adotar", "Abrigos e protetores independentes" e "Cadastrar um animal" levam pra tela certa                                                                                                                                                                   | `Rodape.test.jsx`, `Home.test.jsx`        |
+| CT-NAV-06 | Links do rodapé         | Funcional      | "Quem somos", "Explorar animais", "Como adotar", "Histórias de adoção", "Blog para tutores", "Abrigos e protetores independentes" (a página de abrigos e protetores, não mais o cadastro) e "Cadastrar um animal" levam pra tela certa | `Rodape.test.jsx`, `Home.test.jsx`        |
 | CT-NAV-07 | Trocar de página        | UI             | A página nova abre no topo, mesmo vindo do fim da anterior (ex.: um link do rodapé). Voltar no navegador devolve a pessoa onde ela estava                                                                                                                                              | `RolarParaOTopo.test.jsx`                 |
 | CT-NAV-08 | Título da aba           | Acessibilidade | Cada página mostra o nome dela na aba do navegador (ex.: "Meus animais"), e o leitor de tela anuncia a página nova                                                                                                                                                                     | `App.test.jsx`, `EditarAnimal.test.jsx`   |
 | CT-NAV-09 | Números do site | Funcional | A página inicial mostra as adoções feitas, os animais esperando um lar e os abrigos cadastrados, com ponto no milhar e singular no 1. Se a API falhar, a faixa some e o resto da página funciona | `Estatisticas.test.jsx`, `Home.test.jsx`, `EstatisticasIntegrationTest.java` |
+| CT-NAV-10 | Quem somos | Funcional | A página `/quem-somos` conta como surgiu o projeto, de onde veio a ideia, a motivação e o que o Adota Aqui se propõe a fazer, sem nome de quem desenvolveu. A Home termina com "Conheça o Adota Aqui", que leva pra ela | `QuemSomos.test.jsx`, `Home.test.jsx`, `App.test.jsx` |
 
 ### Módulo 2: Cadastro, login e sessão
 
@@ -85,6 +86,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | CT-FRM-02 | Enviar com campos obrigatórios em branco | Validação | Não envia, marca cada campo com a mensagem e leva o foco pro primeiro erro                                            | `CadastroAnimal.test.jsx`, `Validacoes.test.jsx`    |
 | CT-FRM-03 | E-mail sem @ e telefone com letras       | Validação | O e-mail mostra erro de formato. O telefone não aceita letras e pede 10 ou 11 números                                 | `Validacoes.test.jsx`                               |
 | CT-FRM-04 | Clicar duas vezes em enviar              | UI        | O botão fica desativado e muda o texto ("Criando conta...", "Enviando...") até a resposta chegar, sem envio duplicado | `Cadastro.test.jsx`, `DemonstrarInteresse.test.jsx` |
+| CT-FRM-05 | Salvar no celular | UI | No cadastro e na edição de animal e em Meu perfil, no celular e no tablet, Cancelar e Salvar ficam depois do último campo, com o aviso de erro do envio logo acima. No computador, ficam no topo, ao lado do título | `CadastroAnimal.test.jsx`, `EditarAnimal.test.jsx`, `Perfil.test.jsx` (a ordem na página). A posição no computador entra no CT-NAV-02 |
 
 ### Módulo 6: Cadastro de animal e Meus animais
 
@@ -150,7 +152,17 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | CT-BLG-04 | Quem pode escrever           | Regra de negócio | Só abrigo, ou pessoa que já cadastrou animal. As outras pessoas veem o convite pra cadastrar um animal, e a API responde 403                                | `FormularioArtigo.test.jsx`, `Blog.test.jsx`, `ArtigoIntegrationTest.java`    |
 | CT-BLG-05 | Editar e apagar              | Funcional        | Só quem escreveu vê os botões e consegue pela API (as outras contas recebem 403). Apagar pede confirmação, e a capa trocada ou apagada sai do S3            | `Artigo.test.jsx`, `FormularioArtigo.test.jsx`, `ArtigoIntegrationTest.java`     |
 
-### Módulo 12: Desempenho, acessibilidade e segurança
+### Módulo 12: Abrigos e protetores
+
+| ID        | Cenário                          | Tipo      | Resultado esperado                                                                                                                                                         | Automatizado em                                      |
+| --------- | -------------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| CT-PRT-01 | Ver a lista                      | Funcional | Aparecem os abrigos e as pessoas que já cadastraram animal, em ordem alfabética (nome com acento junto dos da mesma letra), com o tipo, a cidade, o estado, os animais pra adoção e as adoções pelo site. Pessoa que nunca cadastrou animal não aparece | `ProtetorIntegrationTest.java`, `Protetores.test.jsx` |
+| CT-PRT-02 | Filtrar                          | Funcional | Tipo (abrigo ou protetor independente), estado, cidade e nome filtram juntos, sem ligar pra acento nem maiúscula, com uma busca só depois de parar de digitar. Sem resultado, aparece o aviso e o "Ver todos" | `ProtetorIntegrationTest.java`, `Protetores.test.jsx` |
+| CT-PRT-03 | Ver os animais de um protetor    | Funcional | O "Ver animais" abre a vitrine já buscando pelo nome do protetor. Quem não tem animal pra adoção não mostra o botão                                                         | `Protetores.test.jsx`, `App.test.jsx`                 |
+| CT-PRT-04 | Mais de uma página               | Funcional | Vem de 12 em 12. O "Ver mais" traz os próximos e leva o foco pro primeiro card novo                                                                                        | `ProtetorIntegrationTest.java`, `Protetores.test.jsx` |
+| CT-PRT-05 | Dados pessoais protegidos        | Segurança | A lista não mostra e-mail, telefone, CPF nem CNPJ. O contato continua aparecendo só depois que alguém demonstra interesse                                                   | `ProtetorIntegrationTest.java`                        |
+
+### Módulo 13: Desempenho, acessibilidade e segurança
 
 | ID        | Cenário                            | Tipo           | Resultado esperado                                                                                                                                                                                                           | Automatizado em                                                                             |
 | --------- | ---------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
@@ -166,19 +178,20 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 
 | Módulo                                     | Casos  | Automatizados | Manuais |
 | ------------------------------------------ | ------ | ------------- | ------- |
-| 1. Navegação e página inicial              | 9      | 8             | 1       |
+| 1. Navegação e página inicial              | 10     | 9             | 1       |
 | 2. Cadastro, login e sessão                | 9      | 9             | 0       |
 | 3. Vitrine, busca e filtros                | 8      | 8             | 0       |
 | 4. Perfil do animal e interesse            | 7      | 7             | 0       |
-| 5. Formulários                             | 4      | 4             | 0       |
+| 5. Formulários                             | 5      | 5             | 0       |
 | 6. Cadastro de animal e Meus animais       | 8      | 8             | 0       |
 | 7. Interesses recebidos                    | 5      | 5             | 0       |
 | 8. Minhas candidaturas                     | 5      | 5             | 0       |
 | 9. Meu perfil                              | 6      | 6             | 0       |
 | 10. Histórias de adoção                    | 5      | 5             | 0       |
 | 11. Blog para tutores                          | 5      | 5             | 0       |
-| 12. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
-| **Total**                                  | **78** | **75**        | **3**   |
+| 12. Abrigos e protetores                   | 5      | 5             | 0       |
+| 13. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
+| **Total**                                  | **85** | **82**        | **3**   |
 
 A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta tabela: ela é medida pelo JaCoCo e pelo Jest a cada push, como explica o [plano de testes](plano-de-testes.md). Esta tabela mostra outra coisa: quantos comportamentos importantes já têm teste automático e quantos ainda dependem de alguém testar à mão.
 

@@ -21,7 +21,9 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 11. [O que vale pro sistema todo](#11-o-que-vale-pro-sistema-todo)
 12. [Histórias de adoção (depoimentos)](#12-histórias-de-adoção-depoimentos)
 13. [Blog para tutores](#13-blog-para-tutores)
-14. [O que ainda não está pronto](#14-o-que-ainda-não-está-pronto)
+14. [Abrigos e protetores](#14-abrigos-e-protetores)
+15. [Quem somos](#15-quem-somos)
+16. [O que ainda não está pronto](#16-o-que-ainda-não-está-pronto)
 
 ## Quem usa o sistema
 
@@ -49,6 +51,8 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 | 10  | Meu perfil                          | RF17, RF14, UC10             | `/perfil`                                                         | `GET` e `PUT` em `/api/usuarios/me` e `/api/abrigos/me`, `PATCH` em `.../me/senha`                                   |
 | 11  | Histórias de adoção | RF11, UC09 | `/historias`, `/meus-interesses/:id/depoimento` | `POST /api/interesses/{id}/depoimento`, `GET /api/depoimentos`, `DELETE /api/depoimentos/{id}` |
 | 12  | Blog para tutores | ERS 6.4 | `/blog`, `/blog/:id`, `/blog/novo`, `/blog/:id/editar` | `GET`, `POST`, `PUT` e `DELETE` em `/api/artigos`, `GET /api/artigos/meus` |
+| 13  | Abrigos e protetores | RF07, ERS 4 | `/protetores` | `GET /api/protetores` |
+| 14  | Quem somos | Fora da ERS | `/quem-somos` e a chamada no fim da Home | Nenhum |
 
 Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da API](api.md).
 
@@ -238,6 +242,7 @@ O quadro do lado:
 2. O formulário tem partes: identificação (nome, espécie, raça, porte, sexo, peso, nascimento estimado em MM/AAAA e se é castrado), convivência e energia, vacinas (quantas quiser), trajetória do animal e fotos.
 3. Cada foto escolhida sobe na hora pro `POST /api/fotos`, que guarda o arquivo no Amazon S3 e devolve o endereço. A primeira é a principal, e dá pra trocar qual é a principal ou remover uma foto.
 4. "Publicar animal" manda tudo pro `POST /api/animais`. O animal já nasce Disponível e aparece na vitrine.
+5. No computador, "Cancelar" e "Publicar animal" ficam no topo, ao lado do título, como no Figma. No celular e no tablet, ficam no fim do formulário, depois do último quadro, pra ninguém precisar rolar até o topo pra salvar. O aviso de erro do envio e a confirmação da devolução aparecem logo acima desses botões. O mesmo vale pra edição ("Salvar alterações").
 
 **Ver (read).** Meus animais (`GET /api/animais/meus`) lista os animais da conta, disponíveis e adotados, com os filtros Todos, Disponível e Adotado. Animal disponível tem "Ver interesses" e "Editar". Adotado tem "Editar status". Conta sem nenhum animal vê uma foto, "Você ainda não cadastrou nenhum animal." e o botão pra cadastrar o primeiro. Se a lista não carregar, aparece "Tentar de novo".
 
@@ -401,6 +406,7 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 5. "Salvar alterações" manda os dados (`PUT`) e, se a senha foi preenchida, troca a senha logo depois (`PATCH`). Se nada mudou, avisa que não há o que salvar.
 6. "Cancelar" volta tudo pro que está salvo. O nome novo aparece no menu na hora, sem entrar de novo.
 7. "Sair da conta" continua na mesma tela.
+8. No computador, "Cancelar" e "Salvar alterações" ficam no topo, ao lado do título. No celular e no tablet, ficam logo depois de "Alterar senha", com o aviso de erro logo acima, antes dos quadros "Tipo de conta" e "Sessão".
 
 **Regras.**
 
@@ -429,7 +435,7 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 ![Painel de interesses recebidos no tema escuro](prints/13-tema-escuro.png)
 
 - **Título da aba e rolagem.** Cada página põe o nome dela no título da aba do navegador ("Meus animais | Adota Aqui"), e toda página nova abre no topo. O "Como adotar" do rodapé rola até a seção, e o voltar do navegador devolve a pessoa onde ela estava (`hooks/useTituloDaPagina.js` e `components/RolarParaOTopo`).
-- **Rodapé** em todas as telas que têm o menu do topo, com o logo, a frase do Figma e os links da plataforma: explorar animais, como adotar, cadastro e cadastrar um animal (`components/Rodape`, `Rodape.test.jsx`).
+- **Rodapé** em todas as telas que têm o menu do topo, com o logo, a frase do Figma e os links da plataforma: quem somos, explorar animais, como adotar, histórias de adoção, blog para tutores, abrigos e protetores independentes e cadastrar um animal (`components/Rodape`, `Rodape.test.jsx`).
 - **Página não encontrada** pra qualquer endereço que não existe, com foto e os botões "Ver animais disponíveis" e "Ir para a página inicial". Animal que não existe (perfil, interesse ou edição) mostra a mesma foto com "Animal não encontrado".
 - **Integração contínua.** A cada push e PR na `dev` e na `main`, o GitHub Actions roda os testes do back (`mvn verify`) e do front (build e `npm run test:coverage`) e guarda os relatórios de cobertura (JaCoCo e lcov). A cobertura aparece no resumo de cada execução, e o CI falha se a de linhas ficar abaixo de 70% (RNF04). O PR só entra com os dois verdes.
 - **Deploy (RNF06).** Front no Netlify, API no Render (com Docker), banco PostgreSQL no Neon e fotos no Amazon S3. Os endereços estão no [README principal](../README.md).
@@ -507,7 +513,51 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ---
 
-## 14. O que ainda não está pronto
+## 14. Abrigos e protetores
+
+**O que faz.** Mostra quem cuida dos animais do site: os abrigos e ONGs e as pessoas que resgataram um animal por conta própria, os protetores independentes. É pra onde leva o link "Abrigos e protetores independentes" do rodapé, que antes caía no cadastro.
+
+**Como funciona.**
+
+1. A página fica em `/protetores`, aberta pra qualquer pessoa. Cada card mostra as iniciais, o nome, a cidade e o estado, o tipo ("Abrigo" ou "Protetor independente"), quantos animais estão pra adoção e quantas adoções já aconteceram pelo site.
+2. Vem em ordem alfabética, de 12 em 12, com o "Ver mais", que leva o foco pro primeiro card novo.
+3. Os filtros: busca pelo nome, cidade (basta parte do nome, sem ligar pra acento), estado e os botões Todos, Abrigos e Protetores independentes. A busca espera a pessoa parar de digitar, igual à vitrine. Sem resultado, aparece "Nenhum resultado encontrado com essas informações." e o "Ver todos".
+4. Quem tem animal pra adoção ganha o "Ver animais", que abre a vitrine (`/animais?busca=nome`) já buscando pelo nome do protetor. Pra um Usuario logado, a vitrine continua mostrando só os animais do estado dele (RF14).
+5. Embaixo do título, um convite: o visitante é chamado a criar a conta, e a pessoa logada, a cadastrar o animal que resgatou pra aparecer na lista. O abrigo logado já está na lista e não vê convite.
+
+**Regras.**
+
+- Entram todos os abrigos e as pessoas que já cadastraram pelo menos um animal. Pessoa que nunca cadastrou animal não aparece.
+- Sai só o que já é público no card de cada animal: nome, cidade e estado, mais as contagens. E-mail, telefone, CPF e CNPJ não saem. O contato continua aparecendo só depois que alguém demonstra interesse (RF09).
+- As adoções são contadas como nos números da Home: interesses aprovados nos animais daquele protetor.
+- A ordem é a do dicionário: nome com acento entra com os da mesma letra.
+
+**Onde está no código.**
+
+- Front: `pages/Protetores`, `components/CardProtetor`, `services/protetores.js` e `utils/rotulos.js` (`tiposDeProtetor` e `estados`). A vitrine (`pages/ListaAnimais` e `components/VitrineAnimais`) lê o `?busca=` do endereço
+- Back: `ProtetorController`, `ProtetorService`, `ProtetorFiltroRequest`, `ProtetorListagemResponse` e as contagens em `AnimalRepository`, `InteresseRepository` e `UsuarioRepository` (`ContagemPorProtetor`)
+
+**Testes.** `ProtetorIntegrationTest` (ordem com acento, quem entra, contagens, sem contato, filtros, páginas e erros), `Protetores.test.jsx`, `App.test.jsx` (as rotas e o `?busca=` da vitrine) e `Rodape.test.jsx`.
+
+---
+
+## 15. Quem somos
+
+**O que faz.** Conta como o projeto surgiu, de onde veio a ideia, o que motiva o time e o que o Adota Aqui se propõe a fazer. Por enquanto, sem o nome de quem desenvolveu.
+
+**Como funciona.**
+
+1. A página fica em `/quem-somos` e no rodapé ("Quem somos"). Tem quatro partes: como surgiu o projeto, de onde veio a ideia, o que motiva a gente e o que o Adota Aqui se propõe a fazer, com o lembrete de que a decisão final é sempre de quem cuida do animal.
+2. No fim, "Quer fazer parte?" leva pra vitrine, pra página de abrigos e protetores e pro cadastro de animal.
+3. A Home termina com a seção "Conheça o Adota Aqui", depois dos passos da adoção, com o botão "Conhecer o projeto".
+
+**Onde está no código.** `pages/QuemSomos` (os textos ficam todos no começo do arquivo, pra ficar fácil de mudar) e `components/ConhecaOProjeto`.
+
+**Testes.** `QuemSomos.test.jsx`, `Home.test.jsx`, `App.test.jsx` e `Rodape.test.jsx`.
+
+---
+
+## 16. O que ainda não está pronto
 
 | O quê                                   | Situação                                                                                                                                       |
 | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |

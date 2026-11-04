@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import App from "../src/App";
-import { simularApi } from "./utils/apiFalsa";
+import { simularApi, ultimaBuscaDeAnimais } from "./utils/apiFalsa";
 
 // A Home tem a vitrine, que busca na API: os testes usam a API de mentira
 beforeEach(() => {
@@ -86,4 +86,47 @@ test("o /blog/novo é o formulário de escrever, que pede login, e não um artig
   );
   await waitFor(() => expect(document.title).toBe("Entrar | Adota Aqui"));
   expect(fetch).not.toHaveBeenCalledWith(expect.stringContaining("/api/artigos/novo"), expect.anything());
+});
+
+// O "Ver animais" da página de abrigos e protetores leva pra /animais?busca=nome do protetor
+test("a /animais?busca= abre a vitrine já buscando por esse nome", async () => {
+  render(
+    <MemoryRouter initialEntries={["/animais?busca=Instituto%20Quatro%20Patas"]}>
+      <App />
+    </MemoryRouter>,
+  );
+  await screen.findByRole("heading", { level: 2, name: "Mel" });
+  expect(screen.getByLabelText("Buscar por nome")).toHaveValue(
+    "Instituto Quatro Patas",
+  );
+  expect(ultimaBuscaDeAnimais().parametros).toEqual({
+    busca: "Instituto Quatro Patas",
+  });
+});
+
+test("a página de abrigos e protetores abre no /protetores", async () => {
+  render(
+    <MemoryRouter initialEntries={["/protetores"]}>
+      <App />
+    </MemoryRouter>,
+  );
+  expect(
+    await screen.findByRole("heading", {
+      level: 2,
+      name: "Instituto Quatro Patas",
+    }),
+  ).toBeInTheDocument();
+  expect(document.title).toBe("Abrigos e protetores | Adota Aqui");
+});
+
+test("o Quem somos abre no /quem-somos", () => {
+  render(
+    <MemoryRouter initialEntries={["/quem-somos"]}>
+      <App />
+    </MemoryRouter>,
+  );
+  expect(
+    screen.getByRole("heading", { level: 1, name: "Quem somos" }),
+  ).toBeInTheDocument();
+  expect(document.title).toBe("Quem somos | Adota Aqui");
 });

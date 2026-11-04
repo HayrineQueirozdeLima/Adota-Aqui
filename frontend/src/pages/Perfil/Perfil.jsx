@@ -297,30 +297,22 @@ export default function Perfil() {
 
   return (
     <main className="mx-auto w-full max-w-[1440px] px-5 pb-9 pt-6 md:px-8 md:pt-[30px] lg:px-10">
-      <form ref={refFormulario} onSubmit={salvar} noValidate>
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h1 className="font-titulo text-secao font-semibold text-texto-principal">
-              Meu perfil
-            </h1>
-            <p className="mt-2 text-corpo text-texto-secundario">
-              {texto.descricao}
-            </p>
-          </div>
-          {situacao === "pronto" && (
-            <div className="flex flex-col gap-[9px] md:shrink-0 md:flex-row">
-              <Botao
-                variante="neutro"
-                onClick={cancelar}
-                disabled={!alterado || enviando}
-              >
-                Cancelar
-              </Botao>
-              <Botao type="submit" disabled={enviando}>
-                {enviando ? "Salvando..." : "Salvar alterações"}
-              </Botao>
-            </div>
-          )}
+      {/* No celular e no tablet, os botões ficam logo depois de "Alterar senha", onde a pessoa termina
+          de preencher, com o aviso de erro logo acima deles. No computador, o lg:order de cada bloco
+          sobe os botões pro lado do título, como no Figma */}
+      <form
+        ref={refFormulario}
+        onSubmit={salvar}
+        noValidate
+        className="lg:grid lg:grid-cols-[minmax(0,1fr)_370px] lg:items-start lg:gap-x-5"
+      >
+        <div className="lg:order-1">
+          <h1 className="font-titulo text-secao font-semibold text-texto-principal">
+            Meu perfil
+          </h1>
+          <p className="mt-2 text-corpo text-texto-secundario">
+            {texto.descricao}
+          </p>
         </div>
 
         {aviso && (
@@ -328,160 +320,174 @@ export default function Perfil() {
             ref={refAviso}
             tabIndex={-1}
             role="status"
-            className="mt-5 rounded-[10px] bg-status-disponivel-fundo px-4 py-3 text-compacto text-status-disponivel-texto focus:outline-none"
+            className="mt-5 rounded-[10px] bg-status-disponivel-fundo px-4 py-3 text-compacto text-status-disponivel-texto focus:outline-none lg:order-3 lg:col-span-2"
           >
             {aviso}
           </p>
         )}
+
+        <div className="mt-6 flex flex-col gap-5 lg:order-5">
+          {situacao === "carregando" && (
+            <Carregando texto="Carregando seu perfil..." />
+          )}
+
+          {situacao === "erro" && (
+            <div role="alert" className="text-corpo text-texto-secundario">
+              <p>
+                Não foi possível carregar seu perfil. Confira sua conexão e
+                tente de novo.
+              </p>
+              <Botao
+                onClick={() => {
+                  setSituacao("carregando");
+                  setVersao((atual) => atual + 1);
+                }}
+                className="mt-3"
+              >
+                Tentar de novo
+              </Botao>
+            </div>
+          )}
+
+          {situacao === "pronto" && (
+            <>
+              <fieldset className={`${cartao} min-w-0`}>
+                <legend className={`${titulo} float-left mb-[18px] w-full`}>
+                  Dados da conta
+                </legend>
+                <div className="clear-left grid gap-x-3 gap-y-[18px] md:grid-cols-2">
+                  <CampoTexto
+                    rotulo={texto.documento}
+                    name="documento"
+                    value={dados.documento}
+                    readOnly
+                    dica="Não editável."
+                  />
+                  <CampoTexto
+                    rotulo={texto.nome}
+                    autoComplete={ehAbrigo ? "organization" : "name"}
+                    {...campo("nome")}
+                  />
+                  {ehAbrigo && (
+                    <CampoTexto
+                      rotulo="Razão social"
+                      className="md:col-span-2"
+                      {...campo("razaoSocial")}
+                    />
+                  )}
+                  <CampoTexto
+                    rotulo="Telefone"
+                    type="tel"
+                    autoComplete="tel"
+                    {...campo("telefone", mascaraTelefone)}
+                  />
+                  <CampoTexto
+                    rotulo="E-mail"
+                    type="email"
+                    autoComplete="email"
+                    dica="Precisa continuar único no sistema."
+                    {...campo("email")}
+                  />
+                </div>
+              </fieldset>
+
+              <div className={cartao}>
+                <CamposEndereco
+                  titulo="Endereço"
+                  endereco={dados.endereco}
+                  erros={erros}
+                  aoMudar={mudarEndereco}
+                />
+                <p className="mt-[18px] rounded-[10px] bg-status-atencao-fundo px-4 py-3 text-compacto text-status-atencao-texto">
+                  <strong className="font-semibold">
+                    {texto.estadoTitulo}
+                  </strong>{" "}
+                  {texto.estadoTexto}
+                </p>
+              </div>
+
+              <fieldset className={`${cartao} min-w-0`}>
+                <legend className={`${titulo} float-left w-full`}>
+                  Alterar senha
+                </legend>
+                <p className="clear-left mb-[18px] pt-2 text-compacto text-texto-secundario">
+                  Por segurança, pedimos a senha atual. Deixe em branco se não
+                  quiser trocar.
+                </p>
+                <div className="grid gap-x-3 gap-y-[18px] md:grid-cols-3">
+                  <CampoTexto
+                    rotulo="Senha atual"
+                    autoComplete="current-password"
+                    {...campoDeSenha("senhaAtual")}
+                  />
+                  <CampoTexto
+                    rotulo="Nova senha"
+                    autoComplete="new-password"
+                    dica="Mínimo de 8 caracteres."
+                    {...campoDeSenha("novaSenha")}
+                  />
+                  <CampoTexto
+                    rotulo="Confirmar nova senha"
+                    autoComplete="new-password"
+                    {...campoDeSenha("confirmacaoNovaSenha")}
+                  />
+                </div>
+              </fieldset>
+            </>
+          )}
+        </div>
+
         {erroGeral && (
           <p
             role="alert"
-            className="mt-5 rounded-[10px] bg-status-erro-fundo px-4 py-3 text-compacto text-status-erro-texto"
+            className="mt-5 rounded-[10px] bg-status-erro-fundo px-4 py-3 text-compacto text-status-erro-texto lg:order-4 lg:col-span-2"
           >
             {erroGeral}
           </p>
         )}
 
-        <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_370px] lg:items-start">
-          <div className="flex flex-col gap-5">
-            {situacao === "carregando" && (
-              <Carregando texto="Carregando seu perfil..." />
-            )}
-
-            {situacao === "erro" && (
-              <div role="alert" className="text-corpo text-texto-secundario">
-                <p>
-                  Não foi possível carregar seu perfil. Confira sua conexão e
-                  tente de novo.
-                </p>
-                <Botao
-                  onClick={() => {
-                    setSituacao("carregando");
-                    setVersao((atual) => atual + 1);
-                  }}
-                  className="mt-3"
-                >
-                  Tentar de novo
-                </Botao>
-              </div>
-            )}
-
-            {situacao === "pronto" && (
-              <>
-                <fieldset className={`${cartao} min-w-0`}>
-                  <legend className={`${titulo} float-left mb-[18px] w-full`}>
-                    Dados da conta
-                  </legend>
-                  <div className="clear-left grid gap-x-3 gap-y-[18px] md:grid-cols-2">
-                    <CampoTexto
-                      rotulo={texto.documento}
-                      name="documento"
-                      value={dados.documento}
-                      readOnly
-                      dica="Não editável."
-                    />
-                    <CampoTexto
-                      rotulo={texto.nome}
-                      autoComplete={ehAbrigo ? "organization" : "name"}
-                      {...campo("nome")}
-                    />
-                    {ehAbrigo && (
-                      <CampoTexto
-                        rotulo="Razão social"
-                        className="md:col-span-2"
-                        {...campo("razaoSocial")}
-                      />
-                    )}
-                    <CampoTexto
-                      rotulo="Telefone"
-                      type="tel"
-                      autoComplete="tel"
-                      {...campo("telefone", mascaraTelefone)}
-                    />
-                    <CampoTexto
-                      rotulo="E-mail"
-                      type="email"
-                      autoComplete="email"
-                      dica="Precisa continuar único no sistema."
-                      {...campo("email")}
-                    />
-                  </div>
-                </fieldset>
-
-                <div className={cartao}>
-                  <CamposEndereco
-                    titulo="Endereço"
-                    endereco={dados.endereco}
-                    erros={erros}
-                    aoMudar={mudarEndereco}
-                  />
-                  <p className="mt-[18px] rounded-[10px] bg-status-atencao-fundo px-4 py-3 text-compacto text-status-atencao-texto">
-                    <strong className="font-semibold">
-                      {texto.estadoTitulo}
-                    </strong>{" "}
-                    {texto.estadoTexto}
-                  </p>
-                </div>
-
-                <fieldset className={`${cartao} min-w-0`}>
-                  <legend className={`${titulo} float-left w-full`}>
-                    Alterar senha
-                  </legend>
-                  <p className="clear-left mb-[18px] pt-2 text-compacto text-texto-secundario">
-                    Por segurança, pedimos a senha atual. Deixe em branco se não
-                    quiser trocar.
-                  </p>
-                  <div className="grid gap-x-3 gap-y-[18px] md:grid-cols-3">
-                    <CampoTexto
-                      rotulo="Senha atual"
-                      autoComplete="current-password"
-                      {...campoDeSenha("senhaAtual")}
-                    />
-                    <CampoTexto
-                      rotulo="Nova senha"
-                      autoComplete="new-password"
-                      dica="Mínimo de 8 caracteres."
-                      {...campoDeSenha("novaSenha")}
-                    />
-                    <CampoTexto
-                      rotulo="Confirmar nova senha"
-                      autoComplete="new-password"
-                      {...campoDeSenha("confirmacaoNovaSenha")}
-                    />
-                  </div>
-                </fieldset>
-              </>
-            )}
+        {situacao === "pronto" && (
+          <div className="mt-5 flex flex-col gap-[9px] md:flex-row lg:order-2 lg:mt-0 lg:self-end lg:justify-self-end">
+            <Botao
+              variante="neutro"
+              onClick={cancelar}
+              disabled={!alterado || enviando}
+            >
+              Cancelar
+            </Botao>
+            <Botao type="submit" disabled={enviando}>
+              {enviando ? "Salvando..." : "Salvar alterações"}
+            </Botao>
           </div>
+        )}
 
-          <aside className="flex flex-col gap-5">
-            <section aria-labelledby="perfil-tipo" className={cartao}>
-              <h2 id="perfil-tipo" className={titulo}>
-                Tipo de conta
-              </h2>
-              <p className="mt-3 flex items-center gap-[10px] text-compacto text-texto-secundario">
-                <Tag variante="destaqueRoxo">{texto.tipo}</Tag>
-                {texto.documento}
-              </p>
-              <p className="mt-3 text-compacto text-texto-secundario">
-                {texto.sobreATipo}
-              </p>
-            </section>
+        <aside className="mt-5 flex flex-col gap-5 lg:order-6 lg:mt-6">
+          <section aria-labelledby="perfil-tipo" className={cartao}>
+            <h2 id="perfil-tipo" className={titulo}>
+              Tipo de conta
+            </h2>
+            <p className="mt-3 flex items-center gap-[10px] text-compacto text-texto-secundario">
+              <Tag variante="destaqueRoxo">{texto.tipo}</Tag>
+              {texto.documento}
+            </p>
+            <p className="mt-3 text-compacto text-texto-secundario">
+              {texto.sobreATipo}
+            </p>
+          </section>
 
-            <section aria-labelledby="perfil-sessao" className={cartao}>
-              <h2 id="perfil-sessao" className={titulo}>
-                Sessão
-              </h2>
-              <p className="mt-3 text-compacto text-texto-secundario">
-                Você entrou como {usuario.nome}. Seu acesso usa um token com
-                prazo de expiração. Ao sair, ele é descartado.
-              </p>
-              <Botao variante="neutro" className="mt-4" onClick={sairDaConta}>
-                Sair da conta
-              </Botao>
-            </section>
-          </aside>
-        </div>
+          <section aria-labelledby="perfil-sessao" className={cartao}>
+            <h2 id="perfil-sessao" className={titulo}>
+              Sessão
+            </h2>
+            <p className="mt-3 text-compacto text-texto-secundario">
+              Você entrou como {usuario.nome}. Seu acesso usa um token com prazo
+              de expiração. Ao sair, ele é descartado.
+            </p>
+            <Botao variante="neutro" className="mt-4" onClick={sairDaConta}>
+              Sair da conta
+            </Botao>
+          </section>
+        </aside>
       </form>
     </main>
   );

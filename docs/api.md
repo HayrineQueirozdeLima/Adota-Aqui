@@ -26,7 +26,8 @@ Fontes: Especificação de Requisitos (RF01 a RF17), Casos de Uso (UC01 a UC10),
 10. [Números do site](#10-números-do-site)
 11. [Histórias de adoção](#11-histórias-de-adoção)
 12. [Blog para tutores](#12-blog-para-tutores)
-13. [Pontos em aberto](#13-pontos-em-aberto)
+13. [Abrigos e protetores](#13-abrigos-e-protetores)
+14. [Pontos em aberto](#14-pontos-em-aberto)
 
 ---
 
@@ -35,7 +36,7 @@ Fontes: Especificação de Requisitos (RF01 a RF17), Casos de Uso (UC01 a UC10),
 - **Mudou um endpoint no código? Atualize este arquivo no mesmo pull request.** Um contrato desatualizado é pior do que nenhum, porque o outro squad confia nele.
 - Nenhum squad muda um formato de entrada ou saída sozinho. Mudança de contrato é combinada entre Front End e Back End antes de ser implementada.
 - Cada endpoint indica a sua **origem** (RF/UC). Se um requisito mudar, procure aqui pelo código dele para achar os endpoints afetados.
-- Decisões ainda não fechadas ficam na seção [13. Pontos em aberto](#13-pontos-em-aberto) até o time decidir.
+- Decisões ainda não fechadas ficam na seção [14. Pontos em aberto](#14-pontos-em-aberto) até o time decidir.
 
 ---
 
@@ -188,12 +189,15 @@ Quando um valor não existe na lista de opções (um enum, como `porte` ou `espe
 | `POST`   | `/api/artigos`                   | Protetor               | ERS 6.4                            | Sim    |
 | `PUT`    | `/api/artigos/{id}`              | Autor do artigo          | ERS 6.4                            | Sim    |
 | `DELETE` | `/api/artigos/{id}`              | Autor do artigo          | ERS 6.4                            | Sim    |
+| `GET`    | `/api/protetores`              | Público                | RF07, ERS 4 (Protetor)             | Sim    |
 
 Endpoint novo entra nesta tabela como "Ainda não" assim que o formato é combinado. Assim o front já pode montar a tela com dados de exemplo enquanto o back faz a parte dele.
 
 O depoimento (RF11, UC09) era opcional e entrou depois do MVP: os endpoints estão na seção [Histórias de adoção](#11-histórias-de-adoção).
 
 O blog para tutores (ERS 6.4) também entrou depois do MVP: os endpoints estão na seção [Blog para tutores](#12-blog-para-tutores).
+
+A página de abrigos e protetores (o link "Abrigos e protetores independentes" do rodapé) veio depois também: o endpoint está na seção [Abrigos e protetores](#13-abrigos-e-protetores).
 
 ---
 
@@ -242,7 +246,7 @@ Autentica um Usuario (CPF) ou um Abrigo (CNPJ) e devolve o token.
 | `401`  | Documento não cadastrado **ou** senha incorreta. A mensagem é a mesma nos dois casos: "Documento ou senha inválidos" | UC03 FA01, FA02 |
 | `500`  | Falha ao autenticar ou gerar o token                                                                                 | UC03 FA04       |
 
-> A mesma mensagem para "documento não cadastrado" e "senha incorreta" impede que alguém descubra quais CPFs e CNPJs têm conta testando um por um. Ver [Pontos em aberto](#13-pontos-em-aberto).
+> A mesma mensagem para "documento não cadastrado" e "senha incorreta" impede que alguém descubra quais CPFs e CNPJs têm conta testando um por um. Ver [Pontos em aberto](#14-pontos-em-aberto).
 
 ---
 
@@ -286,7 +290,7 @@ Cria a conta de uma pessoa física e já a autentica.
 | `endereco.cidade`                        | Obrigatório                                                                                                   |
 | `endereco.estado`                        | Obrigatório. UF com 2 letras maiúsculas                                                                       |
 
-O usuário digita só **CEP e número** (RF01). O front consulta o ViaCEP com o CEP digitado, preenche logradouro, bairro, cidade e estado, e envia o endereço completo. Ver [Pontos em aberto](#13-pontos-em-aberto).
+O usuário digita só **CEP e número** (RF01). O front consulta o ViaCEP com o CEP digitado, preenche logradouro, bairro, cidade e estado, e envia o endereço completo. Ver [Pontos em aberto](#14-pontos-em-aberto).
 
 **Saída (`201 Created`)**
 
@@ -957,7 +961,7 @@ A desistência apaga o interesse (`DELETE /api/interesses/{id}`), então ele som
 Desistência: o candidato exclui o próprio interesse.
 **Acesso:** Candidato do interesse. **Origem:** UC07 FA01
 
-Sem corpo. Ver [Pontos em aberto](#13-pontos-em-aberto) sobre o motivo da desistência.
+Sem corpo. Ver [Pontos em aberto](#14-pontos-em-aberto) sobre o motivo da desistência.
 
 **Saída (`204 No Content`)**
 
@@ -1269,7 +1273,64 @@ Apaga o artigo. A capa sai também do armazenamento (S3).
 
 ---
 
-## 13. Pontos em aberto
+## 13. Abrigos e protetores
+
+Quem cuida dos animais do site, pra página "Abrigos e protetores" (o link "Abrigos e protetores independentes" do rodapé). Entram as contas de abrigo, todas, e as pessoas que já cadastraram pelo menos um animal, os protetores independentes. Pessoa que nunca cadastrou animal não aparece.
+
+### GET /api/protetores
+
+Abrigos e protetores independentes em ordem alfabética, em páginas (`pagina` e `tamanho`, como no `GET /api/animais`).
+**Acesso:** Público. **Origem:** RF07 (o nome do protetor já aparece em cada animal) e ERS 4 (rótulo Protetor)
+
+**Filtros** (todos opcionais, combináveis, passados na URL)
+
+| Parâmetro | Valores                                                                                                 |
+| --------- | ------------------------------------------------------------------------------------------------------- |
+| `tipo`    | `ABRIGO` ou `USUARIO` (protetor independente). Sem ele, vêm os dois                                     |
+| `estado`  | Sigla do estado, com 2 letras (`RO`, `sp`). Não diferencia maiúsculas                                   |
+| `cidade`  | Texto, até 80 caracteres. Basta conter o que foi digitado ("porto" acha Porto Velho e Porto Alegre). Não diferencia maiúsculas nem acentos |
+| `busca`   | Texto, até 80 caracteres. Procura no nome do abrigo ou da pessoa, do mesmo jeito da cidade             |
+| `pagina`  | Número da página, começando em `0`. Padrão: `0`                                                         |
+| `tamanho` | Itens por página, de `1` a `48`. Padrão: `12`                                                           |
+
+Exemplo: `GET /api/protetores?tipo=ABRIGO&estado=RO&busca=patas`
+
+**Saída (`200 OK`)**
+
+```json
+{
+  "itens": [
+    {
+      "id": "b7c8d9e0-0000-4000-8000-000000000001",
+      "tipo": "ABRIGO",
+      "nome": "Instituto Quatro Patas",
+      "cidade": "Porto Velho",
+      "estado": "RO",
+      "animaisDisponiveis": 5,
+      "adocoes": 3
+    }
+  ],
+  "pagina": 0,
+  "tamanho": 12,
+  "totalItens": 1,
+  "totalPaginas": 1
+}
+```
+
+| Campo                | O que é                                                                                                  |
+| -------------------- | -------------------------------------------------------------------------------------------------------- |
+| `tipo`               | `ABRIGO` ou `USUARIO`, como o `tipoConta` do login                                                        |
+| `nome`, `cidade`, `estado` | Os mesmos que já aparecem no card de cada animal (`protetor`)                                       |
+| `animaisDisponiveis` | Animais `DISPONIVEL` desse protetor, de todos os estados, mesmo com um Usuario logado                    |
+| `adocoes`            | Interesses `APROVADO` nos animais desse protetor, contados como no `GET /api/estatisticas`               |
+
+A ordem é a do dicionário: nome com acento entra junto com os outros da mesma letra ("Ágata" vem antes de "Bruno"). E-mail, telefone, CPF e CNPJ não aparecem. O contato continua saindo só depois que alguém demonstra interesse (RF09).
+
+**Erros:** `400` `tipo` que não existe, `estado` que não tem 2 letras, texto longo demais, ou `pagina` ou `tamanho` fora dos limites; `401` token enviado, porém inválido ou expirado (como nas outras rotas públicas).
+
+---
+
+## 14. Pontos em aberto
 
 Decisões que o contrato precisou assumir antes da implementação. As que a implementação já resolveu estão na primeira tabela; ao decidir uma das que faltam, atualize o endpoint correspondente e mova o item.
 
