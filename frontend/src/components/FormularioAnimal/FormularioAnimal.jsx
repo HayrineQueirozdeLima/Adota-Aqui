@@ -167,71 +167,33 @@ export default function FormularioAnimal({
   const nome = valores.nome.trim() || "o animal";
 
   return (
-    <form ref={formulario} onSubmit={enviar} noValidate>
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="font-titulo text-secao font-semibold text-texto-principal">
-            {titulo}
-          </h1>
-          {subtitulo && (
-            <p className="mt-1 text-corpo text-texto-secundario">{subtitulo}</p>
-          )}
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <Botao variante="secundario" para={cancelarPara}>
-            Cancelar
-          </Botao>
-          <Botao type="submit" disabled={enviando || travado}>
-            {enviando ? "Salvando..." : textoEnviar}
-          </Botao>
-        </div>
+    // No celular e no tablet, os botões ficam no fim do formulário, onde a pessoa termina de preencher,
+    // e os avisos do envio ficam logo acima deles. No computador, o lg:order de cada bloco sobe os
+    // botões pro lado do título e os avisos pra cima dos campos, como no Figma
+    <form
+      ref={formulario}
+      onSubmit={enviar}
+      noValidate
+      className="lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start lg:gap-x-4"
+    >
+      <div className="lg:order-1">
+        <h1 className="font-titulo text-secao font-semibold text-texto-principal">
+          {titulo}
+        </h1>
+        {subtitulo && (
+          <p className="mt-1 text-corpo text-texto-secundario">{subtitulo}</p>
+        )}
       </div>
 
       {travado && (
-        <p className="mt-5 rounded-[12px] bg-status-atencao-fundo px-5 py-4 text-compacto text-status-atencao-texto">
+        <p className="mt-5 rounded-[12px] bg-status-atencao-fundo px-5 py-4 text-compacto text-status-atencao-texto lg:order-3 lg:col-span-2">
           <strong>{nome} foi adotado.</strong> Os dados ficam travados pra
           preservar o histórico da adoção. Pra editar, mude o status para
           Disponível (devolução).
         </p>
       )}
 
-      {confirmandoDevolucao && (
-        <div
-          role="alert"
-          className="mt-5 rounded-[12px] border border-borda-sutil bg-fundo-superficie p-5"
-        >
-          <p className="font-titulo font-semibold text-texto-principal">
-            Tornar {nome} disponível de novo?
-          </p>
-          <p className="mt-1 text-compacto text-texto-secundario">
-            {nome} volta pra vitrine e pode receber novos interesses. O
-            interesse aprovado na adoção continua no histórico.
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Botao type="submit" disabled={enviando}>
-              {enviando ? "Salvando..." : "Confirmar e salvar"}
-            </Botao>
-            <Botao
-              variante="secundario"
-              onClick={() => setConfirmandoDevolucao(false)}
-              disabled={enviando}
-            >
-              Voltar
-            </Botao>
-          </div>
-        </div>
-      )}
-
-      {erroEnvio && (
-        <p
-          role="alert"
-          className="mt-5 rounded-[10px] bg-status-erro-fundo px-4 py-3 text-compacto text-status-erro-texto"
-        >
-          {erroEnvio}
-        </p>
-      )}
-
-      <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_350px] lg:items-start">
+      <div className="mt-6 grid gap-5 lg:order-5 lg:col-span-2 lg:grid-cols-[minmax(0,1fr)_350px] lg:items-start">
         {/* fieldset disabled: trava todos os campos de dentro de uma vez só */}
         <fieldset disabled={travado} className="flex min-w-0 flex-col gap-5">
           <Cartao titulo="Identificação">
@@ -457,6 +419,51 @@ export default function FormularioAnimal({
             </p>
           </section>
         </aside>
+      </div>
+
+      {confirmandoDevolucao && (
+        <div
+          role="alert"
+          className="mt-5 rounded-[12px] border border-borda-sutil bg-fundo-superficie p-5 lg:order-4 lg:col-span-2"
+        >
+          <p className="font-titulo font-semibold text-texto-principal">
+            Tornar {nome} disponível de novo?
+          </p>
+          <p className="mt-1 text-compacto text-texto-secundario">
+            {nome} volta pra vitrine e pode receber novos interesses. O
+            interesse aprovado na adoção continua no histórico.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Botao type="submit" disabled={enviando}>
+              {enviando ? "Salvando..." : "Confirmar e salvar"}
+            </Botao>
+            <Botao
+              variante="secundario"
+              onClick={() => setConfirmandoDevolucao(false)}
+              disabled={enviando}
+            >
+              Voltar
+            </Botao>
+          </div>
+        </div>
+      )}
+
+      {erroEnvio && (
+        <p
+          role="alert"
+          className="mt-5 rounded-[10px] bg-status-erro-fundo px-4 py-3 text-compacto text-status-erro-texto lg:order-4 lg:col-span-2"
+        >
+          {erroEnvio}
+        </p>
+      )}
+
+      <div className="mt-6 flex flex-wrap gap-3 lg:order-2 lg:mt-0 lg:justify-end">
+        <Botao variante="secundario" para={cancelarPara}>
+          Cancelar
+        </Botao>
+        <Botao type="submit" disabled={enviando || travado}>
+          {enviando ? "Salvando..." : textoEnviar}
+        </Botao>
       </div>
     </form>
   );

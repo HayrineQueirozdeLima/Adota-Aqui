@@ -285,7 +285,9 @@ test("erro de campo vindo da API aparece no campo certo", async () => {
   expect(screen.getByRole("button", { name: "Publicar animal" })).toBeEnabled();
 });
 
-test("erro sem campo aparece em destaque no topo", async () => {
+// No celular, a ordem da página é a ordem do HTML: o erro aparece logo acima dos botões,
+// que ficam depois de todos os campos. No computador, o CSS sobe os dois (lg:order)
+test("erro sem campo aparece em destaque, entre os campos e os botões", async () => {
   simular((metodo, caminho) =>
     metodo === "POST" && caminho === "/api/animais"
       ? resposta(500, {
@@ -298,7 +300,14 @@ test("erro sem campo aparece em destaque no topo", async () => {
   await preencherTudo();
   publicar();
 
-  expect(await screen.findByRole("alert")).toHaveTextContent(
-    "Não foi possível concluir a operação.",
-  );
+  const erro = await screen.findByRole("alert");
+  expect(erro).toHaveTextContent("Não foi possível concluir a operação.");
+  const ultimoCartao = screen.getByText("Antes de publicar");
+  const botao = screen.getByRole("button", { name: "Publicar animal" });
+  expect(
+    ultimoCartao.compareDocumentPosition(erro) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  expect(
+    erro.compareDocumentPosition(botao) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
 });
