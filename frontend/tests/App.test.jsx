@@ -118,3 +118,15 @@ test("a página de abrigos e protetores abre no /protetores", async () => {
   ).toBeInTheDocument();
   expect(document.title).toBe("Abrigos e protetores | Adota Aqui");
 });
+
+test("o Quem somos abre no /quem-somos", () => {
+  render(
+    <MemoryRouter initialEntries={["/quem-somos"]}>
+      <App />
+    </MemoryRouter>,
+  );
+  expect(
+    screen.getByRole("heading", { level: 1, name: "Quem somos" }),
+  ).toBeInTheDocument();
+  expect(document.title).toBe("Quem somos | Adota Aqui");
+});

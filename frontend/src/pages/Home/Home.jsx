@@ -2,13 +2,14 @@ import { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Apresentacao from "../../components/Apresentacao/Apresentacao";
 import ComoFunciona from "../../components/ComoFunciona/ComoFunciona";
+import ConhecaOProjeto from "../../components/ConhecaOProjeto/ConhecaOProjeto";
 import Estatisticas from "../../components/Estatisticas/Estatisticas";
 import HistoriasRecentes from "../../components/HistoriasRecentes/HistoriasRecentes";
 import VitrineAnimais from "../../components/VitrineAnimais/VitrineAnimais";
 import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 
-// Home (Figma: Home): apresentação, os números do site, vitrine, histórias de quem adotou
-// e como funciona a adoção. O rodapé vem do Layout
+// Home (Figma: Home): apresentação, os números do site, vitrine, histórias de quem adotou,
+// como funciona a adoção e a chamada pro Quem somos. O rodapé vem do Layout
 export default function Home() {
   const { hash, key } = useLocation();
   const [vitrinePronta, setVitrinePronta] = useState(false);
@@ -39,6 +40,7 @@ export default function Home() {
       </section>
       <HistoriasRecentes />
       <ComoFunciona />
+      <ConhecaOProjeto />
     </main>
   );
 }
