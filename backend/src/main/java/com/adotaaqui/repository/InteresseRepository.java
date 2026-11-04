@@ -46,6 +46,18 @@ public interface InteresseRepository extends JpaRepository<Interesse, UUID> {
     // Adoções feitas pelo site, pros números da Home (GET /api/estatisticas)
     long countByStatusAndamento(StatusInteresse status);
 
+    // A mesma conta, separada por protetor, pra página de abrigos e protetores
+    @Query("""
+            SELECT new com.adotaaqui.repository.ContagemPorProtetor(u.id, ab.id, COUNT(i))
+            FROM Interesse i
+            JOIN i.animal a
+            LEFT JOIN a.usuario u
+            LEFT JOIN a.abrigo ab
+            WHERE i.statusAndamento = :status
+            GROUP BY u.id, ab.id
+            """)
+    List<ContagemPorProtetor> contarPorProtetor(@Param("status") StatusInteresse status);
+
     // Evita interesse duplicado: a pessoa não pode ter dois interesses ativos
     // (PENDENTE ou EM_CONTATO) no mesmo animal
     boolean existsByUsuarioIdAndAnimalIdAndStatusAndamentoIn(UUID usuarioId, UUID animalId,

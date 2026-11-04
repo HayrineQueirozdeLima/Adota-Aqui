@@ -18,7 +18,7 @@ test("os links da plataforma levam pras telas do site", () => {
     "Como adotar": "/#como-funciona",
     "Histórias de adoção": "/historias",
     "Blog para tutores": "/blog",
-    "Abrigos e protetores independentes": "/cadastro",
+    "Abrigos e protetores independentes": "/protetores",
     "Cadastrar um animal": "/meus-animais/novo",
   };
   for (const [nome, destino] of Object.entries(destinos)) {
