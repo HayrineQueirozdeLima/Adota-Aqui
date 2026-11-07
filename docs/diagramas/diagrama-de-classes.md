@@ -18,9 +18,10 @@ As classes do pacote `model` do back-end (as entidades que viram tabelas), com a
 
 | Classe | Método | O que faz |
 | --- | --- | --- |
-| Animal | `getEstado()` | Devolve o estado de quem cadastrou o animal. O animal não guarda estado próprio, e é esse valor que a vitrine compara com o estado de quem está logado (RF14) |
+| Animal | `getEstado()` e `getCidade()` | Onde o animal está, que pode ser diferente do endereço do protetor. É o estado do animal que a vitrine compara com o estado de quem está logado (RF14) |
+| Animal | `preencherLocalSeFaltar()` | Animal sem cidade e estado fica no endereço de quem cadastrou. Roda no cadastro e, quando o back sobe, nos animais antigos (`LocalDosAnimaisAntigos`) |
 | Animal | `adicionarVacina()` e `removerVacina()` | Mexem na lista de vacinas já ligando ou desligando a vacina do animal |
-| Animal | `validarProtetor()` | Roda antes de salvar e recusa animal sem protetor ou com os dois |
+| Animal | `validarProtetor()` | Roda antes de salvar (no `antesDeCriar()` e no `antesDeAtualizar()`) e recusa animal sem protetor ou com os dois |
 | Interesse | `aoCriar()` | Roda antes de salvar a primeira vez: preenche a data e hora e confere o motivo |
 | Interesse | `aoAtualizar()` e `validarMotivo()` | Recusam um interesse Descontinuado sem motivo (RF10) |
 | Raca | `pertenceA()` e `listarPorEspecie()` | Conferem se a raça é da espécie escolhida e listam as raças de uma espécie (`GET /api/racas`) |

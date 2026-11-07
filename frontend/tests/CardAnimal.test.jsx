@@ -20,6 +20,19 @@ test("mostra a descrição com espécie, raça, porte e peso", () => {
   ).toBeInTheDocument();
 });
 
+// O card mostra onde o animal está, que pode não ser o endereço do protetor
+test("mostra onde o animal está, mesmo longe do endereço do protetor", () => {
+  renderizar({ ...mel, cidade: "Campinas", estado: "SP" });
+  expect(screen.getByText("Campinas/SP")).toBeInTheDocument();
+  expect(screen.queryByText("Santo André/SP")).not.toBeInTheDocument();
+});
+
+test("se a API não mandar o local do animal, usa o do protetor", () => {
+  const { cidade, estado, ...semLocal } = mel;
+  renderizar(semLocal);
+  expect(screen.getByText(`${cidade}/${estado}`)).toBeInTheDocument();
+});
+
 test("usa a palavra certa para o sexo do animal", () => {
   renderizar(mel);
   expect(screen.getByText("Castrada")).toBeInTheDocument();

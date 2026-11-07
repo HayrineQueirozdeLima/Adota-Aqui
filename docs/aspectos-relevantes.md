@@ -56,11 +56,14 @@ A API não guarda sessão: cada pedido leva o token, e o back confere a assinatu
 
 Um token inválido ou vencido recebe 401 mesmo numa rota pública, como a vitrine. Se ele fosse tratado como visitante, a API devolveria os animais de todos os estados enquanto o site ainda mostra a pessoa como logada. Com o 401, o front encerra a sessão, e a vitrine continua aberta, agora como visitante de verdade.
 
-### O estado do animal vem de quem cadastrou
+### O animal tem o próprio local
 
-O animal não tem endereço próprio: o estado e a cidade dele são os de quem cadastrou (RF14). A pessoa física logada vê só os animais do mesmo estado e só pode demonstrar interesse neles. Visitante e abrigo veem todos.
+No começo, o animal herdava a cidade e o estado de quem cadastrou. Na reunião de 04/11, o tutor mostrou dois casos em que isso não bate: o protetor que se muda, e a pessoa que cadastra um animal que está com outra pessoa em outra cidade (a avó que achou um cachorro no Maranhão e não sabe usar o site). Agora o animal guarda a própria `cidade` e o próprio `estado`.
 
-Assim o protetor não digita o endereço a cada animal, e não tem como o animal ficar com um estado diferente do protetor. A comparação é pela sigla do estado, sem distância nem mapa.
+- No cadastro, os dois já vêm preenchidos com o endereço da conta, então quem não precisa mudar não digita nada a mais.
+- Na edição, o protetor muda o local quando o animal muda de lugar. Mudar o endereço da conta não leva os animais junto.
+- A pessoa física logada vê só os animais que estão no estado dela e só pode demonstrar interesse neles (RF14). Visitante e abrigo veem todos. A comparação continua pela sigla do estado, sem distância nem mapa.
+- Os animais que já estavam no banco ganham o endereço do protetor na primeira vez que o back sobe com a mudança (`LocalDosAnimaisAntigos`). Como a gente não usa Flyway, essa foi a forma de preencher as colunas novas sem rodar SQL à mão no Neon.
 
 ### Interesse com status e aprovação travada
 

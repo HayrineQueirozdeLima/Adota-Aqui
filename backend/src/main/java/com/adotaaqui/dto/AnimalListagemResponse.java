@@ -23,6 +23,9 @@ public record AnimalListagemResponse(
         ConvivenciaDto convivencia,
         StatusAdocao statusAdocao,
         String fotoCapa,
+        // Onde o animal está (o card mostra isso), que pode ser diferente do endereço do protetor
+        String cidade,
+        String estado,
         ProtetorResponse protetor) {
 }
 

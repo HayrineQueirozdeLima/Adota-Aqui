@@ -16,6 +16,7 @@ import {
   especies,
   idadeEstimada,
   iniciais,
+  localDoAnimal,
   portes,
   rotuloCastrado,
   rotuloEnergia,
@@ -167,6 +168,10 @@ function Perfil({ animal, usuario, aoMudar }) {
           <Tag variante="disponivel">Disponível</Tag>
         )}
       </div>
+      {/* Onde o animal está. Pode ser diferente do endereço do protetor, que aparece no cartão do lado */}
+      <p className="mt-1.5 text-compacto text-texto-secundario">
+        Está em {localDoAnimal(animal)}
+      </p>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_350px] lg:items-start">
         <div className="flex flex-col gap-5">
@@ -389,7 +394,7 @@ function CartaoInteresse({ animal, usuario, aoMudar }) {
     return (
       <p>
         A adoção pelo Adota Aqui acontece dentro do mesmo estado. {nome} está em{" "}
-        {protetor.cidade}/{protetor.estado}.
+        {localDoAnimal(animal)}.
       </p>
     );
   }

@@ -181,6 +181,18 @@ class InteresseIntegrationTest {
                 .andExpect(jsonPath("$.mensagem", containsString("seu estado")));
     }
 
+    // O estado que conta é o de onde o animal está, não o do endereço de quem cadastrou:
+    // uma protetora de Rondônia cadastra um cão que está com a família dela no Maranhão
+    @Test
+    void oEstadoQueValeEODeOndeOAnimalEsta() throws Exception {
+        String animal = animal(usuario("RO"), "São Luís", "MA");
+
+        mvc.perform(demonstrar(animal, usuario("RO"), corpo()))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.mensagem", containsString("seu estado")));
+        mvc.perform(demonstrar(animal, usuario("MA"), corpo())).andExpect(status().isCreated());
+    }
+
     @Test
     void animalQueNaoExisteRecebe404() throws Exception {
         mvc.perform(demonstrar(UUID.randomUUID().toString(), usuario("RO"), corpo()))
@@ -599,17 +611,23 @@ class InteresseIntegrationTest {
         });
     }
 
-    // Cadastra um animal (o mesmo corpo dos testes do AnimalIntegrationTest) e devolve o id
+    // Cadastra um animal (o mesmo corpo dos testes do AnimalIntegrationTest) e devolve o id.
+    // Sem cidade e estado, o animal fica no endereço do protetor
     private String animal(Conta protetor) throws Exception {
-        String corpo = """
+        return animal(protetor, null, null);
+    }
+
+    private String animal(Conta protetor, String cidade, String estado) throws Exception {
+        ObjectNode corpo = (ObjectNode) mapper.readTree("""
                 {"nome":"Mel","especie":"CAO","raca":"SRD_CAO","sexo":"FEMEA","porte":"MEDIO","peso":12.5,
                  "dataNascEstimada":"2020-01-01","castrado":true,"energia":"MAIS_CALMO",
                  "convivencia":{"crianca":"NAO_TESTADO","gato":"CONVIVE_BEM","cao":"NAO_CONVIVE_BEM"},
                  "historia":"Resgatada","fotos":["https://example.com/mel.jpg"],
                  "vacinas":[{"nome":"V10","dose":1,"dataAplicacao":"2024-01-01"}]}
-                """;
+                """);
+        if (cidade != null) corpo.put("cidade", cidade).put("estado", estado);
         String resposta = mvc.perform(auth(post("/api/animais"), protetor)
-                        .contentType(MediaType.APPLICATION_JSON).content(corpo))
+                        .contentType(MediaType.APPLICATION_JSON).content(corpo.toString()))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         return mapper.readTree(resposta).path("id").asText();

@@ -49,18 +49,6 @@ public interface AnimalRepository extends JpaRepository<Animal, UUID>, JpaSpecif
             """)
     List<ContagemPorProtetor> contarPorProtetor(@Param("status") StatusAdocao status);
 
-    // Listagem pra Usuario logado: só animais do mesmo estado dele (RF14).
-    // Como o animal não tem estado próprio, a consulta olha o estado de quem cadastrou.
-    //
-    // Os outros filtros da vitrine (espécie, raça, porte, sexo, convivência, cidade)
-    // ainda não estão aqui. Fica pra issue da listagem.
-    @Query("""
-            SELECT a FROM Animal a
-            LEFT JOIN a.usuario u
-            LEFT JOIN a.abrigo ab
-            WHERE a.statusAdocao = :status
-              AND (u.endereco.estado = :estado OR ab.endereco.estado = :estado)
-            """)
-    List<Animal> findByStatusAndEstado(@Param("status") StatusAdocao status,
-                                       @Param("estado") String estado);
+    // Animais sem local: os que já existiam antes das colunas cidade e estado (ver LocalDosAnimaisAntigos)
+    List<Animal> findByCidadeIsNullOrEstadoIsNull();
 }

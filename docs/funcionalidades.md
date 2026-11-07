@@ -169,10 +169,10 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 
 **Como funciona.**
 
-1. Visitante e Abrigo veem animais de todos os estados. Pessoa física logada vê só os do próprio estado (RF14). O estado do animal é o estado de quem cadastrou.
+1. Visitante e Abrigo veem animais de todos os estados. Pessoa física logada vê só os que estão no próprio estado (RF14). Vale onde o animal está, que o protetor informa no cadastro e pode mudar na edição, e não o endereço de quem cadastrou.
 2. Busca por nome e filtros: cidade, espécie, sexo, porte, raça (liberada depois de escolher a espécie), nível de energia e convivência ("Bom com crianças", "Bom com cães", "Bom com gatos").
 3. A cada mudança, o front espera 300 ms sem mudança nova (assim não busca a cada letra digitada na cidade) e chama `GET /api/animais` com os filtros no endereço.
-4. Cada cartão mostra nome, descrição (espécie, raça, porte e peso), tags de convivência, o protetor com cidade e estado, e o botão "Quero conhecer".
+4. Cada cartão mostra nome, descrição (espécie, raça, porte e peso), tags de convivência, o protetor com a cidade e o estado onde o animal está, e o botão "Quero conhecer". O filtro de cidade também procura na cidade do animal.
 5. Os animais vêm de 12 em 12, dos cadastrados mais recentes pros mais antigos. Embaixo da grade aparece "Mostrando 12 de 37 animais" e o botão "Ver mais animais", que traz a próxima página embaixo das que já estavam na tela e leva o foco pro primeiro animal novo. Na última página o botão some. Se a próxima página falhar, os animais que já estavam continuam, e aparece "Não foi possível carregar mais animais. Tente de novo.". Mudar um filtro volta pra primeira página.
 6. Sem resultado com os filtros: "Nenhum resultado encontrado com essas informações.", com uma foto, a dica "Tente tirar algum filtro ou buscar por outro nome." e o botão "Ver todos os animais" (UC06 FA02). Sem nenhum animal no estado da pessoa: "Nenhum animal disponível no seu estado no momento." (UC06 FA01).
 7. Se a API não responder: "Não foi possível carregar os animais.", com o botão "Tentar de novo", que busca outra vez sem perder os filtros.
@@ -257,14 +257,15 @@ Depois de cada ação, Meus animais mostra um aviso: "{nome} foi publicado e já
 
 **Regras e validações.**
 
-- Obrigatórios: nome (até 80 caracteres), espécie, raça, porte, sexo, nascimento estimado, castrado, convivência com crianças, cães e gatos (começa em "Não testado"), nível de energia, trajetória e pelo menos uma foto. O peso é opcional.
+- Obrigatórios: nome (até 80 caracteres), espécie, raça, porte, sexo, nascimento estimado, castrado, convivência com crianças, cães e gatos (começa em "Não testado"), nível de energia, trajetória, onde o animal está (cidade e estado) e pelo menos uma foto. O peso é opcional.
+- Onde o animal está: no cadastro, a cidade e o estado já vêm com o endereço da conta (o front busca o perfil) e o protetor troca se o animal estiver em outro lugar, como na casa de outra pessoa ou num lar temporário. Na edição, o protetor muda quando o animal muda de cidade. Pedido do tutor na reunião de 04/11. Na API os dois são opcionais e andam juntos: sem eles, o animal fica no endereço do protetor; só um deles, `400`.
 - A raça precisa ser da espécie escolhida: `400`, com "A raça não pertence à espécie informada" no campo `racaDaEspecie`, que o front mostra embaixo do campo Raça.
 - Nascimento estimado: mês de 01 a 12, ano a partir de 1990 e nunca no futuro. Vacina: nome obrigatório, dose e data opcionais, e data no futuro não vale.
 - Fotos: JPG, PNG ou WEBP de até 5 MB. O back confere o tipo pelos primeiros bytes do arquivo, não pelo nome. Renomear um PDF pra .jpg não passa.
 - Só o protetor do animal edita ou remove (`403`). Mudar os dados de um animal adotado: `409`. Tentar marcar como adotado pelo formulário: `409` "A adoção deve ser registrada pela aprovação de um interesse".
 - Enquanto salva uma edição, o animal fica travado no banco (`SELECT ... FOR UPDATE`), pra não brigar com uma aprovação acontecendo ao mesmo tempo.
 
-**Como fica no banco.** Tabela `animal` (os enums ficam como texto; tem `usuario_id` ou `abrigo_id`, nunca os dois, garantido por um `CHECK`), `animal_foto` (animal, ordem e endereço) e `vacina`. O estado do animal não é guardado: vem do endereço do protetor. As imagens ficam no S3, e o banco guarda só o endereço delas (RF16).
+**Como fica no banco.** Tabela `animal` (os enums ficam como texto; tem `usuario_id` ou `abrigo_id`, nunca os dois, garantido por um `CHECK`), `animal_foto` (animal, ordem e endereço) e `vacina`. A tabela `animal` guarda também `cidade` e `estado`, onde o animal está. Os animais que já existiam antes dessas colunas ganham o endereço do protetor quando o back sobe (`LocalDosAnimaisAntigos`). As imagens ficam no S3, e o banco guarda só o endereço delas (RF16).
 
 **Onde está no código.**
 
@@ -414,7 +415,7 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 - O e-mail continua único entre pessoas e abrigos, sem diferença de maiúsculas: `409` "Já existe uma conta cadastrada com este e-mail", mostrado embaixo do campo.
 - A senha nova segue a regra do cadastro (8 a 72 caracteres) e precisa ser confirmada.
 - Senha atual errada: `400`, e não `401`, pra não deslogar a pessoa. A mensagem aparece embaixo da senha atual.
-- Mudar o estado muda a vitrine da pessoa e leva junto os animais dela: o animal não guarda estado, usa o de quem cadastrou.
+- Mudar o estado muda a vitrine da pessoa. Os animais que ela cadastrou continuam onde estão: cada animal tem o próprio local, que se muda na edição do animal. O aviso embaixo do endereço explica isso.
 
 **Onde está no código.**
 

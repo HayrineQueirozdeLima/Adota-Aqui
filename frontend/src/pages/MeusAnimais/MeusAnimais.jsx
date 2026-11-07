@@ -6,7 +6,7 @@ import Chip from "../../components/Chip/Chip";
 import Tag from "../../components/Tag/Tag";
 import { useAuth } from "../../contexts/AuthContext";
 import { listarMeusAnimais } from "../../services/animais";
-import { resumoDoAnimal } from "../../utils/rotulos";
+import { localDoAnimal, resumoDoAnimal } from "../../utils/rotulos";
 import fotoPrimeiroAnimal from "../../assets/fotos/primeiro-animal.webp";
 import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 
@@ -147,9 +147,9 @@ export default function MeusAnimais() {
 }
 
 function ItemAnimal({ animal }) {
-  const { id, nome, fotoCapa, statusAdocao, protetor } = animal;
+  const { id, nome, fotoCapa, statusAdocao } = animal;
   const adotado = statusAdocao === "ADOTADO";
-  const descricao = `${resumoDoAnimal(animal)}, em ${protetor.cidade}/${protetor.estado}`;
+  const descricao = `${resumoDoAnimal(animal)}, em ${localDoAnimal(animal)}`;
 
   return (
     <li className="flex flex-wrap items-center gap-4 rounded-[16px] border border-borda-sutil bg-fundo-superficie p-4">

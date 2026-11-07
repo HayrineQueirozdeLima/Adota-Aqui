@@ -21,7 +21,8 @@ final class AnimalMapper {
                 animal.getCastrado(), animal.getEnergia(), convivencia(animal), animal.getHistoria(),
                 List.copyOf(animal.getFotos()), animal.getVacinas().stream()
                     .map(v -> new VacinaResponse(v.getId(), v.getNome(), v.getDose(), v.getDataAplicacao())).toList(),
-                animal.getStatusAdocao(), protetor(animal), ehMeu, podeInteresse, interesse);
+                animal.getStatusAdocao(), animal.getCidade(), animal.getEstado(), protetor(animal),
+                ehMeu, podeInteresse, interesse);
     }
 
     static AnimalListagemResponse item(Animal animal) {
@@ -29,7 +30,7 @@ final class AnimalMapper {
                 animal.getRaca(), animal.getRaca().getNome(), animal.getSexo(), animal.getPorte(),
                 animal.getPeso(), animal.getCastrado(), animal.getEnergia(), convivencia(animal),
                 animal.getStatusAdocao(), animal.getFotos().isEmpty() ? null : animal.getFotos().get(0),
-                protetor(animal));
+                animal.getCidade(), animal.getEstado(), protetor(animal));
     }
 
     private static ConvivenciaDto convivencia(Animal animal) {
@@ -40,6 +41,7 @@ final class AnimalMapper {
         return dto;
     }
 
+    // O endereço do próprio protetor. O do animal vai em cidade e estado, fora daqui
     private static ProtetorResponse protetor(Animal animal) {
         Endereco endereco = animal.getUsuario() != null
                 ? animal.getUsuario().getEndereco() : animal.getAbrigo().getEndereco();

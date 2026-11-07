@@ -110,6 +110,24 @@ test("salva com PUT levando todos os campos e o status, e volta pra Meus animais
     { nome: "V10", dose: 2, dataAplicacao: "2026-03-12" },
     { nome: "Antirrábica", dose: 1, dataAplicacao: "2026-04-20" },
   ]);
+  // o local vem do animal e volta igual, se ninguém mexeu
+  expect(corpo.cidade).toBe("Santo André");
+  expect(corpo.estado).toBe("SP");
+});
+
+test("o protetor muda onde o animal está", async () => {
+  abrir();
+  await esperarFormulario();
+  expect(screen.getByLabelText("Cidade")).toHaveValue("Santo André");
+  fireEvent.change(screen.getByLabelText("Cidade"), {
+    target: { value: "Campinas" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Salvar alterações" }));
+
+  await screen.findByText("As alterações em Mel foram salvas.");
+  const corpo = JSON.parse(chamadas("PUT")[0][1].body);
+  expect(corpo.cidade).toBe("Campinas");
+  expect(corpo.estado).toBe("SP");
 });
 
 // No celular, a ordem da página é a ordem do HTML: o Salvar fica depois do último campo,

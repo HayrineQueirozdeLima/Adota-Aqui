@@ -23,6 +23,8 @@ const preenchido = {
   castrado: "SIM",
   energia: "MAIS_CALMO",
   historia: "Resgatado na chuva.",
+  cidade: " Porto Velho ",
+  estado: "RO",
   fotos: ["https://fotos.teste/1.jpg"],
   vacinas: [{ nome: "V4", dose: 1, dataAplicacao: "2026-08-10" }],
 };
@@ -57,6 +59,8 @@ test("monta o corpo da API: peso com vírgula, castrado como booleano, nome sem 
       gato: "NAO_TESTADO",
     },
     historia: "Resgatado na chuva.",
+    cidade: "Porto Velho",
+    estado: "RO",
     fotos: ["https://fotos.teste/1.jpg"],
     vacinas: [{ nome: "V4", dose: 1, dataAplicacao: "2026-08-10" }],
   });
@@ -78,12 +82,28 @@ test("a resposta da API volta pro formulário (ida e volta dão o mesmo corpo)",
   expect(formularioParaApi(formulario)).toEqual(formularioParaApi(preenchido));
 });
 
+// Animal cadastrado antes do local próprio pode vir da API sem cidade e estado: aí vale o endereço do protetor
+test("sem o local do animal na resposta, o formulário usa o do protetor", () => {
+  const { cidade, estado, ...semLocal } = formularioParaApi(preenchido);
+  const formulario = animalParaFormulario({
+    ...semLocal,
+    vacinas: [],
+    protetor: { nome: "Ana", cidade: "Ji-Paraná", estado: "RO" },
+  });
+  expect(formulario.cidade).toBe("Ji-Paraná");
+  expect(formulario.estado).toBe("RO");
+  expect(cidade).toBe("Porto Velho");
+  expect(estado).toBe("RO");
+});
+
 test("o formulário em branco acusa todos os obrigatórios", () => {
   expect(Object.keys(validarAnimal(animalVazio, hoje)).sort()).toEqual(
     [
       "castrado",
+      "cidade",
       "energia",
       "especie",
+      "estado",
       "fotos",
       "historia",
       "nascimento",
@@ -115,6 +135,18 @@ test("confere peso e nascimento", () => {
   ).toMatch(/MM\/AAAA/);
 });
 
+test("confere a cidade e o estado de onde o animal está", () => {
+  expect(validarAnimal({ ...preenchido, cidade: "  " }, hoje).cidade).toBe(
+    "Informe a cidade onde o animal está.",
+  );
+  expect(
+    validarAnimal({ ...preenchido, cidade: "a".repeat(81) }, hoje).cidade,
+  ).toBeDefined();
+  expect(validarAnimal({ ...preenchido, estado: "" }, hoje).estado).toBe(
+    "Escolha o estado onde o animal está.",
+  );
+});
+
 test("os erros de campo da API chegam no campo certo do formulário", () => {
   expect(
     errosDaApiParaFormulario({
@@ -122,6 +154,7 @@ test("os erros de campo da API chegam no campo certo do formulário", () => {
       dataNascEstimada: "não pode ser futura",
       "fotos[0]": "URL inválida",
       racaDaEspecie: "A raça não pertence à espécie informada",
+      localCompleto: "Informe a cidade e o estado do animal",
       nome: "obrigatório",
     }),
   ).toEqual({
@@ -129,6 +162,7 @@ test("os erros de campo da API chegam no campo certo do formulário", () => {
     nascimento: "não pode ser futura",
     fotos: "URL inválida",
     raca: "A raça não pertence à espécie informada",
+    cidade: "Informe a cidade e o estado do animal",
     nome: "obrigatório",
   });
 });

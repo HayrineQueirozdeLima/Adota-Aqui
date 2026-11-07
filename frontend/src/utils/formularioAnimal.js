@@ -22,6 +22,9 @@ export const animalVazio = {
     convivenciaGato: 'NAO_TESTADO',
     energia: '',
     historia: '',
+    // Onde o animal está. No cadastro, o FormularioAnimal preenche com o endereço da conta assim que ele chega
+    cidade: '',
+    estado: '',
     fotos: [],
     vacinas: [],
 };
@@ -61,6 +64,9 @@ export function animalParaFormulario(animal) {
         convivenciaGato: animal.convivencia.gato,
         energia: animal.energia,
         historia: animal.historia ?? '',
+        // Animal cadastrado antes do local próprio pode vir sem: aí vale o endereço do protetor
+        cidade: animal.cidade ?? animal.protetor?.cidade ?? '',
+        estado: animal.estado ?? animal.protetor?.estado ?? '',
         fotos: [...animal.fotos],
         // a vacina da API tem id, mas o PUT não usa: a lista enviada substitui a atual
         vacinas: animal.vacinas.map(({ nome, dose, dataAplicacao }) => ({ nome, dose, dataAplicacao })),
@@ -86,6 +92,8 @@ export function formularioParaApi(valores) {
             gato: valores.convivenciaGato,
         },
         historia: valores.historia.trim(),
+        cidade: valores.cidade.trim(),
+        estado: valores.estado,
         fotos: valores.fotos,
         vacinas: valores.vacinas.map(({ nome, dose, dataAplicacao }) => ({
             nome,
@@ -102,6 +110,7 @@ const obrigatorios = {
     sexo: 'Escolha o sexo.',
     castrado: 'Informe se é castrado.',
     energia: 'Escolha o nível de energia.',
+    estado: 'Escolha o estado onde o animal está.',
 };
 
 // As mesmas regras do back (AnimalRequest), conferidas antes de enviar
@@ -121,6 +130,10 @@ export function validarAnimal(valores, hoje = new Date()) {
 
     const erroNascimento = validarNascimento(valores.nascimento, hoje);
     if (erroNascimento) erros.nascimento = erroNascimento;
+
+    const cidade = valores.cidade.trim();
+    if (!cidade) erros.cidade = 'Informe a cidade onde o animal está.';
+    else if (cidade.length > 80) erros.cidade = 'A cidade pode ter no máximo 80 caracteres.';
 
     if (!valores.historia.trim()) erros.historia = 'Conte um pouco da trajetória do animal.';
     if (valores.fotos.length === 0) erros.fotos = 'Envie pelo menos uma foto.';
@@ -157,6 +170,8 @@ export function errosDaApiParaFormulario(campos) {
             erros.vacinas = mensagem;
         } else if (campo === 'racaDaEspecie') {
             erros.raca = mensagem;
+        } else if (campo === 'localCompleto') {
+            erros.cidade = mensagem;
         } else {
             erros[campo] = mensagem;
         }

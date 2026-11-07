@@ -240,10 +240,10 @@ class PerfilIntegrationTest {
         assertThat(usuarios.findByCpf(CPF).orElseThrow().getNome()).isEqualTo("Maria Silva");
     }
 
-    // RF14: o animal usa o estado de quem cadastrou. Trocar o estado no perfil muda a vitrine
-    // da pessoa e leva junto os animais que ela cadastrou
+    // RF14: a vitrine da pessoa mostra os animais do estado dela. Trocar o estado no perfil muda essa vitrine,
+    // mas não leva junto os animais que ela cadastrou: cada animal tem o próprio local, que se edita no animal
     @Test
-    void mudarOEstadoMudaAVitrineEOsAnimaisDaConta() throws Exception {
+    void mudarOEstadoMudaAVitrineMasOAnimalContinuaOndeEsta() throws Exception {
         String protetora = pessoa(CPF, "maria@example.com", "RO");
         String vizinho = pessoa(OUTRO_CPF, "joao@example.com", "RO");
         String animal = cadastrarAnimal(protetora);
@@ -251,14 +251,15 @@ class PerfilIntegrationTest {
 
         mvc.perform(enviar(put("/api/usuarios/me"), protetora, edicaoDePessoa("maria@example.com", "SP")))
                 .andExpect(status().isOk());
-        vitrine(vizinho).andExpect(jsonPath("$.itens[*].id", not(hasItem(animal))));
+        vitrine(vizinho).andExpect(jsonPath("$.itens[*].id", hasItem(animal)));
         mvc.perform(comToken(get("/api/animais/" + animal), vizinho))
+                .andExpect(jsonPath("$.estado").value("RO"))
                 .andExpect(jsonPath("$.protetor.estado").value("SP"))
-                .andExpect(jsonPath("$.podeDemonstrarInteresse").value(false));
+                .andExpect(jsonPath("$.podeDemonstrarInteresse").value(true));
 
         mvc.perform(enviar(put("/api/usuarios/me"), vizinho, edicaoDePessoa("joao@example.com", "SP")))
                 .andExpect(status().isOk());
-        vitrine(vizinho).andExpect(jsonPath("$.itens[*].id", hasItem(animal)));
+        vitrine(vizinho).andExpect(jsonPath("$.itens[*].id", not(hasItem(animal))));
     }
 
     // ---------- trocar a senha ----------
