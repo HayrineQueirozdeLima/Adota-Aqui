@@ -4,6 +4,7 @@ import Botao from "../../components/Botao/Botao";
 import CardProtetor from "../../components/CardProtetor/CardProtetor";
 import Carregando from "../../components/Carregando/Carregando";
 import Chip from "../../components/Chip/Chip";
+import SetaSelecao from "../../components/SetaSelecao/SetaSelecao";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 import { useValorAtrasado } from "../../hooks/useValorAtrasado";
@@ -271,23 +272,28 @@ export default function Protetores() {
           onChange={(evento) => mudar("cidade", evento.target.value)}
           className={estiloDoCampo}
         />
-        <select
-          aria-label="Estado"
-          value={filtros.estado}
-          onChange={(evento) => mudar("estado", evento.target.value)}
-          className={`rounded-full border px-4 py-2 font-titulo text-campo font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-marca-roxo ${
-            filtros.estado
-              ? "border-texto-principal bg-texto-principal text-fundo-superficie"
-              : "border-borda-sutil bg-fundo-superficie text-texto-principal"
-          }`}
-        >
-          <option value="">Todos os estados</option>
-          {Object.entries(estados).map(([sigla, nome]) => (
-            <option key={sigla} value={sigla}>
-              {nome}
-            </option>
-          ))}
-        </select>
+        <div className="relative inline-flex">
+          <select
+            aria-label="Estado"
+            value={filtros.estado}
+            onChange={(evento) => mudar("estado", evento.target.value)}
+            className={`appearance-none rounded-full border py-2 pl-4 pr-10 font-titulo text-campo font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-marca-roxo ${
+              filtros.estado
+                ? "border-texto-principal bg-texto-principal text-fundo-superficie"
+                : "border-borda-sutil bg-fundo-superficie text-texto-principal"
+            }`}
+          >
+            <option value="">Todos os estados</option>
+            {Object.entries(estados).map(([sigla, nome]) => (
+              <option key={sigla} value={sigla}>
+                {nome}
+              </option>
+            ))}
+          </select>
+          <SetaSelecao
+            className={`right-4 ${filtros.estado ? "text-fundo-superficie" : "text-texto-principal"}`}
+          />
+        </div>
 
         {tipos.map((tipo) => (
           <Chip
