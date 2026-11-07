@@ -142,7 +142,7 @@ A API não guarda sessão (`STATELESS`): cada requisição carrega o próprio to
 | Quem                    | O que pode                                                                                                                                                 |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Visitante               | Ver a vitrine, o perfil dos animais, as raças, os números do site, as histórias de adoção, os artigos e a lista de abrigos e protetores, se cadastrar e entrar                                  |
-| Usuario (pessoa física) | Tudo do visitante, mais cadastrar e gerenciar os próprios animais e os interesses recebidos, demonstrar interesse em animais do seu estado e desistir dele, e contar como foi a adoção. Depois de cadastrar um animal, também escreve artigos |
+| Usuario (pessoa física) | Tudo do visitante, mais cadastrar e gerenciar os próprios animais e os interesses recebidos, demonstrar interesse em animais que estão no seu estado e desistir dele, e contar como foi a adoção. Depois de cadastrar um animal, também escreve artigos |
 | Abrigo                  | Cadastrar e gerenciar os próprios animais e os interesses recebidos, e escrever artigos. Não demonstra interesse                                                               |
 
 **CORS e CSRF.** O navegador só deixa o site chamar a API se o endereço dele estiver em `CORS_ORIGENS` (o site do Netlify, as prévias dos PRs e o `localhost`). A proteção CSRF fica desligada porque o token vai no cabeçalho, e não num cookie que o navegador mandaria sozinho.
@@ -157,7 +157,7 @@ Ninguém escreve `CREATE TABLE`: o **Hibernate cria e atualiza as tabelas** a pa
 | ------------- | ------------------------- | -------------------------------------------------------------------------- |
 | `usuario`     | `Usuario`                 | Pessoa física, com o endereço na mesma tabela (`Endereco` é `@Embeddable`) |
 | `abrigo`      | `Abrigo`                  | ONG ou abrigo, também com o endereço na mesma tabela                       |
-| `animal`      | `Animal`                  | O animal e quem cadastrou: `usuario_id` ou `abrigo_id`, nunca os dois      |
+| `animal`      | `Animal`                  | O animal, onde ele está (`cidade` e `estado`) e quem cadastrou: `usuario_id` ou `abrigo_id`, nunca os dois |
 | `animal_foto` | Lista `fotos` do `Animal` | As URLs das fotos, na ordem (a primeira é a capa). A imagem fica no S3     |
 | `vacina`      | `Vacina`                  | As vacinas de cada animal                                                  |
 | `interesse`   | `Interesse`               | Quem demonstrou interesse em qual animal, a triagem e o andamento          |
@@ -238,7 +238,7 @@ O cadastro (`POST /api/usuarios` ou `/api/abrigos`) segue o mesmo caminho e já 
 ### 2. Vitrine com filtros
 
 1. A pessoa escolhe os filtros ou digita o nome do animal ou do protetor. O front espera ela parar de mexer (300 ms) e chama `GET /api/animais` com os filtros no endereço, por exemplo `?especie=CAO&busca=mel`.
-2. O `AnimalService` monta a consulta com o `AnimalSpecifications`: só animais Disponíveis, mais os filtros escolhidos. Se quem está logado é um Usuario, entram só os animais do mesmo estado dele (RF14). Visitante e Abrigo veem todos os estados.
+2. O `AnimalService` monta a consulta com o `AnimalSpecifications`: só animais Disponíveis, mais os filtros escolhidos. Se quem está logado é um Usuario, entram só os animais que estão no mesmo estado dele (RF14). Vale o estado do animal, que pode ser diferente do endereço de quem cadastrou. Visitante e Abrigo veem todos os estados.
 3. A API devolve uma página com até 12 animais, dos mais novos pros mais antigos, e o total encontrado. O navegador carrega as fotos direto do S3, sem passar pela API.
 4. O botão "Ver mais animais" chama a mesma busca com `pagina=1`, `pagina=2`..., e os animais novos entram embaixo dos que já estavam na tela.
 
@@ -251,7 +251,7 @@ O cadastro (`POST /api/usuarios` ou `/api/abrigos`) segue o mesmo caminho e já 
 ### 4. Demonstrar interesse
 
 1. No perfil do animal, o Usuario aceita o termo e responde a triagem. O front manda `POST /api/animais/{id}/interesses`.
-2. O `InteresseService` confere se o animal existe e está disponível, se a conta é de pessoa física, se não é o próprio protetor, se é do mesmo estado e se já não existe um interesse em andamento. Cada recusa tem o seu status, listado no `docs/api.md`, seção 9.
+2. O `InteresseService` confere se o animal existe e está disponível, se a conta é de pessoa física, se não é o próprio protetor, se o animal está no mesmo estado da pessoa e se já não existe um interesse em andamento. Cada recusa tem o seu status, listado no `docs/api.md`, seção 9.
 3. O interesse é gravado como Pendente, e a resposta (201) já traz o contato do protetor, que o front mostra na hora.
 
 ### 5. Aprovar um interesse

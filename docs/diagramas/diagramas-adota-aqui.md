@@ -15,6 +15,7 @@ Decisões de modelagem:
 - **Espécie e raça** são atributos de `Animal` com valores restritos (enums), porque ambos são filtros da listagem. A raça depende da espécie: no formulário, o usuário escolhe a espécie e só então aparecem as raças dela. O sistema valida que a raça pertence à espécie escolhida (a "Regra" no diagrama). Não há entidade `Raça` porque não existe tela para editar a lista de raças; se um dia existir, ela vira entidade.
 - **Interesse** é a entidade associativa do N:M entre Usuario e Animal. Tem identidade e estados próprios.
 - **Cadastrante do animal**: exatamente um, Usuario **ou** Abrigo (relacionamentos exclusivos, o arco tracejado).
+- **Onde o animal está**: `cidade` e `estado` são atributos do próprio `Animal`, separados do endereço de quem cadastrou. O protetor pode se mudar, ou cadastrar um animal que está com outra pessoa, então o local do animal não pode depender da conta. É o estado do animal que vale pro RF14.
 - **Atributos compostos**: `endereço` (em Usuario e Abrigo), `convivência` (criança, gato, cão) e `triagem` (as 6 respostas do UC07).
 - **Multivalorado**: `{fotos}`. Só vira tabela (`animal_foto`) no modelo lógico.
 - **Vacina** existe só dentro de um Animal (cardinalidade (1,1) do lado da Vacina).
@@ -144,7 +145,7 @@ erDiagram
         varchar(20) status_adocao "enum"
         timestamp cadastrado_em "ordem da vitrine"
         varchar(80) cidade "onde o animal esta"
-        char(2) estado "onde o animal esta, RF14"
+        varchar(2) estado "onde o animal esta, RF14"
     }
 
     ANIMAL_FOTO {
@@ -180,9 +181,13 @@ erDiagram
 
 ![DER lógico](der-logico-adota-aqui.png)
 
-O banco de verdade, criado pelo Hibernate e visto num cliente de banco de dados, tem as mesmas tabelas e colunas:
+A imagem acima é o bloco de cima exportado com o tema `neutral` do Mermaid (`mmdc -t neutral -s 2`), sem `depoimento` e `artigo`, que têm diagrama próprio nas seções 7 e 8.
+
+O banco de verdade, criado pelo Hibernate e visto num cliente de banco de dados:
 
 ![DER físico](der-fisico.png)
+
+Esse print é de outubro, de antes do depoimento, do blog, do `cadastrado_em`, do `aprovado_em` e do local do animal (`cidade` e `estado` em `animal`). Pra atualizar, abra o banco no DBeaver depois do deploy, gere o diagrama das tabelas e troque o `der-fisico.png`.
 
 ### Regras de integridade
 
