@@ -11,9 +11,16 @@ import {
 
 const hoje = new Date(2026, 9, 6); // 6 de outubro de 2026 (no JavaScript, janeiro é o mês 0)
 
+test("cidade é validada e enviada sem espaços", () => {
+  expect(formularioParaApi({ ...preenchido, cidade: "  Ariquemes  " }).cidade).toBe("Ariquemes");
+  expect(validarAnimal({ ...preenchido, cidade: "   " }, hoje).cidade).toBeDefined();
+  expect(validarAnimal({ ...preenchido, cidade: "a".repeat(81) }, hoje).cidade).toBeDefined();
+});
+
 const preenchido = {
   ...animalVazio,
   nome: " Mingau ",
+  cidade: "Porto Velho",
   especie: "GATO",
   raca: "SRD_GATO",
   porte: "PEQUENO",
@@ -43,6 +50,7 @@ test("converte o nascimento entre a tela e a API", () => {
 test("monta o corpo da API: peso com vírgula, castrado como booleano, nome sem espaços", () => {
   expect(formularioParaApi(preenchido)).toEqual({
     nome: "Mingau",
+    cidade: "Porto Velho",
     especie: "GATO",
     raca: "SRD_GATO",
     sexo: "MACHO",
@@ -82,6 +90,7 @@ test("o formulário em branco acusa todos os obrigatórios", () => {
   expect(Object.keys(validarAnimal(animalVazio, hoje)).sort()).toEqual(
     [
       "castrado",
+      "cidade",
       "energia",
       "especie",
       "fotos",

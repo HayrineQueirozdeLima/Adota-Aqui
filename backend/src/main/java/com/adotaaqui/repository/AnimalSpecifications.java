@@ -36,8 +36,9 @@ public final class AnimalSpecifications {
             // "porto" acha Porto Velho e Porto Alegre; "sao paulo" acha São Paulo.
             if (filtro.getCidade() != null && !filtro.getCidade().isBlank()) {
                 String cidade = "%" + semAcento(filtro.getCidade()) + "%";
-                criterios.add(cb.or(cb.like(semAcento(cb, usuario.get("endereco").get("cidade")), cidade),
-                        cb.like(semAcento(cb, abrigo.get("endereco").get("cidade")), cidade)));
+                criterios.add(cb.like(semAcento(cb, cb.<String>coalesce().value(root.get("cidade"))
+                        .value(usuario.get("endereco").get("cidade"))
+                        .value(abrigo.get("endereco").get("cidade"))), cidade));
             }
             // Busca: o nome do animal ou o nome de quem cadastrou (pessoa ou abrigo), do mesmo jeito da cidade.
             // "mel" acha a Mel, e "quatro patas" acha os animais do Instituto Quatro Patas

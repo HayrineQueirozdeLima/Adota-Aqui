@@ -10,6 +10,7 @@ export const TIPOS_DE_FOTO = ['image/jpeg', 'image/png', 'image/webp'];
 // de quem ainda não sabe, e o protetor só muda o que conhece
 export const animalVazio = {
     nome: '',
+    cidade: '',
     especie: '',
     raca: '',
     porte: '',
@@ -49,6 +50,7 @@ export function dataParaMesAno(data) {
 export function animalParaFormulario(animal) {
     return {
         nome: animal.nome,
+        cidade: animal.cidade ?? animal.protetor?.cidade ?? '',
         especie: animal.especie,
         raca: animal.raca,
         porte: animal.porte,
@@ -72,6 +74,7 @@ export function formularioParaApi(valores) {
     const peso = valores.peso.trim();
     return {
         nome: valores.nome.trim(),
+        ...(valores.cidade?.trim() ? { cidade: valores.cidade.trim() } : {}),
         especie: valores.especie,
         raca: valores.raca,
         sexo: valores.sexo,
@@ -115,6 +118,9 @@ export function validarAnimal(valores, hoje = new Date()) {
     Object.entries(obrigatorios).forEach(([campo, mensagem]) => {
         if (!valores[campo]) erros[campo] = mensagem;
     });
+
+    if (valores.cidade != null && !valores.cidade.trim()) erros.cidade = 'Informe a cidade.';
+    else if (valores.cidade?.trim().length > 80) erros.cidade = 'A cidade pode ter no máximo 80 caracteres.';
 
     const peso = valores.peso.trim();
     if (peso && !(Number(peso.replace(',', '.')) > 0)) erros.peso = 'O peso precisa ser um número maior que zero.';

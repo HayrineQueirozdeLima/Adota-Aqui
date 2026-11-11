@@ -465,6 +465,25 @@ class AnimalIntegrationTest {
         mvc.perform(get("/api/racas")).andExpect(status().isBadRequest());
     }
 
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void cidadeDoAnimalIndependeDoProtetorEMantemFiltroDeEstado(boolean abrigo) throws Exception {
+        Conta dono = conta(abrigo, "RO");
+        JsonNode padrao = criar(dono, corpo());
+        assertThat(padrao.path("cidade").asText()).isEqualTo(padrao.path("protetor").path("cidade").asText());
+        JsonNode criado = criar(dono, corpo().put("cidade", "  Ariquemes  "));
+        assertThat(criado.path("cidade").asText()).isEqualTo("Ariquemes");
+        assertThat(criado.path("protetor").path("cidade").asText()).isEqualTo(padrao.path("cidade").asText());
+        mvc.perform(get("/api/animais").param("cidade", "ARIQUEMES"))
+                .andExpect(jsonPath("$.itens.length()").value(1))
+                .andExpect(jsonPath("$.itens[0].cidade").value("Ariquemes"));
+        Conta outroEstado = conta(false, "SP");
+        mvc.perform(auth(get("/api/animais").param("cidade", "Ariquemes"), outroEstado))
+                .andExpect(jsonPath("$.itens").isEmpty());
+        rejeitarCadastro(dono, corpo().put("cidade", "   "));
+        rejeitarCadastro(dono, corpo().put("cidade", "a".repeat(81)));
+    }
+
     private void rejeitarCadastro(Conta dono, ObjectNode corpo) throws Exception {
         mvc.perform(auth(post("/api/animais"), dono).contentType(MediaType.APPLICATION_JSON).content(corpo.toString()))
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400));

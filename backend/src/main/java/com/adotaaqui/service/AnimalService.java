@@ -166,6 +166,8 @@ public class AnimalService {
     }
 
     private void atualizarDados(Animal animal, AnimalRequest request) {
+        if (request.getCidade() != null) animal.setCidade(request.getCidade().strip());
+        else if (animal.getId() == null) animal.setCidade(animal.getCidade());
         animal.setNome(request.getNome());
         animal.setEspecie(request.getEspecie());
         animal.setRaca(request.getRaca());
@@ -197,7 +199,8 @@ public class AnimalService {
     }
 
     private boolean mesmosDados(Animal a, AnimalRequest r) {
-        return Objects.equals(a.getNome(), r.getNome()) && a.getEspecie() == r.getEspecie()
+        return (r.getCidade() == null || Objects.equals(a.getCidade(), r.getCidade().strip()))
+                && Objects.equals(a.getNome(), r.getNome()) && a.getEspecie() == r.getEspecie()
                 && a.getRaca() == r.getRaca() && a.getSexo() == r.getSexo() && a.getPorte() == r.getPorte()
                 && Objects.equals(a.getPeso(), r.getPeso())
                 && Objects.equals(a.getDataNascEstimada(), r.getDataNascEstimada())

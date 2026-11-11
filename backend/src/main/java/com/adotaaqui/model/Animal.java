@@ -142,6 +142,17 @@ public class Animal {
     @OneToMany(mappedBy = "animal", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Interesse> interesses = new ArrayList<>();
 
+    @Column(length = 80)
+    private String cidade;
+
+    // Registros antigos mantêm a cidade do protetor como alternativa.
+    public String getCidade() {
+        if (cidade != null) return cidade;
+        Endereco endereco = usuario != null ? usuario.getEndereco() : abrigo != null ? abrigo.getEndereco() : null;
+        return endereco != null ? endereco.getCidade() : null;
+    }
+    public void setCidade(String cidade) { this.cidade = cidade; }
+
     public Animal() {
     }
 

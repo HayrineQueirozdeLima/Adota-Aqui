@@ -14,6 +14,7 @@ import java.util.UUID;
 public record AnimalResponse(
         UUID id,
         String nome,
+        String cidade,
         Especie especie,
         Raca raca,
         String racaNome,

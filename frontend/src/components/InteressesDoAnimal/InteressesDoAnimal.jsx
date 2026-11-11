@@ -51,7 +51,7 @@ export default function InteressesDoAnimal({ animal, interesses, status, aoMudar
 
   // Os dados completos vêm de Meus animais. Se não vierem, o cartão mostra só o nome e a foto
   const descricao = resumoDoAnimal(animal);
-  const ondeEsta = protetor ? `, em ${protetor.cidade}/${protetor.estado}` : "";
+  const ondeEsta = protetor ? `, em ${animal.cidade ?? protetor.cidade}/${protetor.estado}` : "";
   const nomeComArtigo = sexo ? `${artigoDefinido(sexo)} ${nome}` : nome;
 
   const quantosDescontinuados =
