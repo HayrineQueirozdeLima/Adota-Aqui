@@ -1,5 +1,7 @@
-import fotoAceno from "../../assets/fotos/primeiro-animal.webp";
-import fotoEspiando from "../../assets/fotos/nenhum-animal.webp";
+// Fotos de banco de imagens gratuito, escolhidas pela equipe só pra esta página
+import fotoCarinho from "../../assets/fotos/quem-somos-carinho.webp";
+import fotoGatoEmCasa from "../../assets/fotos/quem-somos-gato-em-casa.webp";
+import fotoGatinhoNoColo from "../../assets/fotos/quem-somos-gatinho-no-colo.webp";
 import Botao from "../../components/Botao/Botao";
 import Pata from "../../components/Pata/Pata";
 import PonteDaAdocao from "../../components/PonteDaAdocao/PonteDaAdocao";
@@ -141,11 +143,18 @@ export default function QuemSomos() {
       </div>
 
       <div className="mx-auto mt-14 grid w-full max-w-[1440px] gap-10 px-5 md:mt-20 md:px-14 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] lg:gap-16">
-        <figure className="lg:sticky lg:top-8 lg:self-start">
+        {/* No celular e no tablet as duas fotos ficam lado a lado.
+            No computador ficam uma em cima da outra, com o gato encaixado no canto da primeira */}
+        <figure className="grid grid-cols-2 gap-3 lg:sticky lg:top-8 lg:block lg:self-start">
           <img
-            src={fotoAceno}
+            src={fotoCarinho}
             alt=""
-            className="aspect-[4/3] w-full rounded-[24px] object-cover object-[center_30%] md:aspect-[16/9] lg:aspect-[4/5] lg:object-[28%_center]"
+            className="aspect-[4/5] w-full rounded-[24px] object-cover object-[40%_center] md:aspect-[4/3] lg:aspect-[4/5]"
+          />
+          <img
+            src={fotoGatoEmCasa}
+            alt=""
+            className="aspect-[4/5] w-full rounded-[24px] object-cover object-[45%_center] md:aspect-[4/3] lg:relative lg:-mt-28 lg:ml-auto lg:w-[62%] lg:ring-8 lg:ring-fundo-pagina"
           />
         </figure>
 
@@ -253,12 +262,15 @@ export default function QuemSomos() {
               </Botao>
             </div>
           </div>
-          {/* O buldogue espia de baixo, encostado na borda do cartão */}
-          <img
-            src={fotoEspiando}
-            alt=""
-            className="order-first h-[180px] w-full object-cover object-bottom md:order-none md:h-full md:min-h-[260px]"
-          />
+          {/* O gatinho no colo, olhando pra quem chega.
+              A foto preenche a coluna sem mandar na altura: quem manda é o texto do lado */}
+          <div className="relative order-first h-[200px] md:order-none md:h-auto md:min-h-[260px]">
+            <img
+              src={fotoGatinhoNoColo}
+              alt=""
+              className="absolute inset-0 size-full object-cover object-[50%_15%]"
+            />
+          </div>
         </div>
       </section>
     </main>
