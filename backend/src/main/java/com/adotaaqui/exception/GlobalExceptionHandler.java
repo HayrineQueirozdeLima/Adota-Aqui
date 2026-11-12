@@ -87,10 +87,12 @@ public class GlobalExceptionHandler {
         Map<String, String> campos = new LinkedHashMap<>();
         for (FieldError erro : ex.getBindingResult().getFieldErrors()) {
             // As confirmações de senha são conferidas por métodos (isSenhasConferem e isNovasSenhasConferem),
-            // mas o front mostra o erro embaixo do campo de confirmação
+            // mas o front mostra o erro embaixo do campo de confirmação.
+            // O mesmo com o local do animal (isLocalCompleto): o aviso vai pro campo da cidade
             String campo = switch (erro.getField()) {
                 case "senhasConferem" -> "confirmacaoSenha";
                 case "novasSenhasConferem" -> "confirmacaoNovaSenha";
+                case "localCompleto" -> "cidade";
                 default -> erro.getField();
             };
             campos.putIfAbsent(campo, mensagemDoCampo(erro));

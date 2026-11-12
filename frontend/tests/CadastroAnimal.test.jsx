@@ -259,7 +259,6 @@ test("publica com o corpo do api.md e volta pra Meus animais com o aviso", async
   expect(opcoes.headers.Authorization).toBe("Bearer token-de-teste");
   expect(JSON.parse(opcoes.body)).toEqual({
     nome: "Mingau",
-    cidade: "Porto Velho",
     especie: "GATO",
     raca: "SRD_GATO",
     sexo: "MACHO",
@@ -274,9 +273,55 @@ test("publica com o corpo do api.md e volta pra Meus animais com o aviso", async
       gato: "NAO_TESTADO",
     },
     historia: "Resgatado numa noite de chuva.",
+    // o local que já veio preenchido com o endereço da conta (src/mocks/perfil.js)
+    cidade: "Porto Velho",
+    estado: "RO",
     fotos: ["https://fotos.teste/animais/1.jpg"],
     vacinas: [],
   });
+});
+
+// O animal pode estar longe do endereço da conta (retorno do tutor em 04/11)
+test("o local já vem com o endereço da conta e dá pra mudar pra onde o animal está", async () => {
+  abrir();
+  expect(await screen.findByDisplayValue("Porto Velho")).toBe(
+    screen.getByLabelText("Cidade"),
+  );
+  expect(screen.getByLabelText("Estado")).toHaveValue("RO");
+  expect(chamadas("GET", "/api/usuarios/me")).toHaveLength(1);
+
+  await preencherTudo();
+  digitar("Cidade", "São Luís");
+  digitar("Estado", "MA");
+  publicar();
+
+  await screen.findByText("Mingau foi publicado e já aparece na vitrine.");
+  const [[, opcoes]] = chamadas("POST", "/api/animais");
+  expect(JSON.parse(opcoes.body)).toMatchObject({ cidade: "São Luís", estado: "MA" });
+});
+
+test("se o endereço da conta não carregar, a pessoa preenche o local", async () => {
+  simular((metodo, caminho) =>
+    caminho === "/api/usuarios/me"
+      ? resposta(500, { status: 500, mensagem: "Erro interno" })
+      : undefined,
+  );
+  abrir();
+  await preencherTudo();
+  publicar();
+
+  expect(
+    await screen.findByText("Informe a cidade onde o animal está."),
+  ).toBeInTheDocument();
+  expect(screen.getByText("Escolha o estado onde o animal está.")).toBeInTheDocument();
+  expect(chamadas("POST", "/api/animais")).toHaveLength(0);
+
+  digitar("Cidade", "Porto Velho");
+  digitar("Estado", "RO");
+  publicar();
+  expect(
+    await screen.findByText("Mingau foi publicado e já aparece na vitrine."),
+  ).toBeInTheDocument();
 });
 
 test("erro de campo vindo da API aparece no campo certo", async () => {

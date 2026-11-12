@@ -107,6 +107,13 @@ export function resumoDoAnimal({ especie, racaNome, porte, peso }) {
         .join(', ');
 }
 
+// Onde o animal está: "Porto Velho/RO". Pode ser diferente do endereço do protetor.
+// Se a API ainda não mandar o local do animal (o front publica antes do back terminar o deploy), usa o do protetor
+export function localDoAnimal({ cidade, estado, protetor }) {
+    if (cidade && estado) return `${cidade}/${estado}`;
+    return protetor ? `${protetor.cidade}/${protetor.estado}` : '';
+}
+
 // "2ª dose, aplicada em 12/03/2026". Funciona também com só a dose ou só a data
 export function descricaoDaVacina({ dose, dataAplicacao }) {
     const texto = [dose && `${dose}ª dose`, dataAplicacao && `aplicada em ${formatarData(dataAplicacao)}`]

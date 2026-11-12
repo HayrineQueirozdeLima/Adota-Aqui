@@ -28,17 +28,15 @@ public final class AnimalSpecifications {
             criterios.add(cb.equal(root.get("statusAdocao"), StatusAdocao.DISPONIVEL));
             var usuario = root.join("usuario", JoinType.LEFT);
             var abrigo = root.join("abrigo", JoinType.LEFT);
+            // Estado e cidade são os do animal (onde ele está), não os do endereço de quem cadastrou
             if (estado != null) {
-                criterios.add(cb.or(cb.equal(usuario.get("endereco").get("estado"), estado),
-                        cb.equal(abrigo.get("endereco").get("estado"), estado)));
+                criterios.add(cb.equal(root.get("estado"), estado));
             }
             // Cidade: basta conter o que foi digitado, sem ligar pra maiúscula nem acento.
             // "porto" acha Porto Velho e Porto Alegre; "sao paulo" acha São Paulo.
             if (filtro.getCidade() != null && !filtro.getCidade().isBlank()) {
                 String cidade = "%" + semAcento(filtro.getCidade()) + "%";
-                criterios.add(cb.like(semAcento(cb, cb.<String>coalesce().value(root.get("cidade"))
-                        .value(usuario.get("endereco").get("cidade"))
-                        .value(abrigo.get("endereco").get("cidade"))), cidade));
+                criterios.add(cb.like(semAcento(cb, root.get("cidade")), cidade));
             }
             // Busca: o nome do animal ou o nome de quem cadastrou (pessoa ou abrigo), do mesmo jeito da cidade.
             // "mel" acha a Mel, e "quatro patas" acha os animais do Instituto Quatro Patas

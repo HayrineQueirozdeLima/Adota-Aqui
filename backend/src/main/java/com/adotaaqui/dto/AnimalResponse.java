@@ -14,7 +14,6 @@ import java.util.UUID;
 public record AnimalResponse(
         UUID id,
         String nome,
-        String cidade,
         Especie especie,
         Raca raca,
         String racaNome,
@@ -29,6 +28,9 @@ public record AnimalResponse(
         List<String> fotos,
         List<VacinaResponse> vacinas,
         StatusAdocao statusAdocao,
+        // Onde o animal está, que pode ser diferente do endereço do protetor
+        String cidade,
+        String estado,
         ProtetorResponse protetor,
         boolean ehMeu,
         boolean podeDemonstrarInteresse,

@@ -15,6 +15,7 @@ Decisões de modelagem:
 - **Espécie e raça** são atributos de `Animal` com valores restritos (enums), porque ambos são filtros da listagem. A raça depende da espécie: no formulário, o usuário escolhe a espécie e só então aparecem as raças dela. O sistema valida que a raça pertence à espécie escolhida (a "Regra" no diagrama). Não há entidade `Raça` porque não existe tela para editar a lista de raças; se um dia existir, ela vira entidade.
 - **Interesse** é a entidade associativa do N:M entre Usuario e Animal. Tem identidade e estados próprios.
 - **Cadastrante do animal**: exatamente um, Usuario **ou** Abrigo (relacionamentos exclusivos, o arco tracejado).
+- **Onde o animal está**: `cidade` e `estado` são atributos do próprio `Animal`, separados do endereço de quem cadastrou. O protetor pode se mudar, ou cadastrar um animal que está com outra pessoa, então o local do animal não pode depender da conta. É o estado do animal que vale pro RF14.
 - **Atributos compostos**: `endereço` (em Usuario e Abrigo), `convivência` (criança, gato, cão) e `triagem` (as 6 respostas do UC07).
 - **Multivalorado**: `{fotos}`. Só vira tabela (`animal_foto`) no modelo lógico.
 - **Vacina** existe só dentro de um Animal (cardinalidade (1,1) do lado da Vacina).
@@ -143,6 +144,8 @@ erDiagram
         text historia
         varchar(20) status_adocao "enum"
         timestamp cadastrado_em "ordem da vitrine"
+        varchar(80) cidade "onde o animal esta"
+        varchar(2) estado "onde o animal esta, RF14"
     }
 
     ANIMAL_FOTO {
@@ -178,9 +181,13 @@ erDiagram
 
 ![DER lógico](der-logico-adota-aqui.png)
 
-O banco de verdade, criado pelo Hibernate e visto num cliente de banco de dados, tem as mesmas tabelas e colunas:
+A imagem acima é o bloco de cima exportado com o tema `neutral` do Mermaid (`mmdc -t neutral -s 2`), sem `depoimento` e `artigo`, que têm diagrama próprio nas seções 7 e 8.
+
+O banco de verdade, criado pelo Hibernate e visto num cliente de banco de dados:
 
 ![DER físico](der-fisico.png)
+
+Esse print é de outubro, de antes do depoimento, do blog, do `cadastrado_em`, do `aprovado_em` e do local do animal (`cidade` e `estado` em `animal`). Pra atualizar, abra o banco no DBeaver depois do deploy, gere o diagrama das tabelas e troque o `der-fisico.png`.
 
 ### Regras de integridade
 
@@ -194,6 +201,7 @@ O banco de verdade, criado pelo Hibernate e visto num cliente de banco de dados,
 | animal           | `peso`, quando vem, maior que zero                                            | `CHECK (peso IS NULL OR peso > 0)` via `@Check` + validação do DTO                                                                              |
 | animal           | remover o animal remove fotos, vacinas e interesses (UC05)                    | `cascade = ALL` + `orphanRemoval = true`                                                                                                        |
 | animal           | dono (usuario/abrigo) não é apagado no MVP                                    | FK sem cascade: o banco recusa apagar uma conta que ainda tem animal                                                                            |
+| animal           | `cidade` e `estado` sempre preenchidos (onde o animal está)                   | Java: sem local no cadastro, vale o endereço do protetor (`@PrePersist`); os antigos o `LocalDosAnimaisAntigos` preenche quando o back sobe. Sem `NOT NULL` no banco porque o Hibernate não cria coluna obrigatória numa tabela que já tem linhas |
 | animal_foto      | PK composta (`animal_id`, `ordem`); a primeira foto é a capa                  | `@ElementCollection` + `@OrderColumn`                                                                                                           |
 | vacina           | `dose`, quando vem, 1 ou mais                                                 | `CHECK (dose IS NULL OR dose >= 1)` via `@Check` + validação do DTO                                                                             |
 | todas            | colunas de enum só aceitam os valores do dicionário                           | `CHECK` que o Hibernate cria pra cada coluna `@Enumerated`                                                                                      |
@@ -204,7 +212,7 @@ O banco de verdade, criado pelo Hibernate e visto num cliente de banco de dados,
 
 Índices (o PostgreSQL não cria índice automático em FK): `animal(status_adocao)`, `animal(usuario_id)`, `animal(abrigo_id)`, `interesse(usuario_id, animal_id)`, `interesse(animal_id, status_andamento)` e `vacina(animal_id)`. Estão nas entidades, e a medição de cada um está na [arquitetura](../arquitetura.md#índices).
 
-Consulta da listagem (RF07 e RF14), que funciona sem duplicar o estado na tabela `animal`. O filtro por estado só entra para Usuario logado; para Visitante e Abrigo a mesma consulta roda sem essa linha (todos os estados). Os demais filtros (porte, sexo, convivência, energia, cidade e a busca por nome do animal ou do protetor) entram do mesmo jeito, como condições opcionais. No código, quem monta essa consulta é o `AnimalSpecifications`:
+Consulta da listagem (RF07 e RF14). O estado que vale é o do animal (onde ele está), guardado na própria tabela `animal`. O filtro por estado só entra para Usuario logado; para Visitante e Abrigo a mesma consulta roda sem essa linha (todos os estados). Os demais filtros (porte, sexo, convivência, energia, cidade e a busca por nome do animal ou do protetor) entram do mesmo jeito, como condições opcionais. No código, quem monta essa consulta é o `AnimalSpecifications`:
 
 ```sql
 SELECT a.*, COALESCE(u.nome, b.nome) AS protetor
@@ -212,7 +220,7 @@ FROM animal a
 LEFT JOIN usuario u ON u.id = a.usuario_id
 LEFT JOIN abrigo  b ON b.id = a.abrigo_id
 WHERE a.status_adocao = 'DISPONIVEL'
-  AND COALESCE(u.estado, b.estado) = :estado          -- só para Usuario logado
+  AND a.estado = :estado                              -- só para Usuario logado
   AND (:especie IS NULL OR a.especie = :especie)
   AND (:raca    IS NULL OR a.raca    = :raca);
 ```

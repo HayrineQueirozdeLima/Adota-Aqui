@@ -8,7 +8,6 @@ import ListaVacinas from "../ListaVacinas/ListaVacinas";
 import Tag from "../Tag/Tag";
 import { useAuth } from "../../contexts/AuthContext";
 import { useFocoNoPrimeiroErro } from "../../hooks/useFocoNoPrimeiroErro";
-import { buscarPerfil } from "../../services/perfil";
 import { listarRacas } from "../../services/animais";
 import {
   animalVazio,
@@ -17,7 +16,7 @@ import {
   mascaraMesAno,
   validarAnimal,
 } from "../../utils/formularioAnimal";
-import { especies, portes, sexos } from "../../utils/rotulos";
+import { especies, estados, portes, sexos } from "../../utils/rotulos";
 
 const paraOpcoes = (rotulos) =>
   Object.entries(rotulos).map(([valor, nome]) => ({ valor, nome }));
@@ -31,16 +30,18 @@ const convivencia = [
 // Formulário do animal (Figma: "Cadastrar animal"), usado no cadastro e na edição.
 // Na edição de um animal ADOTADO, só o status fica editável. Os outros campos destravam
 // quando o status volta pra DISPONIVEL, na mesma tela (RF06, UC05 FA04).
+// localSugerido: { cidade, estado } da conta, pra já deixar preenchido onde o animal está (no cadastro)
 export default function FormularioAnimal({
   titulo,
   subtitulo,
   textoEnviar,
   inicial = animalVazio,
   statusOriginal = null,
+  localSugerido = null,
   aoEnviar,
   cancelarPara,
 }) {
-  const { sair, usuario, token } = useAuth();
+  const { sair } = useAuth();
   const [valores, setValores] = useState(inicial);
   const [status, setStatus] = useState(statusOriginal);
   const [racas, setRacas] = useState([]);
@@ -55,19 +56,6 @@ export default function FormularioAnimal({
   const formulario = useRef(null);
 
   useFocoNoPrimeiroErro(formulario, tentativas);
-
-  useEffect(() => {
-    if (statusOriginal || !usuario?.tipoConta || !token) return undefined;
-    let cancelado = false;
-    buscarPerfil(usuario.tipoConta, token)
-      .then((perfil) => {
-        if (!cancelado) setValores((atuais) => ({
-          ...atuais, cidade: atuais.cidade || perfil.endereco.cidade,
-        }));
-      })
-      .catch((erro) => { if (!cancelado && erro.status === 401) sair(); });
-    return () => { cancelado = true; };
-  }, [statusOriginal, usuario?.tipoConta, token, sair]);
 
   const travado = statusOriginal === "ADOTADO" && status === "ADOTADO";
   const devolucao = statusOriginal === "ADOTADO" && status === "DISPONIVEL";
@@ -92,6 +80,22 @@ export default function FormularioAnimal({
       cancelado = true;
     };
   }, [valores.especie, buscaDeRacas]);
+
+  // O endereço da conta chega depois que a tela abre (o CadastroAnimal busca o perfil).
+  // Só preenche se a pessoa ainda não escreveu nada no local, pra não apagar o que ela digitou
+  useEffect(() => {
+    if (!localSugerido) return;
+    setValores((atuais) =>
+      atuais.cidade || atuais.estado
+        ? atuais
+        : {
+            ...atuais,
+            cidade: localSugerido.cidade ?? "",
+            estado: localSugerido.estado ?? "",
+          },
+    );
+    setErros((atuais) => ({ ...atuais, cidade: undefined, estado: undefined }));
+  }, [localSugerido]);
 
   function mudar(campo, valor) {
     setValores((atuais) => ({ ...atuais, [campo]: valor }));
@@ -288,15 +292,32 @@ export default function FormularioAnimal({
             </div>
           </Cartao>
 
-          <Cartao titulo="Localização do animal">
-            <CampoTexto
-              rotulo="Cidade"
-              value={valores.cidade ?? ""}
-              onChange={(e) => mudar("cidade", e.target.value)}
-              maxLength={80}
-              erro={erros.cidade}
-              dica="Informe a cidade onde o animal está, dentro do estado da sua conta."
-            />
+          {/* Onde o animal está: nem sempre é o endereço da conta (retorno do tutor em 04/11).
+              O protetor pode ter se mudado, ou o animal pode estar com outra pessoa ou num lar temporário */}
+          <Cartao titulo="Onde o animal está">
+            <p className="-mt-1 mb-4 text-compacto text-texto-secundario">
+              {statusOriginal
+                ? "Se o animal mudou de cidade, atualize aqui."
+                : "Já vem com o endereço da sua conta. Mude se o animal estiver em outra cidade, como na casa de outra pessoa ou num lar temporário."}{" "}
+              Ele aparece pra quem mora no mesmo estado.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_240px]">
+              <CampoTexto
+                rotulo="Cidade"
+                value={valores.cidade}
+                onChange={(e) => mudar("cidade", e.target.value)}
+                maxLength={80}
+                autoComplete="off"
+                erro={erros.cidade}
+              />
+              <CampoSelecao
+                rotulo="Estado"
+                opcoes={paraOpcoes(estados)}
+                value={valores.estado}
+                onChange={(e) => mudar("estado", e.target.value)}
+                erro={erros.estado}
+              />
+            </div>
           </Cartao>
 
           <Cartao titulo="Convivência e energia">
@@ -422,8 +443,9 @@ export default function FormularioAnimal({
           ) : (
             <Cartao titulo="Onde o animal aparece">
               <p className="text-compacto text-texto-secundario">
-                O animal herda o estado da sua conta: só quem tem conta no seu
-                estado pode demonstrar interesse.
+                Na vitrine de quem mora no estado onde ele está, e só essas
+                pessoas podem demonstrar interesse. Visitantes veem todos os
+                animais.
               </p>
               <div className="mt-3 flex items-center gap-2">
                 <Tag variante="disponivel">Disponível</Tag>

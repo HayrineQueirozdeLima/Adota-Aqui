@@ -82,6 +82,8 @@ public class AnimalService {
         }
         animal.setStatusAdocao(StatusAdocao.DISPONIVEL);
         atualizarDados(animal, request);
+        // Sem cidade e estado no cadastro, o animal fica no endereço de quem cadastrou
+        animal.preencherLocalSeFaltar();
         animais.saveAndFlush(animal);
         return resposta(animal, conta);
     }
@@ -166,8 +168,6 @@ public class AnimalService {
     }
 
     private void atualizarDados(Animal animal, AnimalRequest request) {
-        if (request.getCidade() != null) animal.setCidade(request.getCidade().strip());
-        else if (animal.getId() == null) animal.setCidade(animal.getCidade());
         animal.setNome(request.getNome());
         animal.setEspecie(request.getEspecie());
         animal.setRaca(request.getRaca());
@@ -181,6 +181,11 @@ public class AnimalService {
         animal.setConvivenciaGato(request.getConvivencia().getGato());
         animal.setConvivenciaCao(request.getConvivencia().getCao());
         animal.setHistoria(request.getHistoria());
+        // Local novo só se veio no pedido. Na edição, sem cidade e estado, o animal continua onde estava
+        if (request.temLocal()) {
+            animal.setCidade(request.getCidade().strip());
+            animal.setEstado(request.getEstado());
+        }
         if (!animal.getFotos().equals(request.getFotos())) {
             animal.getFotos().clear();
             animal.getFotos().addAll(request.getFotos());
@@ -199,8 +204,7 @@ public class AnimalService {
     }
 
     private boolean mesmosDados(Animal a, AnimalRequest r) {
-        return (r.getCidade() == null || Objects.equals(a.getCidade(), r.getCidade().strip()))
-                && Objects.equals(a.getNome(), r.getNome()) && a.getEspecie() == r.getEspecie()
+        return Objects.equals(a.getNome(), r.getNome()) && a.getEspecie() == r.getEspecie()
                 && a.getRaca() == r.getRaca() && a.getSexo() == r.getSexo() && a.getPorte() == r.getPorte()
                 && Objects.equals(a.getPeso(), r.getPeso())
                 && Objects.equals(a.getDataNascEstimada(), r.getDataNascEstimada())
@@ -209,6 +213,8 @@ public class AnimalService {
                 && a.getConvivenciaGato() == r.getConvivencia().getGato()
                 && a.getConvivenciaCao() == r.getConvivencia().getCao()
                 && Objects.equals(a.getHistoria(), r.getHistoria())
+                && (!r.temLocal() || Objects.equals(a.getCidade(), r.getCidade().strip())
+                        && Objects.equals(a.getEstado(), r.getEstado()))
                 && a.getFotos().equals(r.getFotos()) && vacinasAtuais(a).equals(vacinasRecebidas(r));
     }
 

@@ -1,5 +1,6 @@
 // Dados de exemplo, no mesmo formato do GET /api/animais (docs/api.md)
 // As telas buscam da API de verdade. Estes dados ficam pros testes: é o que a "API de mentira" deles devolve
+// cidade e estado são onde o animal está. Aqui são iguais ao endereço do protetor, mas podem ser diferentes
 // ATENÇÃO:Mel e Tobias são usados nos testes do CardAnimal, então nao devem ser mudados sem ajustar os testes
 export const animaisExemplo = [
     {
@@ -16,6 +17,8 @@ export const animaisExemplo = [
         convivencia: { crianca: 'CONVIVE_BEM', gato: 'NAO_TESTADO', cao: 'CONVIVE_BEM' },
         statusAdocao: 'DISPONIVEL',
         fotoCapa: null,
+        cidade: 'Santo André',
+        estado: 'SP',
         protetor: { nome: 'Instituto Quatro Patas', cidade: 'Santo André', estado: 'SP' },
     },
     {
@@ -32,6 +35,8 @@ export const animaisExemplo = [
         convivencia: { crianca: 'NAO_TESTADO', gato: 'CONVIVE_BEM', cao: 'NAO_CONVIVE_BEM' },
         statusAdocao: 'DISPONIVEL',
         fotoCapa: null,
+        cidade: 'Porto Velho',
+        estado: 'RO',
         protetor: { nome: 'Marina Prado', cidade: 'Porto Velho', estado: 'RO' },
     },
     {
@@ -48,6 +53,8 @@ export const animaisExemplo = [
         convivencia: { crianca: 'CONVIVE_BEM', gato: 'CONVIVE_BEM', cao: 'NAO_TESTADO' },
         statusAdocao: 'DISPONIVEL',
         fotoCapa: null,
+        cidade: 'Porto Velho',
+        estado: 'RO',
         protetor: { nome: 'Marina Prado', cidade: 'Porto Velho', estado: 'RO' },
     },
     {
@@ -64,6 +71,8 @@ export const animaisExemplo = [
         convivencia: { crianca: 'CONVIVE_BEM', gato: 'NAO_CONVIVE_BEM', cao: 'CONVIVE_BEM' },
         statusAdocao: 'DISPONIVEL',
         fotoCapa: null,
+        cidade: 'Santo André',
+        estado: 'SP',
         protetor: { nome: 'Instituto Quatro Patas', cidade: 'Santo André', estado: 'SP' },
     },
     {
@@ -80,6 +89,8 @@ export const animaisExemplo = [
         convivencia: { crianca: 'CONVIVE_BEM', gato: 'CONVIVE_BEM', cao: 'NAO_TESTADO' },
         statusAdocao: 'DISPONIVEL',
         fotoCapa: null,
+        cidade: 'Ji-Paraná',
+        estado: 'RO',
         protetor: { nome: 'Marina Lourenço', cidade: 'Ji-Paraná', estado: 'RO' },
     },
     {
@@ -96,6 +107,8 @@ export const animaisExemplo = [
         convivencia: { crianca: 'NAO_TESTADO', gato: 'NAO_CONVIVE_BEM', cao: 'CONVIVE_BEM' },
         statusAdocao: 'DISPONIVEL',
         fotoCapa: null,
+        cidade: 'Porto Alegre',
+        estado: 'RS',
         protetor: { nome: 'Maria Pinheiro', cidade: 'Porto Alegre', estado: 'RS' },
     },
 ];

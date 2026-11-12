@@ -94,6 +94,17 @@ describe("ficha do animal", () => {
       screen.getByRole("heading", { name: "A história da Mel" }),
     ).toBeInTheDocument();
     expect(screen.getByText("Protetor em Santo André/SP")).toBeInTheDocument();
+    expect(screen.getByText("Está em Santo André/SP")).toBeInTheDocument();
+  });
+
+  // O animal pode estar em outro lugar: a ficha mostra os dois, o local do animal e o do protetor
+  test("mostra onde o animal está e, à parte, onde está o protetor", async () => {
+    perfilCom({ cidade: "Campinas", estado: "SP" });
+    abrir();
+    await esperarFicha();
+
+    expect(screen.getByText("Está em Campinas/SP")).toBeInTheDocument();
+    expect(screen.getByText("Protetor em Santo André/SP")).toBeInTheDocument();
   });
 
   test("a galeria troca a foto grande ao clicar na miniatura", async () => {
