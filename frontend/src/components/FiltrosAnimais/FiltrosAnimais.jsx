@@ -14,6 +14,12 @@ function paraOpcoes(dicionario) {
   return Object.entries(dicionario).map(([valor, nome]) => ({ valor, nome }));
 }
 
+// No cadastro a raça "Outra" é a que não está na lista. No filtro, do lado de "Sem raça definida",
+// ela parecia vira-lata, então aqui ela aparece como "Outras raças" (retorno do QA)
+function nomeNoFiltro(raca) {
+  return raca.valor.startsWith("OUTRA") ? { ...raca, nome: "Outras raças" } : raca;
+}
+
 // Barra de filtros da vitrine
 // Quem guarda os filtros é a VitrineAnimais:
 // aqui a gente só mostra o que está escolhido e avisa quando alguém muda
@@ -28,9 +34,9 @@ export default function FiltrosAnimais({ filtros, aoMudar }) {
     let cancelado = false;
     listarRacas(filtros.especie)
       .then((lista) => {
-        if (!cancelado) setRacas(lista);
+        if (!cancelado) setRacas(lista.map(nomeNoFiltro));
       })
-      // se a API falhar, o filtro de raça fica só com "Raça" (qualquer uma) e a vitrine segue funcionando
+      // se a API falhar, o filtro de raça fica só com "Todas as raças" e a vitrine segue funcionando
       .catch(() => {
         if (!cancelado) setRacas([]);
       });
@@ -106,12 +112,14 @@ export default function FiltrosAnimais({ filtros, aoMudar }) {
 
       <Seletor
         rotulo="Porte"
+        textoTodos="Todos os portes"
         valor={filtros.porte}
         opcoes={paraOpcoes(portes)}
         aoMudar={(valor) => mudar("porte", valor)}
       />
       <Seletor
         rotulo="Raça"
+        textoTodos="Todas as raças"
         valor={filtros.raca}
         opcoes={filtros.especie ? racas : []}
         desabilitado={!filtros.especie}
@@ -120,6 +128,7 @@ export default function FiltrosAnimais({ filtros, aoMudar }) {
       />
       <Seletor
         rotulo="Energia"
+        textoTodos="Qualquer energia"
         valor={filtros.energia}
         opcoes={paraOpcoes(energias)}
         aoMudar={(valor) => mudar("energia", valor)}
@@ -158,9 +167,12 @@ export default function FiltrosAnimais({ filtros, aoMudar }) {
 }
 
 // Filtro de lista (porte, raça, energia)
-// a primeira opção sem valor quer dizer qualquer um
+// A primeira opção, sem valor, é o "todos" e já vem marcada.
+// Antes ela tinha o nome do filtro ("Raça"), e no celular, que mostra a lista na tela do sistema,
+// parecia uma raça (retorno do QA). Desabilitado não tem lista, então aí fica o nome do filtro
 function Seletor({
   rotulo,
+  textoTodos,
   valor,
   opcoes,
   aoMudar,
@@ -182,7 +194,7 @@ function Seletor({
         onChange={(evento) => aoMudar(evento.target.value)}
         className={`appearance-none rounded-full border py-2 pl-4 pr-10 font-titulo text-campo font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-marca-roxo disabled:cursor-not-allowed disabled:opacity-50 ${cores}`}
       >
-        <option value="">{rotulo}</option>
+        <option value="">{desabilitado ? rotulo : textoTodos}</option>
         {opcoes.map((opcao) => (
           <option key={opcao.valor} value={opcao.valor}>
             {opcao.nome}
