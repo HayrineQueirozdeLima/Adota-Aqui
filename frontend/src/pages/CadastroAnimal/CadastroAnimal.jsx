@@ -9,13 +9,14 @@ import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 // Cadastrar animal (UC04, RF04/RF05), em /meus-animais/novo.
 // Usuario e Abrigo cadastram do mesmo jeito: o protetor é a conta do token.
 export default function CadastroAnimal() {
-  const { usuario, token } = useAuth();
+  const { usuario, token, sair } = useAuth();
   const navegar = useNavigate();
   const [localDaConta, setLocalDaConta] = useState(null);
   useTituloDaPagina("Cadastrar animal");
 
   // Busca o endereço da conta pra já deixar preenchido onde o animal está.
-  // A tela não espera: se o perfil não vier, a pessoa escreve a cidade e escolhe o estado
+  // A tela não espera: se o perfil não vier, a pessoa escreve a cidade e escolhe o estado.
+  // Sessão vencida (401) volta pro login, como no resto do site
   useEffect(() => {
     let cancelado = false;
     buscarPerfil(usuario.tipoConta, token)
@@ -23,11 +24,13 @@ export default function CadastroAnimal() {
         if (cancelado || !perfil?.endereco) return;
         setLocalDaConta({ cidade: perfil.endereco.cidade, estado: perfil.endereco.estado });
       })
-      .catch(() => {});
+      .catch((erro) => {
+        if (!cancelado && erro.status === 401) sair();
+      });
     return () => {
       cancelado = true;
     };
-  }, [usuario.tipoConta, token]);
+  }, [usuario.tipoConta, token, sair]);
 
   async function publicar(dados) {
     const criado = await cadastrarAnimal(dados, token);

@@ -35,6 +35,9 @@ function simular(outras) {
     outras: (metodo, caminho, opcoes) => {
       const resultado = outras?.(metodo, caminho, opcoes);
       if (resultado) return resultado;
+      if (caminho === "/api/usuarios/me") {
+        return resposta(200, { endereco: { cidade: "Porto Velho", estado: "RO" } });
+      }
       if (metodo === "POST" && caminho === "/api/animais") {
         return resposta(201, { id: "novo", ...JSON.parse(opcoes.body) });
       }
@@ -121,6 +124,16 @@ test("em branco, não envia e leva o foco pro primeiro erro", () => {
   expect(screen.getByText("Envie pelo menos uma foto.")).toBeInTheDocument();
   expect(screen.getByLabelText("Nome")).toHaveFocus();
   expect(chamadas("POST", "/api/animais")).toHaveLength(0);
+});
+
+test("carrega a cidade da conta e permite informar a cidade do animal", async () => {
+  abrir();
+  await waitFor(() => expect(screen.getByLabelText("Cidade")).toHaveValue("Porto Velho"));
+  await preencherTudo();
+  digitar("Cidade", "  Ariquemes  ");
+  publicar();
+  await screen.findByText("Mingau foi publicado e já aparece na vitrine.");
+  expect(JSON.parse(chamadas("POST", "/api/animais")[0][1].body).cidade).toBe("Ariquemes");
 });
 
 test("a raça só libera depois da espécie e vem da API", async () => {

@@ -183,7 +183,7 @@ public class AnimalService {
         animal.setHistoria(request.getHistoria());
         // Local novo só se veio no pedido. Na edição, sem cidade e estado, o animal continua onde estava
         if (request.temLocal()) {
-            animal.setCidade(request.getCidade().trim());
+            animal.setCidade(request.getCidade().strip());
             animal.setEstado(request.getEstado());
         }
         if (!animal.getFotos().equals(request.getFotos())) {
@@ -213,7 +213,7 @@ public class AnimalService {
                 && a.getConvivenciaGato() == r.getConvivencia().getGato()
                 && a.getConvivenciaCao() == r.getConvivencia().getCao()
                 && Objects.equals(a.getHistoria(), r.getHistoria())
-                && (!r.temLocal() || Objects.equals(a.getCidade(), r.getCidade().trim())
+                && (!r.temLocal() || Objects.equals(a.getCidade(), r.getCidade().strip())
                         && Objects.equals(a.getEstado(), r.getEstado()))
                 && a.getFotos().equals(r.getFotos()) && vacinasAtuais(a).equals(vacinasRecebidas(r));
     }

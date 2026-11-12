@@ -108,6 +108,11 @@ class DtoValidationTest {
         assertThat(camposInvalidos(MAPPER.treeToValue(json, AnimalRequest.class))).contains("estado");
         json.put("cidade", "a".repeat(81)).put("estado", "MA");
         assertThat(camposInvalidos(MAPPER.treeToValue(json, AnimalRequest.class))).contains("cidade");
+        // Se vier, não pode estar em branco
+        json.put("cidade", "   ").put("estado", "MA");
+        assertThat(camposInvalidos(MAPPER.treeToValue(json, AnimalRequest.class))).contains("cidade");
+        json.put("cidade", "São Luís").put("estado", "");
+        assertThat(camposInvalidos(MAPPER.treeToValue(json, AnimalRequest.class))).contains("estado");
     }
 
     @Test

@@ -69,11 +69,13 @@ public class AnimalRequest {
 
     // Onde o animal está. Os dois são opcionais, mas andam juntos (ver isLocalCompleto):
     // no cadastro, sem eles o animal fica no endereço de quem cadastra; na edição, sem eles o local não muda.
+    // Se vierem, não podem estar em branco.
     // O site sempre manda os dois, já preenchidos com o endereço da conta
     @Size(max = 80, message = "A cidade deve ter no máximo 80 caracteres")
+    @Pattern(regexp = "(?s).*\\S.*", message = "Informe a cidade")
     private String cidade;
 
-    @Pattern(regexp = "(AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO)?",
+    @Pattern(regexp = "AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO",
             message = "Escolha um estado válido")
     private String estado;
 

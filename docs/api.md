@@ -495,6 +495,12 @@ Diferenças:
 
 ## 8. Animais
 
+O animal tem `cidade` (até 80 caracteres) e `estado` (UF) próprios: é onde ele está, e os dois voltam no perfil e nas listagens.
+No cadastro, o formulário já vem com o endereço da conta e o protetor pode trocar. O `POST` sem os dois usa o endereço de quem cadastra; o `PUT` sem os dois mantém o local atual.
+Quando vêm, os dois andam juntos e não aceitam texto em branco, e a cidade chega sem os espaços das pontas.
+O filtro `cidade`, a vitrine por estado (RF14) e a regra de demonstrar interesse olham o local do animal. `protetor.cidade` e `protetor.estado` continuam sendo o endereço da conta.
+Os animais que já existiam antes dessas colunas ficam com o endereço de quem cadastrou (o `LocalDosAnimaisAntigos` acerta isso quando o back sobe). Animal adotado não muda de local, como os outros dados.
+
 ### Formato do animal (resposta completa)
 
 Usado nas respostas de `GET /api/animais/{id}`, `POST /api/animais` e `PUT /api/animais/{id}`:
@@ -736,7 +742,7 @@ Cadastra um animal para adoção. O protetor é a conta logada (Usuario ou Abrig
 | `convivencia.crianca`, `.gato`, `.cao`                            | Obrigatórios. Se o protetor não sabe, envia `NAO_TESTADO`                                                                                                                  |
 | `fotos`                                                           | Obrigatório, com **pelo menos 1** URL. A ordem da lista é a ordem de exibição, e a primeira é a capa (RF16). As URLs vêm do `POST /api/fotos`                              |
 | `vacinas`                                                         | Opcional. Lista vazia ou omitida = nenhuma vacina registrada. Em cada item: `nome` obrigatório, até 80 caracteres; `dose` inteiro ≥ 1; `dataAplicacao` não pode ser futura |
-| `cidade`, `estado`                                                | Onde o animal está. Opcionais, mas **andam juntos**: veio um, tem que vir o outro (senão `400`, com o aviso em `campos.cidade`). `cidade` até 80 caracteres; `estado` é a sigla de um dos 27 estados. Sem os dois, o animal fica no endereço do protetor. O site sempre manda, já preenchidos com o endereço da conta |
+| `cidade`, `estado`                                                | Onde o animal está. Opcionais, mas **andam juntos**: veio um, tem que vir o outro (senão `400`, com o aviso em `campos.cidade`). `cidade` até 80 caracteres e sem ficar em branco; `estado` é a sigla de um dos 27 estados. Sem os dois, o animal fica no endereço do protetor. O site sempre manda, já preenchidos com o endereço da conta |
 
 Não se envia `statusAdocao` nem o protetor: todo animal nasce `DISPONIVEL` (UC04, passo 9), e o protetor é a conta do token.
 

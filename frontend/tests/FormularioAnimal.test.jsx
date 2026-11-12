@@ -11,6 +11,12 @@ import {
 
 const hoje = new Date(2026, 9, 6); // 6 de outubro de 2026 (no JavaScript, janeiro é o mês 0)
 
+test("cidade é validada e enviada sem espaços", () => {
+  expect(formularioParaApi({ ...preenchido, cidade: "  Ariquemes  " }).cidade).toBe("Ariquemes");
+  expect(validarAnimal({ ...preenchido, cidade: "   " }, hoje).cidade).toBeDefined();
+  expect(validarAnimal({ ...preenchido, cidade: "a".repeat(81) }, hoje).cidade).toBeDefined();
+});
+
 const preenchido = {
   ...animalVazio,
   nome: " Mingau ",
