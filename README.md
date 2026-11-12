@@ -96,7 +96,7 @@ Abra http://localhost:5173. Sem configurar nada, o front já chama o back em `lo
 O banco começa vazio. Pra ver a vitrine com animais:
 
 1. Crie uma conta de abrigo (ou de pessoa física) em "Cadastrar", no topo, e cadastre um animal em Meus animais.
-2. Numa janela anônima, crie uma conta de pessoa física do mesmo estado e demonstre interesse no animal.
+2. Numa janela anônima, crie uma conta de pessoa física no estado onde o animal está (no cadastro, ele já vem com o endereço da conta, mas dá pra trocar) e demonstre interesse no animal.
 3. Volte pra primeira conta e veja o interesse em Interesses recebidos.
 
 Na sua máquina, o envio da foto funciona, mas a imagem aparece quebrada no formulário e na vitrine: ela fica só na memória do back, o endereço salvo não abre e a foto some quando o back reinicia. No site publicado, as fotos vão pro S3 e aparecem normalmente.

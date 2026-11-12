@@ -2,8 +2,8 @@
 
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
-- **Versão:** 1.7 (novembro de 2026)
-- **Total:** 85 casos, 82 já automatizados e 3 manuais
+- **Versão:** 1.9 (novembro de 2026)
+- **Total:** 88 casos, 84 já automatizados e 4 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
 
@@ -63,12 +63,13 @@ A coluna **Automatizado em** mostra o arquivo de teste que já confere o caso. O
 | CT-FLT-06 | Pessoa física logada                                        | Regra de negócio | Só aparecem animais do estado dela (RF14). Sem nenhum, aparece "Nenhum animal disponível no seu estado no momento."                                                         | `VitrineAnimais.test.jsx`, `AnimalIntegrationTest.java` |
 | CT-FLT-07 | Buscar pelo nome do animal ou do protetor                   | Funcional        | Acha por parte do nome, sem diferença de acento e maiúscula, tanto o nome do animal ("mel") quanto o de quem cadastrou ("joao", "quatro patas"). Soma com os outros filtros | `VitrineAnimais.test.jsx`, `AnimalIntegrationTest.java` |
 | CT-FLT-08 | Ver mais animais | Funcional | Os animais vêm de 12 em 12, dos mais novos pros mais antigos. "Ver mais animais" traz a próxima página embaixo, sem repetir animal, e leva o foco pro primeiro animal novo. Mudar um filtro volta pra primeira página | `VitrineAnimais.test.jsx`, `AnimalIntegrationTest.java` |
+| CT-FLT-09 | Animal que está em outro estado que o protetor | Regra de negócio | A vitrine da pessoa física, o filtro de cidade e a demonstração de interesse usam o local do animal, e não o endereço de quem cadastrou (RF14). Um animal cadastrado em Rondônia que está no Maranhão aparece pra quem mora no Maranhão | `AnimalIntegrationTest.java`, `InteresseIntegrationTest.java` |
 
 ### Módulo 4: Perfil do animal e interesse
 
 | ID        | Cenário                                               | Tipo             | Resultado esperado                                                                                            | Automatizado em                                                 |
 | --------- | ----------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| CT-PET-01 | Ver o perfil de um animal                             | Funcional        | Aparecem as fotos, as características, a convivência, as vacinas, a história e o protetor com cidade e estado | `PerfilAnimal.test.jsx`                                         |
+| CT-PET-01 | Ver o perfil de um animal                             | Funcional        | Aparecem as fotos, as características, a convivência, as vacinas, a história, onde o animal está e o protetor com cidade e estado | `PerfilAnimal.test.jsx`                                         |
 | CT-PET-02 | Clicar em "Quero conhecer"                            | Funcional        | Visitante vai pro login antes. Pessoa física vai pro termo e pra triagem                                      | `PerfilAnimal.test.jsx`, `DemonstrarInteresse.test.jsx`         |
 | CT-PET-03 | Animal já adotado                                     | Regra de negócio | Não aparece na vitrine, e o perfil só abre pro protetor dele                                                  | `PerfilAnimal.test.jsx`, `AnimalIntegrationTest.java`           |
 | CT-PET-04 | Abrigo, o próprio protetor ou pessoa de outro estado  | Regra de negócio | No lugar do botão aparece um aviso explicando por que não dá pra demonstrar interesse                         | `PerfilAnimal.test.jsx`, `InteresseIntegrationTest.java`        |
@@ -87,6 +88,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | CT-FRM-03 | E-mail sem @ e telefone com letras       | Validação | O e-mail mostra erro de formato. O telefone não aceita letras e pede 10 ou 11 números                                 | `Validacoes.test.jsx`                               |
 | CT-FRM-04 | Clicar duas vezes em enviar              | UI        | O botão fica desativado e muda o texto ("Criando conta...", "Enviando...") até a resposta chegar, sem envio duplicado | `Cadastro.test.jsx`, `DemonstrarInteresse.test.jsx` |
 | CT-FRM-05 | Salvar no celular | UI | No cadastro e na edição de animal e em Meu perfil, no celular e no tablet, Cancelar e Salvar ficam depois do último campo, com o aviso de erro do envio logo acima. No computador, ficam no topo, ao lado do título | `CadastroAnimal.test.jsx`, `EditarAnimal.test.jsx`, `Perfil.test.jsx` (a ordem na página). A posição no computador entra no CT-NAV-02 |
+| CT-FRM-06 | Seta das listas de opções | UI | Nos filtros da vitrine, na página de abrigos e protetores e nos formulários, a seta da lista fica com espaço até a borda direita, no tema claro e no escuro, e acompanha a cor do filtro marcado | Manual |
 
 ### Módulo 6: Cadastro de animal e Meus animais
 
@@ -100,6 +102,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | CT-CAD-06 | Editar animal adotado                      | Regra de negócio | Continuando Adotado, só o status pode mudar (RF06). Na devolução pra Disponível, os dados mudam no mesmo salvamento       | `EditarAnimal.test.jsx`, `AnimalIntegrationTest.java`   |
 | CT-CAD-07 | Outra conta tenta editar ou remover        | Segurança        | A tela não mostra o formulário e a API recusa                                                                             | `EditarAnimal.test.jsx`, `AnimalIntegrationTest.java`   |
 | CT-CAD-08 | Foto que sai do animal | Funcional | A foto tirada na edição, ou as fotos de um animal removido, somem também do S3. Foto que outro animal usa continua lá | `AnimalIntegrationTest.java`, `FotoIntegrationTest.java` |
+| CT-CAD-09 | Onde o animal está | Funcional | No cadastro, cidade e estado já vêm com o endereço da conta e dá pra trocar. Na edição, o protetor muda o local. O card, o perfil do animal e Meus animais mostram o local do animal, e o perfil mostra à parte a cidade do protetor | `CadastroAnimal.test.jsx`, `EditarAnimal.test.jsx`, `CardAnimal.test.jsx`, `PerfilAnimal.test.jsx`, `AnimalIntegrationTest.java` |
 
 ### Módulo 7: Interesses recebidos
 
@@ -128,7 +131,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | CT-PRF-01 | Abrir Meu perfil      | Funcional        | O formulário vem preenchido. O CPF ou o CNPJ aparecem, mas não dá pra editar                                         | `Perfil.test.jsx`, `PerfilIntegrationTest.java` |
 | CT-PRF-02 | Editar os dados       | Funcional        | Nome, telefone, e-mail e endereço são salvos, e o nome novo aparece no menu sem entrar de novo                       | `Perfil.test.jsx`, `PerfilIntegrationTest.java` |
 | CT-PRF-03 | E-mail de outra conta | Regra de negócio | A mensagem aparece embaixo do e-mail e nada é salvo                                                                  | `Perfil.test.jsx`, `PerfilIntegrationTest.java` |
-| CT-PRF-04 | Mudar o estado        | Regra de negócio | A vitrine passa a mostrar os animais do estado novo, e os animais da conta passam a aparecer pra quem é de lá (RF14) | `PerfilIntegrationTest.java`                    |
+| CT-PRF-04 | Mudar o estado        | Regra de negócio | A vitrine passa a mostrar os animais do estado novo (RF14). Os animais que a conta cadastrou continuam onde estão: cada um tem o próprio local, editado no animal | `Perfil.test.jsx`, `PerfilIntegrationTest.java` |
 | CT-PRF-05 | Trocar a senha        | Funcional        | Pede a senha atual e a confirmação. Depois, o login só funciona com a senha nova                                     | `Perfil.test.jsx`, `PerfilIntegrationTest.java` |
 | CT-PRF-06 | Senha atual errada    | Segurança        | A mensagem aparece embaixo da senha atual e a pessoa continua logada                                                 | `Perfil.test.jsx`, `PerfilIntegrationTest.java` |
 
@@ -180,10 +183,10 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | ------------------------------------------ | ------ | ------------- | ------- |
 | 1. Navegação e página inicial              | 10     | 9             | 1       |
 | 2. Cadastro, login e sessão                | 9      | 9             | 0       |
-| 3. Vitrine, busca e filtros                | 8      | 8             | 0       |
+| 3. Vitrine, busca e filtros                | 9      | 9             | 0       |
 | 4. Perfil do animal e interesse            | 7      | 7             | 0       |
-| 5. Formulários                             | 5      | 5             | 0       |
-| 6. Cadastro de animal e Meus animais       | 8      | 8             | 0       |
+| 5. Formulários                             | 6      | 5             | 1       |
+| 6. Cadastro de animal e Meus animais       | 9      | 9             | 0       |
 | 7. Interesses recebidos                    | 5      | 5             | 0       |
 | 8. Minhas candidaturas                     | 5      | 5             | 0       |
 | 9. Meu perfil                              | 6      | 6             | 0       |
@@ -191,7 +194,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | 11. Blog para tutores                          | 5      | 5             | 0       |
 | 12. Abrigos e protetores                   | 5      | 5             | 0       |
 | 13. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
-| **Total**                                  | **85** | **82**        | **3**   |
+| **Total**                                  | **88** | **84**        | **4**   |
 
 A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta tabela: ela é medida pelo JaCoCo e pelo Jest a cada push, como explica o [plano de testes](plano-de-testes.md). Esta tabela mostra outra coisa: quantos comportamentos importantes já têm teste automático e quantos ainda dependem de alguém testar à mão.
 

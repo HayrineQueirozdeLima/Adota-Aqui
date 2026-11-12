@@ -433,7 +433,7 @@ Atualiza os dados editáveis da conta do Usuario logado.
 - O CPF **não faz parte** do corpo, porque não é editável (RF17). Se vier, é ignorado.
 - O e-mail é guardado em minúsculas, como no cadastro. Manter o próprio e-mail não é conflito.
 - A senha é trocada em um endpoint próprio (`PATCH /api/usuarios/me/senha`).
-- Se o estado mudar, a listagem e a demonstração de interesse passam a usar o estado novo (RF14, UC10 FA06). Os animais que a conta cadastrou mudam de estado junto, porque o animal usa o estado de quem cadastrou. O aviso sobre isso é exibido pelo front antes de salvar.
+- Se o estado mudar, a listagem e a demonstração de interesse passam a usar o estado novo (RF14, UC10 FA06). Os animais que a conta já cadastrou **não** mudam junto: cada animal tem o próprio local (`cidade` e `estado`), que o protetor edita no `PUT /api/animais/{id}`. O aviso sobre isso é exibido pelo front antes de salvar.
 
 **Saída (`200 OK`):** os dados atualizados, no mesmo formato do `GET /api/usuarios/me`.
 
@@ -495,6 +495,12 @@ Diferenças:
 
 ## 8. Animais
 
+O animal tem `cidade` (até 80 caracteres) e `estado` (UF) próprios: é onde ele está, e os dois voltam no perfil e nas listagens.
+No cadastro, o formulário já vem com o endereço da conta e o protetor pode trocar. O `POST` sem os dois usa o endereço de quem cadastra; o `PUT` sem os dois mantém o local atual.
+Quando vêm, os dois andam juntos e não aceitam texto em branco, e a cidade chega sem os espaços das pontas.
+O filtro `cidade`, a vitrine por estado (RF14) e a regra de demonstrar interesse olham o local do animal. `protetor.cidade` e `protetor.estado` continuam sendo o endereço da conta.
+Os animais que já existiam antes dessas colunas ficam com o endereço de quem cadastrou (o `LocalDosAnimaisAntigos` acerta isso quando o back sobe). Animal adotado não muda de local, como os outros dados.
+
 ### Formato do animal (resposta completa)
 
 Usado nas respostas de `GET /api/animais/{id}`, `POST /api/animais` e `PUT /api/animais/{id}`:
@@ -537,6 +543,8 @@ Usado nas respostas de `GET /api/animais/{id}`, `POST /api/animais` e `PUT /api/
     }
   ],
   "statusAdocao": "DISPONIVEL",
+  "cidade": "Candeias do Jamari",
+  "estado": "RO",
   "protetor": {
     "nome": "Abrigo Patas Unidas",
     "cidade": "Porto Velho",
@@ -551,7 +559,8 @@ Usado nas respostas de `GET /api/animais/{id}`, `POST /api/animais` e `PUT /api/
 | Campo                     | Descrição                                                                                                                                                                                                                                                           |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `fotos`                   | Lista ordenada de URLs. **A primeira é a foto de capa**                                                                                                                                                                                                             |
-| `protetor`                | Quem cadastrou o animal. O estado do animal é o estado do protetor (RF14). Telefone e e-mail do protetor **não** aparecem aqui; eles são liberados depois que o interesse é registrado (RF09)                                                                       |
+| `cidade`, `estado`        | Onde o animal está. Pode ser diferente do endereço do protetor (o protetor se mudou, ou o animal está com outra pessoa ou num lar temporário). É este estado que vale pro RF14: a vitrine do Usuario e a demonstração de interesse comparam com ele                 |
+| `protetor`                | Quem cadastrou o animal, com o endereço **dele**. Telefone e e-mail do protetor **não** aparecem aqui; eles são liberados depois que o interesse é registrado (RF09)                                                                                                  |
 | `ehMeu`                   | `true` se quem está logado é o protetor deste animal. O front usa para mostrar "Editar" e "Remover"                                                                                                                                                                 |
 | `podeDemonstrarInteresse` | `true` só quando: a conta é Usuario, o animal está `DISPONIVEL`, o animal é do mesmo estado do Usuario, o Usuario não é o protetor e ainda não tem interesse ativo nele. O front mostra o botão "Quero conhecer {nome}" com base neste campo, sem repetir as regras |
 | `meuInteresse`            | Para Usuario logado com interesse neste animal: `{ "id": "...", "statusAndamento": "PENDENTE" }`. Nos demais casos, `null`. O front troca o botão por "Desistir da adoção" quando o interesse está `PENDENTE` ou `EM_CONTATO` (UC07, passo 6)                       |
@@ -592,7 +601,7 @@ Lista os animais disponíveis para adoção, com filtros.
 **Regras**
 
 - Só aparecem animais com status `DISPONIVEL`.
-- **Usuario logado:** vê só os animais do **mesmo estado** que o seu (RF14). Esse filtro é automático e não pode ser removido.
+- **Usuario logado:** vê só os animais que estão no **mesmo estado** que o seu (RF14). Vale o `estado` do animal, não o do protetor. Esse filtro é automático e não pode ser removido.
 - **Visitante e Abrigo:** veem animais de **todos os estados** (RF07, RF14).
 - **Ordem:** do cadastrado mais recente pro mais antigo.
 - **Paginação:** a resposta vem em páginas. Sem parâmetro nenhum, vem a primeira página, com até 12 animais.
@@ -605,7 +614,7 @@ Lista os animais disponíveis para adoção, com filtros.
 | `raca`               | Valor de uma raça (ver `GET /api/racas`)                                                                                                                                             |
 | `porte`              | `PEQUENO`, `MEDIO`, `GRANDE`                                                                                                                                                         |
 | `sexo`               | `FEMEA`, `MACHO`                                                                                                                                                                     |
-| `cidade`             | Texto. Basta conter o que foi digitado ("porto" acha Porto Velho). Não diferencia maiúsculas nem acentos                                                                             |
+| `cidade`             | Texto. Procura na cidade **do animal**. Basta conter o que foi digitado ("porto" acha Porto Velho). Não diferencia maiúsculas nem acentos                                             |
 | `busca`              | Texto, até 80 caracteres. Procura no nome do animal e no nome de quem cadastrou, pessoa ou abrigo ("quatro patas" acha os animais do Instituto Quatro Patas). Funciona como a cidade |
 | `convivenciaCrianca` | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                                                                                                      |
 | `convivenciaGato`    | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                                                                                                      |
@@ -639,6 +648,8 @@ Exemplo: `GET /api/animais?especie=GATO&porte=PEQUENO&convivenciaCrianca=CONVIVE
       },
       "statusAdocao": "DISPONIVEL",
       "fotoCapa": null,
+      "cidade": "Santo André",
+      "estado": "SP",
       "protetor": {
         "nome": "Instituto Quatro Patas",
         "cidade": "Santo André",
@@ -655,7 +666,7 @@ Exemplo: `GET /api/animais?especie=GATO&porte=PEQUENO&convivenciaCrianca=CONVIVE
 
 `totalItens` conta tudo o que os filtros acharam, e não só esta página. É com ele que o front mostra "Mostrando 12 de 37 animais" e sabe se ainda tem página pra buscar. Página depois da última volta com `itens` vazio.
 
-A listagem traz peso, castração, convivência, energia e status porque o card da vitrine mostra tudo isso (ver o Figma).
+A listagem traz peso, castração, convivência, energia e status porque o card da vitrine mostra tudo isso (ver o Figma). O card mostra `cidade` e `estado` do animal; o `protetor` traz o endereço de quem cadastrou.
 
 Nenhum animal encontrado: `200 OK` com `itens` vazio e `totalItens` igual a `0`. O front exibe "Nenhum animal disponível no seu estado no momento" (sem filtros, UC06 FA01) ou "Nenhum resultado encontrado com essas informações" (com filtros, UC06 FA02).
 
@@ -714,6 +725,8 @@ Cadastra um animal para adoção. O protetor é a conta logada (Usuario ou Abrig
     "cao": "CONVIVE_BEM"
   },
   "historia": "Resgatada na BR-364 em janeiro. Muito dócil e brincalhona.",
+  "cidade": "Candeias do Jamari",
+  "estado": "RO",
   "fotos": ["https://adota-aqui.s3.amazonaws.com/animais/tmp/abc123.jpg"],
   "vacinas": [{ "nome": "V10", "dose": 2, "dataAplicacao": "2026-05-10" }]
 }
@@ -729,6 +742,7 @@ Cadastra um animal para adoção. O protetor é a conta logada (Usuario ou Abrig
 | `convivencia.crianca`, `.gato`, `.cao`                            | Obrigatórios. Se o protetor não sabe, envia `NAO_TESTADO`                                                                                                                  |
 | `fotos`                                                           | Obrigatório, com **pelo menos 1** URL. A ordem da lista é a ordem de exibição, e a primeira é a capa (RF16). As URLs vêm do `POST /api/fotos`                              |
 | `vacinas`                                                         | Opcional. Lista vazia ou omitida = nenhuma vacina registrada. Em cada item: `nome` obrigatório, até 80 caracteres; `dose` inteiro ≥ 1; `dataAplicacao` não pode ser futura |
+| `cidade`, `estado`                                                | Onde o animal está. Opcionais, mas **andam juntos**: veio um, tem que vir o outro (senão `400`, com o aviso em `campos.cidade`). `cidade` até 80 caracteres e sem ficar em branco; `estado` é a sigla de um dos 27 estados. Sem os dois, o animal fica no endereço do protetor. O site sempre manda, já preenchidos com o endereço da conta |
 
 Não se envia `statusAdocao` nem o protetor: todo animal nasce `DISPONIVEL` (UC04, passo 9), e o protetor é a conta do token.
 
@@ -762,6 +776,7 @@ Atualiza um animal. Como é `PUT`, o corpo leva **todos** os campos, inclusive o
 ```
 
 - As listas `fotos` e `vacinas` **substituem** as atuais. Vacina que não estiver na lista enviada é removida.
+- `cidade` e `estado` mudam o local do animal. Se não vierem, o animal continua onde estava. Como os outros dados, o local só muda com o animal `DISPONIVEL` (ou na devolução).
 - A foto que sai da lista é apagada também do armazenamento (S3), depois que a alteração é salva. Só é apagada a foto enviada pelo `POST /api/fotos` e que nenhum outro animal usa.
 
 **Regras de status (RF06, UC05 FA04, máquina de estados do Animal)**

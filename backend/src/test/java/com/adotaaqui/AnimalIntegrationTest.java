@@ -1,5 +1,6 @@
 package com.adotaaqui;
 
+import com.adotaaqui.config.LocalDosAnimaisAntigos;
 import com.adotaaqui.model.Abrigo;
 import com.adotaaqui.model.Animal;
 import com.adotaaqui.model.Endereco;
@@ -62,6 +63,7 @@ class AnimalIntegrationTest {
     @Autowired JdbcTemplate jdbc;
     @Autowired TransactionTemplate transacao;
     @Autowired ArmazenamentoEmMemoria armazenamento;
+    @Autowired LocalDosAnimaisAntigos localDosAnimaisAntigos;
     private int sequencia;
 
     // Os primeiros bytes de um JPG bastam pro back aceitar a foto (ver FotoIntegrationTest)
@@ -274,6 +276,89 @@ class AnimalIntegrationTest {
                 .andExpect(jsonPath("$.itens.length()").value(2));
     }
 
+    // O animal pode estar longe do endereço de quem cadastrou: uma pessoa de Porto Velho cadastra
+    // um gato que está com a avó em São Luís. O local dele vale na vitrine (RF14) e no filtro de cidade
+    @Test
+    void animalTemLocalProprioQueValeNaVitrineENoFiltroDeCidade() throws Exception {
+        Conta protetora = conta(false, "RO");
+        Conta deRondonia = conta(false, "RO");
+        Conta doMaranhao = conta(false, "MA");
+        JsonNode criado = criar(protetora, corpo().put("cidade", " São Luís ").put("estado", "MA"));
+        String id = criado.path("id").asText();
+        assertThat(criado.path("cidade").asText()).isEqualTo("São Luís");
+        assertThat(criado.path("estado").asText()).isEqualTo("MA");
+        // o endereço da protetora continua sendo o dela
+        assertThat(criado.path("protetor").path("estado").asText()).isEqualTo("RO");
+
+        mvc.perform(auth(get("/api/animais"), doMaranhao))
+                .andExpect(jsonPath("$.itens.length()").value(1))
+                .andExpect(jsonPath("$.itens[0].cidade").value("São Luís"))
+                .andExpect(jsonPath("$.itens[0].estado").value("MA"));
+        mvc.perform(auth(get("/api/animais"), deRondonia)).andExpect(jsonPath("$.itens").isEmpty());
+        mvc.perform(get("/api/animais").param("cidade", "sao luis")).andExpect(jsonPath("$.itens.length()").value(1));
+        mvc.perform(get("/api/animais").param("cidade", "porto velho")).andExpect(jsonPath("$.itens").isEmpty());
+        mvc.perform(auth(get("/api/animais/" + id), doMaranhao))
+                .andExpect(jsonPath("$.podeDemonstrarInteresse").value(true));
+        mvc.perform(auth(get("/api/animais/" + id), deRondonia))
+                .andExpect(jsonPath("$.podeDemonstrarInteresse").value(false));
+    }
+
+    @Test
+    void semLocalFicaNoEnderecoDoProtetorENaEdicaoOLocalMudaOuContinua() throws Exception {
+        Conta dono = conta(true, "RO");
+        JsonNode criado = criar(dono, corpo());
+        String id = criado.path("id").asText();
+        assertThat(criado.path("cidade").asText()).isEqualTo("Porto Velho");
+        assertThat(criado.path("estado").asText()).isEqualTo("RO");
+
+        // editar sem mandar o local: o animal continua onde estava
+        mvc.perform(auth(put("/api/animais/" + id), dono).contentType(MediaType.APPLICATION_JSON)
+                        .content(corpo().put("statusAdocao", "DISPONIVEL").toString()))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.cidade").value("Porto Velho"));
+        // editar mandando o local: o protetor se mudou, ou o animal foi pra um lar temporário
+        mvc.perform(auth(put("/api/animais/" + id), dono).contentType(MediaType.APPLICATION_JSON)
+                        .content(corpo().put("statusAdocao", "DISPONIVEL")
+                                .put("cidade", "Ji-Paraná").put("estado", "RO").toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.cidade").value("Ji-Paraná"))
+                .andExpect(jsonPath("$.estado").value("RO"))
+                .andExpect(jsonPath("$.protetor.cidade").value("Porto Velho"));
+        assertThat(jdbc.queryForObject("select cidade from animal where id = ?", String.class, UUID.fromString(id)))
+                .isEqualTo("Ji-Paraná");
+    }
+
+    @Test
+    void localPrecisaDeCidadeEEstadoJuntosEDeUmEstadoQueExiste() throws Exception {
+        Conta dono = conta(false, "RO");
+        mvc.perform(auth(post("/api/animais"), dono).contentType(MediaType.APPLICATION_JSON)
+                        .content(corpo().put("cidade", "Manaus").toString()))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.campos.cidade").isNotEmpty());
+        mvc.perform(auth(post("/api/animais"), dono).contentType(MediaType.APPLICATION_JSON)
+                        .content(corpo().put("estado", "AM").toString()))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.campos.cidade").isNotEmpty());
+        mvc.perform(auth(post("/api/animais"), dono).contentType(MediaType.APPLICATION_JSON)
+                        .content(corpo().put("cidade", "Manaus").put("estado", "XX").toString()))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.campos.estado").isNotEmpty());
+        mvc.perform(auth(post("/api/animais"), dono).contentType(MediaType.APPLICATION_JSON)
+                        .content(corpo().put("cidade", "a".repeat(81)).put("estado", "AM").toString()))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.campos.cidade").isNotEmpty());
+        assertThat(animais.count()).isZero();
+    }
+
+    // Os animais que já estavam no banco antes das colunas cidade e estado ficam com o endereço de quem cadastrou
+    @Test
+    void animaisAntigosSemLocalFicamComOEnderecoDeQuemCadastrou() throws Exception {
+        String id = criar(conta(false, "RO"), corpo().put("cidade", "Manaus").put("estado", "AM")).path("id").asText();
+        jdbc.update("update animal set cidade = null, estado = null where id = ?", UUID.fromString(id));
+
+        localDosAnimaisAntigos.run(null);
+
+        assertThat(jdbc.queryForObject("select cidade from animal where id = ?", String.class, UUID.fromString(id)))
+                .isEqualTo("Porto Velho");
+        assertThat(jdbc.queryForObject("select estado from animal where id = ?", String.class, UUID.fromString(id)))
+                .isEqualTo("RO");
+    }
+
     @Test
     void buscaPeloNomeDoAnimalOuDoProtetorSemLigarPraMaiusculaNemAcento() throws Exception {
         Conta joao = conta(false, "RO", "João Batista");
@@ -312,9 +397,10 @@ class AnimalIntegrationTest {
         mvc.perform(auth(get("/api/animais/" + id), candidato)).andExpect(status().isNotFound());
         mvc.perform(auth(get("/api/animais/" + id), dono)).andExpect(status().isOk());
         // Continuando adotado, nenhum dado muda (RF06)
-        for (String campo : new String[]{"nome", "fotos", "vacinas", "convivencia"}) {
+        for (String campo : new String[]{"nome", "fotos", "vacinas", "convivencia", "local"}) {
             ObjectNode alterado = corpo().put("statusAdocao", "ADOTADO");
             if (campo.equals("nome")) alterado.put("nome", "Novo");
+            if (campo.equals("local")) alterado.put("cidade", "Ariquemes").put("estado", "RO");
             if (campo.equals("fotos")) alterado.putArray("fotos").add("https://example.com/outra.jpg");
             if (campo.equals("vacinas")) alterado.putArray("vacinas");
             if (campo.equals("convivencia")) alterado.withObject("/convivencia").put("cao", "CONVIVE_BEM");
@@ -463,6 +549,26 @@ class AnimalIntegrationTest {
         mvc.perform(get("/api/racas").param("especie", "GATO")).andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].valor").value("SRD_GATO"));
         mvc.perform(get("/api/racas")).andExpect(status().isBadRequest());
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void cidadeDoAnimalIndependeDoProtetorEMantemFiltroDeEstado(boolean abrigo) throws Exception {
+        Conta dono = conta(abrigo, "RO");
+        JsonNode padrao = criar(dono, corpo());
+        assertThat(padrao.path("cidade").asText()).isEqualTo(padrao.path("protetor").path("cidade").asText());
+        // Cidade e estado andam juntos no pedido (ver localPrecisaDeCidadeEEstadoJuntosEDeUmEstadoQueExiste)
+        JsonNode criado = criar(dono, corpo().put("cidade", "  Ariquemes  ").put("estado", "RO"));
+        assertThat(criado.path("cidade").asText()).isEqualTo("Ariquemes");
+        assertThat(criado.path("protetor").path("cidade").asText()).isEqualTo(padrao.path("cidade").asText());
+        mvc.perform(get("/api/animais").param("cidade", "ARIQUEMES"))
+                .andExpect(jsonPath("$.itens.length()").value(1))
+                .andExpect(jsonPath("$.itens[0].cidade").value("Ariquemes"));
+        Conta outroEstado = conta(false, "SP");
+        mvc.perform(auth(get("/api/animais").param("cidade", "Ariquemes"), outroEstado))
+                .andExpect(jsonPath("$.itens").isEmpty());
+        rejeitarCadastro(dono, corpo().put("cidade", "   "));
+        rejeitarCadastro(dono, corpo().put("cidade", "a".repeat(81)).put("estado", "RO"));
     }
 
     private void rejeitarCadastro(Conta dono, ObjectNode corpo) throws Exception {

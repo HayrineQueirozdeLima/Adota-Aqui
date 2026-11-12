@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
@@ -65,6 +66,18 @@ public class AnimalRequest {
             @URL(message = "A foto deve ter uma URL válida") String> fotos = new ArrayList<>();
 
     private List<@NotNull @Valid VacinaRequest> vacinas = new ArrayList<>();
+
+    // Onde o animal está. Os dois são opcionais, mas andam juntos (ver isLocalCompleto):
+    // no cadastro, sem eles o animal fica no endereço de quem cadastra; na edição, sem eles o local não muda.
+    // Se vierem, não podem estar em branco.
+    // O site sempre manda os dois, já preenchidos com o endereço da conta
+    @Size(max = 80, message = "A cidade deve ter no máximo 80 caracteres")
+    @Pattern(regexp = "(?s).*\\S.*", message = "Informe a cidade")
+    private String cidade;
+
+    @Pattern(regexp = "AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO",
+            message = "Escolha um estado válido")
+    private String estado;
 
     public String getNome() {
         return nome;
@@ -168,6 +181,36 @@ public class AnimalRequest {
 
     public void setVacinas(List<VacinaRequest> vacinas) {
         this.vacinas = vacinas;
+    }
+
+    public String getCidade() {
+        return cidade;
+    }
+
+    public void setCidade(String cidade) {
+        this.cidade = cidade;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    // Veio local? Não é getter, então não entra no JSON nem na validação
+    public boolean temLocal() {
+        return cidade != null && !cidade.isBlank();
+    }
+
+    // Cidade sem estado (ou estado sem cidade) não dá pra saber onde o animal está
+    @JsonIgnore
+    @AssertTrue(message = "Informe a cidade e o estado do animal")
+    public boolean isLocalCompleto() {
+        boolean semCidade = cidade == null || cidade.isBlank();
+        boolean semEstado = estado == null || estado.isBlank();
+        return semCidade == semEstado;
     }
 
     @JsonIgnore

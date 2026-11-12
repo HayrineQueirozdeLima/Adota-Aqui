@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Chip from "../Chip/Chip";
+import SetaSelecao from "../SetaSelecao/SetaSelecao";
 import { portes } from "../../utils/rotulos";
 import { filtrosVazios, listarRacas } from "../../services/animais";
 
@@ -170,21 +171,27 @@ function Seletor({
     ? "border-texto-principal bg-texto-principal text-fundo-superficie"
     : "border-borda-sutil bg-fundo-superficie text-texto-principal";
 
+  // A seta fica fora do select, então repete a cor do texto e o apagado do desabilitado
   return (
-    <select
-      aria-label={rotulo}
-      title={dica}
-      value={valor}
-      disabled={desabilitado}
-      onChange={(evento) => aoMudar(evento.target.value)}
-      className={`rounded-full border px-4 py-2 font-titulo text-campo font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-marca-roxo disabled:cursor-not-allowed disabled:opacity-50 ${cores}`}
-    >
-      <option value="">{rotulo}</option>
-      {opcoes.map((opcao) => (
-        <option key={opcao.valor} value={opcao.valor}>
-          {opcao.nome}
-        </option>
-      ))}
-    </select>
+    <div className="relative inline-flex">
+      <select
+        aria-label={rotulo}
+        title={dica}
+        value={valor}
+        disabled={desabilitado}
+        onChange={(evento) => aoMudar(evento.target.value)}
+        className={`appearance-none rounded-full border py-2 pl-4 pr-10 font-titulo text-campo font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-marca-roxo disabled:cursor-not-allowed disabled:opacity-50 ${cores}`}
+      >
+        <option value="">{rotulo}</option>
+        {opcoes.map((opcao) => (
+          <option key={opcao.valor} value={opcao.valor}>
+            {opcao.nome}
+          </option>
+        ))}
+      </select>
+      <SetaSelecao
+        className={`right-4 ${valor ? "text-fundo-superficie" : "text-texto-principal"} ${desabilitado ? "opacity-50" : ""}`}
+      />
+    </div>
   );
 }

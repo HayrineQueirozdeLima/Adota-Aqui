@@ -119,6 +119,19 @@ public class Animal {
     @Column(name = "status_adocao", nullable = false, length = 20)
     private StatusAdocao statusAdocao = StatusAdocao.DISPONIVEL;
 
+    // Onde o animal está. Antes ele herdava o endereço de quem cadastrou, mas nem sempre bate:
+    // o protetor se muda, ou cadastra um animal que está com outra pessoa em outra cidade (retorno do tutor em 04/11).
+    // Se o cadastro não disser, começa igual ao endereço do protetor (ver preencherLocalSeFaltar).
+    // A vitrine do Usuario (RF14), o filtro de cidade e o interesse olham pra cá.
+    // Fica sem NOT NULL no banco porque o Hibernate (ddl-auto=update) não consegue criar coluna obrigatória
+    // numa tabela que já tem animais. Quem garante que nunca fica vazio é o Java, aqui e no LocalDosAnimaisAntigos
+    @Column(length = 80)
+    private String cidade;
+
+    // UF com 2 letras, ex.: RO
+    @Column(length = 2)
+    private String estado;
+
     // Quando o animal foi cadastrado: a vitrine mostra os mais novos primeiro.
     // O default do banco serve pros animais que já existiam quando a coluna foi criada no Neon
     @ColumnDefault("current_timestamp")
@@ -145,8 +158,20 @@ public class Animal {
     public Animal() {
     }
 
+    // Antes de gravar um animal novo: confere o protetor e, se o cadastro não disse onde o animal está, usa o endereço dele
     @PrePersist
+    private void antesDeCriar() {
+        validarProtetor();
+        preencherLocalSeFaltar();
+    }
+
+    // Na atualização só confere o protetor. O local não é preenchido aqui porque isso pode precisar
+    // buscar o protetor no banco no meio do flush, e o Hibernate não gosta. Os antigos sem local o LocalDosAnimaisAntigos resolve
     @PreUpdate
+    private void antesDeAtualizar() {
+        validarProtetor();
+    }
+
     private void validarProtetor() {
         if ((usuario == null) == (abrigo == null)) {
             throw new IllegalStateException(
@@ -155,16 +180,14 @@ public class Animal {
         }
     }
 
-    // O animal não tem estado próprio, ele "herda" o estado de quem cadastrou (RF14).
-    // É isso que a listagem compara com o estado do Usuario logado.
-    public String getEstado() {
-        Endereco endereco = null;
-        if (usuario != null) {
-            endereco = usuario.getEndereco();
-        } else if (abrigo != null) {
-            endereco = abrigo.getEndereco();
-        }
-        return endereco != null ? endereco.getEstado() : null;
+    // Animal sem local fica no endereço de quem cadastrou: o cadastro que não mandou cidade e estado,
+    // e os animais que já existiam antes dessas colunas (o LocalDosAnimaisAntigos chama isso quando o back sobe)
+    public void preencherLocalSeFaltar() {
+        if (cidade != null && !cidade.isBlank() && estado != null && !estado.isBlank()) return;
+        Endereco endereco = usuario != null ? usuario.getEndereco() : abrigo != null ? abrigo.getEndereco() : null;
+        if (endereco == null) return;
+        cidade = endereco.getCidade();
+        estado = endereco.getEstado();
     }
 
     // Use estes dois métodos em vez de mexer direto na lista,
@@ -297,6 +320,22 @@ public class Animal {
 
     public StatusAdocao getStatusAdocao() {
         return statusAdocao;
+    }
+
+    public String getCidade() {
+        return cidade;
+    }
+
+    public void setCidade(String cidade) {
+        this.cidade = cidade;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
     }
 
     public void setStatusAdocao(StatusAdocao statusAdocao) {

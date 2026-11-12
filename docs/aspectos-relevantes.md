@@ -56,11 +56,14 @@ A API não guarda sessão: cada pedido leva o token, e o back confere a assinatu
 
 Um token inválido ou vencido recebe 401 mesmo numa rota pública, como a vitrine. Se ele fosse tratado como visitante, a API devolveria os animais de todos os estados enquanto o site ainda mostra a pessoa como logada. Com o 401, o front encerra a sessão, e a vitrine continua aberta, agora como visitante de verdade.
 
-### O estado do animal vem de quem cadastrou
+### O animal tem o próprio local
 
-O animal não tem endereço próprio: o estado e a cidade dele são os de quem cadastrou (RF14). A pessoa física logada vê só os animais do mesmo estado e só pode demonstrar interesse neles. Visitante e abrigo veem todos.
+No começo, o animal herdava a cidade e o estado de quem cadastrou. Na reunião de 04/11, o tutor mostrou dois casos em que isso não bate: o protetor que se muda, e a pessoa que cadastra um animal que está com outra pessoa em outra cidade (a avó que achou um cachorro no Maranhão e não sabe usar o site). Agora o animal guarda a própria `cidade` e o próprio `estado`.
 
-Assim o protetor não digita o endereço a cada animal, e não tem como o animal ficar com um estado diferente do protetor. A comparação é pela sigla do estado, sem distância nem mapa.
+- No cadastro, os dois já vêm preenchidos com o endereço da conta, então quem não precisa mudar não digita nada a mais.
+- Na edição, o protetor muda o local quando o animal muda de lugar. Mudar o endereço da conta não leva os animais junto.
+- A pessoa física logada vê só os animais que estão no estado dela e só pode demonstrar interesse neles (RF14). Visitante e abrigo veem todos. A comparação continua pela sigla do estado, sem distância nem mapa.
+- Os animais que já estavam no banco ganham o endereço do protetor na primeira vez que o back sobe com a mudança (`LocalDosAnimaisAntigos`). Como a gente não usa Flyway, essa foi a forma de preencher as colunas novas sem rodar SQL à mão no Neon.
 
 ### Interesse com status e aprovação travada
 
@@ -212,11 +215,15 @@ Todas as telas usam rótulo em todo campo, foco visível pelo teclado, mensagem 
 
 ## O que ficou de fora
 
-A ERS (seção 6) já separava o que não cabia nos dois meses do curso. Ficaram pra uma próxima versão:
+A ERS (seção 6) já separava o que não cabia nos dois meses do curso. Na reunião de 04/11, o tutor sugeriu outras ideias pra evoluir o site, e a equipe avaliou cada uma. As que dão pra fazer, mas não cabem antes da apresentação final, entraram na mesma seção da ERS (de 6.10 a 6.12, e as avaliações em 6.2, 6.5 e 6.8) e nesta tabela. Ficaram pra uma próxima versão:
 
-| O quê                                            | Por quê ficou de fora                                                                                                                                                                        |
-| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Formulário completo de candidatura               | Coletaria dados de outras pessoas da casa, o que pede um cuidado com a LGPD maior que o aviso do RF13. No lugar, entrou a triagem curta do RF15, com a opção de responder direto ao protetor |
-| Doações e apadrinhamento                         | Precisam de um serviço de pagamento, com cobrança recorrente no caso do apadrinhamento                                                                                                       |
-| Animais desaparecidos e mapa                     | Funcionalidades novas, fora do fluxo de adoção                                                                                                                                               |
-| Aviso por e-mail de interesse novo               | No MVP, o aviso é o próprio painel: interesse novo aparece como Pendente (`docs/api.md`, decisão 3)                                                                                          |
+| O quê | Por quê ficou de fora |
+| --- | --- |
+| Formulário completo de candidatura | Coletaria dados de outras pessoas da casa, o que pede um cuidado com a LGPD maior que o aviso do RF13. No lugar, entrou a triagem curta do RF15, com a opção de responder direto ao protetor |
+| Doação pelo site e apadrinhamento | Precisam de um serviço de pagamento, e o site passaria a intermediar dinheiro de outras pessoas, com taxa, estorno, contestação e risco de golpe. Num projeto de curso, só daria pra mostrar em modo de teste. O jeito mais simples numa próxima versão é o abrigo mostrar a própria chave PIX no perfil, com o dinheiro indo direto pra ele (ERS 6.2 e 6.6) |
+| Animais perdidos e encontrados | Dá pra fazer aproveitando o envio de fotos, os cards, os filtros e o local do animal, mas pede tabela e telas novas, validade pros anúncios antigos e um jeito de contato que não exponha o telefone. Leva de uma a duas semanas, então é a primeira da fila depois da apresentação (ERS 6.5) |
+| Mapa de clínicas veterinárias | Dá pra fazer só no front, sem custo, com os dados abertos do OpenStreetMap, mas o cadastro de clínicas no Brasil é incompleto e faltaria clínica em várias cidades. O Google Places tem dados melhores, mas é pago (ERS 6.10) |
+| Receber denúncia de maus-tratos | Guardar denúncia é guardar dado sensível de outras pessoas, com risco de acusação falsa, e o site não tem como agir sobre o caso. Uma página só informativa, explicando que é crime e mostrando os canais oficiais, não guarda nada e pode entrar antes (ERS 6.11) |
+| Dados e mapas pra políticas públicas | Um painel de adoções e animais por estado dá pra tirar dos dados que já existem. O mapa por região precisa de uma biblioteca de mapas e de mais dados reais do que a versão de demonstração tem (ERS 6.8) |
+| Inteligência artificial | Reconhecer o animal pela foto, comparar fotos de perdidos e encontrados ou sugerir a descrição dependem de um serviço externo pago, de uma chave nova no Render e de uma pessoa conferindo o resultado (ERS 6.12) |
+| Aviso por e-mail de interesse novo | No MVP, o aviso é o próprio painel: interesse novo aparece como Pendente (`docs/api.md`, decisão 3) |

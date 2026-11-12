@@ -93,6 +93,29 @@ class DtoValidationTest {
     }
 
     @Test
+    void localDoAnimalEOpcionalMasCidadeEEstadoAndamJuntos() throws Exception {
+        ObjectNode json = (ObjectNode) MAPPER.readTree(animal());
+        assertThat(camposInvalidos(MAPPER.treeToValue(json, AnimalRequest.class))).isEmpty();
+
+        json.put("cidade", "São Luís").put("estado", "MA");
+        AnimalRequest comLocal = MAPPER.treeToValue(json, AnimalRequest.class);
+        assertThat(camposInvalidos(comLocal)).isEmpty();
+        assertThat(comLocal.temLocal()).isTrue();
+
+        json.remove("estado");
+        assertThat(camposInvalidos(MAPPER.treeToValue(json, AnimalRequest.class))).contains("localCompleto");
+        json.put("estado", "XX");
+        assertThat(camposInvalidos(MAPPER.treeToValue(json, AnimalRequest.class))).contains("estado");
+        json.put("cidade", "a".repeat(81)).put("estado", "MA");
+        assertThat(camposInvalidos(MAPPER.treeToValue(json, AnimalRequest.class))).contains("cidade");
+        // Se vier, não pode estar em branco
+        json.put("cidade", "   ").put("estado", "MA");
+        assertThat(camposInvalidos(MAPPER.treeToValue(json, AnimalRequest.class))).contains("cidade");
+        json.put("cidade", "São Luís").put("estado", "");
+        assertThat(camposInvalidos(MAPPER.treeToValue(json, AnimalRequest.class))).contains("estado");
+    }
+
+    @Test
     void animalRecusaRacaDeOutraEspecie() throws Exception {
         ObjectNode json = (ObjectNode) MAPPER.readTree(animal());
         json.put("raca", "SIAMES");

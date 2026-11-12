@@ -149,7 +149,7 @@ describe("carregar", () => {
     );
     expect(screen.getByText("Abrigo ou ONG")).toBeInTheDocument();
     expect(
-      screen.getByText(/Mudar o estado muda quem vê os seus animais/),
+      screen.getByText(/Mudar o endereço não muda os seus animais/),
     ).toBeInTheDocument();
   });
 

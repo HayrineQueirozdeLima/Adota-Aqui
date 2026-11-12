@@ -8,6 +8,7 @@ import {
   rotuloEnergia,
   iniciais,
   corDaConvivencia,
+  localDoAnimal,
 } from "../../utils/rotulos";
 
 // card da listagem de animais (Home e /animais)
@@ -83,8 +84,9 @@ export default function CardAnimal({ animal, nivelDoTitulo = 3 }) {
               <p className="font-titulo font-semibold text-campo text-texto-principal">
                 {protetor.nome}
               </p>
+              {/* Onde o animal está, que nem sempre é o endereço do protetor */}
               <p className="text-legenda text-texto-terciario">
-                {protetor.cidade}/{protetor.estado}
+                {localDoAnimal(animal)}
               </p>
             </div>
           </div>

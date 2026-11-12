@@ -11,7 +11,7 @@ import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 import { buscarAnimal } from "../../services/animais";
 import { demonstrarInteresse } from "../../services/interesses";
 import { mascaraTelefone } from "../../utils/mascaras";
-import { resumoDoAnimal } from "../../utils/rotulos";
+import { localDoAnimal, resumoDoAnimal } from "../../utils/rotulos";
 import { partesDaTriagem, triagemVazia } from "../../utils/triagem";
 import fotoNaoEncontrado from "../../assets/fotos/pagina-nao-encontrada.webp";
 
@@ -414,7 +414,7 @@ function Caminho({ animal }) {
 
 function ResumoAnimal({ animal }) {
   const { nome, fotos, protetor } = animal;
-  const descricao = resumoDoAnimal(animal);
+  const descricao = `${resumoDoAnimal(animal)}, em ${localDoAnimal(animal)}`;
 
   return (
     <section className="rounded-[16px] border border-borda-sutil bg-fundo-superficie p-5">

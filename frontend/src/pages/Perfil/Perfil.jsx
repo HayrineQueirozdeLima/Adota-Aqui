@@ -39,8 +39,9 @@ const textos = {
     sobreATipo:
       "A mesma conta serve para adotar e para cadastrar um animal que você resgatou.",
     estadoTitulo: "Mudar o estado muda o que você vê.",
+    // Desde o local próprio do animal, mudar o endereço da conta não leva os animais junto
     estadoTexto:
-      "A listagem de animais e a demonstração de interesse são restritas ao seu estado, e os animais que você cadastrou passam a aparecer pra quem é do estado novo.",
+      "A listagem de animais e a demonstração de interesse são restritas ao seu estado. Os animais que você cadastrou continuam onde estão: se eles também mudaram de lugar, atualize cada um em Meus animais.",
   },
   ABRIGO: {
     descricao:
@@ -50,9 +51,9 @@ const textos = {
     tipo: "Abrigo ou ONG",
     sobreATipo:
       "Conta institucional: cadastra os animais do abrigo e acompanha os interesses recebidos.",
-    estadoTitulo: "Mudar o estado muda quem vê os seus animais.",
+    estadoTitulo: "Mudar o endereço não muda os seus animais.",
     estadoTexto:
-      "Cada pessoa vê só os animais do próprio estado, e os seus passam a aparecer pra quem é do estado novo.",
+      "Cada animal tem o próprio local e aparece pra quem é do mesmo estado. Se os animais também mudaram de lugar, atualize cada um em Meus animais.",
   },
 };
 

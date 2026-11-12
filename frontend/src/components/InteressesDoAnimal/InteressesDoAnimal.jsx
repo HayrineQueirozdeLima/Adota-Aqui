@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import InteresseRecebido from "../InteresseRecebido/InteresseRecebido";
 import Tag from "../Tag/Tag";
 import { MOTIVO_PADRAO } from "../../services/interesses";
-import { artigoDefinido, resumoDoAnimal } from "../../utils/rotulos";
+import { artigoDefinido, localDoAnimal, resumoDoAnimal } from "../../utils/rotulos";
 
 // Em contato primeiro (é com quem o protetor já está conversando), depois os pendentes,
 // o aprovado e os descontinuados. No mesmo status, quem chegou antes vem antes
@@ -51,7 +51,7 @@ export default function InteressesDoAnimal({ animal, interesses, status, aoMudar
 
   // Os dados completos vêm de Meus animais. Se não vierem, o cartão mostra só o nome e a foto
   const descricao = resumoDoAnimal(animal);
-  const ondeEsta = protetor ? `, em ${protetor.cidade}/${protetor.estado}` : "";
+  const ondeEsta = protetor ? `, em ${localDoAnimal(animal)}` : "";
   const nomeComArtigo = sexo ? `${artigoDefinido(sexo)} ${nome}` : nome;
 
   const quantosDescontinuados =
