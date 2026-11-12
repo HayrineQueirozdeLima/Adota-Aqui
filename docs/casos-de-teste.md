@@ -2,8 +2,8 @@
 
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
-- **Versão:** 1.9 (novembro de 2026)
-- **Total:** 88 casos, 84 já automatizados e 4 manuais
+- **Versão:** 1.10 (novembro de 2026)
+- **Total:** 89 casos, 85 já automatizados e 4 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
 
@@ -64,6 +64,7 @@ A coluna **Automatizado em** mostra o arquivo de teste que já confere o caso. O
 | CT-FLT-07 | Buscar pelo nome do animal ou do protetor                   | Funcional        | Acha por parte do nome, sem diferença de acento e maiúscula, tanto o nome do animal ("mel") quanto o de quem cadastrou ("joao", "quatro patas"). Soma com os outros filtros | `VitrineAnimais.test.jsx`, `AnimalIntegrationTest.java` |
 | CT-FLT-08 | Ver mais animais | Funcional | Os animais vêm de 12 em 12, dos mais novos pros mais antigos. "Ver mais animais" traz a próxima página embaixo, sem repetir animal, e leva o foco pro primeiro animal novo. Mudar um filtro volta pra primeira página | `VitrineAnimais.test.jsx`, `AnimalIntegrationTest.java` |
 | CT-FLT-09 | Animal que está em outro estado que o protetor | Regra de negócio | A vitrine da pessoa física, o filtro de cidade e a demonstração de interesse usam o local do animal, e não o endereço de quem cadastrou (RF14). Um animal cadastrado em Rondônia que está no Maranhão aparece pra quem mora no Maranhão | `AnimalIntegrationTest.java`, `InteresseIntegrationTest.java` |
+| CT-FLT-10 | Opção de todos nas listas de filtro | UI | Porte, raça e energia começam em "Todos os portes", "Todas as raças" e "Qualquer energia", já marcados, e o nome do filtro não aparece como opção. Sem espécie, a raça fica travada mostrando "Raça". A raça "Outra" aparece como "Outras raças" e filtra pelo mesmo valor | `VitrineAnimais.test.jsx` |
 
 ### Módulo 4: Perfil do animal e interesse
 
@@ -183,7 +184,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | ------------------------------------------ | ------ | ------------- | ------- |
 | 1. Navegação e página inicial              | 10     | 9             | 1       |
 | 2. Cadastro, login e sessão                | 9      | 9             | 0       |
-| 3. Vitrine, busca e filtros                | 9      | 9             | 0       |
+| 3. Vitrine, busca e filtros                | 10     | 10            | 0       |
 | 4. Perfil do animal e interesse            | 7      | 7             | 0       |
 | 5. Formulários                             | 6      | 5             | 1       |
 | 6. Cadastro de animal e Meus animais       | 9      | 9             | 0       |
@@ -194,7 +195,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | 11. Blog para tutores                          | 5      | 5             | 0       |
 | 12. Abrigos e protetores                   | 5      | 5             | 0       |
 | 13. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
-| **Total**                                  | **88** | **84**        | **4**   |
+| **Total**                                  | **89** | **85**        | **4**   |
 
 A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta tabela: ela é medida pelo JaCoCo e pelo Jest a cada push, como explica o [plano de testes](plano-de-testes.md). Esta tabela mostra outra coisa: quantos comportamentos importantes já têm teste automático e quantos ainda dependem de alguém testar à mão.
 
