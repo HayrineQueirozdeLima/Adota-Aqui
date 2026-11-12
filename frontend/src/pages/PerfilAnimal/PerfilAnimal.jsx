@@ -389,7 +389,7 @@ function CartaoInteresse({ animal, usuario, aoMudar }) {
     return (
       <p>
         A adoção pelo Adota Aqui acontece dentro do mesmo estado. {nome} está em{" "}
-        {protetor.cidade}/{protetor.estado}.
+        {animal.cidade ?? protetor.cidade}/{protetor.estado}.
       </p>
     );
   }

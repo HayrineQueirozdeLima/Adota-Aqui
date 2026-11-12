@@ -8,6 +8,7 @@ import ListaVacinas from "../ListaVacinas/ListaVacinas";
 import Tag from "../Tag/Tag";
 import { useAuth } from "../../contexts/AuthContext";
 import { useFocoNoPrimeiroErro } from "../../hooks/useFocoNoPrimeiroErro";
+import { buscarPerfil } from "../../services/perfil";
 import { listarRacas } from "../../services/animais";
 import {
   animalVazio,
@@ -39,7 +40,7 @@ export default function FormularioAnimal({
   aoEnviar,
   cancelarPara,
 }) {
-  const { sair } = useAuth();
+  const { sair, usuario, token } = useAuth();
   const [valores, setValores] = useState(inicial);
   const [status, setStatus] = useState(statusOriginal);
   const [racas, setRacas] = useState([]);
@@ -54,6 +55,19 @@ export default function FormularioAnimal({
   const formulario = useRef(null);
 
   useFocoNoPrimeiroErro(formulario, tentativas);
+
+  useEffect(() => {
+    if (statusOriginal || !usuario?.tipoConta || !token) return undefined;
+    let cancelado = false;
+    buscarPerfil(usuario.tipoConta, token)
+      .then((perfil) => {
+        if (!cancelado) setValores((atuais) => ({
+          ...atuais, cidade: atuais.cidade || perfil.endereco.cidade,
+        }));
+      })
+      .catch((erro) => { if (!cancelado && erro.status === 401) sair(); });
+    return () => { cancelado = true; };
+  }, [statusOriginal, usuario?.tipoConta, token, sair]);
 
   const travado = statusOriginal === "ADOTADO" && status === "ADOTADO";
   const devolucao = statusOriginal === "ADOTADO" && status === "DISPONIVEL";
@@ -272,6 +286,17 @@ export default function FormularioAnimal({
                 erro={erros.castrado}
               />
             </div>
+          </Cartao>
+
+          <Cartao titulo="Localização do animal">
+            <CampoTexto
+              rotulo="Cidade"
+              value={valores.cidade ?? ""}
+              onChange={(e) => mudar("cidade", e.target.value)}
+              maxLength={80}
+              erro={erros.cidade}
+              dica="Informe a cidade onde o animal está, dentro do estado da sua conta."
+            />
           </Cartao>
 
           <Cartao titulo="Convivência e energia">

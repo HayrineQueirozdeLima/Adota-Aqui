@@ -84,7 +84,7 @@ export default function CardAnimal({ animal, nivelDoTitulo = 3 }) {
                 {protetor.nome}
               </p>
               <p className="text-legenda text-texto-terciario">
-                {protetor.cidade}/{protetor.estado}
+                {animal.cidade ?? protetor.cidade}/{protetor.estado}
               </p>
             </div>
           </div>

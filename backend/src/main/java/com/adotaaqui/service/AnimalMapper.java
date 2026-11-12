@@ -16,7 +16,7 @@ final class AnimalMapper {
 
     static AnimalResponse completo(Animal animal, boolean ehMeu, boolean podeInteresse,
                                    InteresseResumoResponse interesse) {
-        return new AnimalResponse(animal.getId(), animal.getNome(), animal.getEspecie(), animal.getRaca(),
+        return new AnimalResponse(animal.getId(), animal.getNome(), animal.getCidade(), animal.getEspecie(), animal.getRaca(),
             animal.getRaca().getNome(), animal.getSexo(), animal.getPorte(), animal.getPeso(), animal.getDataNascEstimada(),
                 animal.getCastrado(), animal.getEnergia(), convivencia(animal), animal.getHistoria(),
                 List.copyOf(animal.getFotos()), animal.getVacinas().stream()
@@ -25,7 +25,7 @@ final class AnimalMapper {
     }
 
     static AnimalListagemResponse item(Animal animal) {
-        return new AnimalListagemResponse(animal.getId(), animal.getNome(), animal.getEspecie(),
+        return new AnimalListagemResponse(animal.getId(), animal.getNome(), animal.getCidade(), animal.getEspecie(),
                 animal.getRaca(), animal.getRaca().getNome(), animal.getSexo(), animal.getPorte(),
                 animal.getPeso(), animal.getCastrado(), animal.getEnergia(), convivencia(animal),
                 animal.getStatusAdocao(), animal.getFotos().isEmpty() ? null : animal.getFotos().get(0),

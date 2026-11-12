@@ -495,6 +495,15 @@ Diferenças:
 
 ## 8. Animais
 
+O animal possui `cidade` própria (até 80 caracteres), retornada no perfil e nas listagens.
+No cadastro, o formulário preenche a cidade da conta e permite alterá-la. O `POST` sem
+`cidade` usa a cidade do cadastrante; o `PUT` sem esse campo preserva a cidade atual.
+Quando informado, o campo não aceita texto em branco e tem os espaços externos removidos.
+Animais antigos sem cidade própria continuam usando a cidade do protetor.
+O filtro `cidade` considera a localização do animal. `protetor.cidade` continua sendo
+o endereço da conta. O estado permanece herdado do protetor (RF14), inclusive nas
+regras de vitrine e interesse. A cidade segue o bloqueio de edição de animais adotados.
+
 ### Formato do animal (resposta completa)
 
 Usado nas respostas de `GET /api/animais/{id}`, `POST /api/animais` e `PUT /api/animais/{id}`:

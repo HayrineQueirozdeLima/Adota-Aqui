@@ -66,6 +66,13 @@ public class AnimalRequest {
 
     private List<@NotNull @Valid VacinaRequest> vacinas = new ArrayList<>();
 
+    @Size(max = 80, message = "A cidade deve ter no máximo 80 caracteres")
+    @jakarta.validation.constraints.Pattern(regexp = "(?s).*\\S.*", message = "Informe a cidade")
+    private String cidade;
+
+    public String getCidade() { return cidade; }
+    public void setCidade(String cidade) { this.cidade = cidade; }
+
     public String getNome() {
         return nome;
     }
