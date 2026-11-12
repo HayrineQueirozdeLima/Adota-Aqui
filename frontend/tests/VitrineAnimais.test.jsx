@@ -153,6 +153,45 @@ describe("busca na API", () => {
     expect(await nomesNaTela()).toHaveLength(6);
   });
 
+  test("a primeira opção de cada lista é o todos, já marcado", async () => {
+    renderizar();
+    await nomesNaTela();
+    expect(screen.getByLabelText("Porte")).toHaveDisplayValue("Todos os portes");
+    expect(screen.getByLabelText("Energia")).toHaveDisplayValue("Qualquer energia");
+    // sem espécie a raça fica travada e mostra só o nome do filtro
+    expect(screen.getByLabelText("Raça")).toHaveDisplayValue("Raça");
+
+    clicar("Gatos");
+    expect(await screen.findByRole("option", { name: "Todas as raças" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Raça")).toHaveDisplayValue("Todas as raças");
+    expect(screen.queryByRole("option", { name: "Raça" })).toBeNull();
+  });
+
+  test("a raça Outra aparece no filtro como Outras raças", async () => {
+    simularApi({
+      outras: (metodo, caminho) =>
+        caminho === "/api/racas"
+          ? resposta(200, [
+              { valor: "SRD_GATO", nome: "Sem raça definida" },
+              { valor: "OUTRA_GATO", nome: "Outra" },
+            ])
+          : undefined,
+    });
+    renderizar();
+    await nomesNaTela();
+
+    clicar("Gatos");
+    expect(await screen.findByRole("option", { name: "Outras raças" })).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "Outra" })).toBeNull();
+    escolher("Raça", "OUTRA_GATO");
+    await waitFor(() =>
+      expect(ultimaBuscaDeAnimais().parametros).toEqual({
+        especie: "GATO",
+        raca: "OUTRA_GATO",
+      }),
+    );
+  });
+
   test("a raça vem da API e só libera depois de escolher a espécie", async () => {
     renderizar();
     await nomesNaTela();
