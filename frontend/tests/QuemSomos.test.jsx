@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import QuemSomos from "../src/pages/QuemSomos/QuemSomos";
 
@@ -67,4 +67,34 @@ test("termina levando pros animais, pros abrigos e protetores e pro cadastro de 
   expect(
     screen.getByRole("link", { name: "Resgatei um animal" }),
   ).toHaveAttribute("href", "/meus-animais/novo");
+});
+
+test("a proposta vem em cinco cartões, cada um com um título curto", () => {
+  abrir();
+
+  const proposta = screen.getByRole("region", {
+    name: "O que o Adota Aqui se propõe a fazer",
+  });
+  expect(within(proposta).getAllByRole("listitem")).toHaveLength(5);
+  expect(
+    within(proposta)
+      .getAllByRole("heading", { level: 3 })
+      .map((titulo) => titulo.textContent),
+  ).toEqual([
+    "Todos num lugar só",
+    "Perto de você",
+    "Triagem rápida",
+    "Contato dos dois lados",
+    "Espaço pra comunidade",
+  ]);
+});
+
+test("o desenho da ponte e as fotos são enfeite: o leitor de tela pula", () => {
+  abrir();
+
+  // As duas pontas da ponte continuam escritas na tela
+  expect(screen.getByText("Quem protege")).toBeInTheDocument();
+  expect(screen.getByText("Quem quer adotar")).toBeInTheDocument();
+  // As fotos têm alt vazio e o desenho tem aria-hidden, então nenhum vira "imagem" pro leitor de tela
+  expect(screen.queryAllByRole("img")).toHaveLength(0);
 });

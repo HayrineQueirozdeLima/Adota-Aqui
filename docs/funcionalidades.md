@@ -544,15 +544,19 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ## 15. Quem somos
 
+![Quem somos no computador](prints/18-quem-somos.png)
+
 **O que faz.** Conta como o projeto surgiu, de onde veio a ideia, o que motiva o time e o que o Adota Aqui se propõe a fazer. Por enquanto, sem o nome de quem desenvolveu.
 
 **Como funciona.**
 
 1. A página fica em `/quem-somos` e no rodapé ("Quem somos"). Tem quatro partes: como surgiu o projeto, de onde veio a ideia, o que motiva a gente e o que o Adota Aqui se propõe a fazer, com o lembrete de que a decisão final é sempre de quem cuida do animal.
 2. No fim, "Quer fazer parte?" leva pra vitrine, pra página de abrigos e protetores e pro cadastro de animal.
-3. A Home termina com a seção "Conheça o Adota Aqui", depois dos passos da adoção, com o botão "Conhecer o projeto".
+3. O visual: uma faixa lilás no topo com o desenho da "ponte" (uma casinha de um lado, um coração do outro e pegadas atravessando o arco), a foto do cachorro acenando ao lado da história, uma trilha pontilhada com uma patinha em cada parte da história, a proposta em cinco cartões com ícone numa faixa roxa (como o "Como funciona" da Home) e o buldogue espiando no cartão do fim.
+4. As animações: o arco se desenha e as pegadas aparecem uma depois da outra quando a página abre, e cada parte sobe de leve quando entra na tela. Quem pediu menos movimento no sistema vê tudo parado, e o navegador que não sabe animar pela rolagem mostra as partes prontas. O desenho e as fotos são enfeite (`aria-hidden` e `alt` vazio), então o leitor de tela pula.
+5. A Home termina com a seção "Conheça o Adota Aqui", depois dos passos da adoção, com o botão "Conhecer o projeto".
 
-**Onde está no código.** `pages/QuemSomos` (os textos ficam todos no começo do arquivo, pra ficar fácil de mudar) e `components/ConhecaOProjeto`.
+**Onde está no código.** `pages/QuemSomos` (os textos ficam todos no começo do arquivo, pra ficar fácil de mudar), `components/PonteDaAdocao` (o desenho do topo), `components/Pata` (a pegada, usada no desenho e na trilha), as animações no fim do `styles/index.css` e `components/ConhecaOProjeto`.
 
 **Testes.** `QuemSomos.test.jsx`, `Home.test.jsx`, `App.test.jsx` e `Rodape.test.jsx`.
 
