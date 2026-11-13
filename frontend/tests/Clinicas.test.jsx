@@ -101,7 +101,7 @@ test("pela cidade digitada, mostra o mapa e guarda a cidade na URL", () => {
       name: "Clínicas veterinárias perto de Porto Velho/RO",
     }),
   ).toHaveFocus();
-  expect(buscaDoMapa()).toBe("clínica veterinária em Porto Velho RO");
+  expect(buscaDoMapa()).toBe("veterinário em Porto Velho RO");
   expect(screen.getByTestId("endereco")).toHaveTextContent(
     "/clinicas?cidade=Porto+Velho&estado=RO",
   );
@@ -111,7 +111,7 @@ test("pela cidade digitada, mostra o mapa e guarda a cidade na URL", () => {
   });
   expect(noGoogle).toHaveAttribute("target", "_blank");
   expect(new URL(noGoogle.href).searchParams.get("query")).toBe(
-    "clínica veterinária em Porto Velho RO",
+    "veterinário em Porto Velho RO",
   );
 });
 
@@ -147,14 +147,14 @@ test("o atendimento 24 horas muda a busca do mapa", () => {
       name: "Atendimento 24 horas perto de Recife/PE",
     }),
   ).toBeInTheDocument();
-  expect(buscaDoMapa()).toBe("clínica veterinária 24 horas em Recife PE");
+  expect(buscaDoMapa()).toBe("veterinário 24 horas em Recife PE");
 });
 
 test("chegando do perfil do animal, já abre na cidade dele", () => {
   entrarComo("USUARIO");
   abrir("/clinicas?cidade=Campinas&estado=sp");
 
-  expect(buscaDoMapa()).toBe("clínica veterinária em Campinas SP");
+  expect(buscaDoMapa()).toBe("veterinário em Campinas SP");
   expect(screen.getByLabelText("Cidade")).toHaveValue("Campinas");
   expect(screen.getByLabelText("Estado")).toHaveValue("SP");
   // A cidade da URL vale mais que a do perfil, então o perfil nem é buscado
@@ -215,7 +215,7 @@ test("pela localização, mostra as clínicas perto e não põe o ponto na URL",
       name: "Clínicas veterinárias perto de você",
     }),
   ).toBeInTheDocument();
-  expect(buscaDoMapa()).toBe("clínica veterinária perto de -23.551,-46.633");
+  expect(buscaDoMapa()).toBe("veterinário perto de -23.551,-46.633");
   expect(screen.getByTestId("endereco")).toHaveTextContent(/^\/clinicas$/);
 });
 

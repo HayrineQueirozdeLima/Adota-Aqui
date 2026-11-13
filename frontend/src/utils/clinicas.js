@@ -3,10 +3,12 @@
 // e o do botão "Abrir no Google Maps" é o link oficial do Maps (api=1), que no celular abre o app.
 // Quem sabe onde ficam as clínicas, o telefone e as avaliações é o Google, o site não guarda nada disso
 
-// O que a gente procura em cada opção da página
+// O que a gente procura em cada opção da página.
+// "veterinário" é a categoria do Google, então pega clínica, hospital, consultório e pet shop com veterinário.
+// Com "clínica veterinária", ficavam de fora os lugares que não têm "clínica" no nome
 export const tiposDeBusca = {
-    todas: 'clínica veterinária',
-    plantao: 'clínica veterinária 24 horas',
+    todas: 'veterinário',
+    plantao: 'veterinário 24 horas',
 };
 
 // Três casas depois da vírgula dá uns 100 metros: perto o bastante pra achar as clínicas,
