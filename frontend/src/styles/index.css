@@ -167,3 +167,63 @@ body {
     translate: 0 0;
   }
 }
+
+/* Patinhas pelo site (components/TrilhaDePatas e components/RastroDePatas).
+   A trilha no fundo das faixas roxas fica parada e clarinha pra quem pediu menos movimento,
+   e pros outros uma pegada aparece depois da outra, sem parar, cada uma com o próprio atraso (--atraso) */
+.trilha-pegada {
+  opacity: 0.5;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .trilha-pegada {
+    opacity: 0;
+    animation: trilha-andar 8s ease-in-out var(--atraso, 0s) infinite;
+  }
+}
+
+@keyframes trilha-andar {
+  0% {
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  32% {
+    opacity: 1;
+  }
+  46% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* A pegada que fica no caminho do mouse. O lugar e o giro vêm do componente (--onde),
+   e ela some sozinha. O componente nem cria pegada pra quem pediu menos movimento */
+.rastro-pegada {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 22px;
+  height: 22px;
+  opacity: 0;
+  transform: var(--onde);
+  animation: rastro-sumir 900ms ease-out forwards;
+}
+
+@keyframes rastro-sumir {
+  from {
+    opacity: 0.6;
+    transform: var(--onde) scale(0.6);
+  }
+  25% {
+    opacity: 0.6;
+    transform: var(--onde) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: var(--onde) scale(1);
+  }
+}

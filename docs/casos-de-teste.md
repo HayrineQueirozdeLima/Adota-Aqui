@@ -2,8 +2,8 @@
 
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
-- **Versão:** 1.13 (novembro de 2026)
-- **Total:** 102 casos, 95 já automatizados e 7 manuais
+- **Versão:** 1.14 (novembro de 2026)
+- **Total:** 103 casos, 96 já automatizados e 7 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
 
@@ -36,6 +36,7 @@ A coluna **Automatizado em** mostra o arquivo de teste que já confere o caso. O
 | CT-NAV-08 | Título da aba           | Acessibilidade | Cada página mostra o nome dela na aba do navegador (ex.: "Meus animais"), e o leitor de tela anuncia a página nova                                                                                                                                                                     | `App.test.jsx`, `EditarAnimal.test.jsx`   |
 | CT-NAV-09 | Números do site | Funcional | A página inicial mostra as adoções feitas, os animais esperando um lar e os abrigos cadastrados, com ponto no milhar e singular no 1. Se a API falhar, a faixa some e o resto da página funciona | `Estatisticas.test.jsx`, `Home.test.jsx`, `EstatisticasIntegrationTest.java` |
 | CT-NAV-10 | Quem somos | Funcional | A página `/quem-somos` conta como surgiu o projeto, de onde veio a ideia, a motivação e o que o Adota Aqui se propõe a fazer (em cinco cartões com título), sem nome de quem desenvolveu. O desenho da ponte e as fotos são enfeite, que o leitor de tela pula. A Home termina com "Conheça o Adota Aqui", que leva pra ela | `QuemSomos.test.jsx`, `Home.test.jsx`, `App.test.jsx` |
+| CT-NAV-11 | Patinhas | UI | Com mouse, o caminho dele deixa pegadas laranja alternando de lado, que somem sozinhas (no máximo 24 na tela). Toque na tela não deixa pegada. A faixa "Como funciona" e o painel do login têm a trilha de patas no fundo, escondida do leitor de tela. Quem pediu menos movimento não vê o rastro e vê a trilha parada | `RastroDePatas.test.jsx`, `TrilhaDePatas.test.jsx`, `curva.test.js` |
 
 ### Módulo 2: Cadastro, login e sessão
 
@@ -205,7 +206,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 
 | Módulo                                     | Casos  | Automatizados | Manuais |
 | ------------------------------------------ | ------ | ------------- | ------- |
-| 1. Navegação e página inicial              | 10     | 9             | 1       |
+| 1. Navegação e página inicial              | 11     | 10            | 1       |
 | 2. Cadastro, login e sessão                | 9      | 9             | 0       |
 | 3. Vitrine, busca e filtros                | 11     | 11            | 0       |
 | 4. Perfil do animal e interesse            | 9      | 8             | 1       |
@@ -220,7 +221,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | 13. Clínicas veterinárias                  | 4      | 3             | 1       |
 | 14. Feiras de adoção                       | 6      | 5             | 1       |
 | 15. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
-| **Total**                                  | **102** | **95**       | **7**   |
+| **Total**                                  | **103** | **96**       | **7**   |
 
 A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta tabela: ela é medida pelo JaCoCo e pelo Jest a cada push, como explica o [plano de testes](plano-de-testes.md). Esta tabela mostra outra coisa: quantos comportamentos importantes já têm teste automático e quantos ainda dependem de alguém testar à mão.
 
