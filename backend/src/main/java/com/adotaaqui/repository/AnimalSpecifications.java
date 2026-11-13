@@ -66,7 +66,8 @@ public final class AnimalSpecifications {
 
     // Faz o mesmo do lado do banco, com o translate (troca letra por letra), que existe
     // no PostgreSQL e no H2. Assim a busca funciona igual no Neon e nos testes.
-    private static Expression<String> semAcento(CriteriaBuilder cb, Expression<String> coluna) {
+    // As feiras de adoção (FeiraSpecifications) usam os dois também
+    static Expression<String> semAcento(CriteriaBuilder cb, Expression<String> coluna) {
         return cb.function("translate", String.class,
                 cb.lower(coluna), cb.literal(COM_ACENTO), cb.literal(SEM_ACENTO));
     }

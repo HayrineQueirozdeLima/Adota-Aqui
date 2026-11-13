@@ -27,7 +27,8 @@ Fontes: Especificação de Requisitos (RF01 a RF17), Casos de Uso (UC01 a UC10),
 11. [Histórias de adoção](#11-histórias-de-adoção)
 12. [Blog para tutores](#12-blog-para-tutores)
 13. [Abrigos e protetores](#13-abrigos-e-protetores)
-14. [Pontos em aberto](#14-pontos-em-aberto)
+14. [Feiras de adoção](#14-feiras-de-adoção)
+15. [Pontos em aberto](#15-pontos-em-aberto)
 
 ---
 
@@ -36,7 +37,7 @@ Fontes: Especificação de Requisitos (RF01 a RF17), Casos de Uso (UC01 a UC10),
 - **Mudou um endpoint no código? Atualize este arquivo no mesmo pull request.** Um contrato desatualizado é pior do que nenhum, porque o outro squad confia nele.
 - Nenhum squad muda um formato de entrada ou saída sozinho. Mudança de contrato é combinada entre Front End e Back End antes de ser implementada.
 - Cada endpoint indica a sua **origem** (RF/UC). Se um requisito mudar, procure aqui pelo código dele para achar os endpoints afetados.
-- Decisões ainda não fechadas ficam na seção [14. Pontos em aberto](#14-pontos-em-aberto) até o time decidir.
+- Decisões ainda não fechadas ficam na seção [15. Pontos em aberto](#15-pontos-em-aberto) até o time decidir.
 
 ---
 
@@ -190,6 +191,12 @@ Quando um valor não existe na lista de opções (um enum, como `porte` ou `espe
 | `PUT`    | `/api/artigos/{id}`              | Autor do artigo          | ERS 6.4                            | Sim    |
 | `DELETE` | `/api/artigos/{id}`              | Autor do artigo          | ERS 6.4                            | Sim    |
 | `GET`    | `/api/protetores`              | Público                | RF07, ERS 4 (Protetor)             | Sim    |
+| `GET`    | `/api/feiras`                  | Público                | Depois do MVP                      | Sim    |
+| `GET`    | `/api/feiras/{id}`             | Público                | Depois do MVP                      | Sim    |
+| `GET`    | `/api/feiras/minhas`           | Somente Abrigo         | Depois do MVP                      | Sim    |
+| `POST`   | `/api/feiras`                  | Somente Abrigo         | Depois do MVP                      | Sim    |
+| `PUT`    | `/api/feiras/{id}`             | Abrigo que divulgou    | Depois do MVP                      | Sim    |
+| `DELETE` | `/api/feiras/{id}`             | Abrigo que divulgou    | Depois do MVP                      | Sim    |
 
 Endpoint novo entra nesta tabela como "Ainda não" assim que o formato é combinado. Assim o front já pode montar a tela com dados de exemplo enquanto o back faz a parte dele.
 
@@ -198,6 +205,8 @@ O depoimento (RF11, UC09) era opcional e entrou depois do MVP: os endpoints est�
 O blog para tutores (ERS 6.4) também entrou depois do MVP: os endpoints estão na seção [Blog para tutores](#12-blog-para-tutores).
 
 A página de abrigos e protetores (o link "Abrigos e protetores independentes" do rodapé) veio depois também: o endpoint está na seção [Abrigos e protetores](#13-abrigos-e-protetores).
+
+As feiras de adoção entraram na semana da apresentação: os endpoints estão na seção [Feiras de adoção](#14-feiras-de-adoção).
 
 ---
 
@@ -246,7 +255,7 @@ Autentica um Usuario (CPF) ou um Abrigo (CNPJ) e devolve o token.
 | `401`  | Documento não cadastrado **ou** senha incorreta. A mensagem é a mesma nos dois casos: "Documento ou senha inválidos" | UC03 FA01, FA02 |
 | `500`  | Falha ao autenticar ou gerar o token                                                                                 | UC03 FA04       |
 
-> A mesma mensagem para "documento não cadastrado" e "senha incorreta" impede que alguém descubra quais CPFs e CNPJs têm conta testando um por um. Ver [Pontos em aberto](#14-pontos-em-aberto).
+> A mesma mensagem para "documento não cadastrado" e "senha incorreta" impede que alguém descubra quais CPFs e CNPJs têm conta testando um por um. Ver [Pontos em aberto](#15-pontos-em-aberto).
 
 ---
 
@@ -290,7 +299,7 @@ Cria a conta de uma pessoa física e já a autentica.
 | `endereco.cidade`                        | Obrigatório                                                                                                   |
 | `endereco.estado`                        | Obrigatório. UF com 2 letras maiúsculas                                                                       |
 
-O usuário digita só **CEP e número** (RF01). O front consulta o ViaCEP com o CEP digitado, preenche logradouro, bairro, cidade e estado, e envia o endereço completo. Ver [Pontos em aberto](#14-pontos-em-aberto).
+O usuário digita só **CEP e número** (RF01). O front consulta o ViaCEP com o CEP digitado, preenche logradouro, bairro, cidade e estado, e envia o endereço completo. Ver [Pontos em aberto](#15-pontos-em-aberto).
 
 **Saída (`201 Created`)**
 
@@ -980,7 +989,7 @@ A desistência apaga o interesse (`DELETE /api/interesses/{id}`), então ele som
 Desistência: o candidato exclui o próprio interesse.
 **Acesso:** Candidato do interesse. **Origem:** UC07 FA01
 
-Sem corpo. Ver [Pontos em aberto](#14-pontos-em-aberto) sobre o motivo da desistência.
+Sem corpo. Ver [Pontos em aberto](#15-pontos-em-aberto) sobre o motivo da desistência.
 
 **Saída (`204 No Content`)**
 
@@ -1349,7 +1358,113 @@ A ordem é a do dicionário: nome com acento entra junto com os outros da mesma 
 
 ---
 
-## 14. Pontos em aberto
+## 14. Feiras de adoção
+
+O dia, o horário e o lugar em que um abrigo leva os animais pra conhecer quem quer adotar. Só abrigo divulga feira, e qualquer pessoa vê as que ainda vão acontecer. A feira acontece num dia só, e o horário é o da cidade dela.
+
+### Formato da feira
+
+```json
+{
+  "id": "4f1c2d3e-0000-4000-8000-000000000001",
+  "titulo": "Feira de adoção do Parque da Cidade",
+  "descricao": "Cães e gatos castrados e vacinados. Traga um documento com foto.",
+  "data": "2026-11-21",
+  "horaInicio": "09:00:00",
+  "horaFim": "13:00:00",
+  "local": "Parque da Cidade",
+  "endereco": "Avenida Jorge Teixeira, 1000, Embratel",
+  "cidade": "Porto Velho",
+  "estado": "RO",
+  "abrigo": {
+    "nome": "Instituto Quatro Patas",
+    "cidade": "Porto Velho",
+    "estado": "RO"
+  },
+  "ehMinha": false
+}
+```
+
+| Campo         | O que é |
+| ------------- | ------- |
+| `descricao`   | Opcional, até 1000 caracteres. Texto puro. Sem descrição, vem `null` |
+| `local`       | O nome do lugar ("Praça Central", "Pet Shop Amigo Fiel"). No banco, a coluna é `lugar` |
+| `abrigo`      | Quem organiza, com o mesmo que a vitrine mostra do protetor. E-mail e telefone não aparecem |
+| `ehMinha`     | `true` se quem está logado é o abrigo que divulgou. O front usa pra mostrar "Editar" e "Apagar" |
+
+### GET /api/feiras
+
+As feiras de hoje em diante, da mais próxima pra mais distante (data e depois hora de início), em páginas (`pagina` e `tamanho`, como no `GET /api/animais`). A feira de hoje continua na lista até o fim do dia, no horário de Brasília.
+**Acesso:** Público
+
+| Parâmetro | Valores |
+| --------- | ------- |
+| `estado`  | Sigla do estado (`RO`, `SP`) |
+| `cidade`  | Texto, até 80 caracteres. Basta conter o que foi digitado, sem diferenciar maiúsculas nem acentos, como na vitrine |
+| `pagina`  | Número da página, começando em `0`. Padrão: `0` |
+| `tamanho` | Feiras por página, de `1` a `48`. Padrão: `12` |
+
+**Saída (`200 OK`):** `{ itens, pagina, tamanho, totalItens, totalPaginas }`, com as feiras no formato acima.
+
+**Erros:** `400` estado que não existe, cidade longa demais, ou `pagina` e `tamanho` fora dos limites; `401` token enviado, porém inválido ou expirado.
+
+### GET /api/feiras/{id}
+
+Uma feira, mesmo que já tenha passado (o formulário de edição usa).
+**Acesso:** Público. **Erros:** `404` "Feira não encontrada".
+
+### GET /api/feiras/minhas
+
+Todas as feiras do abrigo logado, inclusive as que já passaram, da mais nova pra mais antiga. Devolve uma lista, sem páginas.
+**Acesso:** Somente Abrigo. **Erros:** `401` sem token; `403` "Só abrigos divulgam feiras de adoção".
+
+### POST /api/feiras
+
+**Acesso:** Somente Abrigo.
+
+**Entrada**
+
+```json
+{
+  "titulo": "Feira de adoção do Parque da Cidade",
+  "descricao": "Cães e gatos castrados e vacinados.",
+  "data": "2026-11-21",
+  "horaInicio": "09:00",
+  "horaFim": "13:00",
+  "local": "Parque da Cidade",
+  "endereco": "Avenida Jorge Teixeira, 1000, Embratel",
+  "cidade": "Porto Velho",
+  "estado": "RO"
+}
+```
+
+| Campo | Regra |
+| ----- | ----- |
+| `titulo` | Obrigatório, de 5 a 120 caracteres |
+| `data` | Obrigatória. Não pode ter passado ("A data da feira já passou") |
+| `horaInicio`, `horaFim` | Obrigatórias, no formato `HH:mm`. O fim vem depois do início ("A feira deve terminar depois de começar") |
+| `local`, `endereco`, `cidade` | Obrigatórios, até 120, 200 e 80 caracteres |
+| `estado` | Obrigatório, sigla de um estado que existe |
+| `descricao` | Opcional, até 1000 caracteres. Em branco vira `null` |
+
+**Saída (`201 Created`):** a feira, com o header `Location: /api/feiras/{id}`.
+
+**Erros:** `400` com `campos` (inclusive `data` e `horaFim` das regras acima); `401` sem token; `403` "Só abrigos divulgam feiras de adoção" pra conta de pessoa física.
+
+### PUT /api/feiras/{id}
+
+Manda todos os campos de novo, com as mesmas regras do `POST`.
+**Acesso:** o abrigo que divulgou. **Saída (`200 OK`):** a feira.
+**Erros:** `400` como no `POST`; `401` sem token; `403` "Somente o abrigo que divulgou pode alterar ou apagar a feira"; `404` a feira não existe.
+
+### DELETE /api/feiras/{id}
+
+**Acesso:** o abrigo que divulgou. **Saída:** `204 No Content`.
+**Erros:** `401` sem token; `403` feira de outra conta; `404` a feira não existe.
+
+---
+
+## 15. Pontos em aberto
 
 Decisões que o contrato precisou assumir antes da implementação. As que a implementação já resolveu estão na primeira tabela; ao decidir uma das que faltam, atualize o endpoint correspondente e mova o item.
 
