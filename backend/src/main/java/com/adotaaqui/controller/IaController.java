@@ -3,6 +3,7 @@ package com.adotaaqui.controller;
 import com.adotaaqui.dto.DescricaoIaRequest;
 import com.adotaaqui.dto.IaResponses;
 import com.adotaaqui.service.IaService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 // Ajudas com IA (docs/api.md, seção 15)
+@Tag(name = "Inteligência artificial", description = "Escrever com IA e Me ajuda a escolher")
 @RestController
 @RequestMapping("/api/ia")
 public class IaController {

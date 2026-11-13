@@ -12,7 +12,7 @@ API REST em Spring Boot. Se você é do squad de back, começa por aqui.
 ```
 src/main/java/com/adotaaqui/
 ├── AdotaAquiApplication.java   liga a aplicação. Não mova ele de lugar
-├── config/       Spring Security e CORS
+├── config/       Spring Security, CORS e o Swagger
 ├── controller/   as rotas da API
 ├── dto/          formatos de entrada e saída (o JSON)
 ├── exception/    tratamento de erros
@@ -55,6 +55,8 @@ mvn spring-boot:run
 
 Precisa de um PostgreSQL rodando com o banco `adota_aqui` criado. O projeto usa usuário `postgres` e senha `postgres`. Se os seus forem diferentes, configure as variáveis de ambiente `DB_USERNAME` e `DB_PASSWORD` em vez de mudar o `application.properties` (senão a sua senha vai parar no repositório).
 
+Com o back no ar, a documentação da API fica em http://localhost:8080/swagger-ui.html (Swagger): dá pra testar cada endpoint dali, e o "Authorize" recebe o token do login pras rotas que pedem conta. Quem monta a página é o springdoc, a partir dos controllers; o `@Tag` em cima de cada controller é o nome da seção.
+
 ## Testes
 
 ```bash
@@ -63,4 +65,4 @@ mvn test
 
 O `mvn verify` roda os mesmos testes e ainda gera o relatório de cobertura em `target/site/jacoco/index.html`. É ele que o CI usa.
 
-Os testes usam um banco H2 em memória, então não precisa do PostgreSQL. A meta do curso é **70% de cobertura**, então escreve o teste junto com o código, não deixa pro final.
+Os testes usam um banco H2 em memória, então não precisa do PostgreSQL. A meta do curso é **70% de cobertura**, então escreve o teste junto com o código, não deixa pro final.

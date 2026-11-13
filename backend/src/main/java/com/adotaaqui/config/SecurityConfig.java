@@ -71,6 +71,9 @@ public class SecurityConfig {
                         // Feiras de adoção: qualquer pessoa vê. "Minhas feiras" precisa de login e vem antes
                         .requestMatchers(HttpMethod.GET, "/api/feiras/minhas").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/feiras", "/api/feiras/*").permitAll()
+                        // Swagger: a documentação da API é aberta, como o docs/api.md no GitHub.
+                        // Testar uma rota fechada pelo Swagger continua pedindo o token
+                        .requestMatchers(HttpMethod.GET, "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex

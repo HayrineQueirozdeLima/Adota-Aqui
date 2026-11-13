@@ -7,6 +7,7 @@ import com.adotaaqui.dto.ArtigoResumoResponse;
 import com.adotaaqui.dto.MeusArtigosResponse;
 import com.adotaaqui.dto.PaginaResponse;
 import com.adotaaqui.service.ArtigoService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -24,6 +25,7 @@ import java.net.URI;
 import java.util.UUID;
 
 // Blog para tutores (docs/api.md, seção 12)
+@Tag(name = "Blog para tutores", description = "Artigos de dicas escritos por abrigos e protetores")
 @RestController
 @RequestMapping("/api/artigos")
 public class ArtigoController {

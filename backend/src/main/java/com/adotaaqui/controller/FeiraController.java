@@ -5,6 +5,7 @@ import com.adotaaqui.dto.FeiraRequest;
 import com.adotaaqui.dto.FeiraResponse;
 import com.adotaaqui.dto.PaginaResponse;
 import com.adotaaqui.service.FeiraService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.UUID;
 
 // Feiras de adoção (docs/api.md, seção 14)
+@Tag(name = "Feiras de adoção", description = "Feiras que os abrigos divulgam")
 @RestController
 @RequestMapping("/api/feiras")
 public class FeiraController {

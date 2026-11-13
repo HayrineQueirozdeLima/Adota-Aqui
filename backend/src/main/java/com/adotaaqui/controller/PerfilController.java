@@ -6,6 +6,7 @@ import com.adotaaqui.dto.AtualizarAbrigoRequest;
 import com.adotaaqui.dto.AtualizarUsuarioRequest;
 import com.adotaaqui.dto.UsuarioResponse;
 import com.adotaaqui.service.PerfilService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 // Perfil da conta (docs/api.md, seção 7). O "me" fica no lugar do id: a API sabe a conta pelo token.
 // Todos precisam de login: o "anyRequest().authenticated()" do SecurityConfig já cobre, sem token é 401
+@Tag(name = "Perfil da conta", description = "Ver e editar os dados da conta logada, e trocar a senha")
 @RestController
 @RequestMapping("/api")
 public class PerfilController {

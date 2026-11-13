@@ -10,6 +10,7 @@ import com.adotaaqui.dto.RacaResponse;
 import com.adotaaqui.model.enums.Especie;
 import com.adotaaqui.model.enums.Raca;
 import com.adotaaqui.service.AnimalService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -28,6 +29,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Animais", description = "Vitrine, perfil, cadastro, edição e remoção de animais, e as raças de cada espécie")
 @RestController
 @RequestMapping("/api")
 public class AnimalController {

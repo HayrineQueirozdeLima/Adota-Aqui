@@ -134,6 +134,16 @@ Quem consulta o ViaCEP é o navegador, e o back recebe o endereço completo (`do
 
 O que dá pra deixar no repositório fica lá: `render.yaml`, `netlify.toml` e `backend/Dockerfile`. As senhas e chaves ficam só no painel do Render. Quando o back sobe ligado no banco de produção, a `ConferenciaDoDeploy` confere se a chave do JWT, as fotos no S3 e o CORS foram configurados, e se faltar algum, ele não sobe ([deploy](deploy.md)).
 
+### Swagger junto com o contrato da API
+
+O `docs/api.md` foi escrito antes do código, como o combinado entre front e back, e é onde estão as regras e os erros de cada endpoint. O Swagger (`/swagger-ui.html`) é montado pelo springdoc a partir dos próprios controllers, então não tem como ficar diferente do que a API faz, e deixa qualquer pessoa testar os endpoints no navegador, inclusive os que pedem login (com o token no "Authorize"). Um não substitui o outro: o Swagger mostra o que existe, e o `api.md` explica o porquê.
+
+A página do Swagger é aberta, como o `api.md` no GitHub. Testar uma rota fechada por ali continua pedindo o token. O endereço da API no Swagger é relativo (`/`), porque atrás do proxy do Render ele seria montado com `http`, e o navegador bloquearia o teste numa página `https`.
+
+### Docker pra rodar tudo com um comando
+
+O back já ia pro Render numa imagem Docker (`backend/Dockerfile`). O `docker-compose.yml` junta essa imagem com um PostgreSQL e com o front servido por um nginx, pra quem for avaliar ou entrar na equipe subir o projeto inteiro com `docker compose up --build`, sem instalar Java, Maven, Node nem PostgreSQL. O front continua sendo publicado pelo Netlify, que builda sozinho a partir do `netlify.toml`: o Docker do front é só pra rodar local.
+
 ### Botões de salvar no fim do formulário no celular
 
 No Figma, os botões de salvar ficam no topo, ao lado do título. No computador isso funciona, mas no celular o formulário do animal e o Meu perfil são longos, e a pessoa tinha que rolar tudo de volta pra salvar. Agora, no HTML, os botões vêm depois do último campo, com o aviso de erro do envio logo acima deles, e no computador o CSS (`lg:order`, com o formulário virando grade) sobe os dois pro lugar do Figma.

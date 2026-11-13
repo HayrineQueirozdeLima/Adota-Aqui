@@ -75,3 +75,12 @@ jobs:
         with:
           name: cobertura-frontend
           path: frontend/coverage/lcov-report/
+  # Confere se as imagens do docker compose ainda buildam (o front com o nginx e o back com o Maven).
+  # Não é exigido pra entrar na branch: é só um aviso se alguém quebrar o Docker sem querer
+  docker:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - name: Builda as imagens do docker compose
+        run: docker compose build

@@ -2,12 +2,14 @@ package com.adotaaqui.controller;
 
 import com.adotaaqui.dto.EstatisticasResponse;
 import com.adotaaqui.service.EstatisticasService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Tag(name = "Números do site", description = "Os números da Home e do observatório, por estado")
 @RestController
 @RequestMapping("/api/estatisticas")
 public class EstatisticasController {

@@ -6,6 +6,7 @@ import com.adotaaqui.dto.InteresseRecebidoResponse;
 import com.adotaaqui.dto.InteresseRequest;
 import com.adotaaqui.dto.InteresseResponse;
 import com.adotaaqui.service.InteresseService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ import java.util.UUID;
 
 // Interesses (docs/api.md, seção 9). Todos precisam de login: a regra
 // "anyRequest().authenticated()" do SecurityConfig já cobre, sem token é 401
+@Tag(name = "Interesses", description = "Demonstrar interesse, desistir, e o painel de quem cadastrou o animal")
 @RestController
 @RequestMapping("/api")
 public class InteresseController {

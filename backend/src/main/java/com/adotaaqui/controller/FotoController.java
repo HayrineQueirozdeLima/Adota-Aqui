@@ -2,6 +2,7 @@ package com.adotaaqui.controller;
 
 import com.adotaaqui.dto.FotoResponse;
 import com.adotaaqui.service.FotoService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 // POST /api/fotos (docs/api.md, seção 8): uma imagem por vez, no campo "arquivo" (multipart/form-data).
 // Precisa de login: a regra "anyRequest().authenticated()" do SecurityConfig já cobre.
+@Tag(name = "Fotos", description = "Envio das fotos dos animais")
 @RestController
 @RequestMapping("/api/fotos")
 public class FotoController {
