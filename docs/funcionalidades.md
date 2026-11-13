@@ -23,7 +23,8 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 13. [Blog para tutores](#13-blog-para-tutores)
 14. [Abrigos e protetores](#14-abrigos-e-protetores)
 15. [Quem somos](#15-quem-somos)
-16. [O que ainda não está pronto](#16-o-que-ainda-não-está-pronto)
+16. [Clínicas veterinárias perto de você](#16-clínicas-veterinárias-perto-de-você)
+17. [O que ainda não está pronto](#17-o-que-ainda-não-está-pronto)
 
 ## Quem usa o sistema
 
@@ -53,6 +54,7 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 | 12  | Blog para tutores | ERS 6.4 | `/blog`, `/blog/:id`, `/blog/novo`, `/blog/:id/editar` | `GET`, `POST`, `PUT` e `DELETE` em `/api/artigos`, `GET /api/artigos/meus` |
 | 13  | Abrigos e protetores | RF07, ERS 4 | `/protetores` | `GET /api/protetores` |
 | 14  | Quem somos | Fora da ERS | `/quem-somos` e a chamada no fim da Home | Nenhum |
+| 15  | Clínicas veterinárias | ERS 6.10 | `/clinicas` e o link no perfil do animal | Nenhum (o mapa é do Google) |
 
 Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da API](api.md).
 
@@ -204,7 +206,7 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 - Características: espécie, raça, porte, sexo, peso, idade estimada (calculada pela data de nascimento estimada) e se é castrado.
 - Convivência com crianças, cães e gatos em tags coloridas (verde: convive bem; amarelo: não convive bem; roxo: não testado), e o nível de energia.
 - Histórico de vacinação, quando tem, e a história do animal.
-- Aviso de guarda responsável no fim.
+- Aviso de guarda responsável e o link pras clínicas veterinárias perto de onde o animal está ([seção 16](#16-clínicas-veterinárias-perto-de-você)).
 
 O quadro do lado:
 
@@ -562,7 +564,35 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ---
 
-## 16. O que ainda não está pronto
+## 16. Clínicas veterinárias perto de você
+
+![Clínicas veterinárias no computador](prints/19-clinicas.png)
+
+**O que faz.** Mostra num mapa as clínicas veterinárias perto de quem adotou ou vai adotar, em qualquer cidade do Brasil. Era uma das ideias do tutor que tinham ficado fora do escopo (ERS 6.10).
+
+**Como funciona.**
+
+1. A página fica em `/clinicas`, aberta pra qualquer pessoa, com link no rodapé ("Clínicas veterinárias") e no perfil do animal ("Vai adotar? Veja as clínicas veterinárias perto de {cidade}").
+2. O lugar vem de quatro jeitos: o botão "Usar minha localização" (o navegador pede permissão), a cidade e o estado digitados, a cidade do animal (pra quem chega pelo perfil dele) ou, pra quem está logado, a cidade do perfil da conta.
+3. O mapa é o do Google, embutido na página e já buscando "clínica veterinária" naquele lugar. Nome, endereço, telefone, horário, avaliações e rota vêm do próprio Google. Os botões "Todas as clínicas" e "Atendimento 24 horas" trocam a busca.
+4. "Abrir no Google Maps" abre a mesma busca no Maps, em outra aba. No celular, abre o app.
+5. Depois de escolher o lugar, a tela vai pro mapa (no celular ele fica embaixo da busca) e o foco vai pro título dele, que diz o lugar novo.
+6. Do lado do mapa (no celular, embaixo), o aviso de que o site não indica nem avalia clínicas e a dica de procurar a castração gratuita ou a preço popular da prefeitura.
+
+**Regras.**
+
+- O site não guarda nada: nem as clínicas, nem o lugar da pessoa. Nada passa pela nossa API.
+- A cidade digitada vai pro endereço da página (`/clinicas?cidade=Recife&estado=PE`), então dá pra mandar o link pra alguém. A localização não vai: o ponto é arredondado em uns 100 metros e só vai pro Google.
+- A cidade que vem no link vale mais que a do perfil.
+- O mapa usa o formato de incorporar do Google, sem chave. O porquê, e o que fazer se o Google parar de aceitar, está em [aspectos relevantes](aspectos-relevantes.md#o-mapa-de-clínicas-é-o-do-google-embutido).
+
+**Onde está no código.** `pages/Clinicas`, `utils/clinicas.js` (os endereços do Google), o link em `pages/PerfilAnimal`, o `href` do `components/Botao` (link pra fora do site, que abre em outra aba) e o rodapé.
+
+**Testes.** `Clinicas.test.jsx`, `clinicas.test.js`, `PerfilAnimal.test.jsx`, `App.test.jsx` (a rota), `Botao.test.jsx` e `Rodape.test.jsx`. O mapa de verdade é conferido à mão (CT-CLI-04).
+
+---
+
+## 17. O que ainda não está pronto
 
 | O quê                                   | Situação                                                                                                                                       |
 | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |

@@ -20,6 +20,7 @@ import Historias from "../pages/Historias/Historias";
 import Blog from "../pages/Blog/Blog";
 import Protetores from "../pages/Protetores/Protetores";
 import QuemSomos from "../pages/QuemSomos/QuemSomos";
+import Clinicas from "../pages/Clinicas/Clinicas";
 import Artigo from "../pages/Artigo/Artigo";
 import FormularioArtigo from "../pages/FormularioArtigo/FormularioArtigo";
 import Perfil from "../pages/Perfil/Perfil";
@@ -51,6 +52,7 @@ export default function AppRoutes() {
           <Route path="/blog/:id" element={<Artigo />} />
           <Route path="/protetores" element={<Protetores />} />
           <Route path="/quem-somos" element={<QuemSomos />} />
+          <Route path="/clinicas" element={<Clinicas />} />
 
           {/* Precisam de login: sem login, a RotaProtegida manda pro /login */}
           <Route element={<RotaProtegida />}>
