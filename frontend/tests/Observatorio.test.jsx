@@ -46,16 +46,21 @@ test("troca pra porcentagem dos lares com cachorro, do IBGE, com a fonte", async
   abrir();
   await screen.findByText("38");
 
+  // O retrato do Brasil, mais embaixo, já cita o IBGE. Com a medida do IBGE, a fonte aparece também embaixo do mapa
+  const fonteDoIbge = { name: "IBGE, Pesquisa Nacional de Saúde 2019 (abre em outra aba)" };
+  expect(screen.getAllByRole("link", fonteDoIbge)).toHaveLength(1);
+
   fireEvent.click(screen.getByRole("button", { name: "Lares com cachorro" }));
 
   expect(screen.getByRole("button", { name: "Lares com cachorro" })).toHaveAttribute("aria-pressed", "true");
   expect(
     within(mapa()).getByRole("button", { name: "Rondônia: 64,8% dos lares têm cachorro" }),
   ).toBeInTheDocument();
-  expect(screen.getByRole("link", { name: "IBGE, Pesquisa Nacional de Saúde 2019 (abre em outra aba)" })).toHaveAttribute(
-    "href",
-    expect.stringContaining("ibge.gov.br"),
-  );
+  const fontes = screen.getAllByRole("link", fonteDoIbge);
+  expect(fontes).toHaveLength(2);
+  for (const fonte of fontes) {
+    expect(fonte).toHaveAttribute("href", expect.stringContaining("ibge.gov.br"));
+  }
   // Na porcentagem não existe "nenhum ainda"
   expect(screen.queryByText("nenhum ainda")).not.toBeInTheDocument();
 });

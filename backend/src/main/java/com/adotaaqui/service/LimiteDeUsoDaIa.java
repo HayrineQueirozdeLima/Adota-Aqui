@@ -1,6 +1,7 @@
 package com.adotaaqui.service;
 
 import com.adotaaqui.exception.LimiteDeUsoException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +26,9 @@ public class LimiteDeUsoDaIa {
     private final Clock relogio;
     private final Map<String, Deque<Instant>> pedidos = new ConcurrentHashMap<>();
 
+    // Com dois construtores, o Spring precisa do @Autowired pra saber qual usar.
+    // O outro, com o relógio, é pros testes controlarem a hora
+    @Autowired
     public LimiteDeUsoDaIa(@Value("${app.ia.limite-por-hora:15}") int limitePorHora) {
         this(limitePorHora, Clock.systemUTC());
     }
