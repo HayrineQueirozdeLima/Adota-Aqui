@@ -108,6 +108,10 @@ export function simularApi({
             return Promise.resolve(resposta(200, { ...feirasExemplo[0], id: decodeURIComponent(feira[1]) }));
         }
 
+        // A IA começa desligada nos testes: as telas ficam como sem a chave. Quem testa a IA liga pelo "outras"
+        if (endereco.pathname === "/api/ia/disponivel") {
+            return Promise.resolve(resposta(200, { disponivel: false }));
+        }
         if (endereco.pathname === "/api/estatisticas/estados") {
             return Promise.resolve(resposta(200, estatisticasPorEstadoExemplo));
         }

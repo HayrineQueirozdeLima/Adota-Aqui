@@ -202,3 +202,16 @@ test("o observatório da adoção abre no /observatorio", async () => {
   expect(document.title).toBe("Observatório da adoção | Adota Aqui");
   await screen.findByText("38");
 });
+
+test("o me ajuda a escolher abre no /me-ajuda-a-escolher", async () => {
+  render(
+    <MemoryRouter initialEntries={["/me-ajuda-a-escolher"]}>
+      <App />
+    </MemoryRouter>,
+  );
+  expect(
+    await screen.findByRole("heading", { level: 1, name: "Me ajuda a escolher" }),
+  ).toBeInTheDocument();
+  // A API de mentira começa com a IA desligada
+  expect(await screen.findByText("A ajuda com IA não está disponível agora.")).toBeInTheDocument();
+});

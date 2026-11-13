@@ -26,7 +26,8 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 16. [Clínicas veterinárias perto de você](#16-clínicas-veterinárias-perto-de-você)
 17. [Feiras de adoção](#17-feiras-de-adoção)
 18. [Observatório da adoção](#18-observatório-da-adoção)
-19. [O que ainda não está pronto](#19-o-que-ainda-não-está-pronto)
+19. [Ajudas com inteligência artificial](#19-ajudas-com-inteligência-artificial)
+20. [O que ainda não está pronto](#20-o-que-ainda-não-está-pronto)
 
 ## Quem usa o sistema
 
@@ -59,6 +60,7 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 | 15  | Clínicas veterinárias | ERS 6.10 | `/clinicas` e o link no perfil do animal | Nenhum (o mapa é do Google) |
 | 16  | Feiras de adoção | Depois do MVP | `/feiras`, `/feiras/nova`, `/feiras/:id/editar` e a seção na Home | `GET`, `POST`, `PUT` e `DELETE` em `/api/feiras`, `GET /api/feiras/minhas` |
 | 17  | Observatório da adoção | ERS 6.8 | `/observatorio` | `GET /api/estatisticas/estados` |
+| 18  | Ajudas com IA | ERS 6.12 | "Escrever com IA" no formulário do animal e `/me-ajuda-a-escolher` | `GET /api/ia/disponivel`, `POST /api/ia/descricao` e `POST /api/ia/sugestoes` |
 
 Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da API](api.md).
 
@@ -446,7 +448,7 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 ![Painel de interesses recebidos no tema escuro](prints/13-tema-escuro.png)
 
 - **Título da aba e rolagem.** Cada página põe o nome dela no título da aba do navegador ("Meus animais | Adota Aqui"), e toda página nova abre no topo. O "Como adotar" do rodapé rola até a seção, e o voltar do navegador devolve a pessoa onde ela estava (`hooks/useTituloDaPagina.js` e `components/RolarParaOTopo`).
-- **Rodapé** em todas as telas que têm o menu do topo, com o logo, a frase do Figma e os links da plataforma: quem somos, explorar animais, como adotar, histórias de adoção, blog para tutores, abrigos e protetores independentes, feiras de adoção, clínicas veterinárias e cadastrar um animal (`components/Rodape`, `Rodape.test.jsx`).
+- **Rodapé** em todas as telas que têm o menu do topo, com o logo, a frase do Figma e os links da plataforma: quem somos, explorar animais, me ajuda a escolher, como adotar, histórias de adoção, blog para tutores, abrigos e protetores independentes, feiras de adoção, clínicas veterinárias, observatório da adoção e cadastrar um animal (`components/Rodape`, `Rodape.test.jsx`).
 - **Patinhas.** Com mouse, o caminho dele vai deixando pegadas laranja, uma de cada lado como quem anda, que somem em menos de 1 segundo. A setinha do mouse continua igual (`components/RastroDePatas`, no `App.jsx`). No fundo da faixa roxa "Como funciona a adoção" e do painel roxo do login e do cadastro, uma trilha de pegadas laranja clarinha aparece uma pegada depois da outra, sem parar (`components/TrilhaDePatas`). As duas são enfeite: o leitor de tela pula e o clique passa direto. Quem pediu menos movimento no sistema não vê o rastro do mouse e vê a trilha parada. No celular não tem rastro (não tem mouse), e a trilha do login só aparece no computador. A conta que espalha as pegadas na curva é a mesma da ponte do Quem somos (`utils/curva.js`). Testes: `RastroDePatas.test.jsx`, `TrilhaDePatas.test.jsx` e `curva.test.js`.
 - **Página não encontrada** pra qualquer endereço que não existe, com foto e os botões "Ver animais disponíveis" e "Ir para a página inicial". Animal que não existe (perfil, interesse ou edição) mostra a mesma foto com "Animal não encontrado".
 - **Integração contínua.** A cada push e PR na `dev` e na `main`, o GitHub Actions roda os testes do back (`mvn verify`) e do front (build e `npm run test:coverage`) e guarda os relatórios de cobertura (JaCoCo e lcov). A cobertura aparece no resumo de cada execução, e o CI falha se a de linhas ficar abaixo de 70% (RNF04). O PR só entra com os dois verdes.
@@ -667,7 +669,44 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ---
 
-## 19. O que ainda não está pronto
+## 19. Ajudas com inteligência artificial
+
+![Me ajuda a escolher no computador](prints/22-me-ajuda-a-escolher.png)
+
+**O que faz.** Duas ajudas com IA (Gemini, do Google), e nas duas quem decide é uma pessoa. Era uma das ideias do tutor que tinham ficado fora do escopo (ERS 6.12).
+
+**Escrever com IA (pra quem cadastra animal).**
+
+1. No formulário do animal (cadastrar e editar), embaixo da trajetória, aparece "Escrever com IA". Se a trajetória já tem texto, o botão vira "Melhorar com IA".
+2. A IA usa o que já foi preenchido (nome, espécie, porte, raça, idade, castração, energia, convivência, vacinas, cidade) e o rascunho da trajetória. Antes do nome e da espécie, o botão fica desligado.
+3. A sugestão aparece num quadro separado, com "Usar este texto", "Escrever outro" e "Descartar". Só "Usar este texto" põe o texto no campo, e o protetor ainda pode editar antes de publicar.
+4. A IA tem a regra de não inventar nada que não foi preenchido (saúde, comportamento, raça, idade) e de dizer "ainda não testado" quando a convivência não foi testada.
+
+**Me ajuda a escolher (pra quem quer adotar).**
+
+1. A página fica em `/me-ajuda-a-escolher`, aberta pra qualquer pessoa, com chamada em cima da vitrine (na Home e em `/animais`) e link no rodapé.
+2. A pessoa conta a rotina (onde mora, quem mora junto, quanto tempo fica em casa, outros animais), digitando ou tocando nas frases prontas. A tela avisa pra não escrever nome, telefone nem endereço.
+3. Visitante escolhe o estado (ou todos). Pessoa física logada não escolhe: vale o estado do perfil, como na vitrine.
+4. Voltam até 3 animais, cada um com "Por que combina", o card normal do animal (com "Quero conhecer") e uma dica de adoção responsável. Sem animal que combine, a tela diz isso.
+
+**Regras.**
+
+- A IA não tem como inventar animal: o back manda uma lista numerada com até 40 animais disponíveis e só aceita de volta números dessa lista, sem repetir, no máximo 3.
+- Vai pra IA só o que já é público no perfil do animal, e nada do protetor. Da pessoa, só o texto da rotina.
+- Sem a chave no servidor (`GEMINI_API_KEY`), os botões e a chamada da vitrine não aparecem, e a página do "Me ajuda a escolher" explica e leva pra vitrine.
+- Cada conta (ou endereço, pra visitante) pede até 15 vezes por hora, pra cota gratuita não acabar.
+- A chamada à IA fica fora de transação do banco, pra não segurar conexão enquanto ela escreve (até 30 segundos).
+
+**Onde está no código.**
+
+- Front: `components/EscreverComIa` (dentro do `FormularioAnimal`), `pages/MeAjudaAEscolher`, `components/ChamadaDaIa`, `services/ia.js`, `hooks/useIaDisponivel.js` e `formularioParaIa` no `utils/formularioAnimal.js`
+- Back: `IaController`, `IaService` (as regras que vão pra IA, a lista numerada e a conferência da resposta), `GeradorDeTexto` e `ClienteGemini` (a chamada ao Gemini), `LimiteDeUsoDaIa`, `DescricaoIaRequest`, `IaResponses` e as exceções `IaIndisponivelException` (503) e `LimiteDeUsoException` (429)
+
+**Testes.** `IaIntegrationTest` (com a IA de mentira: login, o que vai pra IA, a lista só do estado certo, números inventados e repetidos descartados, resposta estranha, limite de uso), `EscreverComIa.test.jsx`, `MeAjudaAEscolher.test.jsx`, `FormularioAnimal.test.jsx` (`formularioParaIa`), `App.test.jsx` e `Rodape.test.jsx`. A IA de verdade é conferida à mão no site publicado (CT-IA-05).
+
+---
+
+## 20. O que ainda não está pronto
 
 | O quê                                   | Situação                                                                                                                                       |
 | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |

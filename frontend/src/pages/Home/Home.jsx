@@ -5,6 +5,7 @@ import ComoFunciona from "../../components/ComoFunciona/ComoFunciona";
 import ConhecaOProjeto from "../../components/ConhecaOProjeto/ConhecaOProjeto";
 import Estatisticas from "../../components/Estatisticas/Estatisticas";
 import HistoriasRecentes from "../../components/HistoriasRecentes/HistoriasRecentes";
+import ChamadaDaIa from "../../components/ChamadaDaIa/ChamadaDaIa";
 import ProximasFeiras from "../../components/ProximasFeiras/ProximasFeiras";
 import VitrineAnimais from "../../components/VitrineAnimais/VitrineAnimais";
 import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
@@ -37,6 +38,9 @@ export default function Home() {
         <h2 id="vitrine-titulo" className="sr-only">
           Animais para adoção
         </h2>
+        <div className="mb-6 empty:hidden">
+          <ChamadaDaIa />
+        </div>
         <VitrineAnimais aoCarregar={marcarVitrinePronta} />
       </section>
       <ProximasFeiras />

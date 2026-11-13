@@ -28,7 +28,8 @@ Fontes: Especificação de Requisitos (RF01 a RF17), Casos de Uso (UC01 a UC10),
 12. [Blog para tutores](#12-blog-para-tutores)
 13. [Abrigos e protetores](#13-abrigos-e-protetores)
 14. [Feiras de adoção](#14-feiras-de-adoção)
-15. [Pontos em aberto](#15-pontos-em-aberto)
+15. [Inteligência artificial](#15-inteligência-artificial)
+16. [Pontos em aberto](#16-pontos-em-aberto)
 
 ---
 
@@ -37,7 +38,7 @@ Fontes: Especificação de Requisitos (RF01 a RF17), Casos de Uso (UC01 a UC10),
 - **Mudou um endpoint no código? Atualize este arquivo no mesmo pull request.** Um contrato desatualizado é pior do que nenhum, porque o outro squad confia nele.
 - Nenhum squad muda um formato de entrada ou saída sozinho. Mudança de contrato é combinada entre Front End e Back End antes de ser implementada.
 - Cada endpoint indica a sua **origem** (RF/UC). Se um requisito mudar, procure aqui pelo código dele para achar os endpoints afetados.
-- Decisões ainda não fechadas ficam na seção [15. Pontos em aberto](#15-pontos-em-aberto) até o time decidir.
+- Decisões ainda não fechadas ficam na seção [16. Pontos em aberto](#16-pontos-em-aberto) até o time decidir.
 
 ---
 
@@ -198,6 +199,9 @@ Quando um valor não existe na lista de opções (um enum, como `porte` ou `espe
 | `POST`   | `/api/feiras`                  | Somente Abrigo         | Depois do MVP                      | Sim    |
 | `PUT`    | `/api/feiras/{id}`             | Abrigo que divulgou    | Depois do MVP                      | Sim    |
 | `DELETE` | `/api/feiras/{id}`             | Abrigo que divulgou    | Depois do MVP                      | Sim    |
+| `GET`    | `/api/ia/disponivel`           | Público                | ERS 6.12                           | Sim    |
+| `POST`   | `/api/ia/descricao`            | Autenticado            | ERS 6.12                           | Sim    |
+| `POST`   | `/api/ia/sugestoes`            | Público                | ERS 6.12                           | Sim    |
 
 Endpoint novo entra nesta tabela como "Ainda não" assim que o formato é combinado. Assim o front já pode montar a tela com dados de exemplo enquanto o back faz a parte dele.
 
@@ -256,7 +260,7 @@ Autentica um Usuario (CPF) ou um Abrigo (CNPJ) e devolve o token.
 | `401`  | Documento não cadastrado **ou** senha incorreta. A mensagem é a mesma nos dois casos: "Documento ou senha inválidos" | UC03 FA01, FA02 |
 | `500`  | Falha ao autenticar ou gerar o token                                                                                 | UC03 FA04       |
 
-> A mesma mensagem para "documento não cadastrado" e "senha incorreta" impede que alguém descubra quais CPFs e CNPJs têm conta testando um por um. Ver [Pontos em aberto](#15-pontos-em-aberto).
+> A mesma mensagem para "documento não cadastrado" e "senha incorreta" impede que alguém descubra quais CPFs e CNPJs têm conta testando um por um. Ver [Pontos em aberto](#16-pontos-em-aberto).
 
 ---
 
@@ -300,7 +304,7 @@ Cria a conta de uma pessoa física e já a autentica.
 | `endereco.cidade`                        | Obrigatório                                                                                                   |
 | `endereco.estado`                        | Obrigatório. UF com 2 letras maiúsculas                                                                       |
 
-O usuário digita só **CEP e número** (RF01). O front consulta o ViaCEP com o CEP digitado, preenche logradouro, bairro, cidade e estado, e envia o endereço completo. Ver [Pontos em aberto](#15-pontos-em-aberto).
+O usuário digita só **CEP e número** (RF01). O front consulta o ViaCEP com o CEP digitado, preenche logradouro, bairro, cidade e estado, e envia o endereço completo. Ver [Pontos em aberto](#16-pontos-em-aberto).
 
 **Saída (`201 Created`)**
 
@@ -990,7 +994,7 @@ A desistência apaga o interesse (`DELETE /api/interesses/{id}`), então ele som
 Desistência: o candidato exclui o próprio interesse.
 **Acesso:** Candidato do interesse. **Origem:** UC07 FA01
 
-Sem corpo. Ver [Pontos em aberto](#15-pontos-em-aberto) sobre o motivo da desistência.
+Sem corpo. Ver [Pontos em aberto](#16-pontos-em-aberto) sobre o motivo da desistência.
 
 **Saída (`204 No Content`)**
 
@@ -1483,7 +1487,81 @@ Manda todos os campos de novo, com as mesmas regras do `POST`.
 
 ---
 
-## 15. Pontos em aberto
+## 15. Inteligência artificial
+
+Duas ajudas com IA, pelo Gemini (Google), sempre com uma pessoa decidindo no fim. A IA só funciona com a variável `GEMINI_API_KEY` no servidor ([deploy](deploy.md#variáveis-de-ambiente)). Sem ela, `disponivel` é `false`, o front esconde os botões e as outras duas rotas respondem `503`.
+
+Cada conta (ou endereço, pra visitante) pode pedir até 15 vezes por hora (`IA_LIMITE_POR_HORA`). Passou disso, `429` "Você já usou a IA muitas vezes nesta hora. Tente de novo mais tarde.".
+
+### GET /api/ia/disponivel
+
+**Acesso:** Público. **Saída (`200 OK`):** `{ "disponivel": true }`
+
+### POST /api/ia/descricao
+
+Sugere a apresentação do animal a partir do que o protetor preencheu no formulário, mesmo antes de salvar. O texto não é salvo: o front mostra a sugestão, e o protetor escolhe se usa e edita.
+**Acesso:** Autenticado (quem cadastra animal).
+
+**Entrada:** os campos do formulário que já estiverem preenchidos. Só `nome` e `especie` são obrigatórios.
+
+```json
+{
+  "nome": "Mel",
+  "especie": "CAO",
+  "sexo": "FEMEA",
+  "porte": "MEDIO",
+  "raca": "SRD_CAO",
+  "dataNascEstimada": "2024-03-01",
+  "castrado": true,
+  "energia": "MAIS_CALMO",
+  "convivenciaCrianca": "CONVIVE_BEM",
+  "convivenciaCao": "CONVIVE_BEM",
+  "convivenciaGato": "NAO_TESTADO",
+  "vacinas": ["V10"],
+  "cidade": "Porto Velho",
+  "estado": "RO",
+  "rascunho": "Foi achada na chuva e adora colo"
+}
+```
+
+**Saída (`200 OK`):** `{ "texto": "A Mel é uma cadela de porte médio..." }`, com até 2000 caracteres, sem markdown e sem travessão.
+
+**Erros:** `400` sem nome ou espécie; `401` sem token; `429` limite de uso; `503` IA desligada ou fora do ar.
+
+### POST /api/ia/sugestoes
+
+A pessoa conta a rotina e recebe até 3 animais disponíveis que combinam com ela, cada um com o motivo.
+**Acesso:** Público. Pra pessoa física logada, os animais são do estado do perfil (como na vitrine, RF14). Pra visitante e abrigo, do `estado` enviado, ou de todos os estados.
+
+**Entrada**
+
+```json
+{ "rotina": "Moro em apartamento e trabalho fora de manhã.", "estado": "RO" }
+```
+
+| Campo    | Regra |
+| -------- | ----- |
+| `rotina` | Obrigatória, de 15 a 600 caracteres |
+| `estado` | Opcional, sigla de um estado que existe |
+
+**Saída (`200 OK`)**
+
+```json
+{
+  "sugestoes": [
+    { "animal": { "id": "...", "nome": "Mel", "...": "o mesmo formato de um item do GET /api/animais" }, "motivo": "É calma e convive bem com crianças." }
+  ],
+  "conselho": "Antes de adotar, combine com a família quem vai cuidar do animal."
+}
+```
+
+Como a IA não inventa animal: o back manda pra ela uma lista numerada com até 40 animais disponíveis (só o que já aparece no perfil público, nada do protetor) e só aceita de volta números dessa lista, sem repetir, no máximo 3. Animal adotado ou removido enquanto a IA escrevia sai da resposta. Sem nenhum animal disponível no estado, a IA nem é chamada e o `conselho` explica.
+
+**Erros:** `400` rotina curta ou longa demais, ou estado que não existe; `429` limite de uso; `503` IA desligada, fora do ar ou com resposta que o site não entendeu.
+
+---
+
+## 16. Pontos em aberto
 
 Decisões que o contrato precisou assumir antes da implementação. As que a implementação já resolveu estão na primeira tabela; ao decidir uma das que faltam, atualize o endpoint correspondente e mova o item.
 

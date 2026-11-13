@@ -103,6 +103,29 @@ export function formularioParaApi(valores) {
     };
 }
 
+// Valores do formulário -> o que vai pro "Escrever com IA" (POST /api/ia/descricao).
+// Vai o que já estiver preenchido, mesmo antes de o formulário estar completo. O que falta vai como null
+export function formularioParaIa(valores) {
+    const nascimento = /^\d{2}\/\d{4}$/.test(valores.nascimento) ? mesAnoParaData(valores.nascimento) : null;
+    return {
+        nome: valores.nome.trim(),
+        especie: valores.especie || null,
+        sexo: valores.sexo || null,
+        porte: valores.porte || null,
+        raca: valores.raca || null,
+        dataNascEstimada: nascimento,
+        castrado: valores.castrado ? valores.castrado === 'SIM' : null,
+        energia: valores.energia || null,
+        convivenciaCrianca: valores.convivenciaCrianca || null,
+        convivenciaCao: valores.convivenciaCao || null,
+        convivenciaGato: valores.convivenciaGato || null,
+        vacinas: valores.vacinas.map((vacina) => vacina.nome).filter(Boolean).slice(0, 20),
+        cidade: valores.cidade.trim() || null,
+        estado: valores.estado || null,
+        rascunho: valores.historia.trim() || null,
+    };
+}
+
 const obrigatorios = {
     especie: 'Escolha a espécie.',
     raca: 'Escolha a raça.',

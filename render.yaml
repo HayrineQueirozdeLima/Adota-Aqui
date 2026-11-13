@@ -44,3 +44,6 @@ services:
         sync: false
       - key: AWS_SECRET_ACCESS_KEY
         sync: false
+      # IA (Gemini), opcional: sem a chave, a IA fica desligada e o site funciona igual
+      - key: GEMINI_API_KEY
+        sync: false

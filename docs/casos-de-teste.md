@@ -2,8 +2,8 @@
 
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
-- **Versão:** 1.15 (novembro de 2026)
-- **Total:** 107 casos, 100 já automatizados e 7 manuais
+- **Versão:** 1.16 (novembro de 2026)
+- **Total:** 112 casos, 104 já automatizados e 8 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
 
@@ -11,7 +11,7 @@ Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o 
 
 Garantir que o Adota Aqui funciona do jeito que os requisitos pedem: cadastro e login seguros, vitrine com filtros, perfil do animal, demonstração de interesse com termo e triagem, cadastro de animais e o painel em que o protetor aprova a adoção. Também entram usabilidade, acessibilidade, segurança e desempenho.
 
-**Coberto:** página inicial e navegação, cadastro e login, vitrine, busca e filtros, perfil do animal, demonstração de interesse e desistência, cadastro de animal e Meus animais, painel de interesses recebidos, Minhas candidaturas, Meu perfil, histórias de adoção, blog, abrigos e protetores, Quem somos, clínicas veterinárias, feiras de adoção, observatório, acessibilidade, segurança e desempenho.
+**Coberto:** página inicial e navegação, cadastro e login, vitrine, busca e filtros, perfil do animal, demonstração de interesse e desistência, cadastro de animal e Meus animais, painel de interesses recebidos, Minhas candidaturas, Meu perfil, histórias de adoção, blog, abrigos e protetores, Quem somos, clínicas veterinárias, feiras de adoção, observatório, ajudas com IA, acessibilidade, segurança e desempenho.
 
 **Fora do escopo desta fase:**
 
@@ -31,7 +31,7 @@ A coluna **Automatizado em** mostra o arquivo de teste que já confere o caso. O
 | CT-NAV-03 | Menu conforme a conta   | Funcional      | Visitante vê "Cadastrar" e "Entrar". Logado vê "Explorar", "Meus animais" e "Interesses recebidos", e só pessoa física vê "Minhas candidaturas"                                                                                                                                        | `Navbar.test.jsx`                         |
 | CT-NAV-04 | Endereço que não existe | Funcional      | Aparece "Página não encontrada", com o menu e os botões "Ver animais disponíveis" e "Ir para a página inicial"                                                                                                                                                                         | `App.test.jsx`                            |
 | CT-NAV-05 | Trocar o tema           | UI             | O botão do topo troca entre claro e escuro, e a escolha continua depois de recarregar a página. Quem nunca escolheu vê o tema do sistema operacional                                                                                                                                   | `BotaoTema.test.jsx`                      |
-| CT-NAV-06 | Links do rodapé         | Funcional      | "Quem somos", "Explorar animais", "Como adotar", "Histórias de adoção", "Blog para tutores", "Abrigos e protetores independentes" (a página de abrigos e protetores, não mais o cadastro), "Feiras de adoção", "Clínicas veterinárias", "Observatório da adoção" e "Cadastrar um animal" levam pra tela certa | `Rodape.test.jsx`, `Home.test.jsx`        |
+| CT-NAV-06 | Links do rodapé         | Funcional      | "Quem somos", "Explorar animais", "Me ajuda a escolher", "Como adotar", "Histórias de adoção", "Blog para tutores", "Abrigos e protetores independentes" (a página de abrigos e protetores, não mais o cadastro), "Feiras de adoção", "Clínicas veterinárias", "Observatório da adoção" e "Cadastrar um animal" levam pra tela certa | `Rodape.test.jsx`, `Home.test.jsx`        |
 | CT-NAV-07 | Trocar de página        | UI             | A página nova abre no topo, mesmo vindo do fim da anterior (ex.: um link do rodapé). Voltar no navegador devolve a pessoa onde ela estava                                                                                                                                              | `RolarParaOTopo.test.jsx`                 |
 | CT-NAV-08 | Título da aba           | Acessibilidade | Cada página mostra o nome dela na aba do navegador (ex.: "Meus animais"), e o leitor de tela anuncia a página nova                                                                                                                                                                     | `App.test.jsx`, `EditarAnimal.test.jsx`   |
 | CT-NAV-09 | Números do site | Funcional | A página inicial mostra as adoções feitas, os animais esperando um lar e os abrigos cadastrados, com ponto no milhar e singular no 1. Se a API falhar, a faixa some e o resto da página funciona | `Estatisticas.test.jsx`, `Home.test.jsx`, `EstatisticasIntegrationTest.java` |
@@ -199,7 +199,17 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | CT-OBS-03 | Escolher um estado            | Funcional      | O estado escolhido mostra os números dele, do site e do IBGE, e "Ver o Brasil" volta pro resumo do país | `Observatorio.test.jsx` |
 | CT-OBS-04 | Leitura sem o mapa            | Acessibilidade | Cada quadrado do mapa é um botão com o nome do estado e o número, e a tabela traz os 27 estados com as 5 medidas. Se a API falhar, os dados do IBGE continuam e aparece "Tentar de novo" | `Observatorio.test.jsx` |
 
-### Módulo 16: Desempenho, acessibilidade e segurança
+### Módulo 16: Ajudas com inteligência artificial
+
+| ID       | Cenário                          | Tipo             | Resultado esperado | Automatizado em |
+| -------- | -------------------------------- | ---------------- | ------------------ | --------------- |
+| CT-IA-01 | IA desligada                     | Funcional        | Sem a chave no servidor, `disponivel` é `false`, o "Escrever com IA" e a chamada da vitrine não aparecem, a página do "Me ajuda a escolher" explica e leva pra vitrine, e as rotas da IA respondem `503` | `IaIntegrationTest.java`, `EscreverComIa.test.jsx`, `MeAjudaAEscolher.test.jsx`, `App.test.jsx` |
+| CT-IA-02 | Escrever com IA                  | Funcional        | Precisa de login, do nome e da espécie. Vai pra IA o que foi preenchido e o rascunho. A sugestão aparece separada e só vai pro campo com "Usar este texto". O texto volta sem markdown e sem travessão | `IaIntegrationTest.java`, `EscreverComIa.test.jsx`, `FormularioAnimal.test.jsx` |
+| CT-IA-03 | Me ajuda a escolher              | Funcional        | A rotina (de 15 a 600 caracteres) e o estado vão pra API. Voltam até 3 animais com o motivo e a dica. Pessoa física logada recebe animais do estado do perfil. Sem animal no estado, a IA nem é chamada | `IaIntegrationTest.java`, `MeAjudaAEscolher.test.jsx` |
+| CT-IA-04 | A IA não inventa animal          | Regra de negócio | Vai pra IA só a lista de animais disponíveis (sem adotados, sem outro estado, sem dado do protetor). Número que não está na lista e número repetido são descartados, e resposta que não é JSON vira `503`. Passando de 15 pedidos por hora, `429` | `IaIntegrationTest.java`, `MeAjudaAEscolher.test.jsx` |
+| CT-IA-05 | IA de verdade no site publicado  | Funcional        | Com a chave no Render, o "Escrever com IA" escreve um texto coerente com os dados, e o "Me ajuda a escolher" indica animais que combinam com rotinas diferentes (apartamento com criança, casa com quintal, quem já tem gato) | Manual |
+
+### Módulo 17: Desempenho, acessibilidade e segurança
 
 | ID        | Cenário                            | Tipo           | Resultado esperado                                                                                                                                                                                                           | Automatizado em                                                                             |
 | --------- | ---------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
@@ -230,8 +240,9 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | 13. Clínicas veterinárias                  | 4      | 3             | 1       |
 | 14. Feiras de adoção                       | 6      | 5             | 1       |
 | 15. Observatório da adoção                 | 4      | 4             | 0       |
-| 16. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
-| **Total**                                  | **107** | **100**      | **7**   |
+| 16. Ajudas com inteligência artificial     | 5      | 4             | 1       |
+| 17. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
+| **Total**                                  | **112** | **104**      | **8**   |
 
 A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta tabela: ela é medida pelo JaCoCo e pelo Jest a cada push, como explica o [plano de testes](plano-de-testes.md). Esta tabela mostra outra coisa: quantos comportamentos importantes já têm teste automático e quantos ainda dependem de alguém testar à mão.
 
@@ -247,6 +258,6 @@ A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta ta
 
 **Registro da rodada manual:** antes de cada entrega, preencher:
 
-| Data | Quem testou | Navegador e tela | CT-NAV-02 | CT-PET-09 | CT-CLI-04 | CT-FEI-06 | CT-NFR-01 | CT-NFR-06 |
-| ---- | ----------- | ---------------- | --------- | --------- | --------- | --------- | --------- | --------- |
-|      |             |                  |           |           |           |           |           |           |
+| Data | Quem testou | Navegador e tela | CT-NAV-02 | CT-PET-09 | CT-CLI-04 | CT-FEI-06 | CT-IA-05 | CT-NFR-01 | CT-NFR-06 |
+| ---- | ----------- | ---------------- | --------- | --------- | --------- | --------- | -------- | --------- | --------- |
+|      |             |                  |           |           |           |           |          |           |           |
