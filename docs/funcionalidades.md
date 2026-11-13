@@ -174,8 +174,8 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 1. Visitante e Abrigo veem animais de todos os estados. Pessoa física logada vê só os que estão no próprio estado (RF14). Vale onde o animal está, que o protetor informa no cadastro e pode mudar na edição, e não o endereço de quem cadastrou.
 2. Busca por nome e filtros: cidade, espécie, sexo, porte, raça (liberada depois de escolher a espécie), nível de energia e convivência ("Bom com crianças", "Bom com cães", "Bom com gatos"). As listas começam em "Todos os portes", "Todas as raças" e "Qualquer energia", já marcados, como o "Todos os estados" de Abrigos e protetores. Antes a primeira opção era o nome do filtro, e no celular "Raça" parecia uma raça (retorno do QA). No filtro, a raça "Outra" do cadastro aparece como "Outras raças", pra não confundir com "Sem raça definida".
 3. A cada mudança, o front espera 300 ms sem mudança nova (assim não busca a cada letra digitada na cidade) e chama `GET /api/animais` com os filtros no endereço.
-4. Cada cartão mostra nome, descrição (espécie, raça, porte e peso), tags de convivência, o protetor com a cidade e o estado onde o animal está, e o botão "Quero conhecer". O filtro de cidade também procura na cidade do animal.
-5. Os animais vêm de 12 em 12, dos cadastrados mais recentes pros mais antigos. Embaixo da grade aparece "Mostrando 12 de 37 animais" e o botão "Ver mais animais", que traz a próxima página embaixo das que já estavam na tela e leva o foco pro primeiro animal novo. Na última página o botão some. Se a próxima página falhar, os animais que já estavam continuam, e aparece "Não foi possível carregar mais animais. Tente de novo.". Mudar um filtro volta pra primeira página.
+4. Cada cartão mostra nome, descrição (espécie, raça, porte e peso), tags de convivência, o protetor com a cidade e o estado onde o animal está, e o botão "Quero conhecer". O filtro de cidade também procura na cidade do animal. Animal que está no site há 1 mês ou mais ganha, em cima da foto, o selo "Esperando há 3 meses" (contado pelo `cadastradoEm` que a API manda), pra quem espera há mais tempo chamar atenção.
+5. Os animais vêm de 12 em 12, dos cadastrados mais recentes pros mais antigos. Em "Ordenar por", a opção "Esperando há mais tempo" inverte: primeiro quem está no site há mais tempo (`ordem=MAIS_ANTIGOS`). A ordem não é filtro, então não liga o "Limpar filtros" e continua quando a pessoa limpa. Embaixo da grade aparece "Mostrando 12 de 37 animais" e o botão "Ver mais animais", que traz a próxima página embaixo das que já estavam na tela e leva o foco pro primeiro animal novo. Na última página o botão some. Se a próxima página falhar, os animais que já estavam continuam, e aparece "Não foi possível carregar mais animais. Tente de novo.". Mudar um filtro volta pra primeira página.
 6. Sem resultado com os filtros: "Nenhum resultado encontrado com essas informações.", com uma foto, a dica "Tente tirar algum filtro ou buscar por outro nome." e o botão "Ver todos os animais" (UC06 FA02). Sem nenhum animal no estado da pessoa: "Nenhum animal disponível no seu estado no momento." (UC06 FA01).
 7. Se a API não responder: "Não foi possível carregar os animais.", com o botão "Tentar de novo", que busca outra vez sem perder os filtros.
 
@@ -188,9 +188,9 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 - Front: `pages/Home`, `components/Apresentacao`, `components/Estatisticas`, `components/ComoFunciona`, `components/VitrineAnimais`, `components/FiltrosAnimais`, `components/CardAnimal`, `services/animais.js` e `services/estatisticas.js`
 - Back: `AnimalController`, `AnimalService`, `AnimalFiltroRequest`, `AnimalSpecifications`, `PaginaResponse`, `EstatisticasController` e `EstatisticasService`
 
-**Como fica no banco.** A coluna `cadastrado_em` da tabela `animal` guarda quando o animal foi cadastrado, e é por ela que a vitrine ordena. Nos animais que já existiam quando a coluna foi criada, o banco preencheu com a data daquele deploy.
+**Como fica no banco.** A coluna `cadastrado_em` da tabela `animal` guarda quando o animal foi cadastrado, e é por ela que a vitrine ordena e que o selo de espera conta. Nos animais que já existiam quando a coluna foi criada (31/10/2026), o banco preencheu com a data daquele deploy, então eles só ganham o selo um mês depois disso.
 
-**Testes.** `AnimalIntegrationTest` (estado, status, filtros combinados, cidade, busca por nome sem acento, páginas, ordem e limites da paginação), `ErroApiIntegrationTest` (filtro com valor inválido), `VitrineAnimais.test.jsx` (inclusive o "Ver mais animais"), `CardAnimal.test.jsx`, `Home.test.jsx`, `EstatisticasIntegrationTest` e `Estatisticas.test.jsx`.
+**Testes.** `AnimalIntegrationTest` (estado, status, filtros combinados, cidade, busca por nome sem acento, páginas, as duas ordens e limites da paginação), `ErroApiIntegrationTest` (filtro com valor inválido), `VitrineAnimais.test.jsx` (inclusive o "Ver mais animais" e o "Ordenar por"), `CardAnimal.test.jsx`, `Home.test.jsx`, `EstatisticasIntegrationTest` e `Estatisticas.test.jsx`.
 
 ---
 
@@ -206,7 +206,11 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 - Características: espécie, raça, porte, sexo, peso, idade estimada (calculada pela data de nascimento estimada) e se é castrado.
 - Convivência com crianças, cães e gatos em tags coloridas (verde: convive bem; amarelo: não convive bem; roxo: não testado), e o nível de energia.
 - Histórico de vacinação, quando tem, e a história do animal.
+- O selo "Esperando há 3 meses" do lado do "Disponível", pra animal que está no site há 1 mês ou mais.
+- O quadro "Ajude a Mel a achar um lar", com "Enviar no WhatsApp" (um texto pronto com o link do perfil), "Copiar link" e, no navegador que tem o menu de compartilhar do sistema (quase todo celular), "Outros apps". Animal adotado não tem o quadro.
 - Aviso de guarda responsável e o link pras clínicas veterinárias perto de onde o animal está ([seção 16](#16-clínicas-veterinárias-perto-de-você)).
+
+**Prévia do link.** Quem manda um link do site no WhatsApp ou nas redes vê uma prévia com o nome, uma frase e a imagem do Adota Aqui (`frontend/public/compartilhar.png`, nas tags `og:` do `index.html`). A prévia é a mesma pra todas as páginas: o site monta as telas no navegador, e o WhatsApp não roda o JavaScript pra ler o nome do animal. Por isso o texto pronto do "Enviar no WhatsApp" já leva o nome e a cidade do animal.
 
 O quadro do lado:
 
@@ -223,10 +227,10 @@ O quadro do lado:
 
 **Onde está no código.**
 
-- Front: `pages/PerfilAnimal`, `components/GaleriaFotos` e `utils/rotulos.js`
+- Front: `pages/PerfilAnimal`, `components/GaleriaFotos`, `components/CompartilharAnimal` e `utils/rotulos.js` (`tempoEsperando`)
 - Back: `AnimalController`, `AnimalService` e `AnimalMapper`
 
-**Testes.** `AnimalIntegrationTest` (permissões e interesse ativo no perfil) e `PerfilAnimal.test.jsx`.
+**Testes.** `AnimalIntegrationTest` (permissões, interesse ativo e a data de cadastro no perfil), `PerfilAnimal.test.jsx`, `CompartilharAnimal.test.jsx` e `rotulos.test.js`.
 
 ---
 

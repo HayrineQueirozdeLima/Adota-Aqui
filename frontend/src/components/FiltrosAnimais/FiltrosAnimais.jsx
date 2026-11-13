@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import Chip from "../Chip/Chip";
 import SetaSelecao from "../SetaSelecao/SetaSelecao";
 import { portes } from "../../utils/rotulos";
-import { filtrosVazios, listarRacas } from "../../services/animais";
+import {
+  filtrosVazios,
+  listarRacas,
+  temFiltroLigado,
+} from "../../services/animais";
 
 // No plural, pq aqui o texto fala dos animais em geral ("Mais calmos")
 const energias = { MAIS_ANIMADO: "Mais animados", MAIS_CALMO: "Mais calmos" };
@@ -58,7 +62,7 @@ export default function FiltrosAnimais({ filtros, aoMudar }) {
     mudar(campo, filtros[campo] === valor ? "" : valor);
   }
 
-  const temFiltro = Object.values(filtros).some(Boolean);
+  const temFiltro = temFiltroLigado(filtros);
 
   return (
     <div className="flex flex-wrap items-center gap-2.5">
@@ -156,7 +160,7 @@ export default function FiltrosAnimais({ filtros, aoMudar }) {
       {temFiltro && (
         <button
           type="button"
-          onClick={() => aoMudar(filtrosVazios)}
+          onClick={() => aoMudar({ ...filtrosVazios, ordem: filtros.ordem })}
           className="px-2 font-titulo text-campo font-semibold text-marca-roxo underline"
         >
           Limpar filtros

@@ -17,11 +17,19 @@ export const filtrosVazios = {
     convivenciaCrianca: '',
     convivenciaCao: '',
     convivenciaGato: '',
+    // ordem da vitrine: vazio são os mais novos primeiro, MAIS_ANTIGOS é quem espera há mais tempo.
+    // Não é filtro: não conta pro "Limpar filtros" e continua quando a pessoa limpa
+    ordem: '',
 };
+
+// Se a pessoa ligou algum filtro (a ordem não conta)
+export function temFiltroLigado(filtros) {
+    return Object.entries(filtros).some(([campo, valor]) => campo !== 'ordem' && Boolean(valor));
+}
 
 // GET /api/animais
 // com o token de um Usuario, a própria API já devolve só os animais do estado dele (RF14)
-// a resposta vem em páginas de 12, dos mais novos pros mais antigos:
+// a resposta vem em páginas de 12, dos mais novos pros mais antigos (ou o contrário, com ordem=MAIS_ANTIGOS):
 // { itens, pagina, tamanho, totalItens, totalPaginas }. A primeira página é a 0
 export function listarAnimais(filtros = filtrosVazios, token = null, pagina = 0) {
     const consulta = pagina > 0 ? { ...filtros, pagina } : filtros;

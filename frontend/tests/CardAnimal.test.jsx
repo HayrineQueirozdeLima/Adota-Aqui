@@ -69,3 +69,16 @@ test("pinta cada estado de convivência com a sua cor", () => {
     "bg-marca-roxo-suave",
   );
 });
+
+// O selo conta do dia em que o animal entrou no site. Datas bem antigas e bem recentes,
+// pro teste não depender do dia em que roda
+test("mostra há quanto tempo o animal espera, a partir de 1 mês no site", () => {
+  renderizar({ ...mel, cadastradoEm: "2020-01-10" });
+  expect(screen.getByText(/^Esperando há \d+ anos$/)).toBeInTheDocument();
+});
+
+test("animal que acabou de chegar não tem o selo", () => {
+  const hoje = new Date().toISOString().slice(0, 10);
+  renderizar({ ...mel, cadastradoEm: hoje });
+  expect(screen.queryByText(/Esperando há/)).not.toBeInTheDocument();
+});

@@ -22,7 +22,7 @@ final class AnimalMapper {
                 List.copyOf(animal.getFotos()), animal.getVacinas().stream()
                     .map(v -> new VacinaResponse(v.getId(), v.getNome(), v.getDose(), v.getDataAplicacao())).toList(),
                 animal.getStatusAdocao(), animal.getCidade(), animal.getEstado(), protetor(animal),
-                ehMeu, podeInteresse, interesse);
+                ehMeu, podeInteresse, interesse, animal.getCadastradoEm().toLocalDate());
     }
 
     static AnimalListagemResponse item(Animal animal) {
@@ -30,7 +30,8 @@ final class AnimalMapper {
                 animal.getRaca(), animal.getRaca().getNome(), animal.getSexo(), animal.getPorte(),
                 animal.getPeso(), animal.getCastrado(), animal.getEnergia(), convivencia(animal),
                 animal.getStatusAdocao(), animal.getFotos().isEmpty() ? null : animal.getFotos().get(0),
-                animal.getCidade(), animal.getEstado(), protetor(animal));
+                animal.getCidade(), animal.getEstado(), protetor(animal),
+                animal.getCadastradoEm().toLocalDate());
     }
 
     private static ConvivenciaDto convivencia(Animal animal) {

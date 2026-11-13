@@ -161,6 +161,30 @@ class AnimalIntegrationTest {
     }
 
     @Test
+    void vitrineMostraQuemEsperaHaMaisTempoPrimeiroQuandoPedido() throws Exception {
+        Conta dono = conta(true, "RO");
+        String antigo = criar(dono, corpo().put("nome", "Antigo")).path("id").asText();
+        String meio = criar(dono, corpo().put("nome", "Meio")).path("id").asText();
+        String novo = criar(dono, corpo().put("nome", "Novo")).path("id").asText();
+        cadastradoEm(antigo, LocalDateTime.of(2026, 8, 10, 8, 0));
+        cadastradoEm(meio, LocalDateTime.of(2026, 9, 10, 8, 0));
+        cadastradoEm(novo, LocalDateTime.of(2026, 10, 10, 8, 0));
+
+        // A data de cadastro vai na vitrine e no perfil, pro front mostrar há quanto tempo o animal espera
+        mvc.perform(get("/api/animais").param("ordem", "MAIS_ANTIGOS")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.itens[0].id").value(antigo))
+                .andExpect(jsonPath("$.itens[0].cadastradoEm").value("2026-08-10"))
+                .andExpect(jsonPath("$.itens[1].id").value(meio))
+                .andExpect(jsonPath("$.itens[2].id").value(novo));
+        mvc.perform(get("/api/animais").param("ordem", "MAIS_NOVOS"))
+                .andExpect(jsonPath("$.itens[0].id").value(novo));
+        mvc.perform(get("/api/animais/" + antigo))
+                .andExpect(jsonPath("$.cadastradoEm").value("2026-08-10"));
+        // Ordem que não existe é recusada, como os outros filtros
+        mvc.perform(get("/api/animais").param("ordem", "ALEATORIA")).andExpect(status().isBadRequest());
+    }
+
+    @Test
     void paginaOuTamanhoForaDoLimiteResponde400() throws Exception {
         mvc.perform(get("/api/animais").param("pagina", "-1")).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.campos.pagina").value("A página deve ser 0 ou maior"));

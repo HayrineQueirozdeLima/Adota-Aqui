@@ -16,6 +16,25 @@
       content="Plataforma de adoção de cães e gatos: protetores e abrigos divulgam os animais, e quem quer adotar demonstra interesse e recebe o contato."
     />
     <meta name="theme-color" content="#4a2d73" />
+    <!-- A prévia que aparece quando alguém manda um link do site no WhatsApp ou nas redes.
+         O site monta as páginas no navegador, então a prévia é a mesma pra todas.
+         A imagem precisa do endereço completo, por isso aponta pro site publicado -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Adota Aqui" />
+    <meta property="og:title" content="Adota Aqui" />
+    <meta
+      property="og:description"
+      content="Cães e gatos esperando um lar perto de você. Conheça os animais de abrigos e protetores e demonstre interesse."
+    />
+    <meta property="og:image" content="https://adotaaqui.netlify.app/compartilhar.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Logo do Adota Aqui e a frase: cães e gatos esperando um lar perto de você"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <!-- Liga o tema escuro antes de a página aparecer, pra não piscar claro e depois escuro.
          A mesma regra está no hooks/useTema.js: vale a escolha salva e, sem escolha, o tema do sistema -->

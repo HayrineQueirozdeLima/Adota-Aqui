@@ -6,6 +6,7 @@ import com.adotaaqui.model.enums.Porte;
 import com.adotaaqui.model.enums.Raca;
 import com.adotaaqui.model.enums.SexoAnimal;
 import com.adotaaqui.model.enums.StatusAdocao;
+import java.time.LocalDate;
 import java.util.UUID;
 
 /** Item da vitrine e da lista de animais da própria conta. */
@@ -26,7 +27,9 @@ public record AnimalListagemResponse(
         // Onde o animal está (o card mostra isso), que pode ser diferente do endereço do protetor
         String cidade,
         String estado,
-        ProtetorResponse protetor) {
+        ProtetorResponse protetor,
+        // Desde quando o animal está no site: a vitrine mostra quem espera há mais tempo
+        LocalDate cadastradoEm) {
 }
 
 

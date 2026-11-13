@@ -552,7 +552,8 @@ Usado nas respostas de `GET /api/animais/{id}`, `POST /api/animais` e `PUT /api/
   },
   "ehMeu": false,
   "podeDemonstrarInteresse": true,
-  "meuInteresse": null
+  "meuInteresse": null,
+  "cadastradoEm": "2026-08-10"
 }
 ```
 
@@ -565,6 +566,7 @@ Usado nas respostas de `GET /api/animais/{id}`, `POST /api/animais` e `PUT /api/
 | `podeDemonstrarInteresse` | `true` só quando: a conta é Usuario, o animal está `DISPONIVEL`, o animal é do mesmo estado do Usuario, o Usuario não é o protetor e ainda não tem interesse ativo nele. O front mostra o botão "Quero conhecer {nome}" com base neste campo, sem repetir as regras |
 | `meuInteresse`            | Para Usuario logado com interesse neste animal: `{ "id": "...", "statusAndamento": "PENDENTE" }`. Nos demais casos, `null`. O front troca o botão por "Desistir da adoção" quando o interesse está `PENDENTE` ou `EM_CONTATO` (UC07, passo 6)                       |
 | `racaNome`                | Nome da raça pronto pra exibir na tela. Assim o front não precisa guardar a lista das raças                                                                                                                                                                         |
+| `cadastradoEm`            | O dia em que o animal entrou no site. Com 1 mês ou mais, o front mostra o selo "Esperando há 3 meses" no card e no perfil |
 
 ---
 
@@ -603,7 +605,7 @@ Lista os animais disponíveis para adoção, com filtros.
 - Só aparecem animais com status `DISPONIVEL`.
 - **Usuario logado:** vê só os animais que estão no **mesmo estado** que o seu (RF14). Vale o `estado` do animal, não o do protetor. Esse filtro é automático e não pode ser removido.
 - **Visitante e Abrigo:** veem animais de **todos os estados** (RF07, RF14).
-- **Ordem:** do cadastrado mais recente pro mais antigo.
+- **Ordem:** do cadastrado mais recente pro mais antigo. Com `ordem=MAIS_ANTIGOS`, o contrário: primeiro quem espera um lar há mais tempo.
 - **Paginação:** a resposta vem em páginas. Sem parâmetro nenhum, vem a primeira página, com até 12 animais.
 
 **Filtros** (todos opcionais, combináveis, passados na URL)
@@ -620,6 +622,7 @@ Lista os animais disponíveis para adoção, com filtros.
 | `convivenciaGato`    | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                                                                                                      |
 | `convivenciaCao`     | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                                                                                                      |
 | `energia`            | `MAIS_ANIMADO`, `MAIS_CALMO`                                                                                                                                                         |
+| `ordem`              | `MAIS_NOVOS` (padrão) ou `MAIS_ANTIGOS` |
 | `pagina`             | Número da página, começando em `0`. Padrão: `0`                                                                                                                                      |
 | `tamanho`            | Animais por página, de `1` a `48`. Padrão: `12`                                                                                                                                      |
 
@@ -654,7 +657,8 @@ Exemplo: `GET /api/animais?especie=GATO&porte=PEQUENO&convivenciaCrianca=CONVIVE
         "nome": "Instituto Quatro Patas",
         "cidade": "Santo André",
         "estado": "SP"
-      }
+      },
+      "cadastradoEm": "2026-08-10"
     }
   ],
   "pagina": 1,
@@ -670,7 +674,7 @@ A listagem traz peso, castração, convivência, energia e status porque o card 
 
 Nenhum animal encontrado: `200 OK` com `itens` vazio e `totalItens` igual a `0`. O front exibe "Nenhum animal disponível no seu estado no momento" (sem filtros, UC06 FA01) ou "Nenhum resultado encontrado com essas informações" (com filtros, UC06 FA02).
 
-**Erros:** `400` valor de filtro inválido (ex.: `porte=ENORME`), ou `pagina` e `tamanho` fora dos limites, com `campos`; `401` token enviado, porém inválido ou expirado.
+**Erros:** `400` valor de filtro ou de ordem inválido (ex.: `porte=ENORME`), ou `pagina` e `tamanho` fora dos limites, com `campos`; `401` token enviado, porém inválido ou expirado.
 
 ---
 
