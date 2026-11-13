@@ -317,6 +317,7 @@ Níveis de acesso: **Pública** (Visitante), **Autenticada** (Usuario ou Abrigo)
 | `/protetores`             | Abrigos e protetores independentes, em ordem alfabética, com filtro por tipo, estado, cidade e nome, e o "Ver animais" de cada um | Pública | RF07, ERS 4 |
 | `/quem-somos`             | Como o projeto surgiu, a ideia, a motivação e o que ele se propõe a fazer | Pública | - |
 | `/clinicas`               | Mapa das clínicas veterinárias perto da localização, da cidade digitada, da cidade do animal (`?cidade=&estado=`) ou da cidade do perfil | Pública | ERS 6.10 |
+| `/observatorio`           | Observatório da adoção: o mapa do Brasil em mosaico com os números do site por estado (da API) e a porcentagem dos lares com cachorro e gato (IBGE), o ranking, a tabela e números públicos com fonte | Pública | ERS 6.8 |
 | `/feiras`                 | Feiras de adoção que ainda vão acontecer, com filtro por estado e cidade. O abrigo vê "Divulgar uma feira" e, nas dele, "Editar" e "Apagar" | Pública | - |
 | `/feiras/nova` e `/feiras/:id/editar` | Divulgar e editar uma feira: título, data, horário, local, endereço, cidade, estado e descrição | Somente Abrigo (editar só o que divulgou) | - |
 | `*`                        | Página não encontrada                                                                                                                                                                                               | Pública                            | -                         |

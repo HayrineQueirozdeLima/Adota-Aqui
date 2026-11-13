@@ -181,6 +181,7 @@ Quando um valor não existe na lista de opções (um enum, como `porte` ou `espe
 | `GET`    | `/api/interesses/recebidos`    | Autenticado            | RF09, UC08                         | Sim    |
 | `PATCH`  | `/api/interesses/{id}/status`  | Protetor do animal     | RF10, UC08                         | Sim    |
 | `GET`    | `/api/estatisticas`            | Público                | ERS 6.7                            | Sim    |
+| `GET`    | `/api/estatisticas/estados`    | Público                | ERS 6.8                            | Sim    |
 | `POST`   | `/api/interesses/{id}/depoimento` | Candidato do interesse | RF11, UC09                      | Sim    |
 | `GET`    | `/api/depoimentos`             | Público                | RF11                               | Sim    |
 | `DELETE` | `/api/depoimentos/{id}`        | Autor do depoimento    | RF11                               | Sim    |
@@ -1093,6 +1094,24 @@ Os números do site que aparecem na página inicial.
 | `abrigos`            | Contas de Abrigo                                                                                                                                                  |
 
 **Erros:** `401` token enviado, porém inválido ou expirado (como nas outras rotas públicas).
+
+### GET /api/estatisticas/estados
+
+Os mesmos números, estado por estado, pro Observatório da adoção.
+**Acesso:** Público. **Origem:** ERS, escopo futuro 6.8 (dados pra políticas públicas)
+
+**Saída (`200 OK`):** sempre os 27 estados, na ordem das siglas. Estado sem nada vem com zero.
+
+```json
+[
+  { "estado": "AC", "adocoes": 0, "animaisDisponiveis": 0, "abrigos": 0 },
+  { "estado": "RO", "adocoes": 3, "animaisDisponiveis": 12, "abrigos": 2 }
+]
+```
+
+As contas são as mesmas do `GET /api/estatisticas`. Animais e adoções contam no estado onde o animal está (o `estado` do animal); abrigos, no estado do endereço do abrigo.
+
+**Erros:** `401` token enviado, porém inválido ou expirado.
 
 ---
 

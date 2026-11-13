@@ -25,7 +25,8 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 15. [Quem somos](#15-quem-somos)
 16. [Clínicas veterinárias perto de você](#16-clínicas-veterinárias-perto-de-você)
 17. [Feiras de adoção](#17-feiras-de-adoção)
-18. [O que ainda não está pronto](#18-o-que-ainda-não-está-pronto)
+18. [Observatório da adoção](#18-observatório-da-adoção)
+19. [O que ainda não está pronto](#19-o-que-ainda-não-está-pronto)
 
 ## Quem usa o sistema
 
@@ -57,6 +58,7 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 | 14  | Quem somos | Fora da ERS | `/quem-somos` e a chamada no fim da Home | Nenhum |
 | 15  | Clínicas veterinárias | ERS 6.10 | `/clinicas` e o link no perfil do animal | Nenhum (o mapa é do Google) |
 | 16  | Feiras de adoção | Depois do MVP | `/feiras`, `/feiras/nova`, `/feiras/:id/editar` e a seção na Home | `GET`, `POST`, `PUT` e `DELETE` em `/api/feiras`, `GET /api/feiras/minhas` |
+| 17  | Observatório da adoção | ERS 6.8 | `/observatorio` | `GET /api/estatisticas/estados` |
 
 Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da API](api.md).
 
@@ -634,7 +636,38 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ---
 
-## 18. O que ainda não está pronto
+## 18. Observatório da adoção
+
+![Observatório da adoção no computador](prints/21-observatorio.png)
+
+**O que faz.** Mostra os números do Adota Aqui estado por estado, ao vivo, junto com dados públicos sobre cães e gatos no Brasil, cada um com a fonte. Era uma das ideias do tutor que tinham ficado fora do escopo (ERS 6.8, dados pra políticas públicas).
+
+**Como funciona.**
+
+1. A página fica em `/observatorio`, aberta pra qualquer pessoa, com link no rodapé ("Observatório da adoção"). No topo, o total de animais esperando um lar agora.
+2. O mapa do Brasil é um mosaico: cada estado é um quadrado, no lugar aproximado dele, com a sigla e o número. Os botões trocam o que o mapa mostra. "No Adota Aqui" tem animais esperando, adoções e abrigos, que vêm da API. "No Brasil, IBGE 2019" tem a porcentagem dos lares com cachorro e com gato.
+3. As cores são um roxo só, do claro (pouco) ao escuro (muito), com a legenda "menos" e "mais". Estado sem nenhum número do site fica só com o contorno tracejado ("nenhum ainda"). No tema escuro o mapa inverte: pouco fica perto do fundo, e muito, mais claro.
+4. Tocar num estado mostra do lado os números dele, do site e do IBGE. Embaixo vem o ranking dos 5 estados com mais da medida escolhida e, pra quem prefere, todos os estados numa tabela.
+5. "O retrato no Brasil" traz números públicos com a fonte e a data: lares com cachorro e gato (IBGE), animais em situação de vulnerabilidade e sob cuidado de ONGs (Instituto Pet Brasil) e castrações gratuitas do ProPatinhas (governo federal). Depois, a Lei 14.064/2020, como denunciar maus-tratos e o link pro SinPatinhas, o RG gratuito de cães e gatos.
+
+**Regras.**
+
+- Os números do site vêm do `GET /api/estatisticas/estados`, com as mesmas contas da Home. Animais e adoções contam onde o animal está; abrigos, o endereço do abrigo.
+- Os dados públicos ficam no código (`utils/observatorio.js` e a página), com a fonte e a data, porque nenhuma dessas fontes tem uma API simples. Número sem fonte não entra.
+- Se a API falhar, o mapa do IBGE continua funcionando, e os números do site ganham o "Tentar de novo".
+
+**Por que mosaico e não o desenho dos estados.** O desenho de verdade precisaria de uma biblioteca de mapas e do arquivo com as fronteiras, e os estados pequenos (como o DF e Sergipe) quase sumiriam. No mosaico, todo estado tem o mesmo tamanho, dá pra tocar no celular e cada quadrado é um botão com o nome e o número pro leitor de tela.
+
+**Onde está no código.**
+
+- Front: `pages/Observatorio`, `components/MapaDoBrasil` (o mosaico e a legenda), `utils/observatorio.js` (o lugar de cada estado, a tabela do IBGE, os tons e o ranking), `services/estatisticas.js` e as cores `--mapa-1` a `--mapa-5` no `styles/index.css`
+- Back: `EstatisticasController`, `EstatisticasService` (`porEstado`), `EstatisticasResponse.PorEstado`, `ContagemPorEstado` e as contagens em `AnimalRepository`, `InteresseRepository` e `AbrigoRepository`
+
+**Testes.** `EstatisticasIntegrationTest` (os 27 estados e as contas por estado), `Observatorio.test.jsx`, `observatorio.test.js`, `App.test.jsx` (a rota) e `Rodape.test.jsx`.
+
+---
+
+## 19. O que ainda não está pronto
 
 | O quê                                   | Situação                                                                                                                                       |
 | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |

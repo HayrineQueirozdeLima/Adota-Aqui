@@ -2,8 +2,8 @@
 
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
-- **Versão:** 1.14 (novembro de 2026)
-- **Total:** 103 casos, 96 já automatizados e 7 manuais
+- **Versão:** 1.15 (novembro de 2026)
+- **Total:** 107 casos, 100 já automatizados e 7 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
 
@@ -11,7 +11,7 @@ Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o 
 
 Garantir que o Adota Aqui funciona do jeito que os requisitos pedem: cadastro e login seguros, vitrine com filtros, perfil do animal, demonstração de interesse com termo e triagem, cadastro de animais e o painel em que o protetor aprova a adoção. Também entram usabilidade, acessibilidade, segurança e desempenho.
 
-**Coberto:** página inicial e navegação, cadastro e login, vitrine, busca e filtros, perfil do animal, demonstração de interesse e desistência, cadastro de animal e Meus animais, painel de interesses recebidos, Minhas candidaturas, Meu perfil, histórias de adoção, blog, abrigos e protetores, Quem somos, clínicas veterinárias, feiras de adoção, acessibilidade, segurança e desempenho.
+**Coberto:** página inicial e navegação, cadastro e login, vitrine, busca e filtros, perfil do animal, demonstração de interesse e desistência, cadastro de animal e Meus animais, painel de interesses recebidos, Minhas candidaturas, Meu perfil, histórias de adoção, blog, abrigos e protetores, Quem somos, clínicas veterinárias, feiras de adoção, observatório, acessibilidade, segurança e desempenho.
 
 **Fora do escopo desta fase:**
 
@@ -31,7 +31,7 @@ A coluna **Automatizado em** mostra o arquivo de teste que já confere o caso. O
 | CT-NAV-03 | Menu conforme a conta   | Funcional      | Visitante vê "Cadastrar" e "Entrar". Logado vê "Explorar", "Meus animais" e "Interesses recebidos", e só pessoa física vê "Minhas candidaturas"                                                                                                                                        | `Navbar.test.jsx`                         |
 | CT-NAV-04 | Endereço que não existe | Funcional      | Aparece "Página não encontrada", com o menu e os botões "Ver animais disponíveis" e "Ir para a página inicial"                                                                                                                                                                         | `App.test.jsx`                            |
 | CT-NAV-05 | Trocar o tema           | UI             | O botão do topo troca entre claro e escuro, e a escolha continua depois de recarregar a página. Quem nunca escolheu vê o tema do sistema operacional                                                                                                                                   | `BotaoTema.test.jsx`                      |
-| CT-NAV-06 | Links do rodapé         | Funcional      | "Quem somos", "Explorar animais", "Como adotar", "Histórias de adoção", "Blog para tutores", "Abrigos e protetores independentes" (a página de abrigos e protetores, não mais o cadastro), "Feiras de adoção", "Clínicas veterinárias" e "Cadastrar um animal" levam pra tela certa | `Rodape.test.jsx`, `Home.test.jsx`        |
+| CT-NAV-06 | Links do rodapé         | Funcional      | "Quem somos", "Explorar animais", "Como adotar", "Histórias de adoção", "Blog para tutores", "Abrigos e protetores independentes" (a página de abrigos e protetores, não mais o cadastro), "Feiras de adoção", "Clínicas veterinárias", "Observatório da adoção" e "Cadastrar um animal" levam pra tela certa | `Rodape.test.jsx`, `Home.test.jsx`        |
 | CT-NAV-07 | Trocar de página        | UI             | A página nova abre no topo, mesmo vindo do fim da anterior (ex.: um link do rodapé). Voltar no navegador devolve a pessoa onde ela estava                                                                                                                                              | `RolarParaOTopo.test.jsx`                 |
 | CT-NAV-08 | Título da aba           | Acessibilidade | Cada página mostra o nome dela na aba do navegador (ex.: "Meus animais"), e o leitor de tela anuncia a página nova                                                                                                                                                                     | `App.test.jsx`, `EditarAnimal.test.jsx`   |
 | CT-NAV-09 | Números do site | Funcional | A página inicial mostra as adoções feitas, os animais esperando um lar e os abrigos cadastrados, com ponto no milhar e singular no 1. Se a API falhar, a faixa some e o resto da página funciona | `Estatisticas.test.jsx`, `Home.test.jsx`, `EstatisticasIntegrationTest.java` |
@@ -190,7 +190,16 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | CT-FEI-05 | Como chegar e agenda            | Funcional        | "Como chegar" abre o endereço no Google Maps e "Adicionar à agenda" abre o Google Agenda com título, data, horário no fuso da cidade da feira e local | `feiras.test.js`, `Feiras.test.jsx` |
 | CT-FEI-06 | Agenda e mapa de verdade        | Funcional        | No site publicado, no celular, "Adicionar à agenda" salva a feira no dia e na hora certos e "Como chegar" abre o app de mapas | Manual |
 
-### Módulo 15: Desempenho, acessibilidade e segurança
+### Módulo 15: Observatório da adoção
+
+| ID        | Cenário                       | Tipo           | Resultado esperado | Automatizado em |
+| --------- | ----------------------------- | -------------- | ------------------ | --------------- |
+| CT-OBS-01 | Números do site por estado    | Funcional      | A API devolve sempre os 27 estados, com animais esperando e adoções contados onde o animal está e abrigos pelo endereço do abrigo. A página mostra o total de animais esperando, o mapa com os 27 estados e o ranking do maior pro menor | `EstatisticasIntegrationTest.java`, `Observatorio.test.jsx`, `observatorio.test.js` |
+| CT-OBS-02 | Dados do IBGE                 | Funcional      | "Lares com cachorro" e "Lares com gato" pintam o mapa com a porcentagem de cada estado, com a fonte na tela | `Observatorio.test.jsx`, `observatorio.test.js` |
+| CT-OBS-03 | Escolher um estado            | Funcional      | O estado escolhido mostra os números dele, do site e do IBGE, e "Ver o Brasil" volta pro resumo do país | `Observatorio.test.jsx` |
+| CT-OBS-04 | Leitura sem o mapa            | Acessibilidade | Cada quadrado do mapa é um botão com o nome do estado e o número, e a tabela traz os 27 estados com as 5 medidas. Se a API falhar, os dados do IBGE continuam e aparece "Tentar de novo" | `Observatorio.test.jsx` |
+
+### Módulo 16: Desempenho, acessibilidade e segurança
 
 | ID        | Cenário                            | Tipo           | Resultado esperado                                                                                                                                                                                                           | Automatizado em                                                                             |
 | --------- | ---------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
@@ -220,8 +229,9 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | 12. Abrigos e protetores                   | 5      | 5             | 0       |
 | 13. Clínicas veterinárias                  | 4      | 3             | 1       |
 | 14. Feiras de adoção                       | 6      | 5             | 1       |
-| 15. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
-| **Total**                                  | **103** | **96**       | **7**   |
+| 15. Observatório da adoção                 | 4      | 4             | 0       |
+| 16. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
+| **Total**                                  | **107** | **100**      | **7**   |
 
 A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta tabela: ela é medida pelo JaCoCo e pelo Jest a cada push, como explica o [plano de testes](plano-de-testes.md). Esta tabela mostra outra coisa: quantos comportamentos importantes já têm teste automático e quantos ainda dependem de alguém testar à mão.
 

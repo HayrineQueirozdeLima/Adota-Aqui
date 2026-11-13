@@ -12,6 +12,7 @@ const plataforma = [
   { texto: "Abrigos e protetores independentes", para: "/protetores" },
   { texto: "Feiras de adoção", para: "/feiras" },
   { texto: "Clínicas veterinárias", para: "/clinicas" },
+  { texto: "Observatório da adoção", para: "/observatorio" },
   { texto: "Cadastrar um animal", para: "/meus-animais/novo" },
 ];
 
