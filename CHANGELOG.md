@@ -16,6 +16,7 @@ O que foi feito depois da entrega, pra apresentação:
 - Ajudas com IA: "Escrever com IA" no cadastro do animal e "Me ajuda a escolher" (#145)
 - Topo fixo com as páginas do site, "Minha área" pra quem está logado, os recursos novos na Home e o mapa de clínicas buscando "veterinário" (#147)
 - Swagger com a documentação da API, Docker Compose pra rodar tudo com um comando e este histórico de versões (#149)
+- Foto de perfil pra pessoa e abrigo, no topo, nos cards dos animais e na página de abrigos e protetores (#151)
 
 ## 1.3.0 (12/11/2026)
 

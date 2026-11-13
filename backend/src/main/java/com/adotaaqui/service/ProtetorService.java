@@ -55,13 +55,13 @@ public class ProtetorService {
         List<ProtetorListagemResponse> todos = new ArrayList<>();
         if (filtro.getTipo() != TipoConta.USUARIO) {
             for (Abrigo abrigo : abrigos.findAll()) {
-                todos.add(item(abrigo.getId(), TipoConta.ABRIGO, abrigo.getNome(), abrigo.getEndereco(),
+                todos.add(item(abrigo.getId(), TipoConta.ABRIGO, abrigo.getNome(), abrigo.getEndereco(), abrigo.getFotoUrl(),
                         disponiveis, adocoes));
             }
         }
         if (filtro.getTipo() != TipoConta.ABRIGO) {
             for (Usuario usuario : usuarios.findProtetores()) {
-                todos.add(item(usuario.getId(), TipoConta.USUARIO, usuario.getNome(), usuario.getEndereco(),
+                todos.add(item(usuario.getId(), TipoConta.USUARIO, usuario.getNome(), usuario.getEndereco(), usuario.getFotoUrl(),
                         disponiveis, adocoes));
             }
         }
@@ -85,10 +85,10 @@ public class ProtetorService {
                 totalPaginas);
     }
 
-    private static ProtetorListagemResponse item(UUID id, TipoConta tipo, String nome, Endereco endereco,
+    private static ProtetorListagemResponse item(UUID id, TipoConta tipo, String nome, Endereco endereco, String foto,
                                                  Map<UUID, Long> disponiveis, Map<UUID, Long> adocoes) {
         return new ProtetorListagemResponse(id, tipo, nome, endereco.getCidade(), endereco.getEstado(),
-                disponiveis.getOrDefault(id, 0L), adocoes.getOrDefault(id, 0L));
+                disponiveis.getOrDefault(id, 0L), adocoes.getOrDefault(id, 0L), foto);
     }
 
     private static Map<UUID, Long> porProtetor(List<ContagemPorProtetor> contagens) {

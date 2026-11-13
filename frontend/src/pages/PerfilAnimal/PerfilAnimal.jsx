@@ -1,3 +1,4 @@
+import Avatar from "../../components/Avatar/Avatar";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import AvisoPagina from "../../components/AvisoPagina/AvisoPagina";
@@ -16,7 +17,6 @@ import {
   descricaoDaVacina,
   especies,
   idadeEstimada,
-  iniciais,
   localDoAnimal,
   portes,
   rotuloCastrado,
@@ -431,12 +431,11 @@ function CartaoInteresse({ animal, usuario, aoMudar }) {
       <hr className="my-4 border-borda-sutil" />
 
       <div className="flex items-center gap-3">
-        <span
-          aria-hidden="true"
-          className="flex size-10 shrink-0 items-center justify-center rounded-full bg-marca-roxo-suave font-titulo font-semibold text-campo text-marca-roxo"
-        >
-          {iniciais(protetor.nome)}
-        </span>
+        <Avatar
+          nome={protetor.nome}
+          fotoUrl={protetor.fotoUrl}
+          className="size-10 bg-marca-roxo-suave text-campo text-marca-roxo"
+        />
         <div>
           <p className="font-titulo font-semibold text-texto-principal">
             {protetor.nome}

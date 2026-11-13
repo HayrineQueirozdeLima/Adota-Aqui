@@ -10,5 +10,7 @@ public record LoginResponse(
         TipoConta tipoConta,
         UUID id,
         String nome,
-        Instant expiraEm) {
+        Instant expiraEm,
+        // Foto de perfil, pro topo do site mostrar no lugar das iniciais. null quando não tem
+        String fotoUrl) {
 }

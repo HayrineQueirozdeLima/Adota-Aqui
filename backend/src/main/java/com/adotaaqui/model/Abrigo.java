@@ -28,6 +28,11 @@ public class Abrigo {
     @Column(nullable = false, length = 120)
     private String nome;
 
+    // Foto de perfil (opcional): o endereço de uma foto enviada pelo POST /api/fotos.
+    // Sem foto, o site mostra as iniciais do nome
+    @Column(name = "foto_url", length = 500)
+    private String fotoUrl;
+
     @Column(name = "razao_social", nullable = false, length = 150)
     private String razaoSocial;
 
@@ -105,5 +110,13 @@ public class Abrigo {
 
     public void setEndereco(Endereco endereco) {
         this.endereco = endereco;
+    }
+
+    public String getFotoUrl() {
+        return fotoUrl;
+    }
+
+    public void setFotoUrl(String fotoUrl) {
+        this.fotoUrl = fotoUrl;
     }
 }

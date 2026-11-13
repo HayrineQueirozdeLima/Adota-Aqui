@@ -52,7 +52,7 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 | 7   | Demonstrar interesse e desistir     | RF08, RF09, RF13, RF14, RF15 | `/animais/:id/interesse`                                          | `POST /api/animais/{id}/interesses`, `DELETE /api/interesses/{id}`                                                   |
 | 8   | Painel de interesses recebidos      | RF09, RF10, RF12             | `/interesses-recebidos`                                           | `GET /api/interesses/recebidos`, `PATCH /api/interesses/{id}/status`                                                 |
 | 9   | Minhas candidaturas                 | RF09, UC07                   | `/meus-interesses`                                                | `GET /api/interesses/meus`, `DELETE /api/interesses/{id}`                                                            |
-| 10  | Meu perfil                          | RF17, RF14, UC10             | `/perfil`                                                         | `GET` e `PUT` em `/api/usuarios/me` e `/api/abrigos/me`, `PATCH` em `.../me/senha`                                   |
+| 10  | Meu perfil                          | RF17, RF14, UC10             | `/perfil`                                                         | `GET` e `PUT` em `/api/usuarios/me` e `/api/abrigos/me`, `PUT` em `.../me/foto`, `PATCH` em `.../me/senha`            |
 | 11  | Histórias de adoção | RF11, UC09 | `/historias`, `/meus-interesses/:id/depoimento` | `POST /api/interesses/{id}/depoimento`, `GET /api/depoimentos`, `DELETE /api/depoimentos/{id}` |
 | 12  | Blog para tutores | ERS 6.4 | `/blog`, `/blog/:id`, `/blog/novo`, `/blog/:id/editar` | `GET`, `POST`, `PUT` e `DELETE` em `/api/artigos`, `GET /api/artigos/meus` |
 | 13  | Abrigos e protetores | RF07, ERS 4 | `/protetores` | `GET /api/protetores` |
@@ -146,7 +146,7 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 
 - As rotas que precisam de login (`/meus-animais`, cadastro e edição de animal, `/interesses-recebidos`, `/perfil` e escrever ou editar um artigo) passam pela `RotaProtegida`. Sem login, a pessoa vai pro `/login` e volta pra mesma página depois de entrar.
 - Demonstrar interesse e Minhas candidaturas são só pra pessoa física. Abrigo que tenta abrir essas páginas vai pra página inicial.
-- O topo muda conforme quem está logado. Visitante vê "Cadastrar" e "Entrar". Quem está logado vê as iniciais e "Minha área", com "Meu perfil", "Meus animais", "Interesses recebidos" e "Sair". Só pessoa física vê "Minhas candidaturas", e só abrigo vê "Divulgar uma feira".
+- O topo muda conforme quem está logado. Visitante vê "Cadastrar" e "Entrar". Quem está logado vê a foto de perfil (ou as iniciais) e "Minha área", com "Meu perfil", "Meus animais", "Interesses recebidos" e "Sair". Só pessoa física vê "Minhas candidaturas", e só abrigo vê "Divulgar uma feira".
 
 **Na API.**
 
@@ -410,7 +410,7 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ![Meu perfil](prints/15-meu-perfil.png)
 
-**O que faz.** A pessoa ou o abrigo vê e edita os dados da conta e troca a senha (RF17, UC10). O CPF e o CNPJ aparecem, mas não mudam, porque é com eles que se entra.
+**O que faz.** A pessoa ou o abrigo vê e edita os dados da conta, põe uma foto de perfil e troca a senha (RF17, UC10). O CPF e o CNPJ aparecem, mas não mudam, porque é com eles que se entra.
 
 **Como funciona.**
 
@@ -420,8 +420,9 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 4. A troca de senha fica na mesma tela e é opcional: com os três campos em branco, a senha não muda. Começou a preencher, os três passam a ser obrigatórios.
 5. "Salvar alterações" manda os dados (`PUT`) e, se a senha foi preenchida, troca a senha logo depois (`PATCH`). Se nada mudou, avisa que não há o que salvar.
 6. "Cancelar" volta tudo pro que está salvo. O nome novo aparece no menu na hora, sem entrar de novo.
-7. "Sair da conta" continua na mesma tela.
+7. "Sair da conta" continua na mesma tela (e também na Minha área do topo).
 8. No computador, "Cancelar" e "Salvar alterações" ficam no topo, ao lado do título. No celular e no tablet, ficam logo depois de "Alterar senha", com o aviso de erro logo acima, antes dos quadros "Tipo de conta" e "Sessão".
+9. **Foto de perfil**, no primeiro quadro do lado: "Escolher uma foto" (JPG, PNG ou WEBP, até 5 MB) envia a imagem pelo `POST /api/fotos` e salva na hora pelo `PUT .../me/foto`, sem precisar do "Salvar alterações". Depois aparecem "Trocar a foto" e "Tirar a foto". A foto aparece no topo do site no lugar das iniciais, no card e no perfil dos animais da conta, na página de abrigos e protetores e nas feiras que o abrigo divulga. Sem foto, continua aparecendo as iniciais.
 
 **Regras.**
 
@@ -433,10 +434,10 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 **Onde está no código.**
 
-- Front: `pages/Perfil`, `services/perfil.js`, `utils/validacoes.js` (`validarPerfil` e `validarTrocaDeSenha`) e `contexts/AuthContext.jsx` (`atualizarNome`)
-- Back: `PerfilController` e `PerfilService`
+- Front: `pages/Perfil`, `components/FotoDoPerfil`, `components/Avatar` (a foto ou as iniciais, em todo lugar), `services/perfil.js`, `utils/validacoes.js` (`validarPerfil` e `validarTrocaDeSenha`) e `contexts/AuthContext.jsx` (`atualizarNome` e `atualizarFoto`)
+- Back: `PerfilController`, `PerfilService` e a coluna `foto_url` nas tabelas `usuario` e `abrigo`
 
-**Testes.** `PerfilIntegrationTest` (ver, editar, e-mail repetido, outro tipo de conta, troca de senha, senha atual errada e a mudança de estado na vitrine) e `Perfil.test.jsx`.
+**Testes.** `PerfilIntegrationTest` (ver, editar, e-mail repetido, outro tipo de conta, troca de senha, senha atual errada, a mudança de estado na vitrine e a foto de perfil), `Perfil.test.jsx` e `FotoDoPerfil.test.jsx`.
 
 ---
 

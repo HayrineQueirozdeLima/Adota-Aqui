@@ -1,3 +1,4 @@
+import Avatar from "../Avatar/Avatar";
 import Botao from "../Botao/Botao";
 import Tag from "../Tag/Tag";
 import {
@@ -6,7 +7,6 @@ import {
   resumoDoAnimal,
   rotuloCastrado,
   rotuloEnergia,
-  iniciais,
   corDaConvivencia,
   localDoAnimal,
   tempoEsperando,
@@ -85,9 +85,11 @@ export default function CardAnimal({ animal, nivelDoTitulo = 3 }) {
           <hr className="border-borda-sutil" />
 
           <div className="flex items-center gap-2.5">
-            <span className="flex size-8 items-center justify-center rounded-full bg-marca-roxo-suave font-titulo font-semibold text-campo text-marca-roxo">
-              {iniciais(protetor.nome)}
-            </span>
+            <Avatar
+              nome={protetor.nome}
+              fotoUrl={protetor.fotoUrl}
+              className="size-8 bg-marca-roxo-suave text-campo text-marca-roxo"
+            />
             <div>
               <p className="font-titulo font-semibold text-campo text-texto-principal">
                 {protetor.nome}

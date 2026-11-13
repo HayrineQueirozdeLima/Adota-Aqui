@@ -1,7 +1,9 @@
 package com.adotaaqui.service;
 
+import com.adotaaqui.repository.AbrigoRepository;
 import com.adotaaqui.repository.AnimalRepository;
 import com.adotaaqui.repository.DepoimentoRepository;
+import com.adotaaqui.repository.UsuarioRepository;
 import com.adotaaqui.repository.ArtigoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-// Apaga do S3 as fotos que saíram de um animal (editado ou removido), de um depoimento ou de um artigo.
+// Apaga do S3 as fotos que saíram de um animal (editado ou removido), de um depoimento, de um artigo ou de um perfil.
 // Antes, o arquivo continuava no bucket pra sempre, ocupando espaço sem ninguém usar
 @Component
 public class LimpezaDeFotos {
@@ -25,24 +27,30 @@ public class LimpezaDeFotos {
     private final AnimalRepository animais;
     private final DepoimentoRepository depoimentos;
     private final ArtigoRepository artigos;
+    private final UsuarioRepository usuarios;
+    private final AbrigoRepository abrigos;
 
     public LimpezaDeFotos(ArmazenamentoFotos armazenamento, FotoService fotos, AnimalRepository animais,
-                          DepoimentoRepository depoimentos, ArtigoRepository artigos) {
+                          DepoimentoRepository depoimentos, ArtigoRepository artigos,
+                          UsuarioRepository usuarios, AbrigoRepository abrigos) {
         this.armazenamento = armazenamento;
         this.fotos = fotos;
         this.animais = animais;
         this.depoimentos = depoimentos;
         this.artigos = artigos;
+        this.usuarios = usuarios;
+        this.abrigos = abrigos;
     }
 
     // Chamar dentro da transação, depois do flush, com as URLs que saíram.
-    // Só apaga a foto que nenhum animal, depoimento ou artigo usa e que foi guardada pela própria API.
+    // Só apaga a foto que nenhum animal, depoimento, artigo ou perfil usa e que foi guardada pela própria API.
     // O arquivo só sai depois do commit: se a transação falhar, a foto continua lá
     public void apagarDepoisDeSalvar(Collection<String> urls) {
         List<String> chaves = urls.stream().distinct()
                 .filter(url -> fotos.chaveDe(url).isPresent()
                         && !animais.algumAnimalUsaFoto(url) && !depoimentos.existsByFotoUrl(url)
-                        && !artigos.existsByFotoCapa(url))
+                        && !artigos.existsByFotoCapa(url)
+                        && !usuarios.existsByFotoUrl(url) && !abrigos.existsByFotoUrl(url))
                 .map(fotos::chaveDe)
                 .flatMap(Optional::stream)
                 .toList();

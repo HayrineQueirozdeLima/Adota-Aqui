@@ -4,6 +4,7 @@ import Botao from "../../components/Botao/Botao";
 import CampoTexto from "../../components/CampoTexto/CampoTexto";
 import CamposEndereco from "../../components/CamposEndereco/CamposEndereco";
 import Carregando from "../../components/Carregando/Carregando";
+import FotoDoPerfil from "../../components/FotoDoPerfil/FotoDoPerfil";
 import Tag from "../../components/Tag/Tag";
 import { useAuth } from "../../contexts/AuthContext";
 import { useFocoNoPrimeiroErro } from "../../hooks/useFocoNoPrimeiroErro";
@@ -100,7 +101,7 @@ function montarCorpo(dados, ehAbrigo) {
 // Meu perfil (RF17, UC10, Figma: Editar perfil), em /perfil. Vale pra pessoa e pra abrigo.
 // Um botão só salva tudo: os dados vão no PUT, e a senha, se foi preenchida, no PATCH logo depois
 export default function Perfil() {
-  const { usuario, token, sair, atualizarNome } = useAuth();
+  const { usuario, token, sair, atualizarNome, atualizarFoto } = useAuth();
   const navegar = useNavigate();
   const ehAbrigo = usuario.tipoConta === "ABRIGO";
   const texto = textos[ehAbrigo ? "ABRIGO" : "USUARIO"];
@@ -463,6 +464,23 @@ export default function Perfil() {
         )}
 
         <aside className="mt-5 flex flex-col gap-5 lg:order-6 lg:mt-6">
+          {/* A foto só aparece depois que o perfil chega da API */}
+          {salvo && (
+            <section aria-labelledby="perfil-foto" className={cartao}>
+              <h2 id="perfil-foto" className={titulo}>
+                Foto de perfil
+              </h2>
+              <FotoDoPerfil
+                nome={salvo.nome}
+                fotoUrl={salvo.fotoUrl}
+                aoMudar={(fotoUrl) => {
+                  setSalvo((atual) => ({ ...atual, fotoUrl }));
+                  atualizarFoto(fotoUrl);
+                }}
+              />
+            </section>
+          )}
+
           <section aria-labelledby="perfil-tipo" className={cartao}>
             <h2 id="perfil-tipo" className={titulo}>
               Tipo de conta

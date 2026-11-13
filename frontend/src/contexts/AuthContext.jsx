@@ -38,7 +38,7 @@ export function AuthProvider({ children }) {
     setSessao(null);
   }, []);
 
-  // novaSessao é a resposta do login ou do cadastro: { token, tipoConta, id, nome, expiraEm }
+  // novaSessao é a resposta do login ou do cadastro: { token, tipoConta, id, nome, expiraEm, fotoUrl }
   const entrar = useCallback((novaSessao, manterConectada = false) => {
     localStorage.removeItem(CHAVE);
     sessionStorage.removeItem(CHAVE);
@@ -47,20 +47,22 @@ export function AuthProvider({ children }) {
     setSessao(novaSessao);
   }, []);
 
-  // Depois de editar o perfil, o nome novo aparece no topo sem precisar entrar de novo.
+  // Depois de editar o perfil, o nome novo (ou a foto nova) aparece no topo sem precisar entrar de novo.
   // Grava no mesmo lugar onde a sessão já estava (localStorage ou sessionStorage)
-  const atualizarNome = useCallback((nome) => {
+  const atualizarSessao = useCallback((campos) => {
     for (const armazenamento of [localStorage, sessionStorage]) {
       try {
         const salva = JSON.parse(armazenamento.getItem(CHAVE));
         if (salva)
-          armazenamento.setItem(CHAVE, JSON.stringify({ ...salva, nome }));
+          armazenamento.setItem(CHAVE, JSON.stringify({ ...salva, ...campos }));
       } catch {
         // sessão estragada: o lerSessaoSalva já descarta na próxima vez
       }
     }
-    setSessao((atual) => (atual ? { ...atual, nome } : atual));
+    setSessao((atual) => (atual ? { ...atual, ...campos } : atual));
   }, []);
+  const atualizarNome = useCallback((nome) => atualizarSessao({ nome }), [atualizarSessao]);
+  const atualizarFoto = useCallback((fotoUrl) => atualizarSessao({ fotoUrl }), [atualizarSessao]);
 
   // Quando o token vence (24 h), encerra a sessão sozinho
   useEffect(() => {
@@ -75,14 +77,15 @@ export function AuthProvider({ children }) {
   const valor = useMemo(
     () => ({
       usuario: sessao
-        ? { id: sessao.id, nome: sessao.nome, tipoConta: sessao.tipoConta }
+        ? { id: sessao.id, nome: sessao.nome, tipoConta: sessao.tipoConta, fotoUrl: sessao.fotoUrl ?? null }
         : null,
       token: sessao?.token ?? null,
       entrar,
       sair,
       atualizarNome,
+      atualizarFoto,
     }),
-    [sessao, entrar, sair, atualizarNome],
+    [sessao, entrar, sair, atualizarNome, atualizarFoto],
   );
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;

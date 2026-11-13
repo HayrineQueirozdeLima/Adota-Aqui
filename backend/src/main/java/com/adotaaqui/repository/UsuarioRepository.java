@@ -24,4 +24,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
     // Protetores independentes: as pessoas que já cadastraram pelo menos um animal
     @Query("SELECT u FROM Usuario u WHERE EXISTS (SELECT a FROM Animal a WHERE a.usuario = u)")
     List<Usuario> findProtetores();
+
+    // A limpeza das fotos (LimpezaDeFotos) não apaga do bucket uma foto que ainda é de perfil
+    boolean existsByFotoUrl(String fotoUrl);
 }

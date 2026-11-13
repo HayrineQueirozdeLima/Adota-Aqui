@@ -82,3 +82,19 @@ test("animal que acabou de chegar não tem o selo", () => {
   renderizar({ ...mel, cadastradoEm: hoje });
   expect(screen.queryByText(/Esperando há/)).not.toBeInTheDocument();
 });
+
+// Foto de perfil de quem cadastrou: aparece no lugar das iniciais, e o nome continua escrito do lado
+test("mostra a foto de perfil do protetor quando ele tem, e as iniciais quando não tem", () => {
+  const { unmount } = render(
+    <MemoryRouter>
+      <CardAnimal animal={{ ...mel, protetor: { ...mel.protetor, fotoUrl: "https://fotos.teste/abrigo.jpg" } }} />
+    </MemoryRouter>,
+  );
+  const fotoDoProtetor = [...document.querySelectorAll("img")].find((img) => img.getAttribute("src") === "https://fotos.teste/abrigo.jpg");
+  expect(fotoDoProtetor).toHaveAttribute("alt", "");
+  expect(screen.getByText("Instituto Quatro Patas")).toBeInTheDocument();
+  unmount();
+
+  renderizar(mel);
+  expect(screen.getByText("IQ")).toBeInTheDocument();
+});

@@ -5,6 +5,7 @@ import com.adotaaqui.repository.AbrigoRepository;
 import com.adotaaqui.repository.AnimalRepository;
 import com.adotaaqui.repository.UsuarioRepository;
 import com.adotaaqui.security.JwtService;
+import com.adotaaqui.service.ArmazenamentoEmMemoria;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.AfterEach;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -28,6 +30,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -46,12 +49,15 @@ class PerfilIntegrationTest {
     @Autowired AbrigoRepository abrigos;
     @Autowired PasswordEncoder encoder;
     @Autowired JwtService jwt;
+    @Autowired ArmazenamentoEmMemoria armazenamento;
 
     private static final String SENHA = "minhaSenha123";
     private static final String NOVA_SENHA = "novaSenha456";
     private static final String CPF = "12345678909";
     private static final String OUTRO_CPF = "52998224725";
     private static final String CNPJ = "12345678000195";
+    // Os primeiros bytes de um JPEG: o bastante pro POST /api/fotos aceitar como imagem
+    private static final byte[] JPEG = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 'J', 'F', 'I', 'F'};
 
     @BeforeEach
     @AfterEach
@@ -317,6 +323,71 @@ class PerfilIntegrationTest {
         assertThat(encoder.matches(SENHA, abrigos.findByCnpj(CNPJ).orElseThrow().getSenha())).isTrue();
     }
 
+    // ---------- foto de perfil ----------
+
+    @Test
+    void pessoaPoeTrocaETiraAFotoDePerfil() throws Exception {
+        String token = pessoa(CPF, "maria@example.com", "RO");
+        String primeira = enviarFoto(token);
+
+        mvc.perform(enviar(put("/api/usuarios/me/foto"), token, foto(primeira)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.fotoUrl").value(primeira));
+        mvc.perform(comToken(get("/api/usuarios/me"), token))
+                .andExpect(jsonPath("$.fotoUrl").value(primeira));
+        // O login já devolve a foto, pro topo mostrar no lugar das iniciais
+        login(CPF, SENHA).andExpect(jsonPath("$.fotoUrl").value(primeira));
+
+        // Trocou: a foto antiga sai do armazenamento
+        String segunda = enviarFoto(token);
+        mvc.perform(enviar(put("/api/usuarios/me/foto"), token, foto(segunda)))
+                .andExpect(jsonPath("$.fotoUrl").value(segunda));
+        assertThat(armazenamento.contem(chave(primeira))).isFalse();
+        assertThat(armazenamento.contem(chave(segunda))).isTrue();
+
+        // Vazio tira a foto, e ela sai também
+        mvc.perform(enviar(put("/api/usuarios/me/foto"), token, foto(null)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.fotoUrl").doesNotExist());
+        assertThat(usuarios.findByCpf(CPF).orElseThrow().getFotoUrl()).isNull();
+        assertThat(armazenamento.contem(chave(segunda))).isFalse();
+    }
+
+    @Test
+    void abrigoPoeFotoEElaApareceNaListaDeAbrigosEProtetores() throws Exception {
+        String token = abrigo("abrigo@example.com");
+        String url = enviarFoto(token);
+
+        mvc.perform(enviar(put("/api/abrigos/me/foto"), token, foto(url)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.fotoUrl").value(url));
+        mvc.perform(get("/api/protetores"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.itens[0].nome").value("Abrigo Patas Unidas"))
+                .andExpect(jsonPath("$.itens[0].fotoUrl").value(url));
+    }
+
+    // A foto aparece pra todo mundo no card dos animais: endereço de outro site não entra
+    @Test
+    void fotoQueNaoFoiEnviadaPeloSiteERecusada() throws Exception {
+        String token = pessoa(CPF, "maria@example.com", "RO");
+
+        mvc.perform(enviar(put("/api/usuarios/me/foto"), token, foto("https://example.com/minha-foto.jpg")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.campos.fotoUrl").value("Envie a foto pelo próprio site"));
+        assertThat(usuarios.findByCpf(CPF).orElseThrow().getFotoUrl()).isNull();
+    }
+
+    @Test
+    void fotoDePerfilPedeLoginEAContaCerta() throws Exception {
+        String pessoa = pessoa(CPF, "maria@example.com", "RO");
+
+        mvc.perform(put("/api/usuarios/me/foto").contentType(MediaType.APPLICATION_JSON).content(foto(null).toString()))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(enviar(put("/api/abrigos/me/foto"), pessoa, foto(null)))
+                .andExpect(status().isForbidden());
+    }
+
     // ---------- ajudantes ----------
 
     // Cria a conta pela API, como no cadastro de verdade, e devolve o token
@@ -424,5 +495,23 @@ class PerfilIntegrationTest {
     private MockHttpServletRequestBuilder enviar(MockHttpServletRequestBuilder request, String token,
                                                  ObjectNode corpo) {
         return comToken(request, token).contentType(MediaType.APPLICATION_JSON).content(corpo.toString());
+    }
+
+    private ObjectNode foto(String url) {
+        ObjectNode corpo = mapper.createObjectNode();
+        if (url == null) corpo.putNull("fotoUrl"); else corpo.put("fotoUrl", url);
+        return corpo;
+    }
+
+    // Envia uma imagem pelo POST /api/fotos, como o site faz, e devolve o endereço dela
+    private String enviarFoto(String token) throws Exception {
+        MockMultipartFile arquivo = new MockMultipartFile("arquivo", "eu.jpg", "image/jpeg", JPEG);
+        String resposta = mvc.perform(comToken(multipart("/api/fotos").file(arquivo), token))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        return mapper.readTree(resposta).path("url").asText();
+    }
+
+    private static String chave(String url) {
+        return url.substring(url.indexOf("animais/"));
     }
 }
