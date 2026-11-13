@@ -146,7 +146,7 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 
 - As rotas que precisam de login (`/meus-animais`, cadastro e edição de animal, `/interesses-recebidos`, `/perfil` e escrever ou editar um artigo) passam pela `RotaProtegida`. Sem login, a pessoa vai pro `/login` e volta pra mesma página depois de entrar.
 - Demonstrar interesse e Minhas candidaturas são só pra pessoa física. Abrigo que tenta abrir essas páginas vai pra página inicial.
-- O menu muda conforme quem está logado. Visitante vê "Cadastrar" e "Entrar". Quem está logado vê "Explorar", "Meus animais", "Interesses recebidos" e, só pessoa física, "Minhas candidaturas".
+- O topo muda conforme quem está logado. Visitante vê "Cadastrar" e "Entrar". Quem está logado vê as iniciais e "Minha área", com "Meu perfil", "Meus animais", "Interesses recebidos" e "Sair". Só pessoa física vê "Minhas candidaturas", e só abrigo vê "Divulgar uma feira".
 
 **Na API.**
 
@@ -175,6 +175,8 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 
 **O que faz.** Lista os animais disponíveis pra adoção, com filtros (RF07, UC06). Aparece na página inicial e em `/animais`.
 
+Na página inicial, entre os números do site e a vitrine, a faixa "Tudo pra uma adoção responsável" tem um cartão pra cada recurso que vai além da vitrine: Me ajuda a escolher (só com a IA ligada), Feiras de adoção, Clínicas veterinárias e Observatório da adoção. O cartão inteiro é clicável, mas o link é só o título, pra o leitor de tela ler só o nome da página.
+
 **Como funciona.**
 
 1. Visitante e Abrigo veem animais de todos os estados. Pessoa física logada vê só os que estão no próprio estado (RF14). Vale onde o animal está, que o protetor informa no cadastro e pode mudar na edição, e não o endereço de quem cadastrou.
@@ -191,7 +193,7 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 
 **Onde está no código.**
 
-- Front: `pages/Home`, `components/Apresentacao`, `components/Estatisticas`, `components/ComoFunciona`, `components/VitrineAnimais`, `components/FiltrosAnimais`, `components/CardAnimal`, `services/animais.js` e `services/estatisticas.js`
+- Front: `pages/Home`, `components/Apresentacao`, `components/Estatisticas`, `components/RecursosDoSite`, `components/ComoFunciona`, `components/VitrineAnimais`, `components/FiltrosAnimais`, `components/CardAnimal`, `services/animais.js` e `services/estatisticas.js`
 - Back: `AnimalController`, `AnimalService`, `AnimalFiltroRequest`, `AnimalSpecifications`, `PaginaResponse`, `EstatisticasController` e `EstatisticasService`
 
 **Como fica no banco.** A coluna `cadastrado_em` da tabela `animal` guarda quando o animal foi cadastrado, e é por ela que a vitrine ordena e que o selo de espera conta. Nos animais que já existiam quando a coluna foi criada (31/10/2026), o banco preencheu com a data daquele deploy, então eles só ganham o selo um mês depois disso.
@@ -442,7 +444,11 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 - **Erros no mesmo formato.** Toda resposta de erro da API tem `status`, `erro`, `mensagem`, `campos` (quando o erro é num campo) e `timestamp`, em português. O front mostra a `mensagem` e põe cada erro de `campos` embaixo do campo certo (`GlobalExceptionHandler`, `ErroResponse` e `services/api.js`).
 - **Servidor acordando.** O Render desliga a API depois de 15 minutos sem uso. Quando uma tela passa de 4 segundos carregando, aparece "O servidor estava parado e está acordando. Isso pode levar até 1 minuto." (`components/Carregando`).
-- **Responsivo (RNF01).** As telas funcionam no celular, no tablet e no computador, seguindo os três tamanhos do Figma. Na revisão da #36, todas as telas foram conferidas de 320 a 1440 px de largura: nenhuma tem rolagem pro lado, o menu de quem está logado nunca esconde item, os botões descem pra baixo do texto no celular e os links que ficam soltos, fora de uma frase, têm pelo menos 24 px de altura pra tocar.
+- **Responsivo (RNF01).** As telas funcionam no celular, no tablet e no computador, seguindo os três tamanhos do Figma. Na revisão da #36, todas as telas foram conferidas de 320 a 1440 px de largura: nenhuma tem rolagem pro lado, o menu do topo nunca esconde página (abaixo de 1280 px elas ficam no botão "Menu"), os botões descem pra baixo do texto no celular e os links que ficam soltos, fora de uma frase, têm pelo menos 24 px de altura pra tocar.
+- **Topo fixo com as páginas do site.** O topo fica preso no alto da tela enquanto a página rola, com uma sombra leve pra separar do conteúdo. Do computador grande (1280 px) pra cima, ele mostra Animais, Me ajuda a escolher, Feiras, Clínicas, Observatório e Blog, com a página atual sublinhada em terracota. No celular e no tablet, o botão "Menu" abre a mesma lista, com uma frase sobre cada página, e fecha com Esc, com um clique fora ou quando a pessoa troca de página. Antes, quem não estava logado só achava essas páginas no rodapé. O "Me ajuda a escolher" só aparece com a IA ligada no servidor. O primeiro Tab da página mostra "Pular para o conteúdo", que leva o foco direto pro começo da página, sem passar pelo menu. Como o topo fica por cima, a rolagem até uma seção (o "Como adotar", o mapa de clínicas) para um pouco abaixo dele (`scroll-padding-top` no `styles/index.css`). Código: `components/Navbar` e `components/Layout`. Teste: `Navbar.test.jsx`.
+
+![Topo fixo, com as páginas do site e os recursos novos na Home](prints/12-home.png)
+
 - **Tema claro e escuro.** O botão de lua e sol no topo troca o tema, e a escolha fica salva no navegador. Quem nunca escolheu segue o tema do sistema operacional. Um script curto no `index.html` aplica o tema antes da página aparecer, pra não piscar claro antes de ficar escuro. As cores dos dois temas estão no `styles/index.css`; no escuro, o roxo, o texto terciário e os textos das tags ficaram um pouco mais claros que no Figma, pra passar no contraste mínimo de 4,5:1 (WCAG AA). Código: `hooks/useTema.js` e `components/BotaoTema`. Teste: `BotaoTema.test.jsx`.
 
 ![Painel de interesses recebidos no tema escuro](prints/13-tema-escuro.png)
@@ -684,7 +690,7 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 **Me ajuda a escolher (pra quem quer adotar).**
 
-1. A página fica em `/me-ajuda-a-escolher`, aberta pra qualquer pessoa, com chamada em cima da vitrine (na Home e em `/animais`) e link no rodapé.
+1. A página fica em `/me-ajuda-a-escolher`, aberta pra qualquer pessoa, com link no topo do site e no rodapé, um cartão na Home ("Tudo pra uma adoção responsável") e a chamada em cima da vitrine de `/animais`.
 2. A pessoa conta a rotina (onde mora, quem mora junto, quanto tempo fica em casa, outros animais), digitando ou tocando nas frases prontas. A tela avisa pra não escrever nome, telefone nem endereço.
 3. Visitante escolhe o estado (ou todos). Pessoa física logada não escolhe: vale o estado do perfil, como na vitrine.
 4. Voltam até 3 animais, cada um com "Por que combina", o card normal do animal (com "Quero conhecer") e uma dica de adoção responsável. Sem animal que combine, a tela diz isso.

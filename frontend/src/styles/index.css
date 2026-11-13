@@ -128,6 +128,13 @@
   }
 }
 
+/* O topo fica preso no alto da tela (components/Navbar). Quando a página rola até uma seção ou um título
+   (o "Como adotar", o mapa de clínicas, o "Pular para o conteúdo"), ela para um pouco abaixo do topo,
+   em vez de esconder o começo atrás do roxo */
+html {
+  scroll-padding-top: 88px;
+}
+
 /* Fundo e texto padrão do site inteiro */
 body {
   background-color: var(--fundo-pagina);

@@ -1,11 +1,13 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { AuthProvider } from "../src/contexts/AuthContext";
+import { esquecerIaDisponivel } from "../src/hooks/useIaDisponivel";
 import Home from "../src/pages/Home/Home";
-import { simularApi } from "./utils/apiFalsa";
+import { resposta, simularApi } from "./utils/apiFalsa";
 
 // A Home tem a vitrine, que busca na API: os testes usam a API de mentira
 beforeEach(() => {
+  esquecerIaDisponivel();
   simularApi();
 });
 
@@ -41,6 +43,41 @@ test("mostra os números do site logo depois da apresentação", async () => {
   const secao = await screen.findByRole("region", { name: "O Adota Aqui em números" });
   expect(await within(secao).findByText("27")).toBeInTheDocument();
   expect(within(secao).getByText("adoções feitas pelo site")).toBeInTheDocument();
+});
+
+test("logo depois dos números, mostra o que o site tem além da vitrine", async () => {
+  await abrirHome();
+
+  const secao = screen.getByRole("region", { name: "Tudo pra uma adoção responsável" });
+  const destinos = {
+    "Feiras de adoção": "/feiras",
+    "Clínicas veterinárias": "/clinicas",
+    "Observatório da adoção": "/observatorio",
+  };
+  for (const [nome, destino] of Object.entries(destinos)) {
+    expect(within(secao).getByRole("link", { name: nome })).toHaveAttribute("href", destino);
+  }
+  // A API de mentira começa com a IA desligada: o cartão do Me ajuda a escolher sai
+  await waitFor(() =>
+    expect(within(secao).queryByRole("link", { name: "Me ajuda a escolher" })).not.toBeInTheDocument(),
+  );
+  const numeros = screen.getByRole("region", { name: "O Adota Aqui em números" });
+  expect(numeros.compareDocumentPosition(secao) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+});
+
+test("com a IA ligada, o Me ajuda a escolher aparece entre os cartões", async () => {
+  simularApi({
+    outras: (metodo, caminho) =>
+      caminho === "/api/ia/disponivel" ? resposta(200, { disponivel: true }) : undefined,
+  });
+  await abrirHome();
+
+  const secao = screen.getByRole("region", { name: "Tudo pra uma adoção responsável" });
+  expect(within(secao).getByRole("link", { name: "Me ajuda a escolher" })).toHaveAttribute(
+    "href",
+    "/me-ajuda-a-escolher",
+  );
+  expect(within(secao).getAllByRole("listitem")).toHaveLength(4);
 });
 
 test("mostra as histórias mais novas de quem adotou, com o link pro mural", async () => {

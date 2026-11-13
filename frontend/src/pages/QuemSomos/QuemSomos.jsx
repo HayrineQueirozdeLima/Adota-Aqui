@@ -145,7 +145,7 @@ export default function QuemSomos() {
       <div className="mx-auto mt-14 grid w-full max-w-[1440px] gap-10 px-5 md:mt-20 md:px-14 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] lg:gap-16">
         {/* No celular e no tablet as duas fotos ficam lado a lado.
             No computador ficam uma em cima da outra, com o gato encaixado no canto da primeira */}
-        <figure className="grid grid-cols-2 gap-3 lg:sticky lg:top-8 lg:block lg:self-start">
+        <figure className="grid grid-cols-2 gap-3 lg:sticky lg:top-28 lg:block lg:self-start">
           <img
             src={fotoCarinho}
             alt=""
