@@ -247,6 +247,12 @@ Quem marcou "reduzir movimento" no sistema vê tudo pronto e parado, e o leitor 
 
 **Solução.** Um script curto no `index.html`, antes do site desenhar, põe a classe `animar` no `<html>` só quando o navegador tem o `IntersectionObserver` e a pessoa não pediu menos movimento. Sem essa classe, nada começa escondido. A marca de "já apareceu" é um atributo (`data-revelado`), e não uma classe, então o React não mexe nela. E um `MutationObserver` pega os blocos que chegam depois, como os cards que vêm da API. A trilha do Quem somos mede a linha pontilhada, e não a laranja, porque a laranja encolhe e cresce com a própria medida.
 
+### A IA demorava e voltava sem resposta
+
+**Problema.** No ar, a chave funcionava (`/api/ia/disponivel` dizia `true`), mas o "Escrever com IA" e o "Me ajuda a escolher" demoravam e terminavam em "A ajuda com IA não está disponível agora". Eram duas causas juntas. O modelo escolhido (Gemini 3.8 Flash) "pensa" antes de responder, e esse pensamento gasta o mesmo limite de tokens da resposta: ele levava vários segundos e às vezes chegava no limite sem escrever nada. E, no nível gratuito, esse modelo aceita poucos pedidos por dia, que acabavam com os testes da equipe. Pra piorar, o log só dizia o tipo do erro do Java, sem o motivo.
+
+**Solução.** O modelo principal passou a ser um Flash-Lite, que responde em poucos segundos e tem uma cota grátis bem maior. O pedido manda pensar pouco (`thinkingLevel: low`) e tem folga de tokens. Se o principal estiver sem cota, fora do ar ou voltar sem texto, a API tenta uma vez um modelo reserva; se a chave estiver errada, não tenta, porque daria o mesmo erro. O log agora mostra o código e o tipo do erro do Google (ex.: `429 RESOURCE_EXHAUSTED`), sem a chave nem o pedido, e o [deploy.md](deploy.md) tem uma tabela do que cada um quer dizer. Os modelos e o quanto ele pensa podem ser trocados no Render, sem mexer no código. Teste: `ClienteGeminiTest`, com um servidor de mentira fazendo o papel do Google.
+
 ### Navegação de site de uma página só
 
 **Problema.** No React, trocar de página não recarrega o site, e duas coisas que o navegador faz sozinho deixaram de acontecer: a rolagem voltar pro topo (quem clicava num link do rodapé caía no meio da página nova) e o título da aba mudar (todas as abas se chamavam "Adota Aqui", e o leitor de tela não anunciava a página nova).
