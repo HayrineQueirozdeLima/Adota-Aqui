@@ -316,9 +316,12 @@ Níveis de acesso: **Pública** (Visitante), **Autenticada** (Usuario ou Abrigo)
 | `/blog/novo` e `/blog/:id/editar` | Escrever e editar um artigo: título, assunto, capa opcional e texto | Autenticada (protetor; editar só o autor) | ERS 6.4 |
 | `/protetores`             | Abrigos e protetores independentes, em ordem alfabética, com filtro por tipo, estado, cidade e nome, e o "Ver animais" de cada um | Pública | RF07, ERS 4 |
 | `/quem-somos`             | Como o projeto surgiu, a ideia, a motivação e o que ele se propõe a fazer | Pública | - |
+| `/clinicas`               | Mapa das clínicas veterinárias perto da localização, da cidade digitada, da cidade do animal (`?cidade=&estado=`) ou da cidade do perfil | Pública | ERS 6.10 |
+| `/feiras`                 | Feiras de adoção que ainda vão acontecer, com filtro por estado e cidade. O abrigo vê "Divulgar uma feira" e, nas dele, "Editar" e "Apagar" | Pública | - |
+| `/feiras/nova` e `/feiras/:id/editar` | Divulgar e editar uma feira: título, data, horário, local, endereço, cidade, estado e descrição | Somente Abrigo (editar só o que divulgou) | - |
 | `*`                        | Página não encontrada                                                                                                                                                                                               | Pública                            | -                         |
 
-No React, isso vira três tipos de rota: as públicas soltas, a `RotaProtegida` sem restrição de perfil (`/meus-animais/*`, `/interesses-recebidos` e `/perfil`) e a `RotaProtegida apenasUsuario` (`/animais/:id/interesse` e `/meus-interesses`). O depoimento (seção 7) ficou na `/meus-interesses/:id/depoimento`, também só de pessoa física, e o mural `/historias` é público. O blog para tutores (seção 8) é público pra ler, e escrever e editar ficam na `RotaProtegida` sem restrição de perfil. A página de abrigos e protetores e o Quem somos são públicos.
+No React, isso vira três tipos de rota: as públicas soltas, a `RotaProtegida` sem restrição de perfil (`/meus-animais/*`, `/interesses-recebidos` e `/perfil`) e a `RotaProtegida apenasUsuario` (`/animais/:id/interesse` e `/meus-interesses`). O depoimento (seção 7) ficou na `/meus-interesses/:id/depoimento`, também só de pessoa física, e o mural `/historias` é público. O blog para tutores (seção 8) é público pra ler, e escrever e editar ficam na `RotaProtegida` sem restrição de perfil. A página de abrigos e protetores, o Quem somos e o mapa de clínicas são públicos. As feiras são públicas pra ver, e divulgar e editar ficam na `RotaProtegida apenasAbrigo`, que manda quem não é abrigo de volta pra `/feiras`.
 
 ## 7. Depoimento (UC09, RF11)
 
@@ -374,3 +377,33 @@ erDiagram
 ```
 
 Regras: escreve quem é protetor (um Abrigo, ou um Usuario com pelo menos um animal cadastrado), e só o autor edita e apaga (o service confere as duas coisas); título de 5 a 120 caracteres e texto de 50 a 10000; a capa tem que ter vindo do `POST /api/fotos` e sai do S3 quando é trocada ou quando o artigo é apagado. As telas são a `/blog`, a `/blog/:id` e o formulário (ver [funcionalidades](../funcionalidades.md#13-blog-para-tutores)).
+
+## 9. Feiras de adoção
+
+Entrou depois do MVP, na semana da apresentação. É uma tabela nova, sem mudar as que já existiam. Só abrigo divulga feira, então a ligação é só com o `ABRIGO`.
+
+```mermaid
+erDiagram
+    ABRIGO ||--o{ FEIRA_DE_ADOCAO : "divulga"
+
+    ABRIGO {
+        uuid id PK
+    }
+
+    FEIRA_DE_ADOCAO {
+        uuid id PK
+        varchar(120) titulo
+        varchar(1000) descricao "opcional"
+        date data
+        time hora_inicio
+        time hora_fim "CHECK depois de hora_inicio"
+        varchar(120) lugar "o nome do local"
+        varchar(200) endereco
+        varchar(80) cidade
+        char(2) estado
+        uuid abrigo_id FK
+        timestamp criada_em
+    }
+```
+
+Regras: só abrigo divulga, e só o abrigo que divulgou edita e apaga (o service confere); a data não pode ter passado e o horário de fim vem depois do de início (o service confere, e o banco tem o `CHECK` do horário); a lista pública mostra só as feiras de hoje em diante, da mais próxima pra mais distante. A tela é a `/feiras` (ver [funcionalidades](../funcionalidades.md#17-feiras-de-adoção)).

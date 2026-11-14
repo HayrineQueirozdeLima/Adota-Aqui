@@ -5,10 +5,11 @@ import ComoFunciona from "../../components/ComoFunciona/ComoFunciona";
 import ConhecaOProjeto from "../../components/ConhecaOProjeto/ConhecaOProjeto";
 import Estatisticas from "../../components/Estatisticas/Estatisticas";
 import HistoriasRecentes from "../../components/HistoriasRecentes/HistoriasRecentes";
+import ProximasFeiras from "../../components/ProximasFeiras/ProximasFeiras";
 import VitrineAnimais from "../../components/VitrineAnimais/VitrineAnimais";
 import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 
-// Home (Figma: Home): apresentação, os números do site, vitrine, histórias de quem adotou,
+// Home (Figma: Home): apresentação, os números do site, vitrine, próximas feiras, histórias de quem adotou,
 // como funciona a adoção e a chamada pro Quem somos. O rodapé vem do Layout
 export default function Home() {
   const { hash, key } = useLocation();
@@ -38,6 +39,7 @@ export default function Home() {
         </h2>
         <VitrineAnimais aoCarregar={marcarVitrinePronta} />
       </section>
+      <ProximasFeiras />
       <HistoriasRecentes />
       <ComoFunciona />
       <ConhecaOProjeto />

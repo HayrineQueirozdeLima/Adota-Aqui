@@ -2,8 +2,8 @@
 
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
-- **Versão:** 1.12 (novembro de 2026)
-- **Total:** 96 casos, 90 já automatizados e 6 manuais
+- **Versão:** 1.13 (novembro de 2026)
+- **Total:** 102 casos, 95 já automatizados e 7 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
 
@@ -11,7 +11,7 @@ Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o 
 
 Garantir que o Adota Aqui funciona do jeito que os requisitos pedem: cadastro e login seguros, vitrine com filtros, perfil do animal, demonstração de interesse com termo e triagem, cadastro de animais e o painel em que o protetor aprova a adoção. Também entram usabilidade, acessibilidade, segurança e desempenho.
 
-**Coberto:** página inicial e navegação, cadastro e login, vitrine, busca e filtros, perfil do animal, demonstração de interesse e desistência, cadastro de animal e Meus animais, painel de interesses recebidos, Minhas candidaturas, Meu perfil, histórias de adoção, blog, abrigos e protetores, Quem somos, clínicas veterinárias, acessibilidade, segurança e desempenho.
+**Coberto:** página inicial e navegação, cadastro e login, vitrine, busca e filtros, perfil do animal, demonstração de interesse e desistência, cadastro de animal e Meus animais, painel de interesses recebidos, Minhas candidaturas, Meu perfil, histórias de adoção, blog, abrigos e protetores, Quem somos, clínicas veterinárias, feiras de adoção, acessibilidade, segurança e desempenho.
 
 **Fora do escopo desta fase:**
 
@@ -31,7 +31,7 @@ A coluna **Automatizado em** mostra o arquivo de teste que já confere o caso. O
 | CT-NAV-03 | Menu conforme a conta   | Funcional      | Visitante vê "Cadastrar" e "Entrar". Logado vê "Explorar", "Meus animais" e "Interesses recebidos", e só pessoa física vê "Minhas candidaturas"                                                                                                                                        | `Navbar.test.jsx`                         |
 | CT-NAV-04 | Endereço que não existe | Funcional      | Aparece "Página não encontrada", com o menu e os botões "Ver animais disponíveis" e "Ir para a página inicial"                                                                                                                                                                         | `App.test.jsx`                            |
 | CT-NAV-05 | Trocar o tema           | UI             | O botão do topo troca entre claro e escuro, e a escolha continua depois de recarregar a página. Quem nunca escolheu vê o tema do sistema operacional                                                                                                                                   | `BotaoTema.test.jsx`                      |
-| CT-NAV-06 | Links do rodapé         | Funcional      | "Quem somos", "Explorar animais", "Como adotar", "Histórias de adoção", "Blog para tutores", "Abrigos e protetores independentes" (a página de abrigos e protetores, não mais o cadastro), "Clínicas veterinárias" e "Cadastrar um animal" levam pra tela certa | `Rodape.test.jsx`, `Home.test.jsx`        |
+| CT-NAV-06 | Links do rodapé         | Funcional      | "Quem somos", "Explorar animais", "Como adotar", "Histórias de adoção", "Blog para tutores", "Abrigos e protetores independentes" (a página de abrigos e protetores, não mais o cadastro), "Feiras de adoção", "Clínicas veterinárias" e "Cadastrar um animal" levam pra tela certa | `Rodape.test.jsx`, `Home.test.jsx`        |
 | CT-NAV-07 | Trocar de página        | UI             | A página nova abre no topo, mesmo vindo do fim da anterior (ex.: um link do rodapé). Voltar no navegador devolve a pessoa onde ela estava                                                                                                                                              | `RolarParaOTopo.test.jsx`                 |
 | CT-NAV-08 | Título da aba           | Acessibilidade | Cada página mostra o nome dela na aba do navegador (ex.: "Meus animais"), e o leitor de tela anuncia a página nova                                                                                                                                                                     | `App.test.jsx`, `EditarAnimal.test.jsx`   |
 | CT-NAV-09 | Números do site | Funcional | A página inicial mostra as adoções feitas, os animais esperando um lar e os abrigos cadastrados, com ponto no milhar e singular no 1. Se a API falhar, a faixa some e o resto da página funciona | `Estatisticas.test.jsx`, `Home.test.jsx`, `EstatisticasIntegrationTest.java` |
@@ -178,7 +178,18 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | CT-CLI-03 | Abrir já num lugar            | Funcional | Quem está logado abre na cidade do perfil. O link do perfil do animal abre na cidade do animal, que vale mais que a do perfil | `Clinicas.test.jsx`, `PerfilAnimal.test.jsx`, `App.test.jsx` |
 | CT-CLI-04 | Mapa do Google no site        | Funcional | No site publicado, no computador e no celular, o mapa mostra clínicas de verdade da cidade escolhida, de uma cidade de cada região. "Abrir no Google Maps" abre o Maps em outra aba (no celular, o app) | Manual |
 
-### Módulo 14: Desempenho, acessibilidade e segurança
+### Módulo 14: Feiras de adoção
+
+| ID        | Cenário                         | Tipo             | Resultado esperado | Automatizado em |
+| --------- | ------------------------------- | ---------------- | ------------------ | --------------- |
+| CT-FEI-01 | Ver as próximas feiras          | Funcional        | Aparecem só as feiras de hoje em diante, da mais próxima pra mais distante, com a data por extenso, o horário, o local, o abrigo e o selo "Hoje" ou "Amanhã". Quem está logado abre no estado do perfil, numa busca só. A Home mostra as duas próximas, e a seção some sem feira | `FeiraIntegrationTest.java`, `Feiras.test.jsx`, `ProximasFeiras.test.jsx`, `feiras.test.js` |
+| CT-FEI-02 | Filtrar por estado e cidade     | Funcional        | Estado e cidade filtram juntos, a cidade sem ligar pra acento e só depois de parar de digitar. Sem resultado, aparece o aviso e "Ver feiras de todo o Brasil" | `FeiraIntegrationTest.java`, `Feiras.test.jsx` |
+| CT-FEI-03 | Divulgar e editar               | Funcional        | O abrigo divulga com a cidade dele já preenchida, edita a própria feira e volta pra lista com o aviso. Data que já passou e fim antes do início são recusados no front e na API | `FeiraIntegrationTest.java`, `FormularioFeira.test.jsx` |
+| CT-FEI-04 | Quem pode mexer                 | Regra de negócio | Pessoa física não divulga (volta pra lista no site, `403` na API), visitante vai pro login, e só o abrigo que divulgou vê e usa "Editar" e "Apagar" (que pede confirmação) | `FeiraIntegrationTest.java`, `Feiras.test.jsx`, `FormularioFeira.test.jsx`, `App.test.jsx` |
+| CT-FEI-05 | Como chegar e agenda            | Funcional        | "Como chegar" abre o endereço no Google Maps e "Adicionar à agenda" abre o Google Agenda com título, data, horário no fuso da cidade da feira e local | `feiras.test.js`, `Feiras.test.jsx` |
+| CT-FEI-06 | Agenda e mapa de verdade        | Funcional        | No site publicado, no celular, "Adicionar à agenda" salva a feira no dia e na hora certos e "Como chegar" abre o app de mapas | Manual |
+
+### Módulo 15: Desempenho, acessibilidade e segurança
 
 | ID        | Cenário                            | Tipo           | Resultado esperado                                                                                                                                                                                                           | Automatizado em                                                                             |
 | --------- | ---------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
@@ -207,8 +218,9 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | 11. Blog para tutores                          | 5      | 5             | 0       |
 | 12. Abrigos e protetores                   | 5      | 5             | 0       |
 | 13. Clínicas veterinárias                  | 4      | 3             | 1       |
-| 14. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
-| **Total**                                  | **96** | **90**        | **6**   |
+| 14. Feiras de adoção                       | 6      | 5             | 1       |
+| 15. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
+| **Total**                                  | **102** | **95**       | **7**   |
 
 A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta tabela: ela é medida pelo JaCoCo e pelo Jest a cada push, como explica o [plano de testes](plano-de-testes.md). Esta tabela mostra outra coisa: quantos comportamentos importantes já têm teste automático e quantos ainda dependem de alguém testar à mão.
 
@@ -224,6 +236,6 @@ A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta ta
 
 **Registro da rodada manual:** antes de cada entrega, preencher:
 
-| Data | Quem testou | Navegador e tela | CT-NAV-02 | CT-PET-09 | CT-CLI-04 | CT-NFR-01 | CT-NFR-06 |
-| ---- | ----------- | ---------------- | --------- | --------- | --------- | --------- | --------- |
-|      |             |                  |           |           |           |           |           |
+| Data | Quem testou | Navegador e tela | CT-NAV-02 | CT-PET-09 | CT-CLI-04 | CT-FEI-06 | CT-NFR-01 | CT-NFR-06 |
+| ---- | ----------- | ---------------- | --------- | --------- | --------- | --------- | --------- | --------- |
+|      |             |                  |           |           |           |           |           |           |

@@ -2,6 +2,7 @@ import { animaisExemplo, perfilExemplo } from "../../src/mocks/animais";
 import { depoimentosExemplo } from "../../src/mocks/depoimentos";
 import { artigoExemplo, artigosExemplo } from "../../src/mocks/artigos";
 import { estatisticasExemplo } from "../../src/mocks/estatisticas";
+import { feirasExemplo } from "../../src/mocks/feiras";
 import { interesseExemplo } from "../../src/mocks/interesses";
 import { perfilAbrigoExemplo, perfilUsuarioExemplo } from "../../src/mocks/perfil";
 import { protetoresExemplo } from "../../src/mocks/protetores";
@@ -42,6 +43,8 @@ export function paginaDe(itens, { pagina = 0, tamanho = 12, totalItens = itens.l
 // GET /api/artigos devolve uma página com os artigos de exemplo, /api/artigos/meus diz que a conta não
 // pode publicar e /api/artigos/{id} devolve o artigo de exemplo (src/mocks/artigos.js)
 // GET /api/protetores devolve uma página com os abrigos e protetores de exemplo (src/mocks/protetores.js)
+// GET /api/feiras devolve uma página vazia (assim a Home não muda nos testes de outras telas),
+// /api/feiras/minhas devolve [] e /api/feiras/{id} devolve a primeira feira de exemplo (src/mocks/feiras.js)
 export function simularApi({
     responderAnimais,
     responderAnimal,
@@ -92,6 +95,17 @@ export function simularApi({
 
         if (endereco.pathname === "/api/protetores" && metodo === "GET") {
             return Promise.resolve(resposta(200, paginaDe(protetoresExemplo)));
+        }
+
+        if (endereco.pathname === "/api/feiras" && metodo === "GET") {
+            return Promise.resolve(resposta(200, paginaDe([])));
+        }
+        if (endereco.pathname === "/api/feiras/minhas") {
+            return Promise.resolve(resposta(200, []));
+        }
+        const feira = endereco.pathname.match(/^\/api\/feiras\/([^/]+)$/);
+        if (feira && metodo === "GET") {
+            return Promise.resolve(resposta(200, { ...feirasExemplo[0], id: decodeURIComponent(feira[1]) }));
         }
 
         if (endereco.pathname === "/api/estatisticas") {

@@ -65,6 +65,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/artigos", "/api/artigos/*").permitAll()
                         // Página de abrigos e protetores: visitante também vê
                         .requestMatchers(HttpMethod.GET, "/api/protetores").permitAll()
+                        // Feiras de adoção: qualquer pessoa vê. "Minhas feiras" precisa de login e vem antes
+                        .requestMatchers(HttpMethod.GET, "/api/feiras/minhas").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/feiras", "/api/feiras/*").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex

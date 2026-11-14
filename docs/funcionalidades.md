@@ -24,7 +24,8 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 14. [Abrigos e protetores](#14-abrigos-e-protetores)
 15. [Quem somos](#15-quem-somos)
 16. [Clínicas veterinárias perto de você](#16-clínicas-veterinárias-perto-de-você)
-17. [O que ainda não está pronto](#17-o-que-ainda-não-está-pronto)
+17. [Feiras de adoção](#17-feiras-de-adoção)
+18. [O que ainda não está pronto](#18-o-que-ainda-não-está-pronto)
 
 ## Quem usa o sistema
 
@@ -32,7 +33,7 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 | --------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Visitante | Sem login                     | Ver a vitrine (animais de todos os estados) e o perfil de cada animal                                                                                                       |
 | Usuario   | Pessoa física, login com CPF  | Ver os animais do próprio estado, demonstrar interesse, acompanhar as candidaturas e desistir. Também pode cadastrar animais que resgatou e cuidar dos interesses recebidos |
-| Abrigo    | ONG ou abrigo, login com CNPJ | Ver a vitrine de todos os estados, cadastrar animais e cuidar dos interesses recebidos. Não demonstra interesse                                                             |
+| Abrigo    | ONG ou abrigo, login com CNPJ | Ver a vitrine de todos os estados, cadastrar animais e cuidar dos interesses recebidos. Divulga feiras de adoção. Não demonstra interesse                                    |
 
 **Protetor** é quem cadastrou o animal, seja Usuario ou Abrigo. No blog para tutores, escreve o Abrigo ou a pessoa que já cadastrou pelo menos um animal.
 
@@ -55,6 +56,7 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 | 13  | Abrigos e protetores | RF07, ERS 4 | `/protetores` | `GET /api/protetores` |
 | 14  | Quem somos | Fora da ERS | `/quem-somos` e a chamada no fim da Home | Nenhum |
 | 15  | Clínicas veterinárias | ERS 6.10 | `/clinicas` e o link no perfil do animal | Nenhum (o mapa é do Google) |
+| 16  | Feiras de adoção | Depois do MVP | `/feiras`, `/feiras/nova`, `/feiras/:id/editar` e a seção na Home | `GET`, `POST`, `PUT` e `DELETE` em `/api/feiras`, `GET /api/feiras/minhas` |
 
 Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da API](api.md).
 
@@ -596,7 +598,42 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ---
 
-## 17. O que ainda não está pronto
+## 17. Feiras de adoção
+
+![Feiras de adoção no computador](prints/20-feiras.png)
+
+**O que faz.** Mostra as feiras de adoção que ainda vão acontecer: o dia, o horário e o lugar em que um abrigo leva os animais pra quem quer adotar conhecer pessoalmente. Só abrigo divulga feira.
+
+**Como funciona.**
+
+1. A página fica em `/feiras`, aberta pra qualquer pessoa, com link no rodapé ("Feiras de adoção"). Quem está logado já abre no estado do perfil, e dá pra trocar pra outro estado ou "Todos os estados" e procurar pela cidade.
+2. Cada card tem a folha do calendário (mês, dia e dia da semana), o título, a data por extenso com o horário ("Sábado, 21 de novembro, das 9h às 13h"), o local com o endereço, o abrigo que organiza e a descrição. A feira de hoje e a de amanhã ganham o selo "Hoje" ou "Amanhã".
+3. "Como chegar" abre o endereço no Google Maps, e "Adicionar à agenda" abre o Google Agenda com a feira já preenchida, no fuso da cidade dela (uma feira em Porto Velho às 9h fica às 9h de Porto Velho, mesmo pra quem está em São Paulo). Os dois abrem em outra aba e não precisam de chave.
+4. O abrigo logado vê "Divulgar uma feira", que abre o formulário (`/feiras/nova`) com a cidade e o estado do abrigo já preenchidos. Nas feiras dele aparecem "Editar" e "Apagar", e o apagar pede confirmação no próprio card.
+5. A Home mostra as duas próximas feiras do Brasil depois da vitrine, com "Ver todas as feiras". Sem feira marcada, a seção some.
+6. Sem resultado, aparece "Nenhuma feira marcada em {estado} por enquanto." e o botão "Ver feiras de todo o Brasil".
+
+**Regras.**
+
+- Só abrigo divulga, e só o abrigo que divulgou edita e apaga. A pessoa física que abre `/feiras/nova` volta pra lista, e a API responde `403` se alguém tentar direto.
+- A data não pode ter passado, e o horário de fim tem que vir depois do de início. O front confere antes de enviar, e o back confere de novo.
+- A lista mostra as feiras de hoje em diante, da mais próxima pra mais distante. A de hoje fica até o fim do dia, no horário de Brasília.
+- A feira mostra do abrigo só o nome, como a vitrine. Contato continua saindo só pelo interesse num animal.
+
+**Por que só abrigo.** Feira de adoção junta muita gente e muitos animais num lugar público, e quem organiza costuma ser abrigo ou ONG. Deixar qualquer conta divulgar abriria espaço pra evento falso marcando encontro com desconhecidos, e o site não tem moderação.
+
+**Onde está no código.**
+
+- Front: `pages/Feiras`, `pages/FormularioFeira`, `components/CardFeira`, `components/ProximasFeiras`, `services/feiras.js`, `utils/feiras.js` (datas, horário, fusos e links do Google) e a `RotaProtegida apenasAbrigo`
+- Back: `FeiraController`, `FeiraService`, `FeiraRequest`, `FeiraFiltroRequest`, `FeiraResponse`, `FeiraRepository`, `FeiraSpecifications` e o modelo `FeiraDeAdocao`
+
+**Como fica no banco.** Tabela nova `feira_de_adocao`, ligada ao abrigo, com o `CHECK` de que o fim vem depois do início ([diagramas, seção 9](diagramas/diagramas-adota-aqui.md#9-feiras-de-adoção)). O Hibernate cria a tabela sozinho no deploy.
+
+**Testes.** `FeiraIntegrationTest` (quem divulga, a lista só com as próximas e na ordem, filtros sem acento, validações, quem edita e apaga), `Feiras.test.jsx`, `FormularioFeira.test.jsx`, `ProximasFeiras.test.jsx`, `feiras.test.js`, `App.test.jsx` (as rotas e quem entra no formulário) e `Rodape.test.jsx`.
+
+---
+
+## 18. O que ainda não está pronto
 
 | O quê                                   | Situação                                                                                                                                       |
 | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |

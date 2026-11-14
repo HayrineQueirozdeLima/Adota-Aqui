@@ -87,6 +87,12 @@ O blog para tutores (ERS 6.4) não tem moderação, então a regra de quem escre
 
 O texto é puro, sem HTML nem Markdown. O site separa os parágrafos pelas linhas em branco e mostra tudo como texto, então um artigo não consegue carregar um script ou um link disfarçado. Formatação mais rica pediria limpar o HTML no back, e pro tamanho de um artigo os parágrafos já resolvem.
 
+### Feira de adoção só de abrigo
+
+Feira junta muita gente e muitos animais num lugar público, e quem organiza costuma ser abrigo ou ONG. Se qualquer conta pudesse divulgar, daria pra marcar um "evento" falso pra encontrar desconhecidos, e o site não tem moderação. Por isso só a conta de abrigo divulga (o service confere, e o front esconde o botão e o formulário de quem não é abrigo), e a feira mostra do abrigo só o nome, como a vitrine.
+
+O horário da feira é o da cidade dela. O "Adicionar à agenda" manda pro Google Agenda o fuso do estado da feira, então quem mora em outro fuso vê a hora certa.
+
 ### A lista de protetores mostra só o que já é público
 
 A página de abrigos e protetores mostra o nome, a cidade, o estado, o tipo e as contagens, que é o que já aparece no card de cada animal (RF07). E-mail, telefone e documento ficam de fora, e o contato continua saindo só quando alguém demonstra interesse (RF09). Pessoa só entra na lista depois de cadastrar um animal: quem só está procurando pra adotar não aparece.
