@@ -176,6 +176,12 @@ As cores são variáveis CSS com os nomes do Figma, e o tema escuro troca só os
 
 Todas as telas usam rótulo em todo campo, foco visível pelo teclado, mensagem de erro ligada ao campo e o contraste mínimo do WCAG (nível AA) nos dois temas, conferidos no bug bash da #44 ([plano de testes](plano-de-testes.md#bug-bash-da-sprint-5-44)).
 
+### Animações que não roubam a cena
+
+A ideia era deixar a Home e o Quem somos mais vivos sem poluir a tela. Por isso as animações seguem três regras: acontecem uma vez só (quando a página abre ou quando o bloco entra na tela), duram menos de 1 segundo e só mexem em opacidade e posição, que o navegador anima sem travar a rolagem. Nada fica piscando ou se mexendo sem parar, e o foco continua nos animais.
+
+Quem marcou "reduzir movimento" no sistema vê tudo pronto e parado, e o leitor de tela nunca ouve a contagem dos números, só o valor final. Isso segue o critério 2.3.3 do WCAG (animação causada por interação pode ser desligada).
+
 ## Desafios técnicos e soluções
 
 ### A API do Render dorme
@@ -234,6 +240,12 @@ Todas as telas usam rótulo em todo campo, foco visível pelo teclado, mensagem 
 **Problema.** Na revisão dos casos de teste contra o RF06, o fluxo de devolução não fechava: o front deixava voltar o animal adotado pra Disponível e editar os dados no mesmo salvamento, como o RF06 diz ("na mesma tela"), mas o back recusava com 409, porque entendia que animal adotado só muda o status. Os testes dos dois lados passavam, porque cada um testava a regra do seu jeito.
 
 **Solução.** A #98 alinhou o back com o RF06 e o UC05 FA04: na devolução, os dados novos são aceitos e validados junto com o status. O teste novo (`devolucaoVoltaParaDisponivelComOsDadosNovos`) faz o mesmo pedido que o front faz. A divergência e a correção estão no [plano de testes](plano-de-testes.md).
+
+### Animação ao rolar sem piscar e sem esconder conteúdo
+
+**Problema.** Pra um bloco subir quando entra na tela, ele precisa começar escondido. Isso trazia três riscos: o bloco aparecer e sumir num piscar enquanto a página carregava, ficar escondido pra sempre num navegador que não sabe observar a rolagem, e o React apagar a marca de "já apareceu", porque ele reescreve a classe do elemento sempre que a tela atualiza.
+
+**Solução.** Um script curto no `index.html`, antes do site desenhar, põe a classe `animar` no `<html>` só quando o navegador tem o `IntersectionObserver` e a pessoa não pediu menos movimento. Sem essa classe, nada começa escondido. A marca de "já apareceu" é um atributo (`data-revelado`), e não uma classe, então o React não mexe nela. E um `MutationObserver` pega os blocos que chegam depois, como os cards que vêm da API. A trilha do Quem somos mede a linha pontilhada, e não a laranja, porque a laranja encolhe e cresce com a própria medida.
 
 ### Navegação de site de uma página só
 

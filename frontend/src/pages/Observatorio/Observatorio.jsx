@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Botao from "../../components/Botao/Botao";
 import Chip from "../../components/Chip/Chip";
 import MapaDoBrasil, { LegendaDoMapa } from "../../components/MapaDoBrasil/MapaDoBrasil";
+import NumeroQueSobe from "../../components/NumeroQueSobe/NumeroQueSobe";
 import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 import { buscarEstatisticasPorEstado } from "../../services/estatisticas";
 import {
@@ -43,6 +44,9 @@ const retrato = [
     link: "https://www.opovo.com.br/noticias/ceara/2026/04/18/de-mel-a-simba-os-nomes-favoritos-dos-pets-no-ceara.html",
   },
 ];
+
+// O número do topo conta do zero até o total quando a página abre (components/NumeroQueSobe)
+const formatarNumero = (numero) => numero.toLocaleString("pt-BR");
 
 const estiloDoLink =
   "rounded-sm underline underline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-marca-roxo";
@@ -209,7 +213,7 @@ export default function Observatorio() {
         {esperandoAgora !== null && (
           <p className="flex items-baseline gap-3">
             <span className="font-titulo text-[44px] font-semibold leading-none text-marca-roxo">
-              {esperandoAgora.toLocaleString("pt-BR")}
+              <NumeroQueSobe valor={esperandoAgora} formatar={formatarNumero} />
             </span>
             <span className="max-w-[180px] text-compacto text-texto-secundario">
               {esperandoAgora === 1 ? "animal esperando um lar agora" : "animais esperando um lar agora"}

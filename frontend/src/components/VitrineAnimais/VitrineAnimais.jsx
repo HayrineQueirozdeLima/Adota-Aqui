@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Botao from "../Botao/Botao";
 import CardAnimal from "../CardAnimal/CardAnimal";
+import Revelar from "../Revelar/Revelar";
 import Carregando from "../Carregando/Carregando";
 import FiltrosAnimais from "../FiltrosAnimais/FiltrosAnimais";
 import SetaSelecao from "../SetaSelecao/SetaSelecao";
@@ -229,12 +230,11 @@ export default function VitrineAnimais({ aoCarregar, nivelDoTitulo, buscaInicial
           ref={grade}
           className="grid grid-cols-[repeat(auto-fill,minmax(16.25rem,1fr))] gap-[22px]"
         >
-          {animais.map((animal) => (
-            <CardAnimal
-              key={animal.id}
-              animal={animal}
-              nivelDoTitulo={nivelDoTitulo}
-            />
+          {/* Cada card sobe quando entra na tela, um pouquinho depois do vizinho da esquerda */}
+          {animais.map((animal, posicao) => (
+            <Revelar key={animal.id} ordem={posicao % 4}>
+              <CardAnimal animal={animal} nivelDoTitulo={nivelDoTitulo} />
+            </Revelar>
           ))}
         </div>
 

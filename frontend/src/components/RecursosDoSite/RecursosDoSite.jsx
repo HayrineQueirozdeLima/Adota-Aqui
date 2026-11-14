@@ -47,10 +47,11 @@ export default function RecursosDoSite() {
         Tudo pra uma adoção responsável
       </h2>
       <ul className={`mt-3 grid gap-3 sm:grid-cols-2 ${lista.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
-        {lista.map(({ para, titulo, texto, Icone }) => (
+        {lista.map(({ para, titulo, texto, Icone }, posicao) => (
           <li
             key={para}
-            className="group relative flex gap-4 rounded-[16px] border border-borda-sutil bg-fundo-superficie p-4 transition-colors hover:border-marca-roxo motion-reduce:transition-none sm:flex-col sm:gap-3 sm:p-5"
+            style={{ "--ordem": posicao }}
+            className="revelar-ao-rolar group relative flex gap-4 rounded-[16px] border border-borda-sutil bg-fundo-superficie p-4 transition-colors hover:border-marca-roxo motion-reduce:transition-none sm:flex-col sm:gap-3 sm:p-5"
           >
             <span
               aria-hidden="true"

@@ -39,10 +39,11 @@ export default function CardAnimal({ animal, nivelDoTitulo = 3 }) {
   ];
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-[16px] border border-borda-sutil bg-fundo-superficie">
+    <article className="group flex flex-col overflow-hidden rounded-[16px] border border-borda-sutil bg-fundo-superficie">
       {/* Foto quadrada, pra não cortar o animal quando o card fica largo.
-          Enquanto não tiver foto, fica o fundo roxo-suave com o aviso "Sem foto" */}
-      <div className="relative flex aspect-square items-center justify-center bg-marca-roxo-suave">
+          Enquanto não tiver foto, fica o fundo roxo-suave com o aviso "Sem foto".
+          Com o mouse em cima do card, a foto chega um pouquinho mais perto */}
+      <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-marca-roxo-suave">
         {esperando && (
           <span className="absolute left-3 top-3 rounded-full bg-fundo-superficie px-3 py-1.5 font-titulo text-legenda font-semibold text-marca-roxo shadow-sm">
             {esperando}
@@ -52,7 +53,7 @@ export default function CardAnimal({ animal, nivelDoTitulo = 3 }) {
           <img
             src={fotoCapa}
             alt={`Foto de ${nome}`}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover transition-transform duration-500 ease-out motion-safe:group-hover:scale-[1.04]"
           />
         ) : (
           <span className="text-legenda text-texto-secundario">Sem foto</span>
