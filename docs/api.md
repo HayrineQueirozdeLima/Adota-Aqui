@@ -244,7 +244,8 @@ Autentica um Usuario (CPF) ou um Abrigo (CNPJ) e devolve o token.
   "tipoConta": "USUARIO",
   "id": "3f6c1a2e-8b4d-4c7a-9e1f-2a5b7c9d0e11",
   "nome": "Maria Silva",
-  "expiraEm": "2026-09-27T14:30:00Z"
+  "expiraEm": "2026-09-27T14:30:00Z",
+  "fotoUrl": null
 }
 ```
 
@@ -316,7 +317,8 @@ Mesmo formato da resposta do login, porque o cadastro já autentica a conta (UC0
   "tipoConta": "USUARIO",
   "id": "3f6c1a2e-8b4d-4c7a-9e1f-2a5b7c9d0e11",
   "nome": "Maria Silva",
-  "expiraEm": "2026-09-27T14:30:00Z"
+  "expiraEm": "2026-09-27T14:30:00Z",
+  "fotoUrl": null
 }
 ```
 
@@ -411,11 +413,12 @@ Devolve os dados da conta do Usuario logado.
     "bairro": "Centro",
     "cidade": "Porto Velho",
     "estado": "RO"
-  }
+  },
+  "fotoUrl": "https://adota-aqui-fotos.s3.us-east-2.amazonaws.com/animais/9c1e....jpg"
 }
 ```
 
-O `cpf` vem na resposta para ser exibido na tela, mas não pode ser editado.
+O `cpf` vem na resposta para ser exibido na tela, mas não pode ser editado. O `fotoUrl` é a foto de perfil, ou `null` quando a conta não pôs foto (aí o site mostra as iniciais).
 
 **Erros:** `401` sem token, token inválido ou conta que não existe mais; `403` conta do tipo Abrigo.
 
@@ -462,6 +465,31 @@ Atualiza os dados editáveis da conta do Usuario logado.
 
 ---
 
+### PUT /api/usuarios/me/foto
+
+Põe, troca ou tira a foto de perfil. A imagem vai antes pelo `POST /api/fotos` (seção 8), e aqui vai só o endereço que ele devolveu.
+**Acesso:** Somente Usuario (o abrigo usa `PUT /api/abrigos/me/foto`, igual). **Origem:** pedido da equipe pra apresentação (fora da ERS)
+
+**Entrada**
+
+```json
+{ "fotoUrl": "https://adota-aqui-fotos.s3.us-east-2.amazonaws.com/animais/9c1e....jpg" }
+```
+
+`null` ou vazio tira a foto.
+
+**Saída (`200 OK`):** o perfil inteiro, como no `GET /api/usuarios/me`, com o `fotoUrl` novo.
+
+**Regras**
+
+- Só entra foto que passou pelo `POST /api/fotos` (o mesmo bucket e o mesmo formato de nome). Endereço de outro site: `400` com `campos.fotoUrl` "Envie a foto pelo próprio site", porque a foto aparece pra todo mundo no card dos animais.
+- A foto que saiu (trocada ou tirada) é apagada do bucket depois de salvar, se nada mais usa ela.
+- A foto aparece no topo do site (no lugar das iniciais), no card e no perfil dos animais da conta, na página de abrigos e protetores e como organizador das feiras (`fotoUrl` dentro de `protetor`). O login também devolve o `fotoUrl`.
+
+**Erros:** `400` foto que não foi enviada pelo site ou endereço com mais de 500 caracteres; `401` sem token; `403` conta do tipo Abrigo (use a rota de abrigo).
+
+---
+
 ### PATCH /api/usuarios/me/senha
 
 Troca a senha do Usuario logado.
@@ -493,7 +521,7 @@ Troca a senha do Usuario logado.
 
 ---
 
-### GET /api/abrigos/me, PUT /api/abrigos/me e PATCH /api/abrigos/me/senha
+### GET /api/abrigos/me, PUT /api/abrigos/me, PUT /api/abrigos/me/foto e PATCH /api/abrigos/me/senha
 
 Iguais aos endpoints de Usuario acima, para a conta do Abrigo logado.
 **Acesso:** Somente Abrigo. **Origem:** RF17, UC10

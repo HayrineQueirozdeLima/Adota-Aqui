@@ -9,7 +9,9 @@ public record AbrigoResponse(
         String razaoSocial,
         String telefone,
         String email,
-        EnderecoDto endereco) {
+        EnderecoDto endereco,
+        // null quando o abrigo não pôs foto
+        String fotoUrl) {
 }
 
 

@@ -152,7 +152,7 @@ public class FeiraService {
     private static FeiraResponse resposta(FeiraDeAdocao feira, Conta conta) {
         Abrigo abrigo = feira.getAbrigo();
         ProtetorResponse organizador = new ProtetorResponse(abrigo.getNome(), abrigo.getEndereco().getCidade(),
-                abrigo.getEndereco().getEstado());
+                abrigo.getEndereco().getEstado(), abrigo.getFotoUrl());
         return new FeiraResponse(feira.getId(), feira.getTitulo(), feira.getDescricao(), feira.getData(),
                 feira.getHoraInicio(), feira.getHoraFim(), feira.getLocal(), feira.getEndereco(), feira.getCidade(),
                 feira.getEstado(), organizador, ehOrganizador(feira, conta));

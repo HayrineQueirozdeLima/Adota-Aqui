@@ -27,6 +27,11 @@ public class Usuario {
     @Column(nullable = false, length = 120)
     private String nome;
 
+    // Foto de perfil (opcional): o endereço de uma foto enviada pelo POST /api/fotos.
+    // Sem foto, o site mostra as iniciais do nome
+    @Column(name = "foto_url", length = 500)
+    private String fotoUrl;
+
     @Column(nullable = false, unique = true, length = 120)
     private String email;
 
@@ -94,5 +99,13 @@ public class Usuario {
 
     public void setEndereco(Endereco endereco) {
         this.endereco = endereco;
+    }
+
+    public String getFotoUrl() {
+        return fotoUrl;
+    }
+
+    public void setFotoUrl(String fotoUrl) {
+        this.fotoUrl = fotoUrl;
     }
 }

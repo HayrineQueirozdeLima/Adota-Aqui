@@ -47,6 +47,7 @@ final class AnimalMapper {
         Endereco endereco = animal.getUsuario() != null
                 ? animal.getUsuario().getEndereco() : animal.getAbrigo().getEndereco();
         String nome = animal.getUsuario() != null ? animal.getUsuario().getNome() : animal.getAbrigo().getNome();
-        return new ProtetorResponse(nome, endereco.getCidade(), endereco.getEstado());
+        String foto = animal.getUsuario() != null ? animal.getUsuario().getFotoUrl() : animal.getAbrigo().getFotoUrl();
+        return new ProtetorResponse(nome, endereco.getCidade(), endereco.getEstado(), foto);
     }
 }

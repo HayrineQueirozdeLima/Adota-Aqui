@@ -178,3 +178,10 @@ test("o Pular para o conteúdo leva o foco pro começo da página", () => {
   fireEvent.click(screen.getByRole("link", { name: "Pular para o conteúdo" }));
   expect(screen.getByText("Conteúdo")).toHaveFocus();
 });
+
+test("com foto de perfil, a Minha área mostra a foto no lugar das iniciais", () => {
+  renderizar({ ...marina, fotoUrl: "https://fotos.teste/marina.jpg" });
+  const botao = screen.getByRole("button", { name: "Minha área" });
+  expect(botao.querySelector("img")).toHaveAttribute("src", "https://fotos.teste/marina.jpg");
+  expect(screen.queryByText("MP")).not.toBeInTheDocument();
+});

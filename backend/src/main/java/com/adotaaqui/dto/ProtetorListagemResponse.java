@@ -15,5 +15,7 @@ public record ProtetorListagemResponse(
         String estado,
         long animaisDisponiveis,
         // Interesses aprovados nos animais desse protetor, como nos números da Home
-        long adocoes) {
+        long adocoes,
+        // Foto de perfil, ou null
+        String fotoUrl) {
 }

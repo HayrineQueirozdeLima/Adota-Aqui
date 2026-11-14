@@ -2,8 +2,8 @@
 
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
-- **Versão:** 1.17 (novembro de 2026)
-- **Total:** 114 casos, 106 já automatizados e 8 manuais
+- **Versão:** 1.18 (novembro de 2026)
+- **Total:** 115 casos, 107 já automatizados e 8 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
 
@@ -141,6 +141,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | CT-PRF-04 | Mudar o estado        | Regra de negócio | A vitrine passa a mostrar os animais do estado novo (RF14). Os animais que a conta cadastrou continuam onde estão: cada um tem o próprio local, editado no animal | `Perfil.test.jsx`, `PerfilIntegrationTest.java` |
 | CT-PRF-05 | Trocar a senha        | Funcional        | Pede a senha atual e a confirmação. Depois, o login só funciona com a senha nova                                     | `Perfil.test.jsx`, `PerfilIntegrationTest.java` |
 | CT-PRF-06 | Senha atual errada    | Segurança        | A mensagem aparece embaixo da senha atual e a pessoa continua logada                                                 | `Perfil.test.jsx`, `PerfilIntegrationTest.java` |
+| CT-PRF-07 | Foto de perfil        | Funcional        | Pessoa e abrigo põem, trocam e tiram a foto, que é salva na hora. Ela aparece no topo, no card e no perfil dos animais da conta e na página de abrigos e protetores. Arquivo que não é imagem é recusado antes de enviar, e endereço de outro site é recusado pela API. A foto que saiu é apagada do bucket | `FotoDoPerfil.test.jsx`, `Navbar.test.jsx`, `CardAnimal.test.jsx`, `PerfilIntegrationTest.java` |
 
 ### Módulo 10: Histórias de adoção
 
@@ -235,7 +236,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | 6. Cadastro de animal e Meus animais       | 9      | 9             | 0       |
 | 7. Interesses recebidos                    | 5      | 5             | 0       |
 | 8. Minhas candidaturas                     | 5      | 5             | 0       |
-| 9. Meu perfil                              | 6      | 6             | 0       |
+| 9. Meu perfil                              | 7      | 7             | 0       |
 | 10. Histórias de adoção                    | 5      | 5             | 0       |
 | 11. Blog para tutores                          | 5      | 5             | 0       |
 | 12. Abrigos e protetores                   | 5      | 5             | 0       |
@@ -244,7 +245,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | 15. Observatório da adoção                 | 4      | 4             | 0       |
 | 16. Ajudas com inteligência artificial     | 5      | 4             | 1       |
 | 17. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
-| **Total**                                  | **114** | **106**      | **8**   |
+| **Total**                                  | **115** | **107**      | **8**   |
 
 A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta tabela: ela é medida pelo JaCoCo e pelo Jest a cada push, como explica o [plano de testes](plano-de-testes.md). Esta tabela mostra outra coisa: quantos comportamentos importantes já têm teste automático e quantos ainda dependem de alguém testar à mão.
 

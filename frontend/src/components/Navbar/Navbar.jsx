@@ -4,7 +4,7 @@ import Botao from "../Botao/Botao";
 import BotaoTema from "../BotaoTema/BotaoTema";
 import logo from "../../assets/logo-sobre-marca.svg";
 import { useIaDisponivel } from "../../hooks/useIaDisponivel";
-import { iniciais } from "../../utils/rotulos";
+import Avatar from "../Avatar/Avatar";
 
 // Contorno branco de foco, pra quem navega pelo teclado enxergar em cima do roxo
 const foco =
@@ -196,7 +196,7 @@ export default function Navbar({ usuario, aoSair }) {
   );
 }
 
-// "Minha área": as iniciais da pessoa e, no computador, o nome do botão.
+// "Minha área": a foto da pessoa (ou as iniciais) e, no computador, o nome do botão.
 // Abre a lista com o que é dela. A lista fica no canto direito do topo, em qualquer tamanho de tela
 function MinhaArea({ usuario, aoSair }) {
   const { pathname } = useLocation();
@@ -229,12 +229,11 @@ function MinhaArea({ usuario, aoSair }) {
         onClick={() => setAberta((estava) => !estava)}
         className={`flex min-h-11 items-center gap-2 rounded-full pl-1 pr-1 text-texto-sobre-marca hover:bg-white/10 xl:pr-3 ${foco}`}
       >
-        <span
-          aria-hidden="true"
-          className="flex size-[34px] items-center justify-center rounded-full bg-texto-sobre-marca font-titulo text-campo font-semibold text-fundo-marca md:size-9"
-        >
-          {iniciais(usuario.nome)}
-        </span>
+        <Avatar
+          nome={usuario.nome}
+          fotoUrl={usuario.fotoUrl}
+          className="size-[34px] bg-texto-sobre-marca text-campo text-fundo-marca md:size-9"
+        />
         <span className="sr-only font-titulo text-botao font-semibold xl:not-sr-only">Minha área</span>
         <IconeSeta aberta={aberta} />
       </button>

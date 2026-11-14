@@ -1,12 +1,13 @@
+import Avatar from "../Avatar/Avatar";
 import Botao from "../Botao/Botao";
 import Tag from "../Tag/Tag";
-import { iniciais, tiposDeProtetor } from "../../utils/rotulos";
+import { tiposDeProtetor } from "../../utils/rotulos";
 
 // Card da página de abrigos e protetores (/protetores)
 // recebe um item do GET /api/protetores (docs/api.md, seção 13)
 // O tabIndex -1 deixa o "Ver mais" levar o foco pro primeiro card novo
 export default function CardProtetor({ protetor }) {
-  const { nome, tipo, cidade, estado, animaisDisponiveis, adocoes } = protetor;
+  const { nome, tipo, cidade, estado, animaisDisponiveis, adocoes, fotoUrl } = protetor;
 
   return (
     <article
@@ -14,12 +15,7 @@ export default function CardProtetor({ protetor }) {
       className="flex flex-col gap-4 rounded-[16px] border border-borda-sutil bg-fundo-superficie p-5 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-marca-roxo"
     >
       <div className="flex items-start gap-3">
-        <span
-          aria-hidden="true"
-          className="flex size-11 shrink-0 items-center justify-center rounded-full bg-marca-roxo-suave font-titulo text-campo font-semibold text-marca-roxo"
-        >
-          {iniciais(nome)}
-        </span>
+        <Avatar nome={nome} fotoUrl={fotoUrl} className="size-11 bg-marca-roxo-suave text-campo text-marca-roxo" />
         <div className="min-w-0">
           <h2 className="break-words font-titulo text-item font-semibold text-texto-principal">
             {nome}

@@ -8,7 +8,9 @@ public record UsuarioResponse(
         String cpf,
         String telefone,
         String email,
-        EnderecoDto endereco) {
+        EnderecoDto endereco,
+        // null quando a pessoa não pôs foto
+        String fotoUrl) {
 }
 
 

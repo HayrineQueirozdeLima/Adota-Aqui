@@ -26,4 +26,7 @@ public interface AbrigoRepository extends JpaRepository<Abrigo, UUID> {
             GROUP BY ab.endereco.estado
             """)
     List<ContagemPorEstado> contarPorEstado();
+
+    // A limpeza das fotos (LimpezaDeFotos) não apaga do bucket uma foto que ainda é de perfil
+    boolean existsByFotoUrl(String fotoUrl);
 }

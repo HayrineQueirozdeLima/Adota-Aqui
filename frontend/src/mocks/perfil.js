@@ -14,6 +14,7 @@ export const perfilUsuarioExemplo = {
         cidade: 'Porto Velho',
         estado: 'RO',
     },
+    fotoUrl: null,
 };
 
 export const perfilAbrigoExemplo = {
@@ -31,4 +32,5 @@ export const perfilAbrigoExemplo = {
         cidade: 'Santo André',
         estado: 'SP',
     },
+    fotoUrl: null,
 };
