@@ -23,7 +23,11 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 13. [Blog para tutores](#13-blog-para-tutores)
 14. [Abrigos e protetores](#14-abrigos-e-protetores)
 15. [Quem somos](#15-quem-somos)
-16. [O que ainda não está pronto](#16-o-que-ainda-não-está-pronto)
+16. [Clínicas veterinárias perto de você](#16-clínicas-veterinárias-perto-de-você)
+17. [Feiras de adoção](#17-feiras-de-adoção)
+18. [Observatório da adoção](#18-observatório-da-adoção)
+19. [Ajudas com inteligência artificial](#19-ajudas-com-inteligência-artificial)
+20. [O que ainda não está pronto](#20-o-que-ainda-não-está-pronto)
 
 ## Quem usa o sistema
 
@@ -31,7 +35,7 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 | --------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Visitante | Sem login                     | Ver a vitrine (animais de todos os estados) e o perfil de cada animal                                                                                                       |
 | Usuario   | Pessoa física, login com CPF  | Ver os animais do próprio estado, demonstrar interesse, acompanhar as candidaturas e desistir. Também pode cadastrar animais que resgatou e cuidar dos interesses recebidos |
-| Abrigo    | ONG ou abrigo, login com CNPJ | Ver a vitrine de todos os estados, cadastrar animais e cuidar dos interesses recebidos. Não demonstra interesse                                                             |
+| Abrigo    | ONG ou abrigo, login com CNPJ | Ver a vitrine de todos os estados, cadastrar animais e cuidar dos interesses recebidos. Divulga feiras de adoção. Não demonstra interesse                                    |
 
 **Protetor** é quem cadastrou o animal, seja Usuario ou Abrigo. No blog para tutores, escreve o Abrigo ou a pessoa que já cadastrou pelo menos um animal.
 
@@ -48,11 +52,15 @@ Os prints foram tirados com os dados de exemplo do projeto (`frontend/src/mocks`
 | 7   | Demonstrar interesse e desistir     | RF08, RF09, RF13, RF14, RF15 | `/animais/:id/interesse`                                          | `POST /api/animais/{id}/interesses`, `DELETE /api/interesses/{id}`                                                   |
 | 8   | Painel de interesses recebidos      | RF09, RF10, RF12             | `/interesses-recebidos`                                           | `GET /api/interesses/recebidos`, `PATCH /api/interesses/{id}/status`                                                 |
 | 9   | Minhas candidaturas                 | RF09, UC07                   | `/meus-interesses`                                                | `GET /api/interesses/meus`, `DELETE /api/interesses/{id}`                                                            |
-| 10  | Meu perfil                          | RF17, RF14, UC10             | `/perfil`                                                         | `GET` e `PUT` em `/api/usuarios/me` e `/api/abrigos/me`, `PATCH` em `.../me/senha`                                   |
+| 10  | Meu perfil                          | RF17, RF14, UC10             | `/perfil`                                                         | `GET` e `PUT` em `/api/usuarios/me` e `/api/abrigos/me`, `PUT` em `.../me/foto`, `PATCH` em `.../me/senha`            |
 | 11  | Histórias de adoção | RF11, UC09 | `/historias`, `/meus-interesses/:id/depoimento` | `POST /api/interesses/{id}/depoimento`, `GET /api/depoimentos`, `DELETE /api/depoimentos/{id}` |
 | 12  | Blog para tutores | ERS 6.4 | `/blog`, `/blog/:id`, `/blog/novo`, `/blog/:id/editar` | `GET`, `POST`, `PUT` e `DELETE` em `/api/artigos`, `GET /api/artigos/meus` |
 | 13  | Abrigos e protetores | RF07, ERS 4 | `/protetores` | `GET /api/protetores` |
 | 14  | Quem somos | Fora da ERS | `/quem-somos` e a chamada no fim da Home | Nenhum |
+| 15  | Clínicas veterinárias | ERS 6.10 | `/clinicas` e o link no perfil do animal | Nenhum (o mapa é do Google) |
+| 16  | Feiras de adoção | Depois do MVP | `/feiras`, `/feiras/nova`, `/feiras/:id/editar` e a seção na Home | `GET`, `POST`, `PUT` e `DELETE` em `/api/feiras`, `GET /api/feiras/minhas` |
+| 17  | Observatório da adoção | ERS 6.8 | `/observatorio` | `GET /api/estatisticas/estados` |
+| 18  | Ajudas com IA | ERS 6.12 | "Escrever com IA" no formulário do animal e `/me-ajuda-a-escolher` | `GET /api/ia/disponivel`, `POST /api/ia/descricao` e `POST /api/ia/sugestoes` |
 
 Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da API](api.md).
 
@@ -138,7 +146,7 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 
 - As rotas que precisam de login (`/meus-animais`, cadastro e edição de animal, `/interesses-recebidos`, `/perfil` e escrever ou editar um artigo) passam pela `RotaProtegida`. Sem login, a pessoa vai pro `/login` e volta pra mesma página depois de entrar.
 - Demonstrar interesse e Minhas candidaturas são só pra pessoa física. Abrigo que tenta abrir essas páginas vai pra página inicial.
-- O menu muda conforme quem está logado. Visitante vê "Cadastrar" e "Entrar". Quem está logado vê "Explorar", "Meus animais", "Interesses recebidos" e, só pessoa física, "Minhas candidaturas".
+- O topo muda conforme quem está logado. Visitante vê "Cadastrar" e "Entrar". Quem está logado vê a foto de perfil (ou as iniciais) e "Minha área", com "Meu perfil", "Meus animais", "Interesses recebidos" e "Sair". Só pessoa física vê "Minhas candidaturas", e só abrigo vê "Divulgar uma feira".
 
 **Na API.**
 
@@ -167,13 +175,15 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 
 **O que faz.** Lista os animais disponíveis pra adoção, com filtros (RF07, UC06). Aparece na página inicial e em `/animais`.
 
+Na página inicial, entre os números do site e a vitrine, a faixa "Tudo pra uma adoção responsável" tem um cartão pra cada recurso que vai além da vitrine: Me ajuda a escolher (só com a IA ligada), Feiras de adoção, Clínicas veterinárias e Observatório da adoção. O cartão inteiro é clicável, mas o link é só o título, pra o leitor de tela ler só o nome da página.
+
 **Como funciona.**
 
 1. Visitante e Abrigo veem animais de todos os estados. Pessoa física logada vê só os que estão no próprio estado (RF14). Vale onde o animal está, que o protetor informa no cadastro e pode mudar na edição, e não o endereço de quem cadastrou.
 2. Busca por nome e filtros: cidade, espécie, sexo, porte, raça (liberada depois de escolher a espécie), nível de energia e convivência ("Bom com crianças", "Bom com cães", "Bom com gatos"). As listas começam em "Todos os portes", "Todas as raças" e "Qualquer energia", já marcados, como o "Todos os estados" de Abrigos e protetores. Antes a primeira opção era o nome do filtro, e no celular "Raça" parecia uma raça (retorno do QA). No filtro, a raça "Outra" do cadastro aparece como "Outras raças", pra não confundir com "Sem raça definida".
 3. A cada mudança, o front espera 300 ms sem mudança nova (assim não busca a cada letra digitada na cidade) e chama `GET /api/animais` com os filtros no endereço.
-4. Cada cartão mostra nome, descrição (espécie, raça, porte e peso), tags de convivência, o protetor com a cidade e o estado onde o animal está, e o botão "Quero conhecer". O filtro de cidade também procura na cidade do animal.
-5. Os animais vêm de 12 em 12, dos cadastrados mais recentes pros mais antigos. Embaixo da grade aparece "Mostrando 12 de 37 animais" e o botão "Ver mais animais", que traz a próxima página embaixo das que já estavam na tela e leva o foco pro primeiro animal novo. Na última página o botão some. Se a próxima página falhar, os animais que já estavam continuam, e aparece "Não foi possível carregar mais animais. Tente de novo.". Mudar um filtro volta pra primeira página.
+4. Cada cartão mostra nome, descrição (espécie, raça, porte e peso), tags de convivência, o protetor com a cidade e o estado onde o animal está, e o botão "Quero conhecer". O filtro de cidade também procura na cidade do animal. Animal que está no site há 1 mês ou mais ganha, em cima da foto, o selo "Esperando há 3 meses" (contado pelo `cadastradoEm` que a API manda), pra quem espera há mais tempo chamar atenção.
+5. Os animais vêm de 12 em 12, dos cadastrados mais recentes pros mais antigos. Em "Ordenar por", a opção "Esperando há mais tempo" inverte: primeiro quem está no site há mais tempo (`ordem=MAIS_ANTIGOS`). A ordem não é filtro, então não liga o "Limpar filtros" e continua quando a pessoa limpa. Embaixo da grade aparece "Mostrando 12 de 37 animais" e o botão "Ver mais animais", que traz a próxima página embaixo das que já estavam na tela e leva o foco pro primeiro animal novo. Na última página o botão some. Se a próxima página falhar, os animais que já estavam continuam, e aparece "Não foi possível carregar mais animais. Tente de novo.". Mudar um filtro volta pra primeira página.
 6. Sem resultado com os filtros: "Nenhum resultado encontrado com essas informações.", com uma foto, a dica "Tente tirar algum filtro ou buscar por outro nome." e o botão "Ver todos os animais" (UC06 FA02). Sem nenhum animal no estado da pessoa: "Nenhum animal disponível no seu estado no momento." (UC06 FA01).
 7. Se a API não responder: "Não foi possível carregar os animais.", com o botão "Tentar de novo", que busca outra vez sem perder os filtros.
 
@@ -183,12 +193,12 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 
 **Onde está no código.**
 
-- Front: `pages/Home`, `components/Apresentacao`, `components/Estatisticas`, `components/ComoFunciona`, `components/VitrineAnimais`, `components/FiltrosAnimais`, `components/CardAnimal`, `services/animais.js` e `services/estatisticas.js`
+- Front: `pages/Home`, `components/Apresentacao`, `components/Estatisticas`, `components/RecursosDoSite`, `components/ComoFunciona`, `components/VitrineAnimais`, `components/FiltrosAnimais`, `components/CardAnimal`, `services/animais.js` e `services/estatisticas.js`
 - Back: `AnimalController`, `AnimalService`, `AnimalFiltroRequest`, `AnimalSpecifications`, `PaginaResponse`, `EstatisticasController` e `EstatisticasService`
 
-**Como fica no banco.** A coluna `cadastrado_em` da tabela `animal` guarda quando o animal foi cadastrado, e é por ela que a vitrine ordena. Nos animais que já existiam quando a coluna foi criada, o banco preencheu com a data daquele deploy.
+**Como fica no banco.** A coluna `cadastrado_em` da tabela `animal` guarda quando o animal foi cadastrado, e é por ela que a vitrine ordena e que o selo de espera conta. Nos animais que já existiam quando a coluna foi criada (31/10/2026), o banco preencheu com a data daquele deploy, então eles só ganham o selo um mês depois disso.
 
-**Testes.** `AnimalIntegrationTest` (estado, status, filtros combinados, cidade, busca por nome sem acento, páginas, ordem e limites da paginação), `ErroApiIntegrationTest` (filtro com valor inválido), `VitrineAnimais.test.jsx` (inclusive o "Ver mais animais"), `CardAnimal.test.jsx`, `Home.test.jsx`, `EstatisticasIntegrationTest` e `Estatisticas.test.jsx`.
+**Testes.** `AnimalIntegrationTest` (estado, status, filtros combinados, cidade, busca por nome sem acento, páginas, as duas ordens e limites da paginação), `ErroApiIntegrationTest` (filtro com valor inválido), `VitrineAnimais.test.jsx` (inclusive o "Ver mais animais" e o "Ordenar por"), `CardAnimal.test.jsx`, `Home.test.jsx`, `EstatisticasIntegrationTest` e `Estatisticas.test.jsx`.
 
 ---
 
@@ -204,7 +214,11 @@ Os detalhes de cada endpoint (entrada, saída e erros) estão no [contrato da AP
 - Características: espécie, raça, porte, sexo, peso, idade estimada (calculada pela data de nascimento estimada) e se é castrado.
 - Convivência com crianças, cães e gatos em tags coloridas (verde: convive bem; amarelo: não convive bem; roxo: não testado), e o nível de energia.
 - Histórico de vacinação, quando tem, e a história do animal.
-- Aviso de guarda responsável no fim.
+- O selo "Esperando há 3 meses" do lado do "Disponível", pra animal que está no site há 1 mês ou mais.
+- O quadro "Ajude a Mel a achar um lar", com "Enviar no WhatsApp" (um texto pronto com o link do perfil), "Copiar link" e, no navegador que tem o menu de compartilhar do sistema (quase todo celular), "Outros apps". Animal adotado não tem o quadro.
+- Aviso de guarda responsável e o link pras clínicas veterinárias perto de onde o animal está ([seção 16](#16-clínicas-veterinárias-perto-de-você)).
+
+**Prévia do link.** Quem manda um link do site no WhatsApp ou nas redes vê uma prévia com o nome, uma frase e a imagem do Adota Aqui (`frontend/public/compartilhar.png`, nas tags `og:` do `index.html`). A prévia é a mesma pra todas as páginas: o site monta as telas no navegador, e o WhatsApp não roda o JavaScript pra ler o nome do animal. Por isso o texto pronto do "Enviar no WhatsApp" já leva o nome e a cidade do animal.
 
 O quadro do lado:
 
@@ -221,10 +235,10 @@ O quadro do lado:
 
 **Onde está no código.**
 
-- Front: `pages/PerfilAnimal`, `components/GaleriaFotos` e `utils/rotulos.js`
+- Front: `pages/PerfilAnimal`, `components/GaleriaFotos`, `components/CompartilharAnimal` e `utils/rotulos.js` (`tempoEsperando`)
 - Back: `AnimalController`, `AnimalService` e `AnimalMapper`
 
-**Testes.** `AnimalIntegrationTest` (permissões e interesse ativo no perfil) e `PerfilAnimal.test.jsx`.
+**Testes.** `AnimalIntegrationTest` (permissões, interesse ativo e a data de cadastro no perfil), `PerfilAnimal.test.jsx`, `CompartilharAnimal.test.jsx` e `rotulos.test.js`.
 
 ---
 
@@ -396,7 +410,7 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 ![Meu perfil](prints/15-meu-perfil.png)
 
-**O que faz.** A pessoa ou o abrigo vê e edita os dados da conta e troca a senha (RF17, UC10). O CPF e o CNPJ aparecem, mas não mudam, porque é com eles que se entra.
+**O que faz.** A pessoa ou o abrigo vê e edita os dados da conta, põe uma foto de perfil e troca a senha (RF17, UC10). O CPF e o CNPJ aparecem, mas não mudam, porque é com eles que se entra.
 
 **Como funciona.**
 
@@ -406,8 +420,9 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 4. A troca de senha fica na mesma tela e é opcional: com os três campos em branco, a senha não muda. Começou a preencher, os três passam a ser obrigatórios.
 5. "Salvar alterações" manda os dados (`PUT`) e, se a senha foi preenchida, troca a senha logo depois (`PATCH`). Se nada mudou, avisa que não há o que salvar.
 6. "Cancelar" volta tudo pro que está salvo. O nome novo aparece no menu na hora, sem entrar de novo.
-7. "Sair da conta" continua na mesma tela.
+7. "Sair da conta" continua na mesma tela (e também na Minha área do topo).
 8. No computador, "Cancelar" e "Salvar alterações" ficam no topo, ao lado do título. No celular e no tablet, ficam logo depois de "Alterar senha", com o aviso de erro logo acima, antes dos quadros "Tipo de conta" e "Sessão".
+9. **Foto de perfil**, no primeiro quadro do lado: "Escolher uma foto" (JPG, PNG ou WEBP, até 5 MB) envia a imagem pelo `POST /api/fotos` e salva na hora pelo `PUT .../me/foto`, sem precisar do "Salvar alterações". Depois aparecem "Trocar a foto" e "Tirar a foto". A foto aparece no topo do site no lugar das iniciais, no card e no perfil dos animais da conta, na página de abrigos e protetores e nas feiras que o abrigo divulga. Sem foto, continua aparecendo as iniciais.
 
 **Regras.**
 
@@ -419,10 +434,10 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 **Onde está no código.**
 
-- Front: `pages/Perfil`, `services/perfil.js`, `utils/validacoes.js` (`validarPerfil` e `validarTrocaDeSenha`) e `contexts/AuthContext.jsx` (`atualizarNome`)
-- Back: `PerfilController` e `PerfilService`
+- Front: `pages/Perfil`, `components/FotoDoPerfil`, `components/Avatar` (a foto ou as iniciais, em todo lugar), `services/perfil.js`, `utils/validacoes.js` (`validarPerfil` e `validarTrocaDeSenha`) e `contexts/AuthContext.jsx` (`atualizarNome` e `atualizarFoto`)
+- Back: `PerfilController`, `PerfilService` e a coluna `foto_url` nas tabelas `usuario` e `abrigo`
 
-**Testes.** `PerfilIntegrationTest` (ver, editar, e-mail repetido, outro tipo de conta, troca de senha, senha atual errada e a mudança de estado na vitrine) e `Perfil.test.jsx`.
+**Testes.** `PerfilIntegrationTest` (ver, editar, e-mail repetido, outro tipo de conta, troca de senha, senha atual errada, a mudança de estado na vitrine e a foto de perfil), `Perfil.test.jsx` e `FotoDoPerfil.test.jsx`.
 
 ---
 
@@ -430,16 +445,25 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 - **Erros no mesmo formato.** Toda resposta de erro da API tem `status`, `erro`, `mensagem`, `campos` (quando o erro é num campo) e `timestamp`, em português. O front mostra a `mensagem` e põe cada erro de `campos` embaixo do campo certo (`GlobalExceptionHandler`, `ErroResponse` e `services/api.js`).
 - **Servidor acordando.** O Render desliga a API depois de 15 minutos sem uso. Quando uma tela passa de 4 segundos carregando, aparece "O servidor estava parado e está acordando. Isso pode levar até 1 minuto." (`components/Carregando`).
-- **Responsivo (RNF01).** As telas funcionam no celular, no tablet e no computador, seguindo os três tamanhos do Figma. Na revisão da #36, todas as telas foram conferidas de 320 a 1440 px de largura: nenhuma tem rolagem pro lado, o menu de quem está logado nunca esconde item, os botões descem pra baixo do texto no celular e os links que ficam soltos, fora de uma frase, têm pelo menos 24 px de altura pra tocar.
+- **Responsivo (RNF01).** As telas funcionam no celular, no tablet e no computador, seguindo os três tamanhos do Figma. Na revisão da #36, todas as telas foram conferidas de 320 a 1440 px de largura: nenhuma tem rolagem pro lado, o menu do topo nunca esconde página (abaixo de 1280 px elas ficam no botão "Menu"), os botões descem pra baixo do texto no celular e os links que ficam soltos, fora de uma frase, têm pelo menos 24 px de altura pra tocar.
+- **Topo fixo com as páginas do site.** O topo fica preso no alto da tela enquanto a página rola, com uma sombra leve pra separar do conteúdo. Do computador grande (1280 px) pra cima, ele mostra Animais, Me ajuda a escolher, Feiras, Clínicas, Observatório e Blog, com a página atual sublinhada em terracota. No celular e no tablet, o botão "Menu" abre a mesma lista, com uma frase sobre cada página, e fecha com Esc, com um clique fora ou quando a pessoa troca de página. Antes, quem não estava logado só achava essas páginas no rodapé. O "Me ajuda a escolher" só aparece com a IA ligada no servidor. O primeiro Tab da página mostra "Pular para o conteúdo", que leva o foco direto pro começo da página, sem passar pelo menu. Como o topo fica por cima, a rolagem até uma seção (o "Como adotar", o mapa de clínicas) para um pouco abaixo dele (`scroll-padding-top` no `styles/index.css`). Código: `components/Navbar` e `components/Layout`. Teste: `Navbar.test.jsx`.
+
+![Topo fixo, com as páginas do site e os recursos novos na Home](prints/12-home.png)
+
 - **Tema claro e escuro.** O botão de lua e sol no topo troca o tema, e a escolha fica salva no navegador. Quem nunca escolheu segue o tema do sistema operacional. Um script curto no `index.html` aplica o tema antes da página aparecer, pra não piscar claro antes de ficar escuro. As cores dos dois temas estão no `styles/index.css`; no escuro, o roxo, o texto terciário e os textos das tags ficaram um pouco mais claros que no Figma, pra passar no contraste mínimo de 4,5:1 (WCAG AA). Código: `hooks/useTema.js` e `components/BotaoTema`. Teste: `BotaoTema.test.jsx`.
 
 ![Painel de interesses recebidos no tema escuro](prints/13-tema-escuro.png)
 
 - **Título da aba e rolagem.** Cada página põe o nome dela no título da aba do navegador ("Meus animais | Adota Aqui"), e toda página nova abre no topo. O "Como adotar" do rodapé rola até a seção, e o voltar do navegador devolve a pessoa onde ela estava (`hooks/useTituloDaPagina.js` e `components/RolarParaOTopo`).
-- **Rodapé** em todas as telas que têm o menu do topo, com o logo, a frase do Figma e os links da plataforma: quem somos, explorar animais, como adotar, histórias de adoção, blog para tutores, abrigos e protetores independentes e cadastrar um animal (`components/Rodape`, `Rodape.test.jsx`).
+- **Rodapé** em todas as telas que têm o menu do topo, com o logo, a frase do Figma e os links da plataforma: quem somos, explorar animais, me ajuda a escolher, como adotar, histórias de adoção, blog para tutores, abrigos e protetores independentes, feiras de adoção, clínicas veterinárias, observatório da adoção e cadastrar um animal (`components/Rodape`, `Rodape.test.jsx`).
+- **Patinhas.** Com mouse, o caminho dele vai deixando pegadas laranja, uma de cada lado como quem anda, que somem em menos de 1 segundo. A setinha do mouse continua igual (`components/RastroDePatas`, no `App.jsx`). No fundo da faixa roxa "Como funciona a adoção" e do painel roxo do login e do cadastro, uma trilha de pegadas laranja clarinha aparece uma pegada depois da outra, sem parar (`components/TrilhaDePatas`). As duas são enfeite: o leitor de tela pula e o clique passa direto. Quem pediu menos movimento no sistema não vê o rastro do mouse e vê a trilha parada. No celular não tem rastro (não tem mouse), e a trilha do login só aparece no computador. A conta que espalha as pegadas na curva é a mesma da ponte do Quem somos (`utils/curva.js`). Testes: `RastroDePatas.test.jsx`, `TrilhaDePatas.test.jsx` e `curva.test.js`.
+- **Animações ao rolar.** Na Home, quando a página abre, a foto do começo chega um tiquinho maior e assenta no lugar, e o título, o texto e os botões sobem um depois do outro. Depois, cada bloco sobe de leve e aparece quando entra na tela: os cartões dos números, os recursos, os cards dos animais, as feiras, as histórias, os passos da adoção e o "Conheça o Adota Aqui". Os itens de uma mesma linha entram um depois do outro, com 90 ms de diferença. Os números do site e o total do observatório contam do zero até o valor quando aparecem, e o leitor de tela ouve só o valor final. Com o mouse em cima de um card de animal, a foto chega um pouquinho mais perto. Tudo acontece uma vez só e dura menos de 1 segundo, pra dar vida sem tirar a atenção dos animais. Quem pediu menos movimento no sistema vê tudo pronto e parado, e nada fica escondido na impressão. Como funciona: um script curto no `index.html` põe a classe `animar` no `<html>` só quando o navegador sabe observar a rolagem e a pessoa aceita movimento, antes da página aparecer, pra nada piscar. O `useRevelarAoRolar` (no `Layout`) observa os blocos com a classe `revelar-ao-rolar`, inclusive os que chegam depois da API, e marca cada um com `data-revelado` quando ele entra na tela. Código: `hooks/useRevelarAoRolar.js`, `hooks/useProgressoDaRolagem.js`, `components/Revelar`, `components/NumeroQueSobe` e as regras no `styles/index.css`. Teste: `Animacoes.test.jsx`.
 - **Página não encontrada** pra qualquer endereço que não existe, com foto e os botões "Ver animais disponíveis" e "Ir para a página inicial". Animal que não existe (perfil, interesse ou edição) mostra a mesma foto com "Animal não encontrado".
 - **Integração contínua.** A cada push e PR na `dev` e na `main`, o GitHub Actions roda os testes do back (`mvn verify`) e do front (build e `npm run test:coverage`) e guarda os relatórios de cobertura (JaCoCo e lcov). A cobertura aparece no resumo de cada execução, e o CI falha se a de linhas ficar abaixo de 70% (RNF04). O PR só entra com os dois verdes.
 - **Deploy (RNF06).** Front no Netlify, API no Render (com Docker), banco PostgreSQL no Neon e fotos no Amazon S3. Os endereços estão no [README principal](../README.md).
+- **Documentação da API no Swagger.** Em `/swagger-ui.html` (no ar: https://adota-aqui.onrender.com/swagger-ui.html), com os endpoints separados por assunto e o botão "Authorize" pra colar o token do login e testar as rotas fechadas. É montada a partir dos controllers (springdoc), então acompanha o código sozinha. Código: `config/DocumentacaoDaApi.java` e o `@Tag` de cada controller. Teste: `DocumentacaoDaApiIntegrationTest`.
+- **Docker.** `docker compose up --build`, na raiz, sobe o banco, o back e o front na máquina, sem instalar mais nada (`docker-compose.yml`, `backend/Dockerfile`, `frontend/Dockerfile` e `frontend/nginx.conf`). O CI builda as imagens a cada PR.
+- **Versões.** Cada entrega na `main` vira uma versão, com tag no Git e o que mudou no [`CHANGELOG.md`](../CHANGELOG.md), item por item com o número do PR.
 
 ---
 
@@ -553,16 +577,147 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 1. A página fica em `/quem-somos` e no rodapé ("Quem somos"). Tem quatro partes: como surgiu o projeto, de onde veio a ideia, o que motiva a gente e o que o Adota Aqui se propõe a fazer, com o lembrete de que a decisão final é sempre de quem cuida do animal.
 2. No fim, "Quer fazer parte?" leva pra vitrine, pra página de abrigos e protetores e pro cadastro de animal.
 3. O visual: uma faixa lilás no topo com o desenho da "ponte" (uma casinha de um lado, um coração do outro e pegadas atravessando o arco), duas fotos ao lado da história (uma moça beijando o cachorro e um gato dormindo em casa), uma trilha pontilhada com uma patinha em cada parte da história, a proposta em cinco cartões com ícone numa faixa roxa (como o "Como funciona" da Home) e um gatinho no colo no cartão do fim. As fotos são de banco de imagens gratuito e só aparecem nesta página (`assets/fotos/quem-somos-*.webp`).
-4. As animações: o arco se desenha e as pegadas aparecem uma depois da outra quando a página abre, e cada parte sobe de leve quando entra na tela. Quem pediu menos movimento no sistema vê tudo parado, e o navegador que não sabe animar pela rolagem mostra as partes prontas. O desenho e as fotos são enfeite (`aria-hidden` e `alt` vazio), então o leitor de tela pula.
+4. As animações: o arco se desenha e as pegadas aparecem uma depois da outra quando a página abre, e o título e o texto do topo sobem em seguida. As fotos, as partes da história, os cinco cartões da proposta e o cartão do fim sobem de leve quando entram na tela. A trilha da história vai ficando laranja conforme a pessoa lê, e a patinha de cada parte se acende quando a linha laranja chega nela (`hooks/useProgressoDaRolagem.js`). Quem pediu menos movimento no sistema vê tudo pronto e parado. O desenho e as fotos são enfeite (`aria-hidden` e `alt` vazio), então o leitor de tela pula.
 5. A Home termina com a seção "Conheça o Adota Aqui", depois dos passos da adoção, com o botão "Conhecer o projeto".
 
 **Onde está no código.** `pages/QuemSomos` (os textos ficam todos no começo do arquivo, pra ficar fácil de mudar), `components/PonteDaAdocao` (o desenho do topo), `components/Pata` (a pegada, usada no desenho e na trilha), as animações no fim do `styles/index.css` e `components/ConhecaOProjeto`.
 
-**Testes.** `QuemSomos.test.jsx`, `Home.test.jsx`, `App.test.jsx` e `Rodape.test.jsx`.
+**Testes.** `QuemSomos.test.jsx`, `Home.test.jsx`, `App.test.jsx`, `Rodape.test.jsx` e `Animacoes.test.jsx`.
 
 ---
 
-## 16. O que ainda não está pronto
+## 16. Clínicas veterinárias perto de você
+
+![Clínicas veterinárias no computador](prints/19-clinicas.png)
+
+**O que faz.** Mostra num mapa as clínicas veterinárias perto de quem adotou ou vai adotar, em qualquer cidade do Brasil. Era uma das ideias do tutor que tinham ficado fora do escopo (ERS 6.10).
+
+**Como funciona.**
+
+1. A página fica em `/clinicas`, aberta pra qualquer pessoa, com link no rodapé ("Clínicas veterinárias") e no perfil do animal ("Vai adotar? Veja as clínicas veterinárias perto de {cidade}").
+2. O lugar vem de quatro jeitos: o botão "Usar minha localização" (o navegador pede permissão), a cidade e o estado digitados, a cidade do animal (pra quem chega pelo perfil dele) ou, pra quem está logado, a cidade do perfil da conta.
+3. O mapa é o do Google, embutido na página e já buscando "veterinário" naquele lugar, que é a categoria do Google e pega clínica, hospital e consultório. Nome, endereço, telefone, horário, avaliações e rota vêm do próprio Google. Os botões "Todas as clínicas" e "Atendimento 24 horas" trocam a busca.
+4. "Abrir no Google Maps" abre a mesma busca no Maps, em outra aba. No celular, abre o app.
+5. Depois de escolher o lugar, a tela vai pro mapa (no celular ele fica embaixo da busca) e o foco vai pro título dele, que diz o lugar novo.
+6. Do lado do mapa (no celular, embaixo), o aviso de que o site não indica nem avalia clínicas e a dica de procurar a castração gratuita ou a preço popular da prefeitura.
+
+**Regras.**
+
+- O site não guarda nada: nem as clínicas, nem o lugar da pessoa. Nada passa pela nossa API.
+- A cidade digitada vai pro endereço da página (`/clinicas?cidade=Recife&estado=PE`), então dá pra mandar o link pra alguém. A localização não vai: o ponto é arredondado em uns 100 metros e só vai pro Google.
+- A cidade que vem no link vale mais que a do perfil.
+- O mapa usa o formato de incorporar do Google, sem chave. O porquê, e o que fazer se o Google parar de aceitar, está em [aspectos relevantes](aspectos-relevantes.md#o-mapa-de-clínicas-é-o-do-google-embutido).
+
+**Onde está no código.** `pages/Clinicas`, `utils/clinicas.js` (os endereços do Google), o link em `pages/PerfilAnimal`, o `href` do `components/Botao` (link pra fora do site, que abre em outra aba) e o rodapé.
+
+**Testes.** `Clinicas.test.jsx`, `clinicas.test.js`, `PerfilAnimal.test.jsx`, `App.test.jsx` (a rota), `Botao.test.jsx` e `Rodape.test.jsx`. O mapa de verdade é conferido à mão (CT-CLI-04).
+
+---
+
+## 17. Feiras de adoção
+
+![Feiras de adoção no computador](prints/20-feiras.png)
+
+**O que faz.** Mostra as feiras de adoção que ainda vão acontecer: o dia, o horário e o lugar em que um abrigo leva os animais pra quem quer adotar conhecer pessoalmente. Só abrigo divulga feira.
+
+**Como funciona.**
+
+1. A página fica em `/feiras`, aberta pra qualquer pessoa, com link no rodapé ("Feiras de adoção"). Quem está logado já abre no estado do perfil, e dá pra trocar pra outro estado ou "Todos os estados" e procurar pela cidade.
+2. Cada card tem a folha do calendário (mês, dia e dia da semana), o título, a data por extenso com o horário ("Sábado, 21 de novembro, das 9h às 13h"), o local com o endereço, o abrigo que organiza e a descrição. A feira de hoje e a de amanhã ganham o selo "Hoje" ou "Amanhã".
+3. "Como chegar" abre o endereço no Google Maps, e "Adicionar à agenda" abre o Google Agenda com a feira já preenchida, no fuso da cidade dela (uma feira em Porto Velho às 9h fica às 9h de Porto Velho, mesmo pra quem está em São Paulo). Os dois abrem em outra aba e não precisam de chave.
+4. O abrigo logado vê "Divulgar uma feira", que abre o formulário (`/feiras/nova`) com a cidade e o estado do abrigo já preenchidos. Nas feiras dele aparecem "Editar" e "Apagar", e o apagar pede confirmação no próprio card.
+5. A Home mostra as duas próximas feiras do Brasil depois da vitrine, com "Ver todas as feiras". Sem feira marcada, a seção some.
+6. Sem resultado, aparece "Nenhuma feira marcada em {estado} por enquanto." e o botão "Ver feiras de todo o Brasil".
+
+**Regras.**
+
+- Só abrigo divulga, e só o abrigo que divulgou edita e apaga. A pessoa física que abre `/feiras/nova` volta pra lista, e a API responde `403` se alguém tentar direto.
+- A data não pode ter passado, e o horário de fim tem que vir depois do de início. O front confere antes de enviar, e o back confere de novo.
+- A lista mostra as feiras de hoje em diante, da mais próxima pra mais distante. A de hoje fica até o fim do dia, no horário de Brasília.
+- A feira mostra do abrigo só o nome, como a vitrine. Contato continua saindo só pelo interesse num animal.
+
+**Por que só abrigo.** Feira de adoção junta muita gente e muitos animais num lugar público, e quem organiza costuma ser abrigo ou ONG. Deixar qualquer conta divulgar abriria espaço pra evento falso marcando encontro com desconhecidos, e o site não tem moderação.
+
+**Onde está no código.**
+
+- Front: `pages/Feiras`, `pages/FormularioFeira`, `components/CardFeira`, `components/ProximasFeiras`, `services/feiras.js`, `utils/feiras.js` (datas, horário, fusos e links do Google) e a `RotaProtegida apenasAbrigo`
+- Back: `FeiraController`, `FeiraService`, `FeiraRequest`, `FeiraFiltroRequest`, `FeiraResponse`, `FeiraRepository`, `FeiraSpecifications` e o modelo `FeiraDeAdocao`
+
+**Como fica no banco.** Tabela nova `feira_de_adocao`, ligada ao abrigo, com o `CHECK` de que o fim vem depois do início ([diagramas, seção 9](diagramas/diagramas-adota-aqui.md#9-feiras-de-adoção)). O Hibernate cria a tabela sozinho no deploy.
+
+**Testes.** `FeiraIntegrationTest` (quem divulga, a lista só com as próximas e na ordem, filtros sem acento, validações, quem edita e apaga), `Feiras.test.jsx`, `FormularioFeira.test.jsx`, `ProximasFeiras.test.jsx`, `feiras.test.js`, `App.test.jsx` (as rotas e quem entra no formulário) e `Rodape.test.jsx`.
+
+---
+
+## 18. Observatório da adoção
+
+![Observatório da adoção no computador](prints/21-observatorio.png)
+
+**O que faz.** Mostra os números do Adota Aqui estado por estado, ao vivo, junto com dados públicos sobre cães e gatos no Brasil, cada um com a fonte. Era uma das ideias do tutor que tinham ficado fora do escopo (ERS 6.8, dados pra políticas públicas).
+
+**Como funciona.**
+
+1. A página fica em `/observatorio`, aberta pra qualquer pessoa, com link no rodapé ("Observatório da adoção"). No topo, o total de animais esperando um lar agora.
+2. O mapa do Brasil é um mosaico: cada estado é um quadrado, no lugar aproximado dele, com a sigla e o número. Os botões trocam o que o mapa mostra. "No Adota Aqui" tem animais esperando, adoções e abrigos, que vêm da API. "No Brasil, IBGE 2019" tem a porcentagem dos lares com cachorro e com gato.
+3. As cores são um roxo só, do claro (pouco) ao escuro (muito), com a legenda "menos" e "mais". Estado sem nenhum número do site fica só com o contorno tracejado ("nenhum ainda"). No tema escuro o mapa inverte: pouco fica perto do fundo, e muito, mais claro.
+4. Tocar num estado mostra do lado os números dele, do site e do IBGE. Embaixo vem o ranking dos 5 estados com mais da medida escolhida e, pra quem prefere, todos os estados numa tabela.
+5. "O retrato no Brasil" traz números públicos com a fonte e a data: lares com cachorro e gato (IBGE), animais em situação de vulnerabilidade e sob cuidado de ONGs (Instituto Pet Brasil) e castrações gratuitas do ProPatinhas (governo federal). Depois, a Lei 14.064/2020, como denunciar maus-tratos e o link pro SinPatinhas, o RG gratuito de cães e gatos.
+
+**Regras.**
+
+- Os números do site vêm do `GET /api/estatisticas/estados`, com as mesmas contas da Home. Animais e adoções contam onde o animal está; abrigos, o endereço do abrigo.
+- Os dados públicos ficam no código (`utils/observatorio.js` e a página), com a fonte e a data, porque nenhuma dessas fontes tem uma API simples. Número sem fonte não entra.
+- Se a API falhar, o mapa do IBGE continua funcionando, e os números do site ganham o "Tentar de novo".
+
+**Por que mosaico e não o desenho dos estados.** O desenho de verdade precisaria de uma biblioteca de mapas e do arquivo com as fronteiras, e os estados pequenos (como o DF e Sergipe) quase sumiriam. No mosaico, todo estado tem o mesmo tamanho, dá pra tocar no celular e cada quadrado é um botão com o nome e o número pro leitor de tela.
+
+**Onde está no código.**
+
+- Front: `pages/Observatorio`, `components/MapaDoBrasil` (o mosaico e a legenda), `utils/observatorio.js` (o lugar de cada estado, a tabela do IBGE, os tons e o ranking), `services/estatisticas.js` e as cores `--mapa-1` a `--mapa-5` no `styles/index.css`
+- Back: `EstatisticasController`, `EstatisticasService` (`porEstado`), `EstatisticasResponse.PorEstado`, `ContagemPorEstado` e as contagens em `AnimalRepository`, `InteresseRepository` e `AbrigoRepository`
+
+**Testes.** `EstatisticasIntegrationTest` (os 27 estados e as contas por estado), `Observatorio.test.jsx`, `observatorio.test.js`, `App.test.jsx` (a rota) e `Rodape.test.jsx`.
+
+---
+
+## 19. Ajudas com inteligência artificial
+
+![Me ajuda a escolher no computador](prints/22-me-ajuda-a-escolher.png)
+
+**O que faz.** Duas ajudas com IA (Gemini, do Google), e nas duas quem decide é uma pessoa. Era uma das ideias do tutor que tinham ficado fora do escopo (ERS 6.12).
+
+**Escrever com IA (pra quem cadastra animal).**
+
+1. No formulário do animal (cadastrar e editar), embaixo da trajetória, aparece "Escrever com IA". Se a trajetória já tem texto, o botão vira "Melhorar com IA".
+2. A IA usa o que já foi preenchido (nome, espécie, porte, raça, idade, castração, energia, convivência, vacinas, cidade) e o rascunho da trajetória. Antes do nome e da espécie, o botão fica desligado.
+3. A sugestão aparece num quadro separado, com "Usar este texto", "Escrever outro" e "Descartar". Só "Usar este texto" põe o texto no campo, e o protetor ainda pode editar antes de publicar.
+4. A IA tem a regra de não inventar nada que não foi preenchido (saúde, comportamento, raça, idade) e de dizer "ainda não testado" quando a convivência não foi testada.
+
+**Me ajuda a escolher (pra quem quer adotar).**
+
+1. A página fica em `/me-ajuda-a-escolher`, aberta pra qualquer pessoa, com link no topo do site e no rodapé, um cartão na Home ("Tudo pra uma adoção responsável") e a chamada em cima da vitrine de `/animais`.
+2. A pessoa conta a rotina (onde mora, quem mora junto, quanto tempo fica em casa, outros animais), digitando ou tocando nas frases prontas. A tela avisa pra não escrever nome, telefone nem endereço.
+3. Visitante escolhe o estado (ou todos). Pessoa física logada não escolhe: vale o estado do perfil, como na vitrine.
+4. Voltam até 3 animais, cada um com "Por que combina", o card normal do animal (com "Quero conhecer") e uma dica de adoção responsável. Sem animal que combine, a tela diz isso.
+
+**Regras.**
+
+- A IA não tem como inventar animal: o back manda uma lista numerada com até 40 animais disponíveis e só aceita de volta números dessa lista, sem repetir, no máximo 3.
+- Vai pra IA só o que já é público no perfil do animal, e nada do protetor. Da pessoa, só o texto da rotina.
+- Sem a chave no servidor (`GEMINI_API_KEY`), os botões e a chamada da vitrine não aparecem, e a página do "Me ajuda a escolher" explica e leva pra vitrine.
+- Cada conta (ou endereço, pra visitante) pede até 15 vezes por hora, pra cota gratuita não acabar.
+- A chamada à IA fica fora de transação do banco, pra não segurar conexão enquanto ela escreve (até 30 segundos).
+
+**Onde está no código.**
+
+- Front: `components/EscreverComIa` (dentro do `FormularioAnimal`), `pages/MeAjudaAEscolher`, `components/ChamadaDaIa`, `services/ia.js`, `hooks/useIaDisponivel.js` e `formularioParaIa` no `utils/formularioAnimal.js`
+- Back: `IaController`, `IaService` (as regras que vão pra IA, a lista numerada e a conferência da resposta), `GeradorDeTexto` e `ClienteGemini` (a chamada ao Gemini), `LimiteDeUsoDaIa`, `DescricaoIaRequest`, `IaResponses` e as exceções `IaIndisponivelException` (503) e `LimiteDeUsoException` (429)
+
+**Testes.** `IaIntegrationTest` (com a IA de mentira: login, o que vai pra IA, a lista só do estado certo, números inventados e repetidos descartados, resposta estranha, limite de uso), `EscreverComIa.test.jsx`, `MeAjudaAEscolher.test.jsx`, `FormularioAnimal.test.jsx` (`formularioParaIa`), `App.test.jsx` e `Rodape.test.jsx`. A IA de verdade é conferida à mão no site publicado (CT-IA-05).
+
+---
+
+## 20. O que ainda não está pronto
 
 | O quê                                   | Situação                                                                                                                                       |
 | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |

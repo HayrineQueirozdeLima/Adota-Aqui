@@ -16,10 +16,14 @@ test("os links da plataforma levam pras telas do site", () => {
   const destinos = {
     "Quem somos": "/quem-somos",
     "Explorar animais": "/animais",
+    "Me ajuda a escolher": "/me-ajuda-a-escolher",
     "Como adotar": "/#como-funciona",
     "Histórias de adoção": "/historias",
     "Blog para tutores": "/blog",
     "Abrigos e protetores independentes": "/protetores",
+    "Feiras de adoção": "/feiras",
+    "Clínicas veterinárias": "/clinicas",
+    "Observatório da adoção": "/observatorio",
     "Cadastrar um animal": "/meus-animais/novo",
   };
   for (const [nome, destino] of Object.entries(destinos)) {

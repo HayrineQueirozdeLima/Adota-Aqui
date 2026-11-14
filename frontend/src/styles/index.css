@@ -25,6 +25,19 @@
   --borda-sutil: #e4e1da;
   --borda-forte: #c9c5bc;
 
+  /* Tons do mapa do observatório (components/MapaDoBrasil): um roxo só, do claro (pouco) ao escuro (muito).
+     O texto de cada tom passa de 4,5:1 de contraste */
+  --mapa-1: #eee8f6;
+  --mapa-2: #d6c8eb;
+  --mapa-3: #b49bda;
+  --mapa-4: #8462ba;
+  --mapa-5: #4a2d73;
+  --mapa-texto-1: #292929;
+  --mapa-texto-2: #292929;
+  --mapa-texto-3: #292929;
+  --mapa-texto-4: #ffffff;
+  --mapa-texto-5: #ffffff;
+
   --status-disponivel-fundo: #e0eeea;
   --status-disponivel-texto: #0f5443;
   --status-atencao-fundo: #f4ebd8;
@@ -61,6 +74,18 @@
 
   --borda-sutil: #3f3f3e;
   --borda-forte: #575654;
+
+  /* No escuro o mapa inverte: pouco fica perto do fundo, e muito, mais claro */
+  --mapa-1: #3e3550;
+  --mapa-2: #54427a;
+  --mapa-3: #7458a6;
+  --mapa-4: #a48bd6;
+  --mapa-5: #cdbdf0;
+  --mapa-texto-1: #fffcf5;
+  --mapa-texto-2: #fffcf5;
+  --mapa-texto-3: #fffcf5;
+  --mapa-texto-4: #292929;
+  --mapa-texto-5: #292929;
 
   --status-disponivel-fundo: #2e4640;
   --status-disponivel-texto: #5fbfa0;
@@ -103,6 +128,13 @@
   }
 }
 
+/* O topo fica preso no alto da tela (components/Navbar). Quando a página rola até uma seção ou um título
+   (o "Como adotar", o mapa de clínicas, o "Pular para o conteúdo"), ela para um pouco abaixo do topo,
+   em vez de esconder o começo atrás do roxo */
+html {
+  scroll-padding-top: 88px;
+}
+
 /* Fundo e texto padrão do site inteiro */
 body {
   background-color: var(--fundo-pagina);
@@ -110,9 +142,9 @@ body {
   font-family: "Source Sans 3", system-ui, sans-serif;
 }
 
-/* Animações do Quem somos.
+/* Animações do site.
    Tudo aqui dentro só vale pra quem não pediu menos movimento no sistema:
-   pra essas pessoas o desenho e as seções já aparecem prontos, parados. */
+   pra essas pessoas o desenho, as fotos e os textos já aparecem prontos, parados. */
 @media (prefers-reduced-motion: no-preference) {
   /* O arco da ponte se desenha (o pathLength="1" do desenho deixa o traço medir 1) */
   .ponte-arco {
@@ -129,14 +161,59 @@ body {
     animation: ponte-pisar 420ms cubic-bezier(0.2, 0.8, 0.3, 1.3) var(--atraso, 0ms) forwards;
   }
 
-  /* A seção sobe de leve quando entra na tela, conforme a pessoa rola.
-     Navegador que não sabe fazer isso (animation-timeline) mostra a seção pronta */
-  @supports (animation-timeline: view()) {
-    .revelar {
-      animation: revelar-subir linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 25%;
-    }
+  /* Quando a página abre, o título, o texto e os botões do começo sobem um depois do outro (--atraso) */
+  .entrar {
+    animation: entrar-subir 700ms cubic-bezier(0.2, 0.7, 0.2, 1) var(--atraso, 0ms) both;
+  }
+
+  /* A foto da Home chega um tiquinho maior e assenta no lugar, devagar, uma vez só */
+  .foto-assentar {
+    animation: foto-assentar 1800ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+}
+
+/* Blocos que sobem e aparecem quando entram na tela (hooks/useRevelarAoRolar e components/Revelar).
+   A classe "animar" do <html> só existe quando o navegador sabe observar a rolagem e a pessoa não pediu
+   menos movimento (index.html). Sem ela, nada some. --ordem atrasa cada item de uma mesma linha */
+.animar .revelar-ao-rolar {
+  transition-property: opacity, transform, color, background-color, border-color;
+  transition-duration: 700ms, 700ms, 150ms, 150ms, 150ms;
+  transition-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: calc(var(--ordem, 0) * 90ms), calc(var(--ordem, 0) * 90ms), 0ms, 0ms, 0ms;
+}
+
+.animar .revelar-ao-rolar:not([data-revelado]) {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+/* Quem somos: a trilha da história vai ficando laranja conforme a pessoa lê (--progresso, de 0 a 1),
+   e a pata de cada parte se acende quando a linha laranja chega nela (hooks/useProgressoDaRolagem) */
+.trilha-percorrida {
+  display: none;
+}
+
+.animar .trilha-percorrida {
+  display: block;
+  transform: scaleY(var(--progresso, 0));
+  transform-origin: top;
+  transition: transform 150ms linear;
+}
+
+.animar .marco-da-trilha {
+  transition: background-color 300ms ease, color 300ms ease;
+}
+
+.animar .marco-da-trilha[data-alcancado] {
+  background-color: var(--acao-terracota);
+  color: var(--acao-terracota-texto);
+}
+
+/* Na impressão tudo aparece, animado ou não */
+@media print {
+  .animar .revelar-ao-rolar {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 
@@ -157,13 +234,82 @@ body {
   }
 }
 
-@keyframes revelar-subir {
+@keyframes entrar-subir {
   from {
     opacity: 0;
-    translate: 0 28px;
+    translate: 0 18px;
   }
   to {
     opacity: 1;
     translate: 0 0;
+  }
+}
+
+@keyframes foto-assentar {
+  from {
+    scale: 1.06;
+  }
+  to {
+    scale: 1;
+  }
+}
+
+/* Patinhas pelo site (components/TrilhaDePatas e components/RastroDePatas).
+   A trilha no fundo das faixas roxas fica parada e clarinha pra quem pediu menos movimento,
+   e pros outros uma pegada aparece depois da outra, sem parar, cada uma com o próprio atraso (--atraso) */
+.trilha-pegada {
+  opacity: 0.5;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .trilha-pegada {
+    opacity: 0;
+    animation: trilha-andar 8s ease-in-out var(--atraso, 0s) infinite;
+  }
+}
+
+@keyframes trilha-andar {
+  0% {
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  32% {
+    opacity: 1;
+  }
+  46% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* A pegada que fica no caminho do mouse. O lugar e o giro vêm do componente (--onde),
+   e ela some sozinha. O componente nem cria pegada pra quem pediu menos movimento */
+.rastro-pegada {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 22px;
+  height: 22px;
+  opacity: 0;
+  transform: var(--onde);
+  animation: rastro-sumir 900ms ease-out forwards;
+}
+
+@keyframes rastro-sumir {
+  from {
+    opacity: 0.6;
+    transform: var(--onde) scale(0.6);
+  }
+  25% {
+    opacity: 0.6;
+    transform: var(--onde) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: var(--onde) scale(1);
   }
 }

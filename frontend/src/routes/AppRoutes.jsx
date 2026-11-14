@@ -20,6 +20,11 @@ import Historias from "../pages/Historias/Historias";
 import Blog from "../pages/Blog/Blog";
 import Protetores from "../pages/Protetores/Protetores";
 import QuemSomos from "../pages/QuemSomos/QuemSomos";
+import Clinicas from "../pages/Clinicas/Clinicas";
+import Feiras from "../pages/Feiras/Feiras";
+import Observatorio from "../pages/Observatorio/Observatorio";
+import MeAjudaAEscolher from "../pages/MeAjudaAEscolher/MeAjudaAEscolher";
+import FormularioFeira from "../pages/FormularioFeira/FormularioFeira";
 import Artigo from "../pages/Artigo/Artigo";
 import FormularioArtigo from "../pages/FormularioArtigo/FormularioArtigo";
 import Perfil from "../pages/Perfil/Perfil";
@@ -51,6 +56,10 @@ export default function AppRoutes() {
           <Route path="/blog/:id" element={<Artigo />} />
           <Route path="/protetores" element={<Protetores />} />
           <Route path="/quem-somos" element={<QuemSomos />} />
+          <Route path="/clinicas" element={<Clinicas />} />
+          <Route path="/feiras" element={<Feiras />} />
+          <Route path="/observatorio" element={<Observatorio />} />
+          <Route path="/me-ajuda-a-escolher" element={<MeAjudaAEscolher />} />
 
           {/* Precisam de login: sem login, a RotaProtegida manda pro /login */}
           <Route element={<RotaProtegida />}>
@@ -64,6 +73,12 @@ export default function AppRoutes() {
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/blog/novo" element={<FormularioArtigo />} />
             <Route path="/blog/:id/editar" element={<FormularioArtigo />} />
+          </Route>
+
+          {/* Só abrigo divulga feira de adoção */}
+          <Route element={<RotaProtegida apenasAbrigo />}>
+            <Route path="/feiras/nova" element={<FormularioFeira />} />
+            <Route path="/feiras/:id/editar" element={<FormularioFeira />} />
           </Route>
 
           {/* Só pessoa física: Abrigo não demonstra interesse (RF14) */}

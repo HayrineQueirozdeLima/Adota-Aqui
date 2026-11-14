@@ -5,6 +5,7 @@ import {
   haQuantoTempo,
   idadeEstimada,
   resumoDoAnimal,
+  tempoEsperando,
 } from "../src/utils/rotulos";
 
 describe("idadeEstimada", () => {
@@ -66,5 +67,22 @@ describe("haQuantoTempo", () => {
 
   test("depois de 30 dias, mostra a data", () => {
     expect(haQuantoTempo("2026-09-01T10:00:00", agora)).toBe("em 01/09/2026");
+  });
+});
+
+describe("tempoEsperando", () => {
+  const hoje = new Date(2026, 10, 16); // 16 de novembro de 2026
+
+  test("com menos de 1 mês no site, não tem selo", () => {
+    expect(tempoEsperando("2026-11-10", hoje)).toBeNull();
+    expect(tempoEsperando("2026-10-17", hoje)).toBeNull();
+    expect(tempoEsperando(undefined, hoje)).toBeNull();
+  });
+
+  test("conta os meses e os anos completos", () => {
+    expect(tempoEsperando("2026-10-16", hoje)).toBe("Esperando há 1 mês");
+    expect(tempoEsperando("2026-08-01", hoje)).toBe("Esperando há 3 meses");
+    expect(tempoEsperando("2025-11-16", hoje)).toBe("Esperando há 1 ano");
+    expect(tempoEsperando("2023-05-20", hoje)).toBe("Esperando há 3 anos");
   });
 });

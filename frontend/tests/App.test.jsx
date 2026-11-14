@@ -130,3 +130,88 @@ test("o Quem somos abre no /quem-somos", () => {
   ).toBeInTheDocument();
   expect(document.title).toBe("Quem somos | Adota Aqui");
 });
+
+test("as clínicas veterinárias abrem no /clinicas, já na cidade do link", () => {
+  render(
+    <MemoryRouter initialEntries={["/clinicas?cidade=Recife&estado=PE"]}>
+      <App />
+    </MemoryRouter>,
+  );
+  expect(
+    screen.getByRole("heading", {
+      level: 2,
+      name: "Clínicas veterinárias perto de Recife/PE",
+    }),
+  ).toBeInTheDocument();
+  expect(document.title).toBe("Clínicas veterinárias | Adota Aqui");
+});
+
+test("as feiras de adoção abrem no /feiras", async () => {
+  render(
+    <MemoryRouter initialEntries={["/feiras"]}>
+      <App />
+    </MemoryRouter>,
+  );
+  expect(
+    screen.getByRole("heading", { level: 1, name: "Feiras de adoção" }),
+  ).toBeInTheDocument();
+  expect(document.title).toBe("Feiras de adoção | Adota Aqui");
+  await screen.findByText("Nenhuma feira marcada por enquanto.");
+});
+
+test("divulgar feira é só do abrigo: pessoa física volta pras feiras e visitante vai pro login", async () => {
+  localStorage.setItem(
+    "adotaaqui.sessao",
+    JSON.stringify({
+      token: "token-de-teste",
+      tipoConta: "USUARIO",
+      id: "1",
+      nome: "Marina Prado",
+      expiraEm: "2999-01-01T00:00:00Z",
+    }),
+  );
+  const { unmount } = render(
+    <MemoryRouter initialEntries={["/feiras/nova"]}>
+      <App />
+    </MemoryRouter>,
+  );
+  expect(
+    screen.getByRole("heading", { level: 1, name: "Feiras de adoção" }),
+  ).toBeInTheDocument();
+  await screen.findByText("Nenhuma feira marcada em Rondônia por enquanto.");
+  unmount();
+  localStorage.clear();
+
+  render(
+    <MemoryRouter initialEntries={["/feiras/nova"]}>
+      <App />
+    </MemoryRouter>,
+  );
+  expect(screen.getByRole("button", { name: "Entrar" })).toBeInTheDocument();
+});
+
+test("o observatório da adoção abre no /observatorio", async () => {
+  render(
+    <MemoryRouter initialEntries={["/observatorio"]}>
+      <App />
+    </MemoryRouter>,
+  );
+  expect(
+    screen.getByRole("heading", { level: 1, name: "Observatório da adoção" }),
+  ).toBeInTheDocument();
+  expect(document.title).toBe("Observatório da adoção | Adota Aqui");
+  await screen.findByText("38");
+});
+
+test("o me ajuda a escolher abre no /me-ajuda-a-escolher", async () => {
+  render(
+    <MemoryRouter initialEntries={["/me-ajuda-a-escolher"]}>
+      <App />
+    </MemoryRouter>,
+  );
+  expect(
+    await screen.findByRole("heading", { level: 1, name: "Me ajuda a escolher" }),
+  ).toBeInTheDocument();
+  // A API de mentira começa com a IA desligada
+  expect(await screen.findByText("A ajuda com IA não está disponível agora.")).toBeInTheDocument();
+});

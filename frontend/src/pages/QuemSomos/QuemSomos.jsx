@@ -4,7 +4,9 @@ import fotoGatoEmCasa from "../../assets/fotos/quem-somos-gato-em-casa.webp";
 import fotoGatinhoNoColo from "../../assets/fotos/quem-somos-gatinho-no-colo.webp";
 import Botao from "../../components/Botao/Botao";
 import Pata from "../../components/Pata/Pata";
+import { useRef } from "react";
 import PonteDaAdocao from "../../components/PonteDaAdocao/PonteDaAdocao";
+import { useProgressoDaRolagem } from "../../hooks/useProgressoDaRolagem";
 import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 
 // Quem somos (/quem-somos): como o projeto surgiu, de onde veio a ideia, a motivação e o que ele se propõe a fazer.
@@ -116,10 +118,14 @@ function IconeDaProposta({ nome }) {
 const tituloDeSecao =
   "font-titulo text-item font-semibold text-texto-principal md:text-secao";
 
-// "revelar" faz a seção subir de leve quando entra na tela (index.css).
-// Só em navegador que sabe fazer isso e pra quem não pediu menos movimento; nos outros a seção já aparece pronta
+// As animações da página (index.css): o título sobe quando a página abre ("entrar"), as fotos, as partes
+// da história e os cartões sobem quando entram na tela ("revelar-ao-rolar") e a trilha vai ficando laranja
+// conforme a leitura, acendendo a pata de cada parte quando chega nela. Pra quem pediu menos movimento,
+// tudo já aparece pronto
 export default function QuemSomos() {
   useTituloDaPagina("Quem somos");
+  const trilha = useRef(null);
+  useProgressoDaRolagem(trilha);
 
   return (
     <main className="pb-4">
@@ -127,10 +133,10 @@ export default function QuemSomos() {
       <div className="bg-marca-roxo-suave">
         <div className="mx-auto grid w-full max-w-[1440px] items-center gap-4 px-5 py-10 md:gap-8 md:px-14 md:py-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,560px)] lg:gap-14">
           <div className="max-w-[640px]">
-            <h1 className="font-titulo text-[40px] font-semibold leading-[1.05] tracking-[-0.03em] text-texto-principal md:text-[56px]">
+            <h1 className="entrar font-titulo text-[40px] font-semibold leading-[1.05] tracking-[-0.03em] text-texto-principal md:text-[56px]">
               Quem somos
             </h1>
-            <p className="mt-4 text-[17px] leading-[1.6] text-texto-secundario md:text-[19px]">
+            <p className="entrar mt-4 text-[17px] leading-[1.6] text-texto-secundario [--atraso:120ms] md:text-[19px]">
               O Adota Aqui é uma plataforma de adoção de cães e gatos, aberta a
               todo o Brasil, que aproxima quem cuida de animais à espera de um lar
               de quem quer adotar.
@@ -145,34 +151,42 @@ export default function QuemSomos() {
       <div className="mx-auto mt-14 grid w-full max-w-[1440px] gap-10 px-5 md:mt-20 md:px-14 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] lg:gap-16">
         {/* No celular e no tablet as duas fotos ficam lado a lado.
             No computador ficam uma em cima da outra, com o gato encaixado no canto da primeira */}
-        <figure className="grid grid-cols-2 gap-3 lg:sticky lg:top-8 lg:block lg:self-start">
+        <figure className="grid grid-cols-2 gap-3 lg:sticky lg:top-28 lg:block lg:self-start">
           <img
             src={fotoCarinho}
             alt=""
-            className="aspect-[4/5] w-full rounded-[24px] object-cover object-[40%_center] md:aspect-[4/3] lg:aspect-[4/5]"
+            className="revelar-ao-rolar aspect-[4/5] w-full rounded-[24px] object-cover object-[40%_center] md:aspect-[4/3] lg:aspect-[4/5]"
           />
           <img
             src={fotoGatoEmCasa}
             alt=""
-            className="aspect-[4/5] w-full rounded-[24px] object-cover object-[45%_center] md:aspect-[4/3] lg:relative lg:-mt-28 lg:ml-auto lg:w-[62%] lg:ring-8 lg:ring-fundo-pagina"
+            style={{ "--ordem": 2 }}
+            className="revelar-ao-rolar aspect-[4/5] w-full rounded-[24px] object-cover object-[45%_center] md:aspect-[4/3] lg:relative lg:-mt-28 lg:ml-auto lg:w-[62%] lg:ring-8 lg:ring-fundo-pagina"
           />
         </figure>
 
-        {/* A trilha pontilhada liga as três partes da história */}
-        <div className="relative max-w-[680px]">
+        {/* A trilha pontilhada liga as três partes da história.
+            Por cima dela, uma linha laranja cresce conforme a pessoa lê (--progresso) */}
+        <div ref={trilha} className="relative max-w-[680px]">
           <span
             aria-hidden="true"
+            data-linha-da-trilha
             className="absolute bottom-6 left-[17px] top-6 border-l-2 border-dashed border-borda-forte"
+          />
+          <span
+            aria-hidden="true"
+            className="trilha-percorrida absolute bottom-6 left-[17px] top-6 w-0.5 rounded-full bg-acao-terracota"
           />
           {historia.map((secao, posicao) => (
             <section
               key={secao.id}
               aria-labelledby={secao.id}
-              className={`revelar relative pl-14 ${posicao > 0 ? "mt-10" : ""}`}
+              className={`revelar-ao-rolar relative pl-14 ${posicao > 0 ? "mt-10" : ""}`}
             >
               <span
                 aria-hidden="true"
-                className="absolute left-0 top-0 grid size-9 place-items-center rounded-full bg-fundo-pagina text-acao-terracota ring-2 ring-acao-terracota"
+                data-marco
+                className="marco-da-trilha absolute left-0 top-0 grid size-9 place-items-center rounded-full bg-fundo-pagina text-acao-terracota ring-2 ring-acao-terracota"
               >
                 <Pata className="size-[18px]" />
               </span>
@@ -213,7 +227,8 @@ export default function QuemSomos() {
             {proposta.map((item, posicao) => (
               <li
                 key={item.titulo}
-                className={`revelar rounded-[16px] bg-fundo-superficie p-5 lg:col-span-2 ${posicao === 3 ? "lg:col-start-2" : ""} ${posicao === 4 ? "sm:col-span-2" : ""}`}
+                style={{ "--ordem": posicao % 3 }}
+                className={`revelar-ao-rolar rounded-[16px] bg-fundo-superficie p-5 lg:col-span-2 ${posicao === 3 ? "lg:col-start-2" : ""} ${posicao === 4 ? "sm:col-span-2" : ""}`}
               >
                 <span className="grid size-11 place-items-center rounded-full bg-marca-roxo-suave text-marca-roxo">
                   <IconeDaProposta nome={item.icone} />
@@ -243,7 +258,7 @@ export default function QuemSomos() {
         aria-labelledby="participe"
         className="mx-auto max-w-[1440px] px-5 py-12 md:px-14 md:py-16"
       >
-        <div className="revelar grid overflow-hidden rounded-[24px] border border-borda-sutil bg-fundo-superficie md:grid-cols-[minmax(0,1fr)_minmax(0,280px)] lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)]">
+        <div className="revelar-ao-rolar grid overflow-hidden rounded-[24px] border border-borda-sutil bg-fundo-superficie md:grid-cols-[minmax(0,1fr)_minmax(0,280px)] lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)]">
           <div className="p-6 md:p-10">
             <h2 id="participe" className={tituloDeSecao}>
               Quer fazer parte?

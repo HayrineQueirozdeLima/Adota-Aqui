@@ -1,0 +1,54 @@
+# Sobe o Adota Aqui inteiro na sua máquina com um comando só, sem instalar Java, Maven, Node nem PostgreSQL:
+#
+#   docker compose up --build
+#
+# Site: http://localhost:5173   API: http://localhost:8080   Swagger: http://localhost:8080/swagger-ui.html
+# Pra parar: Ctrl+C. Pra apagar também o banco: docker compose down -v
+#
+# É o mesmo projeto do site publicado, mas com tudo local: o banco é um PostgreSQL novo e vazio,
+# e as fotos ficam na memória do back (como no "Como rodar localmente" do README).
+# Nada aqui é senha de verdade: são valores só pra máquina de quem roda.
+services:
+  banco:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: adota_aqui
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - dados-do-banco:/var/lib/postgresql/data
+    # O back só sobe quando o banco já aceita conexão
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d adota_aqui"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: ./backend
+    environment:
+      DB_URL: jdbc:postgresql://banco:5432/adota_aqui
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      CORS_ORIGENS: http://localhost:5173
+      # Opcional: pra testar a IA, rode com a chave na variável do terminal (GEMINI_API_KEY=... docker compose up).
+      # Sem ela, a IA fica desligada e o resto funciona igual
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    ports:
+      - "8080:8080"
+    depends_on:
+      banco:
+        condition: service_healthy
+
+  site:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:8080
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+
+volumes:
+  dados-do-banco:

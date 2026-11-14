@@ -5,6 +5,7 @@ import com.adotaaqui.dto.DepoimentoResponse;
 import com.adotaaqui.dto.PaginaRequest;
 import com.adotaaqui.dto.PaginaResponse;
 import com.adotaaqui.service.DepoimentoService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 // Depoimentos e mural de histórias de adoção (docs/api.md, seção 11)
+@Tag(name = "Histórias de adoção", description = "O mural público e a história que quem adotou conta")
 @RestController
 @RequestMapping("/api")
 public class DepoimentoController {

@@ -6,10 +6,14 @@ import logoEscuro from "../../assets/logo-sobre-marca.svg";
 const plataforma = [
   { texto: "Quem somos", para: "/quem-somos" },
   { texto: "Explorar animais", para: "/animais" },
+  { texto: "Me ajuda a escolher", para: "/me-ajuda-a-escolher" },
   { texto: "Como adotar", para: { pathname: "/", hash: "#como-funciona" } },
   { texto: "Histórias de adoção", para: "/historias" },
   { texto: "Blog para tutores", para: "/blog" },
   { texto: "Abrigos e protetores independentes", para: "/protetores" },
+  { texto: "Feiras de adoção", para: "/feiras" },
+  { texto: "Clínicas veterinárias", para: "/clinicas" },
+  { texto: "Observatório da adoção", para: "/observatorio" },
   { texto: "Cadastrar um animal", para: "/meus-animais/novo" },
 ];
 

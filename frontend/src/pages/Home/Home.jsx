@@ -5,11 +5,14 @@ import ComoFunciona from "../../components/ComoFunciona/ComoFunciona";
 import ConhecaOProjeto from "../../components/ConhecaOProjeto/ConhecaOProjeto";
 import Estatisticas from "../../components/Estatisticas/Estatisticas";
 import HistoriasRecentes from "../../components/HistoriasRecentes/HistoriasRecentes";
+import ProximasFeiras from "../../components/ProximasFeiras/ProximasFeiras";
+import RecursosDoSite from "../../components/RecursosDoSite/RecursosDoSite";
 import VitrineAnimais from "../../components/VitrineAnimais/VitrineAnimais";
 import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 
-// Home (Figma: Home): apresentação, os números do site, vitrine, histórias de quem adotou,
-// como funciona a adoção e a chamada pro Quem somos. O rodapé vem do Layout
+// Home (Figma: Home): apresentação, os números do site, o que o site tem além da vitrine (IA, feiras, clínicas
+// e observatório), vitrine, próximas feiras, histórias de quem adotou, como funciona a adoção e a chamada
+// pro Quem somos. O rodapé vem do Layout
 export default function Home() {
   const { hash, key } = useLocation();
   const [vitrinePronta, setVitrinePronta] = useState(false);
@@ -29,6 +32,7 @@ export default function Home() {
     <main>
       <Apresentacao />
       <Estatisticas />
+      <RecursosDoSite />
       <section
         aria-labelledby="vitrine-titulo"
         className="mx-auto w-full max-w-[1440px] px-5 py-8 md:px-14"
@@ -38,6 +42,7 @@ export default function Home() {
         </h2>
         <VitrineAnimais aoCarregar={marcarVitrinePronta} />
       </section>
+      <ProximasFeiras />
       <HistoriasRecentes />
       <ComoFunciona />
       <ConhecaOProjeto />

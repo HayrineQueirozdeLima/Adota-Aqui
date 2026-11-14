@@ -28,15 +28,26 @@ const base =
   "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 " +
   "disabled:cursor-not-allowed disabled:opacity-60";
 
-// Se receber "para", vira um link de navegação. Se não, é um botão de ação.
+// Se receber "para", vira um link de navegação. Se receber "href", é um link pra fora do site
+// (ex.: Google Maps), que abre em outra aba. Se não, é um botão de ação.
 export default function Botao({
   variante = "primario",
   para,
+  href,
   className = "",
   children,
   ...resto
 }) {
   const classes = `${base} ${variantes[variante]} ${className}`;
+
+  if (href) {
+    return (
+      <a href={href} target="_blank" rel="noreferrer" className={classes} {...resto}>
+        {children}
+        <span className="sr-only"> (abre em outra aba)</span>
+      </a>
+    );
+  }
 
   if (para) {
     return (

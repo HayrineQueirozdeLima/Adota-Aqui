@@ -5,6 +5,7 @@ import com.adotaaqui.dto.AlterarSenhaRequest;
 import com.adotaaqui.dto.AtualizarAbrigoRequest;
 import com.adotaaqui.dto.AtualizarUsuarioRequest;
 import com.adotaaqui.dto.EnderecoDto;
+import com.adotaaqui.dto.FotoDoPerfilRequest;
 import com.adotaaqui.dto.UsuarioResponse;
 import com.adotaaqui.exception.AcessoNegadoException;
 import com.adotaaqui.exception.DadosInvalidosException;
@@ -21,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 // Perfil da conta logada (docs/api.md, seção 7, RF17, UC10).
@@ -36,11 +38,16 @@ public class PerfilService {
     private final UsuarioRepository usuarios;
     private final AbrigoRepository abrigos;
     private final PasswordEncoder passwordEncoder;
+    private final FotoService fotos;
+    private final LimpezaDeFotos limpezaDeFotos;
 
-    public PerfilService(UsuarioRepository usuarios, AbrigoRepository abrigos, PasswordEncoder passwordEncoder) {
+    public PerfilService(UsuarioRepository usuarios, AbrigoRepository abrigos, PasswordEncoder passwordEncoder,
+                         FotoService fotos, LimpezaDeFotos limpezaDeFotos) {
         this.usuarios = usuarios;
         this.abrigos = abrigos;
         this.passwordEncoder = passwordEncoder;
+        this.fotos = fotos;
+        this.limpezaDeFotos = limpezaDeFotos;
     }
 
     // ----- Usuario (pessoa física) -----
@@ -60,6 +67,16 @@ public class PerfilService {
         usuario.setEndereco(CadastroService.toEndereco(request.getEndereco()));
         // O flush aqui faz um e-mail repetido que escapou da conferência virar 409, e não 500
         return resposta(usuarios.saveAndFlush(usuario));
+    }
+
+    @Transactional
+    public UsuarioResponse alterarFotoUsuario(FotoDoPerfilRequest request, Authentication autenticacao) {
+        Usuario usuario = usuarioLogado(autenticacao);
+        String anterior = usuario.getFotoUrl();
+        usuario.setFotoUrl(fotoConferida(request));
+        Usuario salvo = usuarios.saveAndFlush(usuario);
+        apagarSeSaiu(anterior, salvo.getFotoUrl());
+        return resposta(salvo);
     }
 
     @Transactional
@@ -86,6 +103,16 @@ public class PerfilService {
     }
 
     @Transactional
+    public AbrigoResponse alterarFotoAbrigo(FotoDoPerfilRequest request, Authentication autenticacao) {
+        Abrigo abrigo = abrigoLogado(autenticacao);
+        String anterior = abrigo.getFotoUrl();
+        abrigo.setFotoUrl(fotoConferida(request));
+        Abrigo salvo = abrigos.saveAndFlush(abrigo);
+        apagarSeSaiu(anterior, salvo.getFotoUrl());
+        return resposta(salvo);
+    }
+
+    @Transactional
     public void alterarSenhaAbrigo(AlterarSenhaRequest request, Authentication autenticacao) {
         Abrigo abrigo = abrigoLogado(autenticacao);
         abrigo.setSenha(novaSenha(request, abrigo.getSenha()));
@@ -100,6 +127,21 @@ public class PerfilService {
             throw new RegraNegocioException("Já existe uma conta cadastrada com este e-mail");
         }
         return email;
+    }
+
+    // A foto de perfil aparece no card dos animais, que é público: só entra foto que passou pela
+    // conferência do POST /api/fotos (tipo do arquivo e tamanho), e não um endereço de qualquer site
+    private String fotoConferida(FotoDoPerfilRequest request) {
+        String foto = request.fotoUrl() == null || request.fotoUrl().isBlank() ? null : request.fotoUrl().strip();
+        if (foto != null && fotos.chaveDe(foto).isEmpty()) {
+            throw new DadosInvalidosException("Envie a foto pelo próprio site", "fotoUrl");
+        }
+        return foto;
+    }
+
+    // A foto que saiu (trocada ou removida) sai também do bucket, depois de salvar
+    private void apagarSeSaiu(String anterior, String atual) {
+        if (anterior != null && !anterior.equals(atual)) limpezaDeFotos.apagarDepoisDeSalvar(List.of(anterior));
     }
 
     // Senha atual errada é 400, e não 401: o token continua valendo, e um 401 faria o front deslogar a pessoa
@@ -149,12 +191,12 @@ public class PerfilService {
 
     private static UsuarioResponse resposta(Usuario usuario) {
         return new UsuarioResponse(usuario.getId(), usuario.getNome(), usuario.getCpf(), usuario.getTelefone(),
-                usuario.getEmail(), endereco(usuario.getEndereco()));
+                usuario.getEmail(), endereco(usuario.getEndereco()), usuario.getFotoUrl());
     }
 
     private static AbrigoResponse resposta(Abrigo abrigo) {
         return new AbrigoResponse(abrigo.getId(), abrigo.getNome(), abrigo.getCnpj(), abrigo.getRazaoSocial(),
-                abrigo.getTelefone(), abrigo.getEmail(), endereco(abrigo.getEndereco()));
+                abrigo.getTelefone(), abrigo.getEmail(), endereco(abrigo.getEndereco()), abrigo.getFotoUrl());
     }
 
     private static EnderecoDto endereco(Endereco endereco) {

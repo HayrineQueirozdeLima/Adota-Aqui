@@ -2,8 +2,8 @@
 
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
-- **Versão:** 1.10 (novembro de 2026)
-- **Total:** 89 casos, 85 já automatizados e 4 manuais
+- **Versão:** 1.19 (novembro de 2026)
+- **Total:** 116 casos, 108 já automatizados e 8 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
 
@@ -11,7 +11,7 @@ Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o 
 
 Garantir que o Adota Aqui funciona do jeito que os requisitos pedem: cadastro e login seguros, vitrine com filtros, perfil do animal, demonstração de interesse com termo e triagem, cadastro de animais e o painel em que o protetor aprova a adoção. Também entram usabilidade, acessibilidade, segurança e desempenho.
 
-**Coberto:** página inicial e navegação, cadastro e login, vitrine, busca e filtros, perfil do animal, demonstração de interesse e desistência, cadastro de animal e Meus animais, painel de interesses recebidos, Minhas candidaturas, Meu perfil, histórias de adoção, blog, abrigos e protetores, Quem somos, acessibilidade, segurança e desempenho.
+**Coberto:** página inicial e navegação, cadastro e login, vitrine, busca e filtros, perfil do animal, demonstração de interesse e desistência, cadastro de animal e Meus animais, painel de interesses recebidos, Minhas candidaturas, Meu perfil, histórias de adoção, blog, abrigos e protetores, Quem somos, clínicas veterinárias, feiras de adoção, observatório, ajudas com IA, acessibilidade, segurança e desempenho.
 
 **Fora do escopo desta fase:**
 
@@ -27,15 +27,19 @@ A coluna **Automatizado em** mostra o arquivo de teste que já confere o caso. O
 | ID        | Cenário                 | Tipo           | Resultado esperado                                                                                                                                                                                                                                                                     | Automatizado em                           |
 | --------- | ----------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
 | CT-NAV-01 | Abrir a página inicial  | Smoke          | O menu, o título e os cartões dos animais aparecem, sem erro no console                                                                                                                                                                                                                | `App.test.jsx`, `VitrineAnimais.test.jsx` |
-| CT-NAV-02 | Responsividade          | UI             | Nos tamanhos do Figma, celular (390px), tablet (834px) e computador (1440px), e também nos celulares mais estreitos (360px e 320px), as telas se ajustam: não aparece rolagem pro lado, nenhum texto ou botão fica cortado ou passa da borda do cartão, e o menu mostra todos os itens | Manual                                    |
-| CT-NAV-03 | Menu conforme a conta   | Funcional      | Visitante vê "Cadastrar" e "Entrar". Logado vê "Explorar", "Meus animais" e "Interesses recebidos", e só pessoa física vê "Minhas candidaturas"                                                                                                                                        | `Navbar.test.jsx`                         |
+| CT-NAV-02 | Responsividade          | UI             | Nos tamanhos do Figma, celular (390px), tablet (834px) e computador (1440px), e também nos celulares mais estreitos (360px e 320px), as telas se ajustam: não aparece rolagem pro lado, nenhum texto ou botão fica cortado ou passa da borda do cartão, e o topo mostra todas as páginas (abaixo de 1280 px, pelo botão "Menu") | Manual                                    |
+| CT-NAV-03 | Menu conforme a conta   | Funcional      | Visitante vê "Cadastrar" e "Entrar" (no celular pequeno, o "Criar conta" fica dentro do Menu). Logado vê as iniciais e "Minha área", com "Meu perfil", "Meus animais", "Interesses recebidos" e "Sair", que encerra a sessão e volta pra página inicial. Só pessoa física vê "Minhas candidaturas", e só abrigo vê "Divulgar uma feira"                                                                                                                                        | `Navbar.test.jsx`                         |
 | CT-NAV-04 | Endereço que não existe | Funcional      | Aparece "Página não encontrada", com o menu e os botões "Ver animais disponíveis" e "Ir para a página inicial"                                                                                                                                                                         | `App.test.jsx`                            |
 | CT-NAV-05 | Trocar o tema           | UI             | O botão do topo troca entre claro e escuro, e a escolha continua depois de recarregar a página. Quem nunca escolheu vê o tema do sistema operacional                                                                                                                                   | `BotaoTema.test.jsx`                      |
-| CT-NAV-06 | Links do rodapé         | Funcional      | "Quem somos", "Explorar animais", "Como adotar", "Histórias de adoção", "Blog para tutores", "Abrigos e protetores independentes" (a página de abrigos e protetores, não mais o cadastro) e "Cadastrar um animal" levam pra tela certa | `Rodape.test.jsx`, `Home.test.jsx`        |
+| CT-NAV-06 | Links do rodapé         | Funcional      | "Quem somos", "Explorar animais", "Me ajuda a escolher", "Como adotar", "Histórias de adoção", "Blog para tutores", "Abrigos e protetores independentes" (a página de abrigos e protetores, não mais o cadastro), "Feiras de adoção", "Clínicas veterinárias", "Observatório da adoção" e "Cadastrar um animal" levam pra tela certa | `Rodape.test.jsx`, `Home.test.jsx`        |
 | CT-NAV-07 | Trocar de página        | UI             | A página nova abre no topo, mesmo vindo do fim da anterior (ex.: um link do rodapé). Voltar no navegador devolve a pessoa onde ela estava                                                                                                                                              | `RolarParaOTopo.test.jsx`                 |
 | CT-NAV-08 | Título da aba           | Acessibilidade | Cada página mostra o nome dela na aba do navegador (ex.: "Meus animais"), e o leitor de tela anuncia a página nova                                                                                                                                                                     | `App.test.jsx`, `EditarAnimal.test.jsx`   |
 | CT-NAV-09 | Números do site | Funcional | A página inicial mostra as adoções feitas, os animais esperando um lar e os abrigos cadastrados, com ponto no milhar e singular no 1. Se a API falhar, a faixa some e o resto da página funciona | `Estatisticas.test.jsx`, `Home.test.jsx`, `EstatisticasIntegrationTest.java` |
 | CT-NAV-10 | Quem somos | Funcional | A página `/quem-somos` conta como surgiu o projeto, de onde veio a ideia, a motivação e o que o Adota Aqui se propõe a fazer (em cinco cartões com título), sem nome de quem desenvolveu. O desenho da ponte e as fotos são enfeite, que o leitor de tela pula. A Home termina com "Conheça o Adota Aqui", que leva pra ela | `QuemSomos.test.jsx`, `Home.test.jsx`, `App.test.jsx` |
+| CT-NAV-11 | Patinhas | UI | Com mouse, o caminho dele deixa pegadas laranja alternando de lado, que somem sozinhas (no máximo 24 na tela). Toque na tela não deixa pegada. A faixa "Como funciona" e o painel do login têm a trilha de patas no fundo, escondida do leitor de tela. Quem pediu menos movimento não vê o rastro e vê a trilha parada | `RastroDePatas.test.jsx`, `TrilhaDePatas.test.jsx`, `curva.test.js` |
+| CT-NAV-12 | Topo fixo com as páginas do site | Funcional | O topo fica preso no alto ao rolar. Do computador grande (1280 px) pra cima mostra Animais, Me ajuda a escolher (só com a IA ligada), Feiras, Clínicas, Observatório e Blog, com a página atual marcada. Abaixo disso, o botão "Menu" abre a mesma lista, que fecha com Esc (o foco volta pro botão), com clique fora e ao trocar de página. O "Pular para o conteúdo" leva o foco pro começo da página | `Navbar.test.jsx` |
+| CT-NAV-13 | Recursos na página inicial | Funcional | Logo depois dos números do site, a faixa "Tudo pra uma adoção responsável" leva pra Me ajuda a escolher (só com a IA ligada), Feiras de adoção, Clínicas veterinárias e Observatório da adoção | `Home.test.jsx` |
+| CT-NAV-14 | Animações da Home e do Quem somos | UI | Na Home, o começo da página entra devagar e cada bloco sobe e aparece quando entra na tela, inclusive os que chegam depois da API. Os números do site e do observatório contam até o valor, e o leitor de tela ouve só o valor final. No Quem somos, a trilha da história fica laranja conforme a leitura e acende a pata de cada parte. Quem pediu menos movimento vê tudo pronto, sem nada escondido | `Animacoes.test.jsx` |
 
 ### Módulo 2: Cadastro, login e sessão
 
@@ -65,6 +69,7 @@ A coluna **Automatizado em** mostra o arquivo de teste que já confere o caso. O
 | CT-FLT-08 | Ver mais animais | Funcional | Os animais vêm de 12 em 12, dos mais novos pros mais antigos. "Ver mais animais" traz a próxima página embaixo, sem repetir animal, e leva o foco pro primeiro animal novo. Mudar um filtro volta pra primeira página | `VitrineAnimais.test.jsx`, `AnimalIntegrationTest.java` |
 | CT-FLT-09 | Animal que está em outro estado que o protetor | Regra de negócio | A vitrine da pessoa física, o filtro de cidade e a demonstração de interesse usam o local do animal, e não o endereço de quem cadastrou (RF14). Um animal cadastrado em Rondônia que está no Maranhão aparece pra quem mora no Maranhão | `AnimalIntegrationTest.java`, `InteresseIntegrationTest.java` |
 | CT-FLT-10 | Opção de todos nas listas de filtro | UI | Porte, raça e energia começam em "Todos os portes", "Todas as raças" e "Qualquer energia", já marcados, e o nome do filtro não aparece como opção. Sem espécie, a raça fica travada mostrando "Raça". A raça "Outra" aparece como "Outras raças" e filtra pelo mesmo valor | `VitrineAnimais.test.jsx` |
+| CT-FLT-11 | Quem espera há mais tempo | Funcional | "Ordenar por: Esperando há mais tempo" mostra primeiro os animais que estão no site há mais tempo. A ordem não conta como filtro e continua depois do "Limpar filtros". Animal com 1 mês ou mais no site tem o selo "Esperando há 3 meses" no card e no perfil, e animal adotado não tem selo | `VitrineAnimais.test.jsx`, `CardAnimal.test.jsx`, `PerfilAnimal.test.jsx`, `rotulos.test.js`, `AnimalIntegrationTest.java` |
 
 ### Módulo 4: Perfil do animal e interesse
 
@@ -77,6 +82,8 @@ A coluna **Automatizado em** mostra o arquivo de teste que já confere o caso. O
 | CT-PET-05 | Enviar sem aceitar o termo ou sem responder a triagem | Validação        | Não envia, marca o que falta e leva o foco pro primeiro erro (RF13, RF15)                                     | `DemonstrarInteresse.test.jsx`, `InteresseIntegrationTest.java` |
 | CT-PET-06 | Interesse registrado                                  | Funcional        | Aparecem o WhatsApp e o e-mail do protetor, e o perfil passa a mostrar "Desistir da adoção"                   | `DemonstrarInteresse.test.jsx`, `PerfilAnimal.test.jsx`         |
 | CT-PET-07 | Desistir do interesse                                 | Funcional        | Pede confirmação, apaga o interesse e o perfil volta a oferecer "Quero conhecer"                              | `PerfilAnimal.test.jsx`, `InteresseIntegrationTest.java`        |
+| CT-PET-08 | Compartilhar o animal | Funcional | "Ajude a Mel a achar um lar" manda pelo WhatsApp um texto pronto com o link do perfil, copia o link (e avisa) e, no navegador que tem, abre o menu de compartilhar do sistema. Se não der pra copiar, o link aparece escrito. Animal adotado não tem o quadro | `CompartilharAnimal.test.jsx`, `PerfilAnimal.test.jsx` |
+| CT-PET-09 | Prévia do link no WhatsApp | UI | No celular, o link do site mandado no WhatsApp mostra a prévia com o nome, a frase e a imagem do Adota Aqui. Conferir no site publicado | Manual |
 
 ### Módulo 5: Formulários
 
@@ -135,6 +142,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | CT-PRF-04 | Mudar o estado        | Regra de negócio | A vitrine passa a mostrar os animais do estado novo (RF14). Os animais que a conta cadastrou continuam onde estão: cada um tem o próprio local, editado no animal | `Perfil.test.jsx`, `PerfilIntegrationTest.java` |
 | CT-PRF-05 | Trocar a senha        | Funcional        | Pede a senha atual e a confirmação. Depois, o login só funciona com a senha nova                                     | `Perfil.test.jsx`, `PerfilIntegrationTest.java` |
 | CT-PRF-06 | Senha atual errada    | Segurança        | A mensagem aparece embaixo da senha atual e a pessoa continua logada                                                 | `Perfil.test.jsx`, `PerfilIntegrationTest.java` |
+| CT-PRF-07 | Foto de perfil        | Funcional        | Pessoa e abrigo põem, trocam e tiram a foto, que é salva na hora. Ela aparece no topo, no card e no perfil dos animais da conta e na página de abrigos e protetores. Arquivo que não é imagem é recusado antes de enviar, e endereço de outro site é recusado pela API. A foto que saiu é apagada do bucket | `FotoDoPerfil.test.jsx`, `Navbar.test.jsx`, `CardAnimal.test.jsx`, `PerfilIntegrationTest.java` |
 
 ### Módulo 10: Histórias de adoção
 
@@ -166,7 +174,46 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | CT-PRT-04 | Mais de uma página               | Funcional | Vem de 12 em 12. O "Ver mais" traz os próximos e leva o foco pro primeiro card novo                                                                                        | `ProtetorIntegrationTest.java`, `Protetores.test.jsx` |
 | CT-PRT-05 | Dados pessoais protegidos        | Segurança | A lista não mostra e-mail, telefone, CPF nem CNPJ. O contato continua aparecendo só depois que alguém demonstra interesse                                                   | `ProtetorIntegrationTest.java`                        |
 
-### Módulo 13: Desempenho, acessibilidade e segurança
+### Módulo 13: Clínicas veterinárias
+
+| ID        | Cenário                       | Tipo      | Resultado esperado | Automatizado em |
+| --------- | ----------------------------- | --------- | ------------------ | --------------- |
+| CT-CLI-01 | Procurar pela cidade          | Funcional | Com a cidade e o estado, aparece o mapa das clínicas daquele lugar, a cidade vai pro endereço da página e o foco vai pro título do mapa. Sem cidade ou sem estado, avisa o que falta e leva o foco pro campo. "Atendimento 24 horas" troca a busca do mapa | `Clinicas.test.jsx`, `clinicas.test.js` |
+| CT-CLI-02 | Usar a localização            | Funcional | Com a permissão, o mapa mostra as clínicas perto da pessoa, e o ponto (arredondado em uns 100 metros) não vai pro endereço da página. Sem a permissão, explica e deixa digitar a cidade. Navegador sem localização não mostra o botão | `Clinicas.test.jsx`, `clinicas.test.js` |
+| CT-CLI-03 | Abrir já num lugar            | Funcional | Quem está logado abre na cidade do perfil. O link do perfil do animal abre na cidade do animal, que vale mais que a do perfil | `Clinicas.test.jsx`, `PerfilAnimal.test.jsx`, `App.test.jsx` |
+| CT-CLI-04 | Mapa do Google no site        | Funcional | No site publicado, no computador e no celular, o mapa mostra clínicas de verdade da cidade escolhida, de uma cidade de cada região. "Abrir no Google Maps" abre o Maps em outra aba (no celular, o app) | Manual |
+
+### Módulo 14: Feiras de adoção
+
+| ID        | Cenário                         | Tipo             | Resultado esperado | Automatizado em |
+| --------- | ------------------------------- | ---------------- | ------------------ | --------------- |
+| CT-FEI-01 | Ver as próximas feiras          | Funcional        | Aparecem só as feiras de hoje em diante, da mais próxima pra mais distante, com a data por extenso, o horário, o local, o abrigo e o selo "Hoje" ou "Amanhã". Quem está logado abre no estado do perfil, numa busca só. A Home mostra as duas próximas, e a seção some sem feira | `FeiraIntegrationTest.java`, `Feiras.test.jsx`, `ProximasFeiras.test.jsx`, `feiras.test.js` |
+| CT-FEI-02 | Filtrar por estado e cidade     | Funcional        | Estado e cidade filtram juntos, a cidade sem ligar pra acento e só depois de parar de digitar. Sem resultado, aparece o aviso e "Ver feiras de todo o Brasil" | `FeiraIntegrationTest.java`, `Feiras.test.jsx` |
+| CT-FEI-03 | Divulgar e editar               | Funcional        | O abrigo divulga com a cidade dele já preenchida, edita a própria feira e volta pra lista com o aviso. Data que já passou e fim antes do início são recusados no front e na API | `FeiraIntegrationTest.java`, `FormularioFeira.test.jsx` |
+| CT-FEI-04 | Quem pode mexer                 | Regra de negócio | Pessoa física não divulga (volta pra lista no site, `403` na API), visitante vai pro login, e só o abrigo que divulgou vê e usa "Editar" e "Apagar" (que pede confirmação) | `FeiraIntegrationTest.java`, `Feiras.test.jsx`, `FormularioFeira.test.jsx`, `App.test.jsx` |
+| CT-FEI-05 | Como chegar e agenda            | Funcional        | "Como chegar" abre o endereço no Google Maps e "Adicionar à agenda" abre o Google Agenda com título, data, horário no fuso da cidade da feira e local | `feiras.test.js`, `Feiras.test.jsx` |
+| CT-FEI-06 | Agenda e mapa de verdade        | Funcional        | No site publicado, no celular, "Adicionar à agenda" salva a feira no dia e na hora certos e "Como chegar" abre o app de mapas | Manual |
+
+### Módulo 15: Observatório da adoção
+
+| ID        | Cenário                       | Tipo           | Resultado esperado | Automatizado em |
+| --------- | ----------------------------- | -------------- | ------------------ | --------------- |
+| CT-OBS-01 | Números do site por estado    | Funcional      | A API devolve sempre os 27 estados, com animais esperando e adoções contados onde o animal está e abrigos pelo endereço do abrigo. A página mostra o total de animais esperando, o mapa com os 27 estados e o ranking do maior pro menor | `EstatisticasIntegrationTest.java`, `Observatorio.test.jsx`, `observatorio.test.js` |
+| CT-OBS-02 | Dados do IBGE                 | Funcional      | "Lares com cachorro" e "Lares com gato" pintam o mapa com a porcentagem de cada estado, com a fonte na tela | `Observatorio.test.jsx`, `observatorio.test.js` |
+| CT-OBS-03 | Escolher um estado            | Funcional      | O estado escolhido mostra os números dele, do site e do IBGE, e "Ver o Brasil" volta pro resumo do país | `Observatorio.test.jsx` |
+| CT-OBS-04 | Leitura sem o mapa            | Acessibilidade | Cada quadrado do mapa é um botão com o nome do estado e o número, e a tabela traz os 27 estados com as 5 medidas. Se a API falhar, os dados do IBGE continuam e aparece "Tentar de novo" | `Observatorio.test.jsx` |
+
+### Módulo 16: Ajudas com inteligência artificial
+
+| ID       | Cenário                          | Tipo             | Resultado esperado | Automatizado em |
+| -------- | -------------------------------- | ---------------- | ------------------ | --------------- |
+| CT-IA-01 | IA desligada                     | Funcional        | Sem a chave no servidor, `disponivel` é `false`, o "Escrever com IA", a chamada da vitrine, o link do topo e o cartão da página inicial não aparecem, a página do "Me ajuda a escolher" explica e leva pra vitrine, e as rotas da IA respondem `503` | `IaIntegrationTest.java`, `EscreverComIa.test.jsx`, `MeAjudaAEscolher.test.jsx`, `Navbar.test.jsx`, `Home.test.jsx`, `App.test.jsx` |
+| CT-IA-02 | Escrever com IA                  | Funcional        | Precisa de login, do nome e da espécie. Vai pra IA o que foi preenchido e o rascunho. A sugestão aparece separada e só vai pro campo com "Usar este texto". O texto volta sem markdown e sem travessão | `IaIntegrationTest.java`, `EscreverComIa.test.jsx`, `FormularioAnimal.test.jsx` |
+| CT-IA-03 | Me ajuda a escolher              | Funcional        | A rotina (de 15 a 600 caracteres) e o estado vão pra API. Voltam até 3 animais com o motivo e a dica. Pessoa física logada recebe animais do estado do perfil. Sem animal no estado, a IA nem é chamada | `IaIntegrationTest.java`, `MeAjudaAEscolher.test.jsx` |
+| CT-IA-04 | A IA não inventa animal          | Regra de negócio | Vai pra IA só a lista de animais disponíveis (sem adotados, sem outro estado, sem dado do protetor). Número que não está na lista e número repetido são descartados, e resposta que não é JSON vira `503`. Passando de 15 pedidos por hora, `429` | `IaIntegrationTest.java`, `MeAjudaAEscolher.test.jsx` |
+| CT-IA-05 | IA de verdade no site publicado  | Funcional        | Com a chave no Render, o "Escrever com IA" escreve um texto coerente com os dados, e o "Me ajuda a escolher" indica animais que combinam com rotinas diferentes (apartamento com criança, casa com quintal, quem já tem gato) | Manual |
+
+### Módulo 17: Desempenho, acessibilidade e segurança
 
 | ID        | Cenário                            | Tipo           | Resultado esperado                                                                                                                                                                                                           | Automatizado em                                                                             |
 | --------- | ---------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
@@ -182,20 +229,24 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 
 | Módulo                                     | Casos  | Automatizados | Manuais |
 | ------------------------------------------ | ------ | ------------- | ------- |
-| 1. Navegação e página inicial              | 10     | 9             | 1       |
+| 1. Navegação e página inicial              | 14     | 13            | 1       |
 | 2. Cadastro, login e sessão                | 9      | 9             | 0       |
-| 3. Vitrine, busca e filtros                | 10     | 10            | 0       |
-| 4. Perfil do animal e interesse            | 7      | 7             | 0       |
+| 3. Vitrine, busca e filtros                | 11     | 11            | 0       |
+| 4. Perfil do animal e interesse            | 9      | 8             | 1       |
 | 5. Formulários                             | 6      | 5             | 1       |
 | 6. Cadastro de animal e Meus animais       | 9      | 9             | 0       |
 | 7. Interesses recebidos                    | 5      | 5             | 0       |
 | 8. Minhas candidaturas                     | 5      | 5             | 0       |
-| 9. Meu perfil                              | 6      | 6             | 0       |
+| 9. Meu perfil                              | 7      | 7             | 0       |
 | 10. Histórias de adoção                    | 5      | 5             | 0       |
 | 11. Blog para tutores                          | 5      | 5             | 0       |
 | 12. Abrigos e protetores                   | 5      | 5             | 0       |
-| 13. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
-| **Total**                                  | **89** | **85**        | **4**   |
+| 13. Clínicas veterinárias                  | 4      | 3             | 1       |
+| 14. Feiras de adoção                       | 6      | 5             | 1       |
+| 15. Observatório da adoção                 | 4      | 4             | 0       |
+| 16. Ajudas com inteligência artificial     | 5      | 4             | 1       |
+| 17. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
+| **Total**                                  | **116** | **108**      | **8**   |
 
 A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta tabela: ela é medida pelo JaCoCo e pelo Jest a cada push, como explica o [plano de testes](plano-de-testes.md). Esta tabela mostra outra coisa: quantos comportamentos importantes já têm teste automático e quantos ainda dependem de alguém testar à mão.
 
@@ -211,6 +262,6 @@ A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta ta
 
 **Registro da rodada manual:** antes de cada entrega, preencher:
 
-| Data | Quem testou | Navegador e tela | CT-NAV-02 | CT-NFR-01 | CT-NFR-06 |
-| ---- | ----------- | ---------------- | --------- | --------- | --------- |
-|      |             |                  |           |           |           |
+| Data | Quem testou | Navegador e tela | CT-NAV-02 | CT-PET-09 | CT-CLI-04 | CT-FEI-06 | CT-IA-05 | CT-NFR-01 | CT-NFR-06 |
+| ---- | ----------- | ---------------- | --------- | --------- | --------- | --------- | -------- | --------- | --------- |
+|      |             |                  |           |           |           |           |          |           |           |

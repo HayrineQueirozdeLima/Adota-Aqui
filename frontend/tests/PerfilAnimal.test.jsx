@@ -107,6 +107,42 @@ describe("ficha do animal", () => {
     expect(screen.getByText("Protetor em Santo André/SP")).toBeInTheDocument();
   });
 
+  // O mapa de clínicas abre na cidade do animal, e não na do protetor
+  test("leva pras clínicas veterinárias perto de onde o animal está", async () => {
+    perfilCom({ cidade: "Campinas", estado: "SP" });
+    abrir();
+    await esperarFicha();
+
+    expect(
+      screen.getByRole("link", {
+        name: "clínicas veterinárias perto de Campinas/SP",
+      }),
+    ).toHaveAttribute("href", "/clinicas?cidade=Campinas&estado=SP");
+  });
+
+  test("mostra há quanto tempo o animal espera um lar e o quadro de compartilhar", async () => {
+    perfilCom({ cadastradoEm: "2020-01-10" });
+    abrir();
+    await esperarFicha();
+
+    expect(screen.getByText(/^Esperando há \d+ anos$/)).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Ajude a Mel a achar um lar" }),
+    ).toBeInTheDocument();
+  });
+
+  test("animal adotado não tem selo de espera nem quadro de compartilhar", async () => {
+    entrarComo("ABRIGO");
+    perfilCom({ statusAdocao: "ADOTADO", ehMeu: true, cadastradoEm: "2020-01-10" });
+    abrir();
+    await esperarFicha();
+
+    expect(screen.queryByText(/Esperando há/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Ajude a Mel a achar um lar" }),
+    ).not.toBeInTheDocument();
+  });
+
   test("a galeria troca a foto grande ao clicar na miniatura", async () => {
     abrir();
     await esperarFicha();

@@ -4,6 +4,7 @@ import {
   dataParaMesAno,
   errosDaApiParaFormulario,
   formularioParaApi,
+  formularioParaIa,
   mascaraMesAno,
   mesAnoParaData,
   validarAnimal,
@@ -170,5 +171,36 @@ test("os erros de campo da API chegam no campo certo do formulário", () => {
     raca: "A raça não pertence à espécie informada",
     cidade: "Informe a cidade e o estado do animal",
     nome: "obrigatório",
+  });
+});
+
+test("o que vai pro Escrever com IA: o que já foi preenchido, e null no que falta", () => {
+  expect(formularioParaIa(preenchido)).toEqual({
+    nome: "Mingau",
+    especie: "GATO",
+    sexo: "MACHO",
+    porte: "PEQUENO",
+    raca: "SRD_GATO",
+    dataNascEstimada: "2024-06-01",
+    castrado: true,
+    energia: "MAIS_CALMO",
+    convivenciaCrianca: "NAO_TESTADO",
+    convivenciaCao: "NAO_TESTADO",
+    convivenciaGato: "NAO_TESTADO",
+    vacinas: ["V4"],
+    cidade: "Porto Velho",
+    estado: "RO",
+    rascunho: "Resgatado na chuva.",
+  });
+
+  const quaseVazio = formularioParaIa({ ...animalVazio, nome: "Mia", especie: "GATO", nascimento: "06/20" });
+  expect(quaseVazio).toMatchObject({
+    nome: "Mia",
+    sexo: null,
+    dataNascEstimada: null,
+    castrado: null,
+    cidade: null,
+    rascunho: null,
+    vacinas: [],
   });
 });

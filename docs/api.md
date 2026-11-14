@@ -27,7 +27,9 @@ Fontes: Especificação de Requisitos (RF01 a RF17), Casos de Uso (UC01 a UC10),
 11. [Histórias de adoção](#11-histórias-de-adoção)
 12. [Blog para tutores](#12-blog-para-tutores)
 13. [Abrigos e protetores](#13-abrigos-e-protetores)
-14. [Pontos em aberto](#14-pontos-em-aberto)
+14. [Feiras de adoção](#14-feiras-de-adoção)
+15. [Inteligência artificial](#15-inteligência-artificial)
+16. [Pontos em aberto](#16-pontos-em-aberto)
 
 ---
 
@@ -36,7 +38,7 @@ Fontes: Especificação de Requisitos (RF01 a RF17), Casos de Uso (UC01 a UC10),
 - **Mudou um endpoint no código? Atualize este arquivo no mesmo pull request.** Um contrato desatualizado é pior do que nenhum, porque o outro squad confia nele.
 - Nenhum squad muda um formato de entrada ou saída sozinho. Mudança de contrato é combinada entre Front End e Back End antes de ser implementada.
 - Cada endpoint indica a sua **origem** (RF/UC). Se um requisito mudar, procure aqui pelo código dele para achar os endpoints afetados.
-- Decisões ainda não fechadas ficam na seção [14. Pontos em aberto](#14-pontos-em-aberto) até o time decidir.
+- Decisões ainda não fechadas ficam na seção [16. Pontos em aberto](#16-pontos-em-aberto) até o time decidir.
 
 ---
 
@@ -180,6 +182,7 @@ Quando um valor não existe na lista de opções (um enum, como `porte` ou `espe
 | `GET`    | `/api/interesses/recebidos`    | Autenticado            | RF09, UC08                         | Sim    |
 | `PATCH`  | `/api/interesses/{id}/status`  | Protetor do animal     | RF10, UC08                         | Sim    |
 | `GET`    | `/api/estatisticas`            | Público                | ERS 6.7                            | Sim    |
+| `GET`    | `/api/estatisticas/estados`    | Público                | ERS 6.8                            | Sim    |
 | `POST`   | `/api/interesses/{id}/depoimento` | Candidato do interesse | RF11, UC09                      | Sim    |
 | `GET`    | `/api/depoimentos`             | Público                | RF11                               | Sim    |
 | `DELETE` | `/api/depoimentos/{id}`        | Autor do depoimento    | RF11                               | Sim    |
@@ -190,6 +193,15 @@ Quando um valor não existe na lista de opções (um enum, como `porte` ou `espe
 | `PUT`    | `/api/artigos/{id}`              | Autor do artigo          | ERS 6.4                            | Sim    |
 | `DELETE` | `/api/artigos/{id}`              | Autor do artigo          | ERS 6.4                            | Sim    |
 | `GET`    | `/api/protetores`              | Público                | RF07, ERS 4 (Protetor)             | Sim    |
+| `GET`    | `/api/feiras`                  | Público                | Depois do MVP                      | Sim    |
+| `GET`    | `/api/feiras/{id}`             | Público                | Depois do MVP                      | Sim    |
+| `GET`    | `/api/feiras/minhas`           | Somente Abrigo         | Depois do MVP                      | Sim    |
+| `POST`   | `/api/feiras`                  | Somente Abrigo         | Depois do MVP                      | Sim    |
+| `PUT`    | `/api/feiras/{id}`             | Abrigo que divulgou    | Depois do MVP                      | Sim    |
+| `DELETE` | `/api/feiras/{id}`             | Abrigo que divulgou    | Depois do MVP                      | Sim    |
+| `GET`    | `/api/ia/disponivel`           | Público                | ERS 6.12                           | Sim    |
+| `POST`   | `/api/ia/descricao`            | Autenticado            | ERS 6.12                           | Sim    |
+| `POST`   | `/api/ia/sugestoes`            | Público                | ERS 6.12                           | Sim    |
 
 Endpoint novo entra nesta tabela como "Ainda não" assim que o formato é combinado. Assim o front já pode montar a tela com dados de exemplo enquanto o back faz a parte dele.
 
@@ -198,6 +210,8 @@ O depoimento (RF11, UC09) era opcional e entrou depois do MVP: os endpoints est�
 O blog para tutores (ERS 6.4) também entrou depois do MVP: os endpoints estão na seção [Blog para tutores](#12-blog-para-tutores).
 
 A página de abrigos e protetores (o link "Abrigos e protetores independentes" do rodapé) veio depois também: o endpoint está na seção [Abrigos e protetores](#13-abrigos-e-protetores).
+
+As feiras de adoção entraram na semana da apresentação: os endpoints estão na seção [Feiras de adoção](#14-feiras-de-adoção).
 
 ---
 
@@ -230,7 +244,8 @@ Autentica um Usuario (CPF) ou um Abrigo (CNPJ) e devolve o token.
   "tipoConta": "USUARIO",
   "id": "3f6c1a2e-8b4d-4c7a-9e1f-2a5b7c9d0e11",
   "nome": "Maria Silva",
-  "expiraEm": "2026-09-27T14:30:00Z"
+  "expiraEm": "2026-09-27T14:30:00Z",
+  "fotoUrl": null
 }
 ```
 
@@ -246,7 +261,7 @@ Autentica um Usuario (CPF) ou um Abrigo (CNPJ) e devolve o token.
 | `401`  | Documento não cadastrado **ou** senha incorreta. A mensagem é a mesma nos dois casos: "Documento ou senha inválidos" | UC03 FA01, FA02 |
 | `500`  | Falha ao autenticar ou gerar o token                                                                                 | UC03 FA04       |
 
-> A mesma mensagem para "documento não cadastrado" e "senha incorreta" impede que alguém descubra quais CPFs e CNPJs têm conta testando um por um. Ver [Pontos em aberto](#14-pontos-em-aberto).
+> A mesma mensagem para "documento não cadastrado" e "senha incorreta" impede que alguém descubra quais CPFs e CNPJs têm conta testando um por um. Ver [Pontos em aberto](#16-pontos-em-aberto).
 
 ---
 
@@ -290,7 +305,7 @@ Cria a conta de uma pessoa física e já a autentica.
 | `endereco.cidade`                        | Obrigatório                                                                                                   |
 | `endereco.estado`                        | Obrigatório. UF com 2 letras maiúsculas                                                                       |
 
-O usuário digita só **CEP e número** (RF01). O front consulta o ViaCEP com o CEP digitado, preenche logradouro, bairro, cidade e estado, e envia o endereço completo. Ver [Pontos em aberto](#14-pontos-em-aberto).
+O usuário digita só **CEP e número** (RF01). O front consulta o ViaCEP com o CEP digitado, preenche logradouro, bairro, cidade e estado, e envia o endereço completo. Ver [Pontos em aberto](#16-pontos-em-aberto).
 
 **Saída (`201 Created`)**
 
@@ -302,7 +317,8 @@ Mesmo formato da resposta do login, porque o cadastro já autentica a conta (UC0
   "tipoConta": "USUARIO",
   "id": "3f6c1a2e-8b4d-4c7a-9e1f-2a5b7c9d0e11",
   "nome": "Maria Silva",
-  "expiraEm": "2026-09-27T14:30:00Z"
+  "expiraEm": "2026-09-27T14:30:00Z",
+  "fotoUrl": null
 }
 ```
 
@@ -397,11 +413,12 @@ Devolve os dados da conta do Usuario logado.
     "bairro": "Centro",
     "cidade": "Porto Velho",
     "estado": "RO"
-  }
+  },
+  "fotoUrl": "https://adota-aqui-fotos.s3.us-east-2.amazonaws.com/animais/9c1e....jpg"
 }
 ```
 
-O `cpf` vem na resposta para ser exibido na tela, mas não pode ser editado.
+O `cpf` vem na resposta para ser exibido na tela, mas não pode ser editado. O `fotoUrl` é a foto de perfil, ou `null` quando a conta não pôs foto (aí o site mostra as iniciais).
 
 **Erros:** `401` sem token, token inválido ou conta que não existe mais; `403` conta do tipo Abrigo.
 
@@ -448,6 +465,31 @@ Atualiza os dados editáveis da conta do Usuario logado.
 
 ---
 
+### PUT /api/usuarios/me/foto
+
+Põe, troca ou tira a foto de perfil. A imagem vai antes pelo `POST /api/fotos` (seção 8), e aqui vai só o endereço que ele devolveu.
+**Acesso:** Somente Usuario (o abrigo usa `PUT /api/abrigos/me/foto`, igual). **Origem:** pedido da equipe pra apresentação (fora da ERS)
+
+**Entrada**
+
+```json
+{ "fotoUrl": "https://adota-aqui-fotos.s3.us-east-2.amazonaws.com/animais/9c1e....jpg" }
+```
+
+`null` ou vazio tira a foto.
+
+**Saída (`200 OK`):** o perfil inteiro, como no `GET /api/usuarios/me`, com o `fotoUrl` novo.
+
+**Regras**
+
+- Só entra foto que passou pelo `POST /api/fotos` (o mesmo bucket e o mesmo formato de nome). Endereço de outro site: `400` com `campos.fotoUrl` "Envie a foto pelo próprio site", porque a foto aparece pra todo mundo no card dos animais.
+- A foto que saiu (trocada ou tirada) é apagada do bucket depois de salvar, se nada mais usa ela.
+- A foto aparece no topo do site (no lugar das iniciais), no card e no perfil dos animais da conta, na página de abrigos e protetores e como organizador das feiras (`fotoUrl` dentro de `protetor`). O login também devolve o `fotoUrl`.
+
+**Erros:** `400` foto que não foi enviada pelo site ou endereço com mais de 500 caracteres; `401` sem token; `403` conta do tipo Abrigo (use a rota de abrigo).
+
+---
+
 ### PATCH /api/usuarios/me/senha
 
 Troca a senha do Usuario logado.
@@ -479,7 +521,7 @@ Troca a senha do Usuario logado.
 
 ---
 
-### GET /api/abrigos/me, PUT /api/abrigos/me e PATCH /api/abrigos/me/senha
+### GET /api/abrigos/me, PUT /api/abrigos/me, PUT /api/abrigos/me/foto e PATCH /api/abrigos/me/senha
 
 Iguais aos endpoints de Usuario acima, para a conta do Abrigo logado.
 **Acesso:** Somente Abrigo. **Origem:** RF17, UC10
@@ -552,7 +594,8 @@ Usado nas respostas de `GET /api/animais/{id}`, `POST /api/animais` e `PUT /api/
   },
   "ehMeu": false,
   "podeDemonstrarInteresse": true,
-  "meuInteresse": null
+  "meuInteresse": null,
+  "cadastradoEm": "2026-08-10"
 }
 ```
 
@@ -565,6 +608,7 @@ Usado nas respostas de `GET /api/animais/{id}`, `POST /api/animais` e `PUT /api/
 | `podeDemonstrarInteresse` | `true` só quando: a conta é Usuario, o animal está `DISPONIVEL`, o animal é do mesmo estado do Usuario, o Usuario não é o protetor e ainda não tem interesse ativo nele. O front mostra o botão "Quero conhecer {nome}" com base neste campo, sem repetir as regras |
 | `meuInteresse`            | Para Usuario logado com interesse neste animal: `{ "id": "...", "statusAndamento": "PENDENTE" }`. Nos demais casos, `null`. O front troca o botão por "Desistir da adoção" quando o interesse está `PENDENTE` ou `EM_CONTATO` (UC07, passo 6)                       |
 | `racaNome`                | Nome da raça pronto pra exibir na tela. Assim o front não precisa guardar a lista das raças                                                                                                                                                                         |
+| `cadastradoEm`            | O dia em que o animal entrou no site. Com 1 mês ou mais, o front mostra o selo "Esperando há 3 meses" no card e no perfil |
 
 ---
 
@@ -603,7 +647,7 @@ Lista os animais disponíveis para adoção, com filtros.
 - Só aparecem animais com status `DISPONIVEL`.
 - **Usuario logado:** vê só os animais que estão no **mesmo estado** que o seu (RF14). Vale o `estado` do animal, não o do protetor. Esse filtro é automático e não pode ser removido.
 - **Visitante e Abrigo:** veem animais de **todos os estados** (RF07, RF14).
-- **Ordem:** do cadastrado mais recente pro mais antigo.
+- **Ordem:** do cadastrado mais recente pro mais antigo. Com `ordem=MAIS_ANTIGOS`, o contrário: primeiro quem espera um lar há mais tempo.
 - **Paginação:** a resposta vem em páginas. Sem parâmetro nenhum, vem a primeira página, com até 12 animais.
 
 **Filtros** (todos opcionais, combináveis, passados na URL)
@@ -620,6 +664,7 @@ Lista os animais disponíveis para adoção, com filtros.
 | `convivenciaGato`    | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                                                                                                      |
 | `convivenciaCao`     | `CONVIVE_BEM`, `NAO_CONVIVE_BEM`, `NAO_TESTADO`                                                                                                                                      |
 | `energia`            | `MAIS_ANIMADO`, `MAIS_CALMO`                                                                                                                                                         |
+| `ordem`              | `MAIS_NOVOS` (padrão) ou `MAIS_ANTIGOS` |
 | `pagina`             | Número da página, começando em `0`. Padrão: `0`                                                                                                                                      |
 | `tamanho`            | Animais por página, de `1` a `48`. Padrão: `12`                                                                                                                                      |
 
@@ -654,7 +699,8 @@ Exemplo: `GET /api/animais?especie=GATO&porte=PEQUENO&convivenciaCrianca=CONVIVE
         "nome": "Instituto Quatro Patas",
         "cidade": "Santo André",
         "estado": "SP"
-      }
+      },
+      "cadastradoEm": "2026-08-10"
     }
   ],
   "pagina": 1,
@@ -670,7 +716,7 @@ A listagem traz peso, castração, convivência, energia e status porque o card 
 
 Nenhum animal encontrado: `200 OK` com `itens` vazio e `totalItens` igual a `0`. O front exibe "Nenhum animal disponível no seu estado no momento" (sem filtros, UC06 FA01) ou "Nenhum resultado encontrado com essas informações" (com filtros, UC06 FA02).
 
-**Erros:** `400` valor de filtro inválido (ex.: `porte=ENORME`), ou `pagina` e `tamanho` fora dos limites, com `campos`; `401` token enviado, porém inválido ou expirado.
+**Erros:** `400` valor de filtro ou de ordem inválido (ex.: `porte=ENORME`), ou `pagina` e `tamanho` fora dos limites, com `campos`; `401` token enviado, porém inválido ou expirado.
 
 ---
 
@@ -976,7 +1022,7 @@ A desistência apaga o interesse (`DELETE /api/interesses/{id}`), então ele som
 Desistência: o candidato exclui o próprio interesse.
 **Acesso:** Candidato do interesse. **Origem:** UC07 FA01
 
-Sem corpo. Ver [Pontos em aberto](#14-pontos-em-aberto) sobre o motivo da desistência.
+Sem corpo. Ver [Pontos em aberto](#16-pontos-em-aberto) sobre o motivo da desistência.
 
 **Saída (`204 No Content`)**
 
@@ -1080,6 +1126,24 @@ Os números do site que aparecem na página inicial.
 | `abrigos`            | Contas de Abrigo                                                                                                                                                  |
 
 **Erros:** `401` token enviado, porém inválido ou expirado (como nas outras rotas públicas).
+
+### GET /api/estatisticas/estados
+
+Os mesmos números, estado por estado, pro Observatório da adoção.
+**Acesso:** Público. **Origem:** ERS, escopo futuro 6.8 (dados pra políticas públicas)
+
+**Saída (`200 OK`):** sempre os 27 estados, na ordem das siglas. Estado sem nada vem com zero.
+
+```json
+[
+  { "estado": "AC", "adocoes": 0, "animaisDisponiveis": 0, "abrigos": 0 },
+  { "estado": "RO", "adocoes": 3, "animaisDisponiveis": 12, "abrigos": 2 }
+]
+```
+
+As contas são as mesmas do `GET /api/estatisticas`. Animais e adoções contam no estado onde o animal está (o `estado` do animal); abrigos, no estado do endereço do abrigo.
+
+**Erros:** `401` token enviado, porém inválido ou expirado.
 
 ---
 
@@ -1345,7 +1409,187 @@ A ordem é a do dicionário: nome com acento entra junto com os outros da mesma 
 
 ---
 
-## 14. Pontos em aberto
+## 14. Feiras de adoção
+
+O dia, o horário e o lugar em que um abrigo leva os animais pra conhecer quem quer adotar. Só abrigo divulga feira, e qualquer pessoa vê as que ainda vão acontecer. A feira acontece num dia só, e o horário é o da cidade dela.
+
+### Formato da feira
+
+```json
+{
+  "id": "4f1c2d3e-0000-4000-8000-000000000001",
+  "titulo": "Feira de adoção do Parque da Cidade",
+  "descricao": "Cães e gatos castrados e vacinados. Traga um documento com foto.",
+  "data": "2026-11-21",
+  "horaInicio": "09:00:00",
+  "horaFim": "13:00:00",
+  "local": "Parque da Cidade",
+  "endereco": "Avenida Jorge Teixeira, 1000, Embratel",
+  "cidade": "Porto Velho",
+  "estado": "RO",
+  "abrigo": {
+    "nome": "Instituto Quatro Patas",
+    "cidade": "Porto Velho",
+    "estado": "RO"
+  },
+  "ehMinha": false
+}
+```
+
+| Campo         | O que é |
+| ------------- | ------- |
+| `descricao`   | Opcional, até 1000 caracteres. Texto puro. Sem descrição, vem `null` |
+| `local`       | O nome do lugar ("Praça Central", "Pet Shop Amigo Fiel"). No banco, a coluna é `lugar` |
+| `abrigo`      | Quem organiza, com o mesmo que a vitrine mostra do protetor. E-mail e telefone não aparecem |
+| `ehMinha`     | `true` se quem está logado é o abrigo que divulgou. O front usa pra mostrar "Editar" e "Apagar" |
+
+### GET /api/feiras
+
+As feiras de hoje em diante, da mais próxima pra mais distante (data e depois hora de início), em páginas (`pagina` e `tamanho`, como no `GET /api/animais`). A feira de hoje continua na lista até o fim do dia, no horário de Brasília.
+**Acesso:** Público
+
+| Parâmetro | Valores |
+| --------- | ------- |
+| `estado`  | Sigla do estado (`RO`, `SP`) |
+| `cidade`  | Texto, até 80 caracteres. Basta conter o que foi digitado, sem diferenciar maiúsculas nem acentos, como na vitrine |
+| `pagina`  | Número da página, começando em `0`. Padrão: `0` |
+| `tamanho` | Feiras por página, de `1` a `48`. Padrão: `12` |
+
+**Saída (`200 OK`):** `{ itens, pagina, tamanho, totalItens, totalPaginas }`, com as feiras no formato acima.
+
+**Erros:** `400` estado que não existe, cidade longa demais, ou `pagina` e `tamanho` fora dos limites; `401` token enviado, porém inválido ou expirado.
+
+### GET /api/feiras/{id}
+
+Uma feira, mesmo que já tenha passado (o formulário de edição usa).
+**Acesso:** Público. **Erros:** `404` "Feira não encontrada".
+
+### GET /api/feiras/minhas
+
+Todas as feiras do abrigo logado, inclusive as que já passaram, da mais nova pra mais antiga. Devolve uma lista, sem páginas.
+**Acesso:** Somente Abrigo. **Erros:** `401` sem token; `403` "Só abrigos divulgam feiras de adoção".
+
+### POST /api/feiras
+
+**Acesso:** Somente Abrigo.
+
+**Entrada**
+
+```json
+{
+  "titulo": "Feira de adoção do Parque da Cidade",
+  "descricao": "Cães e gatos castrados e vacinados.",
+  "data": "2026-11-21",
+  "horaInicio": "09:00",
+  "horaFim": "13:00",
+  "local": "Parque da Cidade",
+  "endereco": "Avenida Jorge Teixeira, 1000, Embratel",
+  "cidade": "Porto Velho",
+  "estado": "RO"
+}
+```
+
+| Campo | Regra |
+| ----- | ----- |
+| `titulo` | Obrigatório, de 5 a 120 caracteres |
+| `data` | Obrigatória. Não pode ter passado ("A data da feira já passou") |
+| `horaInicio`, `horaFim` | Obrigatórias, no formato `HH:mm`. O fim vem depois do início ("A feira deve terminar depois de começar") |
+| `local`, `endereco`, `cidade` | Obrigatórios, até 120, 200 e 80 caracteres |
+| `estado` | Obrigatório, sigla de um estado que existe |
+| `descricao` | Opcional, até 1000 caracteres. Em branco vira `null` |
+
+**Saída (`201 Created`):** a feira, com o header `Location: /api/feiras/{id}`.
+
+**Erros:** `400` com `campos` (inclusive `data` e `horaFim` das regras acima); `401` sem token; `403` "Só abrigos divulgam feiras de adoção" pra conta de pessoa física.
+
+### PUT /api/feiras/{id}
+
+Manda todos os campos de novo, com as mesmas regras do `POST`.
+**Acesso:** o abrigo que divulgou. **Saída (`200 OK`):** a feira.
+**Erros:** `400` como no `POST`; `401` sem token; `403` "Somente o abrigo que divulgou pode alterar ou apagar a feira"; `404` a feira não existe.
+
+### DELETE /api/feiras/{id}
+
+**Acesso:** o abrigo que divulgou. **Saída:** `204 No Content`.
+**Erros:** `401` sem token; `403` feira de outra conta; `404` a feira não existe.
+
+---
+
+## 15. Inteligência artificial
+
+Duas ajudas com IA, pelo Gemini (Google), sempre com uma pessoa decidindo no fim. A IA só funciona com a variável `GEMINI_API_KEY` no servidor ([deploy](deploy.md#variáveis-de-ambiente)). Sem ela, `disponivel` é `false`, o front esconde os botões e as outras duas rotas respondem `503`.
+
+Cada conta (ou endereço, pra visitante) pode pedir até 15 vezes por hora (`IA_LIMITE_POR_HORA`). Passou disso, `429` "Você já usou a IA muitas vezes nesta hora. Tente de novo mais tarde.".
+
+### GET /api/ia/disponivel
+
+**Acesso:** Público. **Saída (`200 OK`):** `{ "disponivel": true }`
+
+### POST /api/ia/descricao
+
+Sugere a apresentação do animal a partir do que o protetor preencheu no formulário, mesmo antes de salvar. O texto não é salvo: o front mostra a sugestão, e o protetor escolhe se usa e edita.
+**Acesso:** Autenticado (quem cadastra animal).
+
+**Entrada:** os campos do formulário que já estiverem preenchidos. Só `nome` e `especie` são obrigatórios.
+
+```json
+{
+  "nome": "Mel",
+  "especie": "CAO",
+  "sexo": "FEMEA",
+  "porte": "MEDIO",
+  "raca": "SRD_CAO",
+  "dataNascEstimada": "2024-03-01",
+  "castrado": true,
+  "energia": "MAIS_CALMO",
+  "convivenciaCrianca": "CONVIVE_BEM",
+  "convivenciaCao": "CONVIVE_BEM",
+  "convivenciaGato": "NAO_TESTADO",
+  "vacinas": ["V10"],
+  "cidade": "Porto Velho",
+  "estado": "RO",
+  "rascunho": "Foi achada na chuva e adora colo"
+}
+```
+
+**Saída (`200 OK`):** `{ "texto": "A Mel é uma cadela de porte médio..." }`, com até 2000 caracteres, sem markdown e sem travessão.
+
+**Erros:** `400` sem nome ou espécie; `401` sem token; `429` limite de uso; `503` IA desligada ou fora do ar.
+
+### POST /api/ia/sugestoes
+
+A pessoa conta a rotina e recebe até 3 animais disponíveis que combinam com ela, cada um com o motivo.
+**Acesso:** Público. Pra pessoa física logada, os animais são do estado do perfil (como na vitrine, RF14). Pra visitante e abrigo, do `estado` enviado, ou de todos os estados.
+
+**Entrada**
+
+```json
+{ "rotina": "Moro em apartamento e trabalho fora de manhã.", "estado": "RO" }
+```
+
+| Campo    | Regra |
+| -------- | ----- |
+| `rotina` | Obrigatória, de 15 a 600 caracteres |
+| `estado` | Opcional, sigla de um estado que existe |
+
+**Saída (`200 OK`)**
+
+```json
+{
+  "sugestoes": [
+    { "animal": { "id": "...", "nome": "Mel", "...": "o mesmo formato de um item do GET /api/animais" }, "motivo": "É calma e convive bem com crianças." }
+  ],
+  "conselho": "Antes de adotar, combine com a família quem vai cuidar do animal."
+}
+```
+
+Como a IA não inventa animal: o back manda pra ela uma lista numerada com até 40 animais disponíveis (só o que já aparece no perfil público, nada do protetor) e só aceita de volta números dessa lista, sem repetir, no máximo 3. Animal adotado ou removido enquanto a IA escrevia sai da resposta. Sem nenhum animal disponível no estado, a IA nem é chamada e o `conselho` explica.
+
+**Erros:** `400` rotina curta ou longa demais, ou estado que não existe; `429` limite de uso; `503` IA desligada, fora do ar ou com resposta que o site não entendeu.
+
+---
+
+## 16. Pontos em aberto
 
 Decisões que o contrato precisou assumir antes da implementação. As que a implementação já resolveu estão na primeira tabela; ao decidir uma das que faltam, atualize o endpoint correspondente e mova o item.
 

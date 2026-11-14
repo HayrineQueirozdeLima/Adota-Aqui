@@ -4,8 +4,10 @@ import com.adotaaqui.dto.AbrigoResponse;
 import com.adotaaqui.dto.AlterarSenhaRequest;
 import com.adotaaqui.dto.AtualizarAbrigoRequest;
 import com.adotaaqui.dto.AtualizarUsuarioRequest;
+import com.adotaaqui.dto.FotoDoPerfilRequest;
 import com.adotaaqui.dto.UsuarioResponse;
 import com.adotaaqui.service.PerfilService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 // Perfil da conta (docs/api.md, seção 7). O "me" fica no lugar do id: a API sabe a conta pelo token.
 // Todos precisam de login: o "anyRequest().authenticated()" do SecurityConfig já cobre, sem token é 401
+@Tag(name = "Perfil da conta", description = "Ver e editar os dados da conta logada, e trocar a senha")
 @RestController
 @RequestMapping("/api")
 public class PerfilController {
@@ -38,6 +41,12 @@ public class PerfilController {
         return service.atualizarUsuario(request, conta);
     }
 
+    // Foto de perfil: primeiro o POST /api/fotos, depois este, com o endereço que ele devolveu
+    @PutMapping("/usuarios/me/foto")
+    public UsuarioResponse alterarFotoUsuario(@Valid @RequestBody FotoDoPerfilRequest request, Authentication conta) {
+        return service.alterarFotoUsuario(request, conta);
+    }
+
     @PatchMapping("/usuarios/me/senha")
     public ResponseEntity<Void> alterarSenhaUsuario(@Valid @RequestBody AlterarSenhaRequest request,
                                                     Authentication conta) {
@@ -54,6 +63,11 @@ public class PerfilController {
     public AbrigoResponse atualizarAbrigo(@Valid @RequestBody AtualizarAbrigoRequest request,
                                           Authentication conta) {
         return service.atualizarAbrigo(request, conta);
+    }
+
+    @PutMapping("/abrigos/me/foto")
+    public AbrigoResponse alterarFotoAbrigo(@Valid @RequestBody FotoDoPerfilRequest request, Authentication conta) {
+        return service.alterarFotoAbrigo(request, conta);
     }
 
     @PatchMapping("/abrigos/me/senha")

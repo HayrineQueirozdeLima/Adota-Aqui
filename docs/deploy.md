@@ -11,7 +11,9 @@ Como o sistema vai pro ar e como subir tudo de novo, do zero, numa conta nova. A
 | Banco de dados    | Neon (PostgreSQL)  | As tabelas, que o Hibernate cria a partir das entidades | O projeto e a senha                                           |
 | Fotos dos animais | Amazon S3          | Nada                                                    | O bucket, a política de leitura pública e o usuário que grava |
 
-Endereços: o site em https://adotaaqui.netlify.app e a API em https://adota-aqui.onrender.com.
+Endereços: o site em https://adotaaqui.netlify.app, a API em https://adota-aqui.onrender.com e a documentação da API (Swagger) em https://adota-aqui.onrender.com/swagger-ui.html.
+
+Pra rodar tudo na própria máquina sem instalar nada além do Docker, tem o `docker-compose.yml` na raiz (banco, back e front, com `docker compose up --build`). Ele é só pra rodar local: no ar, o Render usa o `backend/Dockerfile` e o Netlify builda o front sozinho. O passo a passo está no [README](../README.md#rodar-com-docker). O CI builda as imagens a cada PR (job `docker`), pra ninguém quebrar o Docker sem perceber.
 
 ## Quando o deploy acontece
 
@@ -39,6 +41,11 @@ Endereços: o site em https://adotaaqui.netlify.app e a API em https://adota-aqu
 | `JWT_EXPIRATION_MS`                           | Não         | Validade do token. Padrão: 24 horas (`86400000`)                                                                                                           |
 | `S3_ENDPOINT`                                 | Não         | Só pra usar outro serviço compatível com S3 no lugar da AWS                                                                                                |
 | `PORT`                                        | Não         | O Render preenche sozinho                                                                                                                                  |
+| `GEMINI_API_KEY`                              | Não         | Chave da IA, criada no Google AI Studio (aistudio.google.com/apikey), no nível gratuito e sem faturamento. Sem ela, a IA fica desligada e os botões de IA não aparecem |
+| `GEMINI_MODELO`                               | Não         | Modelo do Gemini. Padrão: `gemini-3.8-flash`                                                                                                                |
+| `IA_LIMITE_POR_HORA`                          | Não         | Quantos pedidos à IA cada conta (ou endereço, pra visitante) faz por hora. Padrão: `15`                                                                     |
+
+A IA é opcional: sem `GEMINI_API_KEY` o back sobe normal, e o log mostra "IA desligada". Com a chave, o log mostra "IA ligada" e o `GET /api/ia/disponivel` responde `{"disponivel": true}`. A chave fica só no Render, nunca no repositório nem em mensagem.
 
 Sem `JWT_SECRET`, `FOTOS_ARMAZENAMENTO=s3` ou `CORS_ORIGENS`, o back **não sobe** quando está ligado num banco de produção, e o log diz qual variável falta (`config/ConferenciaDoDeploy`). Isso evita, por exemplo, subir com a chave de desenvolvimento que está no repositório, com a qual qualquer pessoa conseguiria criar um token válido.
 
@@ -127,6 +134,7 @@ Quando terminar, abra `https://<seu-servico>.onrender.com/api/racas?especie=CAO`
 ### 5. Conferir
 
 - [ ] `/api/racas?especie=CAO` responde a lista (o primeiro acesso depois de um tempo parado pode levar 1 minuto)
+- [ ] `/swagger-ui.html` abre a documentação da API, com todas as seções
 - [ ] O site abre e a vitrine carrega, sem erro de CORS no console do navegador (F12)
 - [ ] Recarregar a página em `/animais` não dá 404
 - [ ] Dá pra criar uma conta de pessoa física e uma de abrigo

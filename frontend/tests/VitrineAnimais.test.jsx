@@ -274,6 +274,45 @@ describe("busca na API", () => {
   });
 });
 
+describe("ordem da vitrine", () => {
+  test("começa pelos mais recentes e pode mostrar primeiro quem espera há mais tempo", async () => {
+    renderizar();
+    await nomesNaTela();
+    expect(screen.getByLabelText("Ordenar por")).toHaveDisplayValue("Mais recentes");
+
+    escolher("Ordenar por", "MAIS_ANTIGOS");
+
+    await waitFor(() =>
+      expect(ultimaBuscaDeAnimais().parametros).toEqual({ ordem: "MAIS_ANTIGOS" }),
+    );
+    // A ordem não é filtro: não aparece o "Limpar filtros"
+    expect(screen.queryByRole("button", { name: "Limpar filtros" })).toBeNull();
+  });
+
+  test("limpar os filtros mantém a ordem escolhida", async () => {
+    renderizar();
+    await nomesNaTela();
+
+    escolher("Ordenar por", "MAIS_ANTIGOS");
+    clicar("Gatos");
+    await waitFor(() =>
+      expect(ultimaBuscaDeAnimais().parametros).toEqual({
+        ordem: "MAIS_ANTIGOS",
+        especie: "GATO",
+      }),
+    );
+
+    clicar("Limpar filtros");
+
+    await waitFor(() =>
+      expect(ultimaBuscaDeAnimais().parametros).toEqual({ ordem: "MAIS_ANTIGOS" }),
+    );
+    expect(screen.getByLabelText("Ordenar por")).toHaveDisplayValue(
+      "Esperando há mais tempo",
+    );
+  });
+});
+
 describe("quem está vendo", () => {
   test("visitante: busca sem token e é convidado a entrar", async () => {
     renderizar();

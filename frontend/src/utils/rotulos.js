@@ -82,6 +82,20 @@ export function haQuantoTempo(dataHora, agora = new Date()) {
     return `em ${formatarData(data)}`;
 }
 
+// Selo de quem espera um lar há pelo menos 1 mês, contado da data em que o animal entrou no site:
+// "Esperando há 1 mês", "Esperando há 2 anos". Com menos de 1 mês, não tem selo (null)
+export function tempoEsperando(cadastradoEm, hoje = new Date()) {
+    if (!cadastradoEm) return null;
+    const [ano, mes, dia] = cadastradoEm.slice(0, 10).split('-').map(Number);
+    let meses = (hoje.getFullYear() - ano) * 12 + (hoje.getMonth() + 1 - mes);
+    if (hoje.getDate() < dia) meses -= 1;
+
+    if (meses < 1) return null;
+    if (meses < 12) return `Esperando há ${meses} ${meses === 1 ? 'mês' : 'meses'}`;
+    const anos = Math.floor(meses / 12);
+    return `Esperando há ${anos} ${anos === 1 ? 'ano' : 'anos'}`;
+}
+
 // Idade a partir da data de nascimento estimada: "8 meses", "2 anos"
 export function idadeEstimada(dataNascimento, hoje = new Date()) {
     if (!dataNascimento) return null;

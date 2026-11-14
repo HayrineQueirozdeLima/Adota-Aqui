@@ -1,12 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Botao from "../Botao/Botao";
 import CardAnimal from "../CardAnimal/CardAnimal";
+import Revelar from "../Revelar/Revelar";
 import Carregando from "../Carregando/Carregando";
 import FiltrosAnimais from "../FiltrosAnimais/FiltrosAnimais";
+import SetaSelecao from "../SetaSelecao/SetaSelecao";
 import { useAuth } from "../../contexts/AuthContext";
 import { useValorAtrasado } from "../../hooks/useValorAtrasado";
-import { filtrosVazios, listarAnimais } from "../../services/animais";
+import {
+  filtrosVazios,
+  listarAnimais,
+  temFiltroLigado,
+} from "../../services/animais";
 import fotoNenhumAnimal from "../../assets/fotos/nenhum-animal.webp";
 
 // Tempo sem mexer nos filtros antes de buscar (evita uma busca por letra digitada na cidade)
@@ -121,7 +127,7 @@ export default function VitrineAnimais({ aoCarregar, nivelDoTitulo, buscaInicial
     setFiltros(novos);
   }
 
-  const temFiltro = Object.values(filtros).some(Boolean);
+  const temFiltro = temFiltroLigado(filtros);
 
   // Pro leitor de tela: depois de cada busca, avisa quantos animais vieram
   let quantos = "";
@@ -204,7 +210,9 @@ export default function VitrineAnimais({ aoCarregar, nivelDoTitulo, buscaInicial
           {temFiltro && (
             <Botao
               variante="secundario"
-              onClick={() => mudarFiltros(filtrosVazios)}
+              onClick={() =>
+                mudarFiltros({ ...filtrosVazios, ordem: filtros.ordem })
+              }
               className="mt-4"
             >
               Ver todos os animais
@@ -222,12 +230,11 @@ export default function VitrineAnimais({ aoCarregar, nivelDoTitulo, buscaInicial
           ref={grade}
           className="grid grid-cols-[repeat(auto-fill,minmax(16.25rem,1fr))] gap-[22px]"
         >
-          {animais.map((animal) => (
-            <CardAnimal
-              key={animal.id}
-              animal={animal}
-              nivelDoTitulo={nivelDoTitulo}
-            />
+          {/* Cada card sobe quando entra na tela, um pouquinho depois do vizinho da esquerda */}
+          {animais.map((animal, posicao) => (
+            <Revelar key={animal.id} ordem={posicao % 4}>
+              <CardAnimal animal={animal} nivelDoTitulo={nivelDoTitulo} />
+            </Revelar>
           ))}
         </div>
 
@@ -256,7 +263,13 @@ export default function VitrineAnimais({ aoCarregar, nivelDoTitulo, buscaInicial
 
   return (
     <section className="flex flex-col gap-[18px]">
-      <p className="text-legenda text-texto-terciario">{avisoDoTopo()}</p>
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <p className="text-legenda text-texto-terciario">{avisoDoTopo()}</p>
+        <OrdemDaVitrine
+          valor={filtros.ordem}
+          aoMudar={(ordem) => mudarFiltros({ ...filtros, ordem })}
+        />
+      </div>
 
       <FiltrosAnimais filtros={filtros} aoMudar={mudarFiltros} />
 
@@ -266,5 +279,29 @@ export default function VitrineAnimais({ aoCarregar, nivelDoTitulo, buscaInicial
 
       {mostrarResultado()}
     </section>
+  );
+}
+
+// Ordem da vitrine. Fica fora da barra de filtros porque não esconde nenhum animal, só muda a ordem
+function OrdemDaVitrine({ valor, aoMudar }) {
+  const id = useId();
+  return (
+    <div className="flex items-center gap-2">
+      <label htmlFor={id} className="text-legenda text-texto-terciario">
+        Ordenar por
+      </label>
+      <div className="relative inline-flex">
+        <select
+          id={id}
+          value={valor}
+          onChange={(evento) => aoMudar(evento.target.value)}
+          className="appearance-none rounded-full border border-borda-sutil bg-fundo-superficie py-2 pl-4 pr-10 font-titulo text-campo font-semibold text-texto-principal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-marca-roxo"
+        >
+          <option value="">Mais recentes</option>
+          <option value="MAIS_ANTIGOS">Esperando há mais tempo</option>
+        </select>
+        <SetaSelecao className="right-4 text-texto-principal" />
+      </div>
+    </div>
   );
 }

@@ -1,8 +1,10 @@
+import Avatar from "../../components/Avatar/Avatar";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import AvisoPagina from "../../components/AvisoPagina/AvisoPagina";
 import Botao from "../../components/Botao/Botao";
 import Carregando from "../../components/Carregando/Carregando";
+import CompartilharAnimal from "../../components/CompartilharAnimal/CompartilharAnimal";
 import GaleriaFotos from "../../components/GaleriaFotos/GaleriaFotos";
 import Tag from "../../components/Tag/Tag";
 import { useAuth } from "../../contexts/AuthContext";
@@ -15,14 +17,15 @@ import {
   descricaoDaVacina,
   especies,
   idadeEstimada,
-  iniciais,
   localDoAnimal,
   portes,
   rotuloCastrado,
   rotuloEnergia,
   sexos,
   statusDoInteresse,
+  tempoEsperando,
 } from "../../utils/rotulos";
+import { linkDasClinicas } from "../../utils/clinicas";
 import fotoNaoEncontrado from "../../assets/fotos/pagina-nao-encontrada.webp";
 import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 
@@ -127,8 +130,11 @@ function Perfil({ animal, usuario, aoMudar }) {
     fotos,
     vacinas,
     statusAdocao,
+    cadastradoEm,
   } = animal;
   const a = artigoDefinido(sexo);
+  const adotado = statusAdocao === "ADOTADO";
+  const esperando = adotado ? null : tempoEsperando(cadastradoEm);
   const idade = idadeEstimada(dataNascEstimada);
 
   const caracteristicas = [
@@ -162,11 +168,12 @@ function Perfil({ animal, usuario, aoMudar }) {
         <h1 className="font-titulo text-secao font-semibold text-texto-principal">
           {nome}
         </h1>
-        {statusAdocao === "ADOTADO" ? (
+        {adotado ? (
           <Tag>Adotado</Tag>
         ) : (
           <Tag variante="disponivel">Disponível</Tag>
         )}
+        {esperando && <Tag variante="destaqueRoxo">{esperando}</Tag>}
       </div>
       {/* Onde o animal está. Pode ser diferente do endereço do protetor, que aparece no cartão do lado */}
       <p className="mt-1.5 text-compacto text-texto-secundario">
@@ -232,9 +239,22 @@ function Perfil({ animal, usuario, aoMudar }) {
             usuario={usuario}
             aoMudar={aoMudar}
           />
+          {/* Adotado só aparece pro protetor, e aí não tem por que divulgar */}
+          {!adotado && <CompartilharAnimal animal={animal} />}
           <p className="rounded-[16px] bg-status-atencao-fundo px-5 py-4 text-compacto text-status-atencao-texto">
             <strong>Guarda responsável é obrigatória.</strong> Maus-tratos e
             abandono são crimes no Brasil (Leis nº 9.605/1998 e nº 14.064/2020).
+          </p>
+          {/* Leva pro mapa já na cidade do animal */}
+          <p className="rounded-[16px] border border-borda-sutil bg-fundo-superficie px-5 py-4 text-compacto text-texto-secundario">
+            Vai adotar? Veja as{" "}
+            <Link
+              to={linkDasClinicas(animal)}
+              className="font-semibold text-marca-roxo underline"
+            >
+              clínicas veterinárias perto de {localDoAnimal(animal)}
+            </Link>
+            .
           </p>
         </aside>
       </div>
@@ -411,12 +431,11 @@ function CartaoInteresse({ animal, usuario, aoMudar }) {
       <hr className="my-4 border-borda-sutil" />
 
       <div className="flex items-center gap-3">
-        <span
-          aria-hidden="true"
-          className="flex size-10 shrink-0 items-center justify-center rounded-full bg-marca-roxo-suave font-titulo font-semibold text-campo text-marca-roxo"
-        >
-          {iniciais(protetor.nome)}
-        </span>
+        <Avatar
+          nome={protetor.nome}
+          fotoUrl={protetor.fotoUrl}
+          className="size-10 bg-marca-roxo-suave text-campo text-marca-roxo"
+        />
         <div>
           <p className="font-titulo font-semibold text-texto-principal">
             {protetor.nome}

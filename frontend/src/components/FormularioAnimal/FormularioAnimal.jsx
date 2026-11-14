@@ -3,6 +3,7 @@ import Botao from "../Botao/Botao";
 import CampoSelecao from "../CampoSelecao/CampoSelecao";
 import CampoTexto from "../CampoTexto/CampoTexto";
 import EnvioFotos from "../EnvioFotos/EnvioFotos";
+import EscreverComIa from "../EscreverComIa/EscreverComIa";
 import GrupoOpcoes from "../GrupoOpcoes/GrupoOpcoes";
 import ListaVacinas from "../ListaVacinas/ListaVacinas";
 import Tag from "../Tag/Tag";
@@ -398,6 +399,12 @@ export default function FormularioAnimal({
               >
                 {erros.historia}
               </p>
+            )}
+            {!travado && (
+              <EscreverComIa
+                valores={valores}
+                aoUsar={(texto) => mudar("historia", texto)}
+              />
             )}
           </Cartao>
         </fieldset>

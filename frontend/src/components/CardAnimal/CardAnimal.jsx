@@ -1,3 +1,4 @@
+import Avatar from "../Avatar/Avatar";
 import Botao from "../Botao/Botao";
 import Tag from "../Tag/Tag";
 import {
@@ -6,9 +7,9 @@ import {
   resumoDoAnimal,
   rotuloCastrado,
   rotuloEnergia,
-  iniciais,
   corDaConvivencia,
   localDoAnimal,
+  tempoEsperando,
 } from "../../utils/rotulos";
 
 // card da listagem de animais (Home e /animais)
@@ -18,6 +19,8 @@ export default function CardAnimal({ animal, nivelDoTitulo = 3 }) {
   const Titulo = `h${nivelDoTitulo}`;
   const { id, nome, sexo, castrado, energia, convivencia, fotoCapa, protetor } =
     animal;
+  // "Esperando há 3 meses", pra quem está no site há pelo menos 1 mês
+  const esperando = tempoEsperando(animal.cadastradoEm);
 
   // "Cão, sem raça definida, porte médio, 14 kg"
   const descricao = resumoDoAnimal(animal);
@@ -36,15 +39,21 @@ export default function CardAnimal({ animal, nivelDoTitulo = 3 }) {
   ];
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-[16px] border border-borda-sutil bg-fundo-superficie">
+    <article className="group flex flex-col overflow-hidden rounded-[16px] border border-borda-sutil bg-fundo-superficie">
       {/* Foto quadrada, pra não cortar o animal quando o card fica largo.
-          Enquanto não tiver foto, fica o fundo roxo-suave com o aviso "Sem foto" */}
-      <div className="flex aspect-square items-center justify-center bg-marca-roxo-suave">
+          Enquanto não tiver foto, fica o fundo roxo-suave com o aviso "Sem foto".
+          Com o mouse em cima do card, a foto chega um pouquinho mais perto */}
+      <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-marca-roxo-suave">
+        {esperando && (
+          <span className="absolute left-3 top-3 rounded-full bg-fundo-superficie px-3 py-1.5 font-titulo text-legenda font-semibold text-marca-roxo shadow-sm">
+            {esperando}
+          </span>
+        )}
         {fotoCapa ? (
           <img
             src={fotoCapa}
             alt={`Foto de ${nome}`}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover transition-transform duration-500 ease-out motion-safe:group-hover:scale-[1.04]"
           />
         ) : (
           <span className="text-legenda text-texto-secundario">Sem foto</span>
@@ -77,9 +86,11 @@ export default function CardAnimal({ animal, nivelDoTitulo = 3 }) {
           <hr className="border-borda-sutil" />
 
           <div className="flex items-center gap-2.5">
-            <span className="flex size-8 items-center justify-center rounded-full bg-marca-roxo-suave font-titulo font-semibold text-campo text-marca-roxo">
-              {iniciais(protetor.nome)}
-            </span>
+            <Avatar
+              nome={protetor.nome}
+              fotoUrl={protetor.fotoUrl}
+              className="size-8 bg-marca-roxo-suave text-campo text-marca-roxo"
+            />
             <div>
               <p className="font-titulo font-semibold text-campo text-texto-principal">
                 {protetor.nome}

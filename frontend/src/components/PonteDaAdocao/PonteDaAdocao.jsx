@@ -1,4 +1,5 @@
 import { FormaDaPata } from "../Pata/Pata";
+import { pegadasNaCurva } from "../../utils/curva";
 
 // Desenho do topo do Quem somos: o Adota Aqui é "uma ponte entre quem protege e quem quer adotar".
 // Um arco liga as duas pontas e as pegadas atravessam de um lado pro outro.
@@ -10,29 +11,12 @@ const INICIO = { x: 118, y: 150 };
 const CONTROLE = { x: 280, y: 18 };
 const FIM = { x: 442, y: 150 };
 
-// Ponto e direção do arco em t (de 0 a 1). É a conta da curva de Bézier quadrática
-function pontoNoArco(t) {
-  const u = 1 - t;
-  const x = u * u * INICIO.x + 2 * u * t * CONTROLE.x + t * t * FIM.x;
-  const y = u * u * INICIO.y + 2 * u * t * CONTROLE.y + t * t * FIM.y;
-  const dx = 2 * u * (CONTROLE.x - INICIO.x) + 2 * t * (FIM.x - CONTROLE.x);
-  const dy = 2 * u * (CONTROLE.y - INICIO.y) + 2 * t * (FIM.y - CONTROLE.y);
-  return { x, y, angulo: (Math.atan2(dy, dx) * 180) / Math.PI };
-}
-
-// Sete pegadas, alternando um pouco pra cada lado do arco, como quem anda.
-// O desenho da pata tem os dedos pra cima, por isso o giro é a direção do arco + 90 graus
-const pegadas = [0.1, 0.23, 0.36, 0.5, 0.64, 0.77, 0.9].map((t, posicao) => {
-  const { x, y, angulo } = pontoNoArco(t);
-  const lado = posicao % 2 === 0 ? -1 : 1;
-  const radianos = (angulo * Math.PI) / 180;
-  return {
-    x: x + lado * 11 * -Math.sin(radianos),
-    y: y + lado * 11 * Math.cos(radianos),
-    giro: angulo + 90,
-    atraso: 500 + posicao * 140,
-  };
-});
+// Sete pegadas, alternando um pouco pra cada lado do arco, como quem anda (a conta fica no utils/curva.js)
+const pegadas = pegadasNaCurva(
+  { inicio: INICIO, controle: CONTROLE, fim: FIM },
+  [0.1, 0.23, 0.36, 0.5, 0.64, 0.77, 0.9],
+  11,
+).map((pegada, posicao) => ({ ...pegada, atraso: 500 + posicao * 140 }));
 
 export default function PonteDaAdocao() {
   return (

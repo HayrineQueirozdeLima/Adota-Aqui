@@ -56,8 +56,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/animais/meus").authenticated()
                         // Vitrine, perfil do animal e raças: visitante também vê (RF07)
                         .requestMatchers(HttpMethod.GET, "/api/animais", "/api/animais/*", "/api/racas").permitAll()
-                        // Números da Home: visitante também vê
-                        .requestMatchers(HttpMethod.GET, "/api/estatisticas").permitAll()
+                        // Números da Home e do observatório: visitante também vê
+                        .requestMatchers(HttpMethod.GET, "/api/estatisticas", "/api/estatisticas/estados").permitAll()
                         // Mural de histórias de adoção: visitante também lê
                         .requestMatchers(HttpMethod.GET, "/api/depoimentos").permitAll()
                         // Artigos: qualquer pessoa lê. "Meus artigos" precisa de login e vem antes, como o /animais/meus
@@ -65,6 +65,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/artigos", "/api/artigos/*").permitAll()
                         // Página de abrigos e protetores: visitante também vê
                         .requestMatchers(HttpMethod.GET, "/api/protetores").permitAll()
+                        // IA: saber se está ligada e pedir sugestões de animais é aberto. Escrever a descrição precisa de login
+                        .requestMatchers(HttpMethod.GET, "/api/ia/disponivel").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/ia/sugestoes").permitAll()
+                        // Feiras de adoção: qualquer pessoa vê. "Minhas feiras" precisa de login e vem antes
+                        .requestMatchers(HttpMethod.GET, "/api/feiras/minhas").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/feiras", "/api/feiras/*").permitAll()
+                        // Swagger: a documentação da API é aberta, como o docs/api.md no GitHub.
+                        // Testar uma rota fechada pelo Swagger continua pedindo o token
+                        .requestMatchers(HttpMethod.GET, "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex

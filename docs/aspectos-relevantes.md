@@ -87,6 +87,12 @@ O blog para tutores (ERS 6.4) não tem moderação, então a regra de quem escre
 
 O texto é puro, sem HTML nem Markdown. O site separa os parágrafos pelas linhas em branco e mostra tudo como texto, então um artigo não consegue carregar um script ou um link disfarçado. Formatação mais rica pediria limpar o HTML no back, e pro tamanho de um artigo os parágrafos já resolvem.
 
+### Feira de adoção só de abrigo
+
+Feira junta muita gente e muitos animais num lugar público, e quem organiza costuma ser abrigo ou ONG. Se qualquer conta pudesse divulgar, daria pra marcar um "evento" falso pra encontrar desconhecidos, e o site não tem moderação. Por isso só a conta de abrigo divulga (o service confere, e o front esconde o botão e o formulário de quem não é abrigo), e a feira mostra do abrigo só o nome, como a vitrine.
+
+O horário da feira é o da cidade dela. O "Adicionar à agenda" manda pro Google Agenda o fuso do estado da feira, então quem mora em outro fuso vê a hora certa.
+
 ### A lista de protetores mostra só o que já é público
 
 A página de abrigos e protetores mostra o nome, a cidade, o estado, o tipo e as contagens, que é o que já aparece no card de cada animal (RF07). E-mail, telefone e documento ficam de fora, e o contato continua saindo só quando alguém demonstra interesse (RF09). Pessoa só entra na lista depois de cadastrar um animal: quem só está procurando pra adotar não aparece.
@@ -128,17 +134,53 @@ Quem consulta o ViaCEP é o navegador, e o back recebe o endereço completo (`do
 
 O que dá pra deixar no repositório fica lá: `render.yaml`, `netlify.toml` e `backend/Dockerfile`. As senhas e chaves ficam só no painel do Render. Quando o back sobe ligado no banco de produção, a `ConferenciaDoDeploy` confere se a chave do JWT, as fotos no S3 e o CORS foram configurados, e se faltar algum, ele não sobe ([deploy](deploy.md)).
 
+### Swagger junto com o contrato da API
+
+O `docs/api.md` foi escrito antes do código, como o combinado entre front e back, e é onde estão as regras e os erros de cada endpoint. O Swagger (`/swagger-ui.html`) é montado pelo springdoc a partir dos próprios controllers, então não tem como ficar diferente do que a API faz, e deixa qualquer pessoa testar os endpoints no navegador, inclusive os que pedem login (com o token no "Authorize"). Um não substitui o outro: o Swagger mostra o que existe, e o `api.md` explica o porquê.
+
+A página do Swagger é aberta, como o `api.md` no GitHub. Testar uma rota fechada por ali continua pedindo o token. O endereço da API no Swagger é relativo (`/`), porque atrás do proxy do Render ele seria montado com `http`, e o navegador bloquearia o teste numa página `https`.
+
+### Docker pra rodar tudo com um comando
+
+O back já ia pro Render numa imagem Docker (`backend/Dockerfile`). O `docker-compose.yml` junta essa imagem com um PostgreSQL e com o front servido por um nginx, pra quem for avaliar ou entrar na equipe subir o projeto inteiro com `docker compose up --build`, sem instalar Java, Maven, Node nem PostgreSQL. O front continua sendo publicado pelo Netlify, que builda sozinho a partir do `netlify.toml`: o Docker do front é só pra rodar local.
+
 ### Botões de salvar no fim do formulário no celular
 
 No Figma, os botões de salvar ficam no topo, ao lado do título. No computador isso funciona, mas no celular o formulário do animal e o Meu perfil são longos, e a pessoa tinha que rolar tudo de volta pra salvar. Agora, no HTML, os botões vêm depois do último campo, com o aviso de erro do envio logo acima deles, e no computador o CSS (`lg:order`, com o formulário virando grade) sobe os dois pro lugar do Figma.
 
 Ficou assim, e não com dois pares de botões (um escondido em cada tamanho de tela), pra ter um botão só na página: o leitor de tela não acha dois "Salvar alterações", e os testes procuram o botão pelo nome sem ambiguidade. A ordem do teclado segue o HTML: a pessoa passa pelos campos e chega no salvar.
 
+### O mapa de clínicas é o do Google, embutido
+
+O mapa de clínicas veterinárias (`/clinicas`) precisava funcionar em qualquer cidade do Brasil. Os dados abertos do OpenStreetMap são gratuitos, mas o cadastro de clínicas é bem desigual entre as cidades, e o mapa ainda pediria uma biblioteca nova. A busca do Google Places tem os dados, mas é paga.
+
+Ficou o mapa do Google embutido na página (`output=embed`), já buscando "veterinário" no lugar escolhido (no começo era "clínica veterinária", mas aí ficavam de fora os hospitais e os lugares sem "clínica" no nome). Não precisa de chave, não custa nada e não passa pela nossa API: o site não guarda nem as clínicas nem onde a pessoa está, e a localização vai pro Google arredondada em uns 100 metros. O risco é que esse formato não é a API oficial. Se o Google parar de aceitar, a troca é pela Maps Embed API, que também é gratuita mas pede uma chave, e só muda o endereço montado em `utils/clinicas.js`.
+
+### IA com uma pessoa decidindo no fim
+
+As duas ajudas com IA foram pensadas pra não colocar a IA no lugar de ninguém. No "Escrever com IA", a sugestão aparece separada e só vai pro campo quando o protetor escolhe usar, e ele ainda edita. No "Me ajuda a escolher", a IA só aponta animais da lista que o back mandou: o back numera os animais disponíveis, manda a lista e só aceita de volta números dela, então a IA não tem como inventar um animal nem indicar um de outro estado. A conversa com o protetor continua sendo o caminho pra adotar.
+
+Pra IA não inventar características, as regras que vão junto pedem pra usar só os dados recebidos e tratar o texto da pessoa como informação, ignorando pedidos dentro dele pra mudar as regras. Vai pra IA só o que já é público no perfil do animal, e a tela pede pra pessoa não escrever dado pessoal, porque no nível gratuito o Google pode usar o que recebe pra melhorar os produtos dele.
+
+O Gemini foi escolhido porque tem nível gratuito sem cartão. A chave fica só no Render, a chamada vai com a chave no cabeçalho (fora da URL, pra não parar em log), e a IA é opcional: sem a chave, os botões somem e o site segue igual. O limite de 15 pedidos por hora por conta protege a cota de cliques repetidos e de robô. Nos testes, a IA é uma versão de mentira (Mockito), pra não depender da internet nem gastar a cota.
+
+### O observatório mistura o que é nosso e o que é público
+
+Os números do site, sozinhos, ainda são poucos e de poucos estados, porque o Adota Aqui está começando. Por isso o observatório põe do lado dados públicos sobre cães e gatos, e cada um tem a fonte e a data na tela. Os do site vêm da API, ao vivo; os públicos ficam no código, porque nenhuma dessas fontes tem uma API simples, e a tabela do IBGE fica parada até a próxima pesquisa. O texto avisa que não existe censo oficial de animais abandonados no Brasil, e que os totais do país são estimativas.
+
+O mapa é um mosaico, um quadrado por estado, em vez do desenho das fronteiras: não precisa de biblioteca nova, os estados pequenos não somem, e cada quadrado é um botão que o leitor de tela lê com o nome e o número. As cores seguem um roxo só, do claro ao escuro, com o texto de cada tom passando no contraste, e a tabela com os 27 estados fica embaixo pra quem não quer ler pelo mapa.
+
 ### Tema claro e escuro, e acessibilidade
 
 As cores são variáveis CSS com os nomes do Figma, e o tema escuro troca só os valores. Assim nenhuma tela precisa de classe pra cada tema, e um componente novo já nasce funcionando nos dois. A escolha fica salva no navegador, e sem escolha vale a do sistema operacional.
 
 Todas as telas usam rótulo em todo campo, foco visível pelo teclado, mensagem de erro ligada ao campo e o contraste mínimo do WCAG (nível AA) nos dois temas, conferidos no bug bash da #44 ([plano de testes](plano-de-testes.md#bug-bash-da-sprint-5-44)).
+
+### Animações que não roubam a cena
+
+A ideia era deixar a Home e o Quem somos mais vivos sem poluir a tela. Por isso as animações seguem três regras: acontecem uma vez só (quando a página abre ou quando o bloco entra na tela), duram menos de 1 segundo e só mexem em opacidade e posição, que o navegador anima sem travar a rolagem. Nada fica piscando ou se mexendo sem parar, e o foco continua nos animais.
+
+Quem marcou "reduzir movimento" no sistema vê tudo pronto e parado, e o leitor de tela nunca ouve a contagem dos números, só o valor final. Isso segue o critério 2.3.3 do WCAG (animação causada por interação pode ser desligada).
 
 ## Desafios técnicos e soluções
 
@@ -199,6 +241,12 @@ Todas as telas usam rótulo em todo campo, foco visível pelo teclado, mensagem 
 
 **Solução.** A #98 alinhou o back com o RF06 e o UC05 FA04: na devolução, os dados novos são aceitos e validados junto com o status. O teste novo (`devolucaoVoltaParaDisponivelComOsDadosNovos`) faz o mesmo pedido que o front faz. A divergência e a correção estão no [plano de testes](plano-de-testes.md).
 
+### Animação ao rolar sem piscar e sem esconder conteúdo
+
+**Problema.** Pra um bloco subir quando entra na tela, ele precisa começar escondido. Isso trazia três riscos: o bloco aparecer e sumir num piscar enquanto a página carregava, ficar escondido pra sempre num navegador que não sabe observar a rolagem, e o React apagar a marca de "já apareceu", porque ele reescreve a classe do elemento sempre que a tela atualiza.
+
+**Solução.** Um script curto no `index.html`, antes do site desenhar, põe a classe `animar` no `<html>` só quando o navegador tem o `IntersectionObserver` e a pessoa não pediu menos movimento. Sem essa classe, nada começa escondido. A marca de "já apareceu" é um atributo (`data-revelado`), e não uma classe, então o React não mexe nela. E um `MutationObserver` pega os blocos que chegam depois, como os cards que vêm da API. A trilha do Quem somos mede a linha pontilhada, e não a laranja, porque a laranja encolhe e cresce com a própria medida.
+
 ### Navegação de site de uma página só
 
 **Problema.** No React, trocar de página não recarrega o site, e duas coisas que o navegador faz sozinho deixaram de acontecer: a rolagem voltar pro topo (quem clicava num link do rodapé caía no meio da página nova) e o título da aba mudar (todas as abas se chamavam "Adota Aqui", e o leitor de tela não anunciava a página nova).
@@ -215,15 +263,13 @@ Todas as telas usam rótulo em todo campo, foco visível pelo teclado, mensagem 
 
 ## O que ficou de fora
 
-A ERS (seção 6) já separava o que não cabia nos dois meses do curso. Na reunião de 04/11, o tutor sugeriu outras ideias pra evoluir o site, e a equipe avaliou cada uma. As que dão pra fazer, mas não cabem antes da apresentação final, entraram na mesma seção da ERS (de 6.10 a 6.12, e as avaliações em 6.2, 6.5 e 6.8) e nesta tabela. Ficaram pra uma próxima versão:
+A ERS (seção 6) já separava o que não cabia nos dois meses do curso. Na reunião de 04/11, o tutor sugeriu outras ideias pra evoluir o site, e a equipe avaliou cada uma. As que dão pra fazer, mas não cabiam antes da apresentação final, entraram na mesma seção da ERS (de 6.10 a 6.12, e as avaliações em 6.2, 6.5 e 6.8) e nesta tabela. Depois, o mapa de clínicas veterinárias (ERS 6.10) e o observatório com os dados por estado (ERS 6.8) acabaram entrando ([funcionalidades](funcionalidades.md#16-clínicas-veterinárias-perto-de-você) e [observatório](funcionalidades.md#18-observatório-da-adoção)). Ficaram pra uma próxima versão:
 
 | O quê | Por quê ficou de fora |
 | --- | --- |
 | Formulário completo de candidatura | Coletaria dados de outras pessoas da casa, o que pede um cuidado com a LGPD maior que o aviso do RF13. No lugar, entrou a triagem curta do RF15, com a opção de responder direto ao protetor |
 | Doação pelo site e apadrinhamento | Precisam de um serviço de pagamento, e o site passaria a intermediar dinheiro de outras pessoas, com taxa, estorno, contestação e risco de golpe. Num projeto de curso, só daria pra mostrar em modo de teste. O jeito mais simples numa próxima versão é o abrigo mostrar a própria chave PIX no perfil, com o dinheiro indo direto pra ele (ERS 6.2 e 6.6) |
 | Animais perdidos e encontrados | Dá pra fazer aproveitando o envio de fotos, os cards, os filtros e o local do animal, mas pede tabela e telas novas, validade pros anúncios antigos e um jeito de contato que não exponha o telefone. Leva de uma a duas semanas, então é a primeira da fila depois da apresentação (ERS 6.5) |
-| Mapa de clínicas veterinárias | Dá pra fazer só no front, sem custo, com os dados abertos do OpenStreetMap, mas o cadastro de clínicas no Brasil é incompleto e faltaria clínica em várias cidades. O Google Places tem dados melhores, mas é pago (ERS 6.10) |
 | Receber denúncia de maus-tratos | Guardar denúncia é guardar dado sensível de outras pessoas, com risco de acusação falsa, e o site não tem como agir sobre o caso. Uma página só informativa, explicando que é crime e mostrando os canais oficiais, não guarda nada e pode entrar antes (ERS 6.11) |
-| Dados e mapas pra políticas públicas | Um painel de adoções e animais por estado dá pra tirar dos dados que já existem. O mapa por região precisa de uma biblioteca de mapas e de mais dados reais do que a versão de demonstração tem (ERS 6.8) |
-| Inteligência artificial | Reconhecer o animal pela foto, comparar fotos de perdidos e encontrados ou sugerir a descrição dependem de um serviço externo pago, de uma chave nova no Render e de uma pessoa conferindo o resultado (ERS 6.12) |
+| Inteligência artificial nas fotos | Reconhecer o animal pela foto ou comparar fotos de perdidos e encontrados precisa de um serviço de imagem pago e de alguém conferindo o resultado. A IA de texto entrou ([funcionalidades](funcionalidades.md#19-ajudas-com-inteligência-artificial)) (ERS 6.12) |
 | Aviso por e-mail de interesse novo | No MVP, o aviso é o próprio painel: interesse novo aparece como Pendente (`docs/api.md`, decisão 3) |

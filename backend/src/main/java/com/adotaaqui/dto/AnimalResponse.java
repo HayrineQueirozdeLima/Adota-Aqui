@@ -34,7 +34,9 @@ public record AnimalResponse(
         ProtetorResponse protetor,
         boolean ehMeu,
         boolean podeDemonstrarInteresse,
-        InteresseResumoResponse meuInteresse) {
+        InteresseResumoResponse meuInteresse,
+        // Desde quando o animal está no site
+        LocalDate cadastradoEm) {
 }
 
 

@@ -13,6 +13,9 @@ import jakarta.validation.constraints.Size;
 /** Filtros opcionais da vitrine. Estado e disponibilidade são impostos pelo Service. */
 public class AnimalFiltroRequest {
 
+    // Ordem da vitrine: os mais novos primeiro (padrão) ou quem espera um lar há mais tempo
+    public enum Ordem { MAIS_NOVOS, MAIS_ANTIGOS }
+
     private Especie especie;
 
     private Raca raca;
@@ -34,6 +37,8 @@ public class AnimalFiltroRequest {
     private StatusConvivencia convivenciaCao;
 
     private NivelEnergia energia;
+
+    private Ordem ordem;
 
     // Paginação: a primeira página é a 0. Sem os parâmetros, vem a primeira página com 12 animais
     @Min(value = 0, message = "A página deve ser 0 ou maior")
@@ -123,6 +128,14 @@ public class AnimalFiltroRequest {
         this.energia = energia;
     }
 
+    public Ordem getOrdem() {
+        return ordem;
+    }
+
+    public void setOrdem(Ordem ordem) {
+        this.ordem = ordem;
+    }
+
     public Integer getPagina() {
         return pagina;
     }
@@ -146,6 +159,10 @@ public class AnimalFiltroRequest {
 
     public int tamanhoPedido() {
         return tamanho == null ? 12 : tamanho;
+    }
+
+    public boolean maisAntigosPrimeiro() {
+        return ordem == Ordem.MAIS_ANTIGOS;
     }
 }
 

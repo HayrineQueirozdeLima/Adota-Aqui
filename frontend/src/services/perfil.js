@@ -23,3 +23,9 @@ export function alterarSenha(tipoConta, { senhaAtual, novaSenha, confirmacaoNova
         token,
     });
 }
+
+// PUT .../me/foto com o endereço que o POST /api/fotos devolveu. null tira a foto.
+// Devolve o perfil inteiro, com o fotoUrl novo
+export function alterarFotoDoPerfil(tipoConta, fotoUrl, token) {
+    return requisicao(`${rotaDoPerfil(tipoConta)}/foto`, { metodo: 'PUT', corpo: { fotoUrl }, token });
+}
