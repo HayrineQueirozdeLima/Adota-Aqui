@@ -49,6 +49,15 @@ public interface AnimalRepository extends JpaRepository<Animal, UUID>, JpaSpecif
             """)
     List<ContagemPorProtetor> contarPorProtetor(@Param("status") StatusAdocao status);
 
+    // Quantos animais com esse status estão em cada estado, pro observatório. Vale onde o animal está
+    @Query("""
+            SELECT new com.adotaaqui.repository.ContagemPorEstado(a.estado, COUNT(a))
+            FROM Animal a
+            WHERE a.statusAdocao = :status AND a.estado IS NOT NULL
+            GROUP BY a.estado
+            """)
+    List<ContagemPorEstado> contarPorEstado(@Param("status") StatusAdocao status);
+
     // Animais sem local: os que já existiam antes das colunas cidade e estado (ver LocalDosAnimaisAntigos)
     List<Animal> findByCidadeIsNullOrEstadoIsNull();
 }

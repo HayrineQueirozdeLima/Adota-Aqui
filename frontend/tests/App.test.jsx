@@ -189,3 +189,16 @@ test("divulgar feira é só do abrigo: pessoa física volta pras feiras e visita
   );
   expect(screen.getByRole("button", { name: "Entrar" })).toBeInTheDocument();
 });
+
+test("o observatório da adoção abre no /observatorio", async () => {
+  render(
+    <MemoryRouter initialEntries={["/observatorio"]}>
+      <App />
+    </MemoryRouter>,
+  );
+  expect(
+    screen.getByRole("heading", { level: 1, name: "Observatório da adoção" }),
+  ).toBeInTheDocument();
+  expect(document.title).toBe("Observatório da adoção | Adota Aqui");
+  await screen.findByText("38");
+});

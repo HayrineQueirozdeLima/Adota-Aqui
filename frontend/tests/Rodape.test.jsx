@@ -22,6 +22,7 @@ test("os links da plataforma levam pras telas do site", () => {
     "Abrigos e protetores independentes": "/protetores",
     "Feiras de adoção": "/feiras",
     "Clínicas veterinárias": "/clinicas",
+    "Observatório da adoção": "/observatorio",
     "Cadastrar um animal": "/meus-animais/novo",
   };
   for (const [nome, destino] of Object.entries(destinos)) {

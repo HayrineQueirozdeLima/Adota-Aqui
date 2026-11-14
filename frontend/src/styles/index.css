@@ -25,6 +25,19 @@
   --borda-sutil: #e4e1da;
   --borda-forte: #c9c5bc;
 
+  /* Tons do mapa do observatório (components/MapaDoBrasil): um roxo só, do claro (pouco) ao escuro (muito).
+     O texto de cada tom passa de 4,5:1 de contraste */
+  --mapa-1: #eee8f6;
+  --mapa-2: #d6c8eb;
+  --mapa-3: #b49bda;
+  --mapa-4: #8462ba;
+  --mapa-5: #4a2d73;
+  --mapa-texto-1: #292929;
+  --mapa-texto-2: #292929;
+  --mapa-texto-3: #292929;
+  --mapa-texto-4: #ffffff;
+  --mapa-texto-5: #ffffff;
+
   --status-disponivel-fundo: #e0eeea;
   --status-disponivel-texto: #0f5443;
   --status-atencao-fundo: #f4ebd8;
@@ -61,6 +74,18 @@
 
   --borda-sutil: #3f3f3e;
   --borda-forte: #575654;
+
+  /* No escuro o mapa inverte: pouco fica perto do fundo, e muito, mais claro */
+  --mapa-1: #3e3550;
+  --mapa-2: #54427a;
+  --mapa-3: #7458a6;
+  --mapa-4: #a48bd6;
+  --mapa-5: #cdbdf0;
+  --mapa-texto-1: #fffcf5;
+  --mapa-texto-2: #fffcf5;
+  --mapa-texto-3: #fffcf5;
+  --mapa-texto-4: #292929;
+  --mapa-texto-5: #292929;
 
   --status-disponivel-fundo: #2e4640;
   --status-disponivel-texto: #5fbfa0;

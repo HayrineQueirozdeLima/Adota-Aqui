@@ -86,6 +86,32 @@ class EstatisticasIntegrationTest {
     }
 
     @Test
+    void observatorioSeparaOsNumerosPorEstadoETrazOs27() throws Exception {
+        Abrigo emRondonia = abrigo(1);
+        Abrigo emSaoPaulo = abrigo(2);
+        emSaoPaulo.getEndereco().setEstado("SP");
+        abrigos.saveAndFlush(emSaoPaulo);
+        Usuario candidata = usuario(1);
+        animal(emRondonia, StatusAdocao.DISPONIVEL);
+        // O animal conta no estado onde ele está, mesmo que o abrigo seja de outro
+        Animal emCampinas = animal(emRondonia, StatusAdocao.DISPONIVEL, "SP");
+        Animal adotado = animal(emSaoPaulo, StatusAdocao.ADOTADO, "SP");
+        interesse(adotado, candidata, StatusInteresse.APROVADO);
+        interesse(emCampinas, candidata, StatusInteresse.PENDENTE);
+
+        mvc.perform(get("/api/estatisticas/estados")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(27))
+                .andExpect(jsonPath("$[0].estado").value("AC"))
+                .andExpect(jsonPath("$[0].animaisDisponiveis").value(0))
+                .andExpect(jsonPath("$[?(@.estado == 'RO')].animaisDisponiveis").value(1))
+                .andExpect(jsonPath("$[?(@.estado == 'RO')].abrigos").value(1))
+                .andExpect(jsonPath("$[?(@.estado == 'RO')].adocoes").value(0))
+                .andExpect(jsonPath("$[?(@.estado == 'SP')].animaisDisponiveis").value(1))
+                .andExpect(jsonPath("$[?(@.estado == 'SP')].abrigos").value(1))
+                .andExpect(jsonPath("$[?(@.estado == 'SP')].adocoes").value(1));
+    }
+
+    @Test
     void tokenInvalidoRecebe401ComoNasOutrasRotasPublicas() throws Exception {
         mvc.perform(get("/api/estatisticas").header("Authorization", "Bearer invalido"))
                 .andExpect(status().isUnauthorized());
@@ -124,7 +150,16 @@ class EstatisticasIntegrationTest {
     }
 
     private Animal animal(Abrigo abrigo, StatusAdocao status) {
+        return animal(abrigo, status, null);
+    }
+
+    // Com estado, o animal fica nesse estado; sem, fica no endereço do abrigo
+    private Animal animal(Abrigo abrigo, StatusAdocao status, String estado) {
         Animal animal = new Animal();
+        if (estado != null) {
+            animal.setCidade("Campinas");
+            animal.setEstado(estado);
+        }
         animal.setNome("Mel");
         animal.setEspecie(Especie.CAO);
         animal.setRaca(Raca.SRD_CAO);

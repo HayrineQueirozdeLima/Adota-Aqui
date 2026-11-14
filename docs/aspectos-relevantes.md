@@ -146,6 +146,12 @@ O mapa de clínicas veterinárias (`/clinicas`) precisava funcionar em qualquer 
 
 Ficou o mapa do Google embutido na página (`output=embed`), já buscando "clínica veterinária" no lugar escolhido. Não precisa de chave, não custa nada e não passa pela nossa API: o site não guarda nem as clínicas nem onde a pessoa está, e a localização vai pro Google arredondada em uns 100 metros. O risco é que esse formato não é a API oficial. Se o Google parar de aceitar, a troca é pela Maps Embed API, que também é gratuita mas pede uma chave, e só muda o endereço montado em `utils/clinicas.js`.
 
+### O observatório mistura o que é nosso e o que é público
+
+Os números do site, sozinhos, ainda são poucos e de poucos estados, porque o Adota Aqui está começando. Por isso o observatório põe do lado dados públicos sobre cães e gatos, e cada um tem a fonte e a data na tela. Os do site vêm da API, ao vivo; os públicos ficam no código, porque nenhuma dessas fontes tem uma API simples, e a tabela do IBGE fica parada até a próxima pesquisa. O texto avisa que não existe censo oficial de animais abandonados no Brasil, e que os totais do país são estimativas.
+
+O mapa é um mosaico, um quadrado por estado, em vez do desenho das fronteiras: não precisa de biblioteca nova, os estados pequenos não somem, e cada quadrado é um botão que o leitor de tela lê com o nome e o número. As cores seguem um roxo só, do claro ao escuro, com o texto de cada tom passando no contraste, e a tabela com os 27 estados fica embaixo pra quem não quer ler pelo mapa.
+
 ### Tema claro e escuro, e acessibilidade
 
 As cores são variáveis CSS com os nomes do Figma, e o tema escuro troca só os valores. Assim nenhuma tela precisa de classe pra cada tema, e um componente novo já nasce funcionando nos dois. A escolha fica salva no navegador, e sem escolha vale a do sistema operacional.
@@ -227,7 +233,7 @@ Todas as telas usam rótulo em todo campo, foco visível pelo teclado, mensagem 
 
 ## O que ficou de fora
 
-A ERS (seção 6) já separava o que não cabia nos dois meses do curso. Na reunião de 04/11, o tutor sugeriu outras ideias pra evoluir o site, e a equipe avaliou cada uma. As que dão pra fazer, mas não cabiam antes da apresentação final, entraram na mesma seção da ERS (de 6.10 a 6.12, e as avaliações em 6.2, 6.5 e 6.8) e nesta tabela. Depois, o mapa de clínicas veterinárias (ERS 6.10) acabou entrando ([funcionalidades](funcionalidades.md#16-clínicas-veterinárias-perto-de-você)). Ficaram pra uma próxima versão:
+A ERS (seção 6) já separava o que não cabia nos dois meses do curso. Na reunião de 04/11, o tutor sugeriu outras ideias pra evoluir o site, e a equipe avaliou cada uma. As que dão pra fazer, mas não cabiam antes da apresentação final, entraram na mesma seção da ERS (de 6.10 a 6.12, e as avaliações em 6.2, 6.5 e 6.8) e nesta tabela. Depois, o mapa de clínicas veterinárias (ERS 6.10) e o observatório com os dados por estado (ERS 6.8) acabaram entrando ([funcionalidades](funcionalidades.md#16-clínicas-veterinárias-perto-de-você) e [observatório](funcionalidades.md#18-observatório-da-adoção)). Ficaram pra uma próxima versão:
 
 | O quê | Por quê ficou de fora |
 | --- | --- |
@@ -235,6 +241,5 @@ A ERS (seção 6) já separava o que não cabia nos dois meses do curso. Na reun
 | Doação pelo site e apadrinhamento | Precisam de um serviço de pagamento, e o site passaria a intermediar dinheiro de outras pessoas, com taxa, estorno, contestação e risco de golpe. Num projeto de curso, só daria pra mostrar em modo de teste. O jeito mais simples numa próxima versão é o abrigo mostrar a própria chave PIX no perfil, com o dinheiro indo direto pra ele (ERS 6.2 e 6.6) |
 | Animais perdidos e encontrados | Dá pra fazer aproveitando o envio de fotos, os cards, os filtros e o local do animal, mas pede tabela e telas novas, validade pros anúncios antigos e um jeito de contato que não exponha o telefone. Leva de uma a duas semanas, então é a primeira da fila depois da apresentação (ERS 6.5) |
 | Receber denúncia de maus-tratos | Guardar denúncia é guardar dado sensível de outras pessoas, com risco de acusação falsa, e o site não tem como agir sobre o caso. Uma página só informativa, explicando que é crime e mostrando os canais oficiais, não guarda nada e pode entrar antes (ERS 6.11) |
-| Dados e mapas pra políticas públicas | Um painel de adoções e animais por estado dá pra tirar dos dados que já existem. O mapa por região precisa de uma biblioteca de mapas e de mais dados reais do que a versão de demonstração tem (ERS 6.8) |
 | Inteligência artificial | Reconhecer o animal pela foto, comparar fotos de perdidos e encontrados ou sugerir a descrição dependem de um serviço externo pago, de uma chave nova no Render e de uma pessoa conferindo o resultado (ERS 6.12) |
 | Aviso por e-mail de interesse novo | No MVP, o aviso é o próprio painel: interesse novo aparece como Pendente (`docs/api.md`, decisão 3) |
