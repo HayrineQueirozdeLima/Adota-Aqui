@@ -61,7 +61,7 @@ test("cada página põe o nome dela no título da aba", async () => {
 });
 
 // Na /animais o nome de cada animal é h2, logo abaixo do h1 da página. Na Home ele é h3, abaixo do h2 da vitrine.
-// Espera pelo h2 da Mel: o rodapé já tem um h2 ("Plataforma") antes da vitrine carregar
+// Espera pelo h2 da Mel: o rodapé já tem os h2 dos grupos de links antes da vitrine carregar
 test("na lista de animais, os títulos seguem a ordem: h1 da página e h2 em cada animal", async () => {
   render(
     <MemoryRouter initialEntries={["/animais"]}>
