@@ -42,10 +42,23 @@ Pra rodar tudo na própria máquina sem instalar nada além do Docker, tem o `do
 | `S3_ENDPOINT`                                 | Não         | Só pra usar outro serviço compatível com S3 no lugar da AWS                                                                                                |
 | `PORT`                                        | Não         | O Render preenche sozinho                                                                                                                                  |
 | `GEMINI_API_KEY`                              | Não         | Chave da IA, criada no Google AI Studio (aistudio.google.com/apikey), no nível gratuito e sem faturamento. Sem ela, a IA fica desligada e os botões de IA não aparecem |
-| `GEMINI_MODELO`                               | Não         | Modelo do Gemini. Padrão: `gemini-3.8-flash`                                                                                                                |
+| `GEMINI_MODELO`                               | Não         | Modelo principal do Gemini. Padrão: `gemini-3.5-flash-lite`, que responde rápido e tem a maior cota grátis por dia |
+| `GEMINI_MODELO_RESERVA`                       | Não         | Modelo que a API tenta uma vez quando o principal está sem cota, fora do ar ou volta sem texto. Padrão: `gemini-3.6-flash`. Vazio = sem reserva |
+| `GEMINI_RACIOCINIO`                           | Não         | Quanto o modelo "pensa" antes de responder: `low`, `medium` ou `high`. Padrão: `low`, porque o pensamento demora e gasta o mesmo limite da resposta |
 | `IA_LIMITE_POR_HORA`                          | Não         | Quantos pedidos à IA cada conta (ou endereço, pra visitante) faz por hora. Padrão: `15`                                                                     |
 
-A IA é opcional: sem `GEMINI_API_KEY` o back sobe normal, e o log mostra "IA desligada". Com a chave, o log mostra "IA ligada" e o `GET /api/ia/disponivel` responde `{"disponivel": true}`. A chave fica só no Render, nunca no repositório nem em mensagem.
+A IA é opcional: sem `GEMINI_API_KEY` o back sobe normal, e o log mostra "IA desligada". Com a chave, o log mostra "IA ligada, com o modelo ... (reserva: ...)" e o `GET /api/ia/disponivel` responde `{"disponivel": true}`. A chave fica só no Render, nunca no repositório nem em mensagem.
+
+Quando a IA não responde, o log do Render diz o motivo sem mostrar a chave nem o pedido:
+
+| No log | O que quer dizer | O que fazer |
+| --- | --- | --- |
+| `429 RESOURCE_EXHAUSTED` | Acabou a cota grátis do modelo (por minuto ou por dia; a do dia volta à meia-noite do horário do Pacífico, 5h em Brasília) | Esperar, ou trocar `GEMINI_MODELO` por um modelo com mais cota. As cotas de cada modelo aparecem em aistudio.google.com/rate-limit |
+| `404 NOT_FOUND` | O nome do modelo não existe mais | Trocar `GEMINI_MODELO` por um da lista em ai.google.dev/gemini-api/docs/models |
+| `400 INVALID_ARGUMENT` ou `403 PERMISSION_DENIED` | A chave está errada, foi apagada ou não tem acesso | Criar outra chave no AI Studio e trocar a `GEMINI_API_KEY` |
+| `503 UNAVAILABLE` | O Google está sobrecarregado | Tentar de novo em alguns minutos |
+| `sem texto, MAX_TOKENS` | O modelo gastou o limite pensando e não escreveu | Deixar `GEMINI_RACIOCINIO` em `low` |
+| `demorou demais` | Passou de 20 segundos | Tentar de novo; se repetir, deixar `GEMINI_RACIOCINIO` em `low` |
 
 Sem `JWT_SECRET`, `FOTOS_ARMAZENAMENTO=s3` ou `CORS_ORIGENS`, o back **não sobe** quando está ligado num banco de produção, e o log diz qual variável falta (`config/ConferenciaDoDeploy`). Isso evita, por exemplo, subir com a chave de desenvolvimento que está no repositório, com a qual qualquer pessoa conseguiria criar um token válido.
 
