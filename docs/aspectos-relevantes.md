@@ -144,7 +144,7 @@ Ficou assim, e não com dois pares de botões (um escondido em cada tamanho de t
 
 O mapa de clínicas veterinárias (`/clinicas`) precisava funcionar em qualquer cidade do Brasil. Os dados abertos do OpenStreetMap são gratuitos, mas o cadastro de clínicas é bem desigual entre as cidades, e o mapa ainda pediria uma biblioteca nova. A busca do Google Places tem os dados, mas é paga.
 
-Ficou o mapa do Google embutido na página (`output=embed`), já buscando "clínica veterinária" no lugar escolhido. Não precisa de chave, não custa nada e não passa pela nossa API: o site não guarda nem as clínicas nem onde a pessoa está, e a localização vai pro Google arredondada em uns 100 metros. O risco é que esse formato não é a API oficial. Se o Google parar de aceitar, a troca é pela Maps Embed API, que também é gratuita mas pede uma chave, e só muda o endereço montado em `utils/clinicas.js`.
+Ficou o mapa do Google embutido na página (`output=embed`), já buscando "veterinário" no lugar escolhido (no começo era "clínica veterinária", mas aí ficavam de fora os hospitais e os lugares sem "clínica" no nome). Não precisa de chave, não custa nada e não passa pela nossa API: o site não guarda nem as clínicas nem onde a pessoa está, e a localização vai pro Google arredondada em uns 100 metros. O risco é que esse formato não é a API oficial. Se o Google parar de aceitar, a troca é pela Maps Embed API, que também é gratuita mas pede uma chave, e só muda o endereço montado em `utils/clinicas.js`.
 
 ### IA com uma pessoa decidindo no fim
 

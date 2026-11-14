@@ -2,8 +2,8 @@
 
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
-- **Versão:** 1.16 (novembro de 2026)
-- **Total:** 112 casos, 104 já automatizados e 8 manuais
+- **Versão:** 1.17 (novembro de 2026)
+- **Total:** 114 casos, 106 já automatizados e 8 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
 
@@ -27,8 +27,8 @@ A coluna **Automatizado em** mostra o arquivo de teste que já confere o caso. O
 | ID        | Cenário                 | Tipo           | Resultado esperado                                                                                                                                                                                                                                                                     | Automatizado em                           |
 | --------- | ----------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
 | CT-NAV-01 | Abrir a página inicial  | Smoke          | O menu, o título e os cartões dos animais aparecem, sem erro no console                                                                                                                                                                                                                | `App.test.jsx`, `VitrineAnimais.test.jsx` |
-| CT-NAV-02 | Responsividade          | UI             | Nos tamanhos do Figma, celular (390px), tablet (834px) e computador (1440px), e também nos celulares mais estreitos (360px e 320px), as telas se ajustam: não aparece rolagem pro lado, nenhum texto ou botão fica cortado ou passa da borda do cartão, e o menu mostra todos os itens | Manual                                    |
-| CT-NAV-03 | Menu conforme a conta   | Funcional      | Visitante vê "Cadastrar" e "Entrar". Logado vê "Explorar", "Meus animais" e "Interesses recebidos", e só pessoa física vê "Minhas candidaturas"                                                                                                                                        | `Navbar.test.jsx`                         |
+| CT-NAV-02 | Responsividade          | UI             | Nos tamanhos do Figma, celular (390px), tablet (834px) e computador (1440px), e também nos celulares mais estreitos (360px e 320px), as telas se ajustam: não aparece rolagem pro lado, nenhum texto ou botão fica cortado ou passa da borda do cartão, e o topo mostra todas as páginas (abaixo de 1280 px, pelo botão "Menu") | Manual                                    |
+| CT-NAV-03 | Menu conforme a conta   | Funcional      | Visitante vê "Cadastrar" e "Entrar" (no celular pequeno, o "Criar conta" fica dentro do Menu). Logado vê as iniciais e "Minha área", com "Meu perfil", "Meus animais", "Interesses recebidos" e "Sair", que encerra a sessão e volta pra página inicial. Só pessoa física vê "Minhas candidaturas", e só abrigo vê "Divulgar uma feira"                                                                                                                                        | `Navbar.test.jsx`                         |
 | CT-NAV-04 | Endereço que não existe | Funcional      | Aparece "Página não encontrada", com o menu e os botões "Ver animais disponíveis" e "Ir para a página inicial"                                                                                                                                                                         | `App.test.jsx`                            |
 | CT-NAV-05 | Trocar o tema           | UI             | O botão do topo troca entre claro e escuro, e a escolha continua depois de recarregar a página. Quem nunca escolheu vê o tema do sistema operacional                                                                                                                                   | `BotaoTema.test.jsx`                      |
 | CT-NAV-06 | Links do rodapé         | Funcional      | "Quem somos", "Explorar animais", "Me ajuda a escolher", "Como adotar", "Histórias de adoção", "Blog para tutores", "Abrigos e protetores independentes" (a página de abrigos e protetores, não mais o cadastro), "Feiras de adoção", "Clínicas veterinárias", "Observatório da adoção" e "Cadastrar um animal" levam pra tela certa | `Rodape.test.jsx`, `Home.test.jsx`        |
@@ -37,6 +37,8 @@ A coluna **Automatizado em** mostra o arquivo de teste que já confere o caso. O
 | CT-NAV-09 | Números do site | Funcional | A página inicial mostra as adoções feitas, os animais esperando um lar e os abrigos cadastrados, com ponto no milhar e singular no 1. Se a API falhar, a faixa some e o resto da página funciona | `Estatisticas.test.jsx`, `Home.test.jsx`, `EstatisticasIntegrationTest.java` |
 | CT-NAV-10 | Quem somos | Funcional | A página `/quem-somos` conta como surgiu o projeto, de onde veio a ideia, a motivação e o que o Adota Aqui se propõe a fazer (em cinco cartões com título), sem nome de quem desenvolveu. O desenho da ponte e as fotos são enfeite, que o leitor de tela pula. A Home termina com "Conheça o Adota Aqui", que leva pra ela | `QuemSomos.test.jsx`, `Home.test.jsx`, `App.test.jsx` |
 | CT-NAV-11 | Patinhas | UI | Com mouse, o caminho dele deixa pegadas laranja alternando de lado, que somem sozinhas (no máximo 24 na tela). Toque na tela não deixa pegada. A faixa "Como funciona" e o painel do login têm a trilha de patas no fundo, escondida do leitor de tela. Quem pediu menos movimento não vê o rastro e vê a trilha parada | `RastroDePatas.test.jsx`, `TrilhaDePatas.test.jsx`, `curva.test.js` |
+| CT-NAV-12 | Topo fixo com as páginas do site | Funcional | O topo fica preso no alto ao rolar. Do computador grande (1280 px) pra cima mostra Animais, Me ajuda a escolher (só com a IA ligada), Feiras, Clínicas, Observatório e Blog, com a página atual marcada. Abaixo disso, o botão "Menu" abre a mesma lista, que fecha com Esc (o foco volta pro botão), com clique fora e ao trocar de página. O "Pular para o conteúdo" leva o foco pro começo da página | `Navbar.test.jsx` |
+| CT-NAV-13 | Recursos na página inicial | Funcional | Logo depois dos números do site, a faixa "Tudo pra uma adoção responsável" leva pra Me ajuda a escolher (só com a IA ligada), Feiras de adoção, Clínicas veterinárias e Observatório da adoção | `Home.test.jsx` |
 
 ### Módulo 2: Cadastro, login e sessão
 
@@ -203,7 +205,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 
 | ID       | Cenário                          | Tipo             | Resultado esperado | Automatizado em |
 | -------- | -------------------------------- | ---------------- | ------------------ | --------------- |
-| CT-IA-01 | IA desligada                     | Funcional        | Sem a chave no servidor, `disponivel` é `false`, o "Escrever com IA" e a chamada da vitrine não aparecem, a página do "Me ajuda a escolher" explica e leva pra vitrine, e as rotas da IA respondem `503` | `IaIntegrationTest.java`, `EscreverComIa.test.jsx`, `MeAjudaAEscolher.test.jsx`, `App.test.jsx` |
+| CT-IA-01 | IA desligada                     | Funcional        | Sem a chave no servidor, `disponivel` é `false`, o "Escrever com IA", a chamada da vitrine, o link do topo e o cartão da página inicial não aparecem, a página do "Me ajuda a escolher" explica e leva pra vitrine, e as rotas da IA respondem `503` | `IaIntegrationTest.java`, `EscreverComIa.test.jsx`, `MeAjudaAEscolher.test.jsx`, `Navbar.test.jsx`, `Home.test.jsx`, `App.test.jsx` |
 | CT-IA-02 | Escrever com IA                  | Funcional        | Precisa de login, do nome e da espécie. Vai pra IA o que foi preenchido e o rascunho. A sugestão aparece separada e só vai pro campo com "Usar este texto". O texto volta sem markdown e sem travessão | `IaIntegrationTest.java`, `EscreverComIa.test.jsx`, `FormularioAnimal.test.jsx` |
 | CT-IA-03 | Me ajuda a escolher              | Funcional        | A rotina (de 15 a 600 caracteres) e o estado vão pra API. Voltam até 3 animais com o motivo e a dica. Pessoa física logada recebe animais do estado do perfil. Sem animal no estado, a IA nem é chamada | `IaIntegrationTest.java`, `MeAjudaAEscolher.test.jsx` |
 | CT-IA-04 | A IA não inventa animal          | Regra de negócio | Vai pra IA só a lista de animais disponíveis (sem adotados, sem outro estado, sem dado do protetor). Número que não está na lista e número repetido são descartados, e resposta que não é JSON vira `503`. Passando de 15 pedidos por hora, `429` | `IaIntegrationTest.java`, `MeAjudaAEscolher.test.jsx` |
@@ -225,7 +227,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 
 | Módulo                                     | Casos  | Automatizados | Manuais |
 | ------------------------------------------ | ------ | ------------- | ------- |
-| 1. Navegação e página inicial              | 11     | 10            | 1       |
+| 1. Navegação e página inicial              | 13     | 12            | 1       |
 | 2. Cadastro, login e sessão                | 9      | 9             | 0       |
 | 3. Vitrine, busca e filtros                | 11     | 11            | 0       |
 | 4. Perfil do animal e interesse            | 9      | 8             | 1       |
@@ -242,7 +244,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | 15. Observatório da adoção                 | 4      | 4             | 0       |
 | 16. Ajudas com inteligência artificial     | 5      | 4             | 1       |
 | 17. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
-| **Total**                                  | **112** | **104**      | **8**   |
+| **Total**                                  | **114** | **106**      | **8**   |
 
 A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta tabela: ela é medida pelo JaCoCo e pelo Jest a cada push, como explica o [plano de testes](plano-de-testes.md). Esta tabela mostra outra coisa: quantos comportamentos importantes já têm teste automático e quantos ainda dependem de alguém testar à mão.
 
