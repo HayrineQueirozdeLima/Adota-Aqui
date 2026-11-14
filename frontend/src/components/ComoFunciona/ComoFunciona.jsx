@@ -1,4 +1,5 @@
 import Tag from "../Tag/Tag";
+import TrilhaDePatas from "../TrilhaDePatas/TrilhaDePatas";
 
 // Os quatro passos da adoção, com os textos do Figma (Home, "Como funciona a adoção")
 const passos = [
@@ -28,11 +29,27 @@ const passos = [
   },
 ];
 
+// A trilha anda no espaço que sobra em cima, do lado do título, subindo da esquerda pra direita.
+// No celular os cartões ocupam a faixa toda, então a trilha só aparece do tablet pra cima
+const caminhoDaTrilha = {
+  largura: 1000,
+  altura: 150,
+  inicio: { x: -20, y: 100 },
+  controle: { x: 520, y: 96 },
+  fim: { x: 1030, y: 26 },
+};
+
 // O id deixa o rodapé levar direto pra cá ("Como adotar")
 export default function ComoFunciona() {
   return (
-    <section id="como-funciona" aria-labelledby="como-funciona-titulo" className="scroll-mt-4 bg-fundo-marca">
-      <div className="mx-auto max-w-[1440px] px-5 py-12 md:px-14 md:py-16">
+    <section id="como-funciona" aria-labelledby="como-funciona-titulo" className="relative scroll-mt-4 overflow-hidden bg-fundo-marca">
+      <TrilhaDePatas
+        caminho={caminhoDaTrilha}
+        passos={12}
+        tamanho={1.3}
+        className="right-0 top-0 hidden h-[150px] w-[68%] md:block"
+      />
+      <div className="relative mx-auto max-w-[1440px] px-5 py-12 md:px-14 md:py-16">
         <h2 id="como-funciona-titulo" className="font-titulo text-secao font-semibold text-texto-sobre-marca md:text-[28px]">
           Como funciona a adoção
         </h2>
