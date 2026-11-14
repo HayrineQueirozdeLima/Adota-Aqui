@@ -595,16 +595,17 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 **Como funciona.**
 
 1. A página fica em `/clinicas`, aberta pra qualquer pessoa, com link no rodapé ("Clínicas veterinárias") e no perfil do animal ("Vai adotar? Veja as clínicas veterinárias perto de {cidade}").
-2. O lugar vem de quatro jeitos: o botão "Usar minha localização" (o navegador pede permissão), a cidade e o estado digitados, a cidade do animal (pra quem chega pelo perfil dele) ou, pra quem está logado, a cidade do perfil da conta.
-3. O mapa é o do Google, embutido na página e já buscando "veterinário" naquele lugar, que é a categoria do Google e pega clínica, hospital e consultório. Nome, endereço, telefone, horário, avaliações e rota vêm do próprio Google. Os botões "Todas as clínicas" e "Atendimento 24 horas" trocam a busca.
-4. "Abrir no Google Maps" abre a mesma busca no Maps, em outra aba. No celular, abre o app.
-5. Depois de escolher o lugar, a tela vai pro mapa (no celular ele fica embaixo da busca) e o foco vai pro título dele, que diz o lugar novo.
-6. Do lado do mapa (no celular, embaixo), o aviso de que o site não indica nem avalia clínicas e a dica de procurar a castração gratuita ou a preço popular da prefeitura.
+2. O lugar vem de quatro jeitos: o botão "Usar minha localização" (o navegador pede permissão), a cidade e o estado digitados (com o bairro, se a pessoa quiser), a cidade do animal (pra quem chega pelo perfil dele) ou, pra quem está logado, a cidade do perfil da conta.
+3. O mapa é o do Google, embutido na página e já buscando "veterinário" naquele lugar, que é a categoria do Google e pega clínica, hospital e consultório. Nome, endereço, telefone, horário, avaliações e rota vêm do próprio Google. Os botões "Todas as clínicas", "Atendimento 24 horas" e "Pet shops com veterinário" trocam a busca. O último existe porque muito veterinário atende dentro de pet shop, e o Google cadastra o lugar como pet shop.
+4. O mapa embutido mostra só uma parte dos lugares de cada busca, os que o Google acha mais relevantes, e não muda a lista quando a pessoa arrasta o mapa. Por isso o bairro: com ele, o mapa abre bem mais perto (zoom 15, contra 12 da cidade inteira) e mostra os lugares daquela região. Embaixo do mapa, "Não achou a clínica que você conhece?" explica isso e sugere o bairro, os outros botões e o Google Maps.
+5. "Abrir no Google Maps" abre a mesma busca no Maps, em outra aba. No celular, abre o app. Lá, a lista vai mostrando mais lugares conforme a pessoa aproxima e arrasta o mapa.
+6. Depois de escolher o lugar, a tela vai pro mapa (no celular ele fica embaixo da busca) e o foco vai pro título dele, que diz o lugar novo.
+7. Do lado do mapa (no celular, embaixo), o aviso de que o site não indica nem avalia clínicas e a dica de procurar a castração gratuita ou a preço popular da prefeitura.
 
 **Regras.**
 
 - O site não guarda nada: nem as clínicas, nem o lugar da pessoa. Nada passa pela nossa API.
-- A cidade digitada vai pro endereço da página (`/clinicas?cidade=Recife&estado=PE`), então dá pra mandar o link pra alguém. A localização não vai: o ponto é arredondado em uns 100 metros e só vai pro Google.
+- A cidade digitada (e o bairro, quando tem) vai pro endereço da página (`/clinicas?cidade=Recife&estado=PE&bairro=Boa+Viagem`), então dá pra mandar o link pra alguém. A localização não vai: o ponto é arredondado em uns 100 metros e só vai pro Google.
 - A cidade que vem no link vale mais que a do perfil.
 - O mapa usa o formato de incorporar do Google, sem chave. O porquê, e o que fazer se o Google parar de aceitar, está em [aspectos relevantes](aspectos-relevantes.md#o-mapa-de-clínicas-é-o-do-google-embutido).
 

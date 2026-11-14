@@ -21,17 +21,20 @@ const opcoesDeEstado = Object.entries(estados).map(([sigla, nome]) => ({
   nome,
 }));
 
+// "titulo" vai no título do mapa: "Pet shops com veterinário perto de Porto Velho/RO"
 const tipos = [
-  { valor: "todas", nome: "Todas as clínicas" },
-  { valor: "plantao", nome: "Atendimento 24 horas" },
+  { valor: "todas", nome: "Todas as clínicas", titulo: "Clínicas veterinárias" },
+  { valor: "plantao", nome: "Atendimento 24 horas", titulo: "Atendimento 24 horas" },
+  { valor: "petshop", nome: "Pet shops com veterinário", titulo: "Pet shops com veterinário" },
 ];
 
-// Cidade e estado que vieram na URL (link do perfil do animal), se forem válidos
+// Cidade, estado e bairro que vieram na URL (link do perfil do animal ou link salvo), se forem válidos
 function lugarDaUrl(parametros) {
   const cidade = parametros.get("cidade")?.trim();
   const estado = parametros.get("estado")?.toUpperCase();
+  const bairro = parametros.get("bairro")?.trim();
   if (!cidade || !estados[estado]) return null;
-  return { cidade, estado };
+  return bairro ? { cidade, estado, bairro } : { cidade, estado };
 }
 
 // O navegador avisa com um número o que deu errado. 1 quer dizer que a pessoa ou o navegador não deixou
@@ -49,9 +52,12 @@ export default function Clinicas() {
   const { usuario, token, sair } = useAuth();
   const [parametros, setParametros] = useSearchParams();
   const [lugar, setLugar] = useState(() => lugarDaUrl(parametros));
-  const [campos, setCampos] = useState(
-    () => lugarDaUrl(parametros) ?? { cidade: "", estado: "" },
-  );
+  const [campos, setCampos] = useState(() => ({
+    cidade: "",
+    estado: "",
+    bairro: "",
+    ...lugarDaUrl(parametros),
+  }));
   const [tipo, setTipo] = useState("todas");
   const [erros, setErros] = useState({});
   const [tentativas, setTentativas] = useState(0);
@@ -95,7 +101,7 @@ export default function Clinicas() {
         if (!endereco?.cidade || !estados[endereco.estado]) return;
         const doPerfil = { cidade: endereco.cidade, estado: endereco.estado };
         setLugar(doPerfil);
-        setCampos(doPerfil);
+        setCampos({ ...doPerfil, bairro: "" });
       })
       .catch((erro) => {
         if (!cancelado && erro.status === 401) sair();
@@ -120,7 +126,9 @@ export default function Clinicas() {
       setTentativas((atual) => atual + 1);
       return;
     }
+    const bairro = campos.bairro.trim();
     const escolhido = { cidade: campos.cidade.trim(), estado: campos.estado };
+    if (bairro) escolhido.bairro = bairro;
     escolheu.current = true;
     setErroLocalizacao("");
     setLugar(escolhido);
@@ -154,8 +162,7 @@ export default function Clinicas() {
   }
 
   const nome = lugar ? nomeDoLugar(lugar) : "";
-  const oQue =
-    tipo === "plantao" ? "Atendimento 24 horas" : "Clínicas veterinárias";
+  const oQue = tipos.find((opcao) => opcao.valor === tipo).titulo;
 
   return (
     <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-5 pb-12 pt-6 md:px-14 md:pt-8">
@@ -232,6 +239,15 @@ export default function Clinicas() {
               erro={erros.estado}
               onChange={(evento) => mudarCampo("estado", evento.target.value)}
             />
+            {/* Com o bairro, o mapa abre mais perto e mostra mais lugares daquela região */}
+            <CampoTexto
+              rotulo="Bairro (opcional)"
+              placeholder="Ex.: Centro"
+              maxLength={80}
+              dica="Com o bairro, aparecem mais clínicas daquela região."
+              value={campos.bairro}
+              onChange={(evento) => mudarCampo("bairro", evento.target.value)}
+            />
             <Botao type="submit" className="w-full">
               Ver clínicas
             </Botao>
@@ -289,6 +305,19 @@ export default function Clinicas() {
                 <Botao variante="secundario" href={enderecoNoGoogleMaps(tipo, lugar)}>
                   Abrir no Google Maps
                 </Botao>
+              </div>
+              {/* O mapa embutido não mostra todos os lugares, e a pessoa precisa saber disso pra não achar que não tem */}
+              <div className="rounded-[16px] border border-borda-sutil bg-fundo-superficie px-5 py-4">
+                <h3 className="font-titulo text-compacto font-semibold text-texto-principal">
+                  Não achou a clínica que você conhece?
+                </h3>
+                <p className="mt-1 text-compacto text-texto-secundario">
+                  O mapa mostra só uma parte dos lugares de cada busca, os que o
+                  Google acha mais relevantes. Pra ver mais: digite o bairro,
+                  troque entre as opções acima (muita clínica atende dentro de
+                  pet shop) ou abra no Google Maps, que vai mostrando mais
+                  lugares conforme você aproxima e arrasta o mapa.
+                </p>
               </div>
             </>
           ) : (

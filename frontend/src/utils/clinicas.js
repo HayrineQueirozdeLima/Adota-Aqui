@@ -4,11 +4,13 @@
 // Quem sabe onde ficam as clínicas, o telefone e as avaliações é o Google, o site não guarda nada disso
 
 // O que a gente procura em cada opção da página.
-// "veterinário" é a categoria do Google, então pega clínica, hospital, consultório e pet shop com veterinário.
-// Com "clínica veterinária", ficavam de fora os lugares que não têm "clínica" no nome
+// "veterinário" é a categoria do Google, então pega clínica, hospital e consultório.
+// Com "clínica veterinária", ficavam de fora os lugares que não têm "clínica" no nome.
+// Muito veterinário atende dentro de pet shop, e o Google cadastra o lugar como pet shop: por isso a terceira opção
 export const tiposDeBusca = {
     todas: 'veterinário',
     plantao: 'veterinário 24 horas',
+    petshop: 'pet shop com veterinário',
 };
 
 // Três casas depois da vírgula dá uns 100 metros: perto o bastante pra achar as clínicas,
@@ -17,19 +19,27 @@ function arredondar(coordenada) {
     return Number(coordenada).toFixed(3);
 }
 
-// O lugar vem de dois jeitos: { cidade, estado } (digitado, do perfil ou do animal)
+function bairroDo(lugar) {
+    return lugar.bairro?.trim() ?? '';
+}
+
+// O lugar vem de dois jeitos: { cidade, estado, bairro? } (digitado, do perfil ou do animal)
 // ou { latitude, longitude } (botão "Usar minha localização")
 export function textoDaBusca(tipo, lugar) {
     const oQue = tiposDeBusca[tipo] ?? tiposDeBusca.todas;
     if (lugar.latitude !== undefined) {
         return `${oQue} perto de ${arredondar(lugar.latitude)},${arredondar(lugar.longitude)}`;
     }
-    return `${oQue} em ${lugar.cidade.trim()} ${lugar.estado}`;
+    const bairro = bairroDo(lugar);
+    return `${oQue} em ${bairro ? `${bairro}, ` : ''}${lugar.cidade.trim()} ${lugar.estado}`;
 }
 
-// Pela localização o mapa abre mais perto, porque é um ponto e não a cidade inteira
+// O mapa embutido mostra só uma parte dos lugares de cada busca, os que o Google acha mais relevantes.
+// Quanto menor a área, mais lugares daquela área aparecem: por isso o bairro e a localização abrem mais perto
 export function enderecoDoMapa(tipo, lugar) {
-    const zoom = lugar.latitude !== undefined ? 14 : 12;
+    let zoom = 12;
+    if (lugar.latitude !== undefined) zoom = 14;
+    else if (bairroDo(lugar)) zoom = 15;
     const busca = encodeURIComponent(textoDaBusca(tipo, lugar));
     return `https://maps.google.com/maps?q=${busca}&z=${zoom}&hl=pt-BR&output=embed`;
 }
@@ -38,10 +48,12 @@ export function enderecoNoGoogleMaps(tipo, lugar) {
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(textoDaBusca(tipo, lugar))}`;
 }
 
-// Pra mostrar na tela depois de "perto de": "Porto Velho/RO", ou "você" quando veio da localização
+// Pra mostrar na tela depois de "perto de": "Porto Velho/RO", "Centro, Porto Velho/RO"
+// ou "você" quando veio da localização
 export function nomeDoLugar(lugar) {
     if (lugar.latitude !== undefined) return 'você';
-    return `${lugar.cidade.trim()}/${lugar.estado}`;
+    const bairro = bairroDo(lugar);
+    return `${bairro ? `${bairro}, ` : ''}${lugar.cidade.trim()}/${lugar.estado}`;
 }
 
 // O link "Clínicas perto de..." do perfil do animal manda pela URL a cidade onde o animal está

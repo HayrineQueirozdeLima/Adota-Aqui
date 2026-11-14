@@ -2,7 +2,7 @@
 
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
-- **Versão:** 1.19 (novembro de 2026)
+- **Versão:** 1.20 (novembro de 2026)
 - **Total:** 116 casos, 108 já automatizados e 8 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
@@ -178,7 +178,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 
 | ID        | Cenário                       | Tipo      | Resultado esperado | Automatizado em |
 | --------- | ----------------------------- | --------- | ------------------ | --------------- |
-| CT-CLI-01 | Procurar pela cidade          | Funcional | Com a cidade e o estado, aparece o mapa das clínicas daquele lugar, a cidade vai pro endereço da página e o foco vai pro título do mapa. Sem cidade ou sem estado, avisa o que falta e leva o foco pro campo. "Atendimento 24 horas" troca a busca do mapa | `Clinicas.test.jsx`, `clinicas.test.js` |
+| CT-CLI-01 | Procurar pela cidade          | Funcional | Com a cidade e o estado, aparece o mapa das clínicas daquele lugar, a cidade vai pro endereço da página e o foco vai pro título do mapa. Sem cidade ou sem estado, avisa o que falta e leva o foco pro campo. Com o bairro, o mapa procura só nele e abre mais perto, e o bairro também vai pro endereço. "Atendimento 24 horas" e "Pet shops com veterinário" trocam a busca do mapa, e a página explica que o mapa não mostra todos os lugares | `Clinicas.test.jsx`, `clinicas.test.js` |
 | CT-CLI-02 | Usar a localização            | Funcional | Com a permissão, o mapa mostra as clínicas perto da pessoa, e o ponto (arredondado em uns 100 metros) não vai pro endereço da página. Sem a permissão, explica e deixa digitar a cidade. Navegador sem localização não mostra o botão | `Clinicas.test.jsx`, `clinicas.test.js` |
 | CT-CLI-03 | Abrir já num lugar            | Funcional | Quem está logado abre na cidade do perfil. O link do perfil do animal abre na cidade do animal, que vale mais que a do perfil | `Clinicas.test.jsx`, `PerfilAnimal.test.jsx`, `App.test.jsx` |
 | CT-CLI-04 | Mapa do Google no site        | Funcional | No site publicado, no computador e no celular, o mapa mostra clínicas de verdade da cidade escolhida, de uma cidade de cada região. "Abrir no Google Maps" abre o Maps em outra aba (no celular, o app) | Manual |
