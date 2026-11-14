@@ -150,6 +150,49 @@ test("o atendimento 24 horas muda a busca do mapa", () => {
   expect(buscaDoMapa()).toBe("veterinário 24 horas em Recife PE");
 });
 
+test("com o bairro, o mapa procura só naquela região e o bairro vai pra URL", () => {
+  abrir();
+
+  fireEvent.change(screen.getByLabelText("Cidade"), {
+    target: { value: "Porto Velho" },
+  });
+  fireEvent.change(screen.getByLabelText("Estado"), {
+    target: { value: "RO" },
+  });
+  fireEvent.change(screen.getByLabelText("Bairro (opcional)"), {
+    target: { value: " Centro " },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Ver clínicas" }));
+
+  expect(
+    screen.getByRole("heading", {
+      level: 2,
+      name: "Clínicas veterinárias perto de Centro, Porto Velho/RO",
+    }),
+  ).toBeInTheDocument();
+  expect(buscaDoMapa()).toBe("veterinário em Centro, Porto Velho RO");
+  expect(new URL(mapa().src).searchParams.get("z")).toBe("15");
+  expect(screen.getByTestId("endereco")).toHaveTextContent(
+    "/clinicas?cidade=Porto+Velho&estado=RO&bairro=Centro",
+  );
+});
+
+test("pet shops com veterinário muda a busca, e a página explica por que o mapa não mostra tudo", () => {
+  abrir("/clinicas?cidade=Porto%20Velho&estado=RO&bairro=Centro");
+
+  // o link salvo com o bairro já abre nele, com o campo preenchido
+  expect(screen.getByLabelText("Bairro (opcional)")).toHaveValue("Centro");
+  fireEvent.click(screen.getByRole("button", { name: "Pet shops com veterinário" }));
+
+  expect(
+    screen.getByRole("button", { name: "Pet shops com veterinário" }),
+  ).toHaveAttribute("aria-pressed", "true");
+  expect(buscaDoMapa()).toBe("pet shop com veterinário em Centro, Porto Velho RO");
+  expect(
+    screen.getByRole("heading", { name: "Não achou a clínica que você conhece?" }),
+  ).toBeInTheDocument();
+});
+
 test("chegando do perfil do animal, já abre na cidade dele", () => {
   entrarComo("USUARIO");
   abrir("/clinicas?cidade=Campinas&estado=sp");
