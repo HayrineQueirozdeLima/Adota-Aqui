@@ -17,7 +17,9 @@ import {
 import { estados } from "../../utils/rotulos";
 
 // Números públicos sobre cães e gatos no Brasil, cada um com a fonte e a data.
-// Ficam fixos aqui porque nenhuma dessas fontes tem uma API simples
+// Ficam fixos aqui porque são pesquisas que saem de tempos em tempos, e nenhuma dessas fontes avisa quando
+// sai uma edição nova. Nem a API do IBGE resolveria: cada edição da pesquisa vira uma tabela nova.
+// Quando sair, a gente troca aqui e no utils/observatorio.js (o passo a passo está em docs/funcionalidades.md)
 const retrato = [
   {
     numero: "46,1%",
@@ -352,6 +354,12 @@ export default function Observatorio() {
         <p className="text-legenda text-texto-terciario">
           Não existe um censo oficial de animais abandonados no Brasil. Os totais do país são estimativas das
           instituições citadas.
+        </p>
+        {/* Os números do site mudam a cada adoção; estes, só quando sai uma pesquisa nova. A pessoa precisa saber a diferença */}
+        <p className="text-legenda text-texto-terciario">
+          Estes números são de pesquisas e mudam só quando sai uma edição nova, que a gente coloca aqui. A próxima
+          Pesquisa Nacional de Saúde do IBGE está sendo feita em 2026. Os números do Adota Aqui, lá em cima, são do
+          banco do site e se atualizam sozinhos.
         </p>
       </section>
 
