@@ -11,7 +11,9 @@ Como o sistema vai pro ar e como subir tudo de novo, do zero, numa conta nova. A
 | Banco de dados    | Neon (PostgreSQL)  | As tabelas, que o Hibernate cria a partir das entidades | O projeto e a senha                                           |
 | Fotos dos animais | Amazon S3          | Nada                                                    | O bucket, a política de leitura pública e o usuário que grava |
 
-Endereços: o site em https://adotaaqui.netlify.app e a API em https://adota-aqui.onrender.com.
+Endereços: o site em https://adotaaqui.netlify.app, a API em https://adota-aqui.onrender.com e a documentação da API (Swagger) em https://adota-aqui.onrender.com/swagger-ui.html.
+
+Pra rodar tudo na própria máquina sem instalar nada além do Docker, tem o `docker-compose.yml` na raiz (banco, back e front, com `docker compose up --build`). Ele é só pra rodar local: no ar, o Render usa o `backend/Dockerfile` e o Netlify builda o front sozinho. O passo a passo está no [README](../README.md#rodar-com-docker). O CI builda as imagens a cada PR (job `docker`), pra ninguém quebrar o Docker sem perceber.
 
 ## Quando o deploy acontece
 
@@ -132,6 +134,7 @@ Quando terminar, abra `https://<seu-servico>.onrender.com/api/racas?especie=CAO`
 ### 5. Conferir
 
 - [ ] `/api/racas?especie=CAO` responde a lista (o primeiro acesso depois de um tempo parado pode levar 1 minuto)
+- [ ] `/swagger-ui.html` abre a documentação da API, com todas as seções
 - [ ] O site abre e a vitrine carrega, sem erro de CORS no console do navegador (F12)
 - [ ] Recarregar a página em `/animais` não dá 404
 - [ ] Dá pra criar uma conta de pessoa física e uma de abrigo

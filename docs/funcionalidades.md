@@ -459,6 +459,9 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 - **Página não encontrada** pra qualquer endereço que não existe, com foto e os botões "Ver animais disponíveis" e "Ir para a página inicial". Animal que não existe (perfil, interesse ou edição) mostra a mesma foto com "Animal não encontrado".
 - **Integração contínua.** A cada push e PR na `dev` e na `main`, o GitHub Actions roda os testes do back (`mvn verify`) e do front (build e `npm run test:coverage`) e guarda os relatórios de cobertura (JaCoCo e lcov). A cobertura aparece no resumo de cada execução, e o CI falha se a de linhas ficar abaixo de 70% (RNF04). O PR só entra com os dois verdes.
 - **Deploy (RNF06).** Front no Netlify, API no Render (com Docker), banco PostgreSQL no Neon e fotos no Amazon S3. Os endereços estão no [README principal](../README.md).
+- **Documentação da API no Swagger.** Em `/swagger-ui.html` (no ar: https://adota-aqui.onrender.com/swagger-ui.html), com os endpoints separados por assunto e o botão "Authorize" pra colar o token do login e testar as rotas fechadas. É montada a partir dos controllers (springdoc), então acompanha o código sozinha. Código: `config/DocumentacaoDaApi.java` e o `@Tag` de cada controller. Teste: `DocumentacaoDaApiIntegrationTest`.
+- **Docker.** `docker compose up --build`, na raiz, sobe o banco, o back e o front na máquina, sem instalar mais nada (`docker-compose.yml`, `backend/Dockerfile`, `frontend/Dockerfile` e `frontend/nginx.conf`). O CI builda as imagens a cada PR.
+- **Versões.** Cada entrega na `main` vira uma versão, com tag no Git e o que mudou no [`CHANGELOG.md`](../CHANGELOG.md), item por item com o número do PR.
 
 ---
 

@@ -4,12 +4,20 @@ Plataforma de adoção de animais, criada como projeto final da Trilha Dev. Full
 
 ONGs, abrigos e pessoas que resgataram um animal cadastram os animais pra adoção. Quem quer adotar procura na vitrine, demonstra interesse e já recebe o contato do protetor. O sistema é a ponte: a conversa e a decisão acontecem fora dele.
 
-## No ar
+## Links do projeto
 
-- Site: https://adotaaqui.netlify.app
-- API: https://adota-aqui.onrender.com
+| O quê                                         | Onde                                                                                                 |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Site no ar                                    | https://adotaaqui.netlify.app                                                                        |
+| API no ar                                     | https://adota-aqui.onrender.com                                                                      |
+| Documentação da API (Swagger), pra testar     | https://adota-aqui.onrender.com/swagger-ui.html                                                      |
+| Repositório                                   | https://github.com/HayrineQueirozdeLima/Adota-Aqui                                                   |
+| Quadro de tarefas (GitHub Projects)           | https://github.com/users/HayrineQueirozdeLima/projects/3                                             |
+| Protótipo e design system (Figma)             | https://www.figma.com/design/WPaYohTNilNf8V0gU4OXTH                                                  |
+| Versões                                       | [`CHANGELOG.md`](CHANGELOG.md) e [Releases](https://github.com/HayrineQueirozdeLima/Adota-Aqui/releases) |
+| Requisitos (ERS) e casos de uso               | [`docs/requisitos/`](docs/requisitos/)                                                               |
 
-A API "dorme" depois de 15 minutos sem uso. O primeiro acesso depois disso pode levar cerca de 1 minuto.
+A API "dorme" depois de 15 minutos sem uso. O primeiro acesso depois disso pode levar cerca de 1 minuto (no site e no Swagger).
 
 ## Tecnologias
 
@@ -19,6 +27,9 @@ A API "dorme" depois de 15 minutos sem uso. O primeiro acesso depois disso pode 
 - Fotos dos animais: Amazon S3
 - Testes: JUnit e JaCoCo no back, Jest e Testing Library no front
 - CI: GitHub Actions, com cobertura mínima de 70% nos dois lados
+- Documentação da API: Swagger (springdoc-openapi), gerado a partir dos controllers
+- Docker: a imagem do back (a mesma que o Render usa) e um Docker Compose com banco, back e front
+- IA (opcional): Gemini, do Google, nas ajudas "Escrever com IA" e "Me ajuda a escolher"
 
 ## Documentação técnica
 
@@ -29,12 +40,36 @@ A API "dorme" depois de 15 minutos sem uso. O primeiro acesso depois disso pode 
 | Funcionalidades implementadas  | [`docs/funcionalidades.md`](docs/funcionalidades.md): cada tela, com regras, código, testes e print            |
 | Aspectos relevantes            | [`docs/aspectos-relevantes.md`](docs/aspectos-relevantes.md): decisões de design, desafios técnicos e soluções |
 
+E os diferenciais que o curso sugere:
+
+| Diferencial | Onde está |
+| ----------- | --------- |
+| Docker      | [`docker-compose.yml`](docker-compose.yml), [`backend/Dockerfile`](backend/Dockerfile) e [`frontend/Dockerfile`](frontend/Dockerfile). Como usar: [Rodar com Docker](#rodar-com-docker) |
+| Swagger     | https://adota-aqui.onrender.com/swagger-ui.html (e `http://localhost:8080/swagger-ui.html` na sua máquina) |
+
 Também ajudam:
 
-- [`docs/api.md`](docs/api.md): o contrato da API, com todos os endpoints e os erros
+- [`docs/api.md`](docs/api.md): o contrato da API, com todos os endpoints e os erros. O Swagger mostra os mesmos endpoints, pra testar no navegador
 - [`docs/deploy.md`](docs/deploy.md): onde cada parte roda, as variáveis de ambiente e o checklist da apresentação
 - [`docs/relatorio-de-testes.md`](docs/relatorio-de-testes.md): o resultado final dos testes e da cobertura
 - [`docs/README.md`](docs/README.md): o mapa de toda a pasta `docs/`, com os requisitos e os diagramas
+
+## Rodar com Docker
+
+Com o [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado, um comando sobe o banco, o back e o front, sem instalar Java, Maven, Node nem PostgreSQL:
+
+```bash
+git clone https://github.com/HayrineQueirozdeLima/Adota-Aqui.git
+cd Adota-Aqui
+docker compose up --build
+```
+
+A primeira vez demora uns minutos (baixa as imagens e as bibliotecas). Quando aparecer `Started AdotaAquiApplication`, abra:
+
+- Site: http://localhost:5173
+- Swagger: http://localhost:8080/swagger-ui.html
+
+Pra parar, `Ctrl+C`. Pra apagar também o banco, `docker compose down -v`. O banco começa vazio, e as fotos ficam na memória do back, como explica o passo 6 logo abaixo.
 
 ## Como rodar localmente
 
@@ -77,7 +112,7 @@ Ele sobe em `http://localhost:8080` e procura o banco em `localhost:5432` com o 
 DB_USERNAME=seu_usuario DB_PASSWORD=sua_senha mvn spring-boot:run
 ```
 
-Quando aparecer `Started AdotaAquiApplication` no terminal, o back está pronto. Pra conferir, abra http://localhost:8080/api/racas?especie=CAO no navegador: tem que aparecer a lista de raças.
+Quando aparecer `Started AdotaAquiApplication` no terminal, o back está pronto. Pra conferir, abra http://localhost:8080/api/racas?especie=CAO no navegador: tem que aparecer a lista de raças. A documentação da API, pra testar cada endpoint, fica em http://localhost:8080/swagger-ui.html.
 
 ### 5. Suba o front-end
 
@@ -121,6 +156,8 @@ Os relatórios ficam em `backend/target/site/jacoco/index.html` e `frontend/cove
 - `docs/`: documentação técnica, contrato da API, requisitos, diagramas e o SQL do banco de produção
 - `.github/workflows/`: o CI de cada PR e a conferência diária do site publicado
 - `render.yaml` e `netlify.toml`: a configuração do deploy
+- `docker-compose.yml`: o projeto inteiro (banco, back e front) com um comando
+- `CHANGELOG.md`: o histórico de versões
 
 ## Chegou agora? Começa por aqui
 
@@ -140,5 +177,6 @@ Os relatórios ficam em `backend/target/site/jacoco/index.html` e `frontend/cove
   Quando o PR entra, a issue fecha sozinha.
 - O PR só entra com o CI verde e pelo menos uma pessoa aprovando.
 - Mudou um endpoint? Atualiza o `docs/api.md` no mesmo PR.
+- Cada entrega na `main` vira uma versão: uma tag `vX.Y.Z` e o que mudou no [`CHANGELOG.md`](CHANGELOG.md), com o número de cada PR.
 
 Como o deploy funciona e como subir tudo do zero: [`docs/deploy.md`](docs/deploy.md).

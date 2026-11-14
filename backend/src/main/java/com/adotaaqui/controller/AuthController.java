@@ -6,6 +6,7 @@ import com.adotaaqui.dto.LoginRequest;
 import com.adotaaqui.dto.LoginResponse;
 import com.adotaaqui.service.AutenticacaoService;
 import com.adotaaqui.service.CadastroService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Cadastro e login", description = "Criar conta de pessoa física ou de abrigo, e entrar com CPF ou CNPJ")
 @RestController
 @RequestMapping("/api")
 public class AuthController {
