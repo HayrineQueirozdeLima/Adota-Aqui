@@ -39,6 +39,11 @@ Endereços: o site em https://adotaaqui.netlify.app e a API em https://adota-aqu
 | `JWT_EXPIRATION_MS`                           | Não         | Validade do token. Padrão: 24 horas (`86400000`)                                                                                                           |
 | `S3_ENDPOINT`                                 | Não         | Só pra usar outro serviço compatível com S3 no lugar da AWS                                                                                                |
 | `PORT`                                        | Não         | O Render preenche sozinho                                                                                                                                  |
+| `GEMINI_API_KEY`                              | Não         | Chave da IA, criada no Google AI Studio (aistudio.google.com/apikey), no nível gratuito e sem faturamento. Sem ela, a IA fica desligada e os botões de IA não aparecem |
+| `GEMINI_MODELO`                               | Não         | Modelo do Gemini. Padrão: `gemini-3.8-flash`                                                                                                                |
+| `IA_LIMITE_POR_HORA`                          | Não         | Quantos pedidos à IA cada conta (ou endereço, pra visitante) faz por hora. Padrão: `15`                                                                     |
+
+A IA é opcional: sem `GEMINI_API_KEY` o back sobe normal, e o log mostra "IA desligada". Com a chave, o log mostra "IA ligada" e o `GET /api/ia/disponivel` responde `{"disponivel": true}`. A chave fica só no Render, nunca no repositório nem em mensagem.
 
 Sem `JWT_SECRET`, `FOTOS_ARMAZENAMENTO=s3` ou `CORS_ORIGENS`, o back **não sobe** quando está ligado num banco de produção, e o log diz qual variável falta (`config/ConferenciaDoDeploy`). Isso evita, por exemplo, subir com a chave de desenvolvimento que está no repositório, com a qual qualquer pessoa conseguiria criar um token válido.
 

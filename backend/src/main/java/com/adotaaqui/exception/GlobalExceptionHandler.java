@@ -78,6 +78,18 @@ public class GlobalExceptionHandler {
         return responder(HttpStatus.FORBIDDEN, "Acesso não permitido");
     }
 
+    // A IA sem chave ou fora do ar: o resto do site segue normal
+    @ExceptionHandler(IaIndisponivelException.class)
+    public ResponseEntity<ErroResponse> tratarIaIndisponivel(IaIndisponivelException ex) {
+        return responder(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
+    }
+
+    // Pedidos demais à IA num intervalo curto
+    @ExceptionHandler(LimiteDeUsoException.class)
+    public ResponseEntity<ErroResponse> tratarLimiteDeUso(LimiteDeUsoException ex) {
+        return responder(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage());
+    }
+
     // ----- Corpo e parâmetros da requisição -----
 
     // @Valid no corpo (POST/PUT) e nos filtros da listagem (@ModelAttribute): uma mensagem por campo.

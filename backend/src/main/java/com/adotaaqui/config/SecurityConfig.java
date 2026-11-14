@@ -65,6 +65,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/artigos", "/api/artigos/*").permitAll()
                         // Página de abrigos e protetores: visitante também vê
                         .requestMatchers(HttpMethod.GET, "/api/protetores").permitAll()
+                        // IA: saber se está ligada e pedir sugestões de animais é aberto. Escrever a descrição precisa de login
+                        .requestMatchers(HttpMethod.GET, "/api/ia/disponivel").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/ia/sugestoes").permitAll()
                         // Feiras de adoção: qualquer pessoa vê. "Minhas feiras" precisa de login e vem antes
                         .requestMatchers(HttpMethod.GET, "/api/feiras/minhas").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/feiras", "/api/feiras/*").permitAll()

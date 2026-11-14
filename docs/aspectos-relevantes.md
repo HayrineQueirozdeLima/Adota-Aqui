@@ -146,6 +146,14 @@ O mapa de clínicas veterinárias (`/clinicas`) precisava funcionar em qualquer 
 
 Ficou o mapa do Google embutido na página (`output=embed`), já buscando "clínica veterinária" no lugar escolhido. Não precisa de chave, não custa nada e não passa pela nossa API: o site não guarda nem as clínicas nem onde a pessoa está, e a localização vai pro Google arredondada em uns 100 metros. O risco é que esse formato não é a API oficial. Se o Google parar de aceitar, a troca é pela Maps Embed API, que também é gratuita mas pede uma chave, e só muda o endereço montado em `utils/clinicas.js`.
 
+### IA com uma pessoa decidindo no fim
+
+As duas ajudas com IA foram pensadas pra não colocar a IA no lugar de ninguém. No "Escrever com IA", a sugestão aparece separada e só vai pro campo quando o protetor escolhe usar, e ele ainda edita. No "Me ajuda a escolher", a IA só aponta animais da lista que o back mandou: o back numera os animais disponíveis, manda a lista e só aceita de volta números dela, então a IA não tem como inventar um animal nem indicar um de outro estado. A conversa com o protetor continua sendo o caminho pra adotar.
+
+Pra IA não inventar características, as regras que vão junto pedem pra usar só os dados recebidos e tratar o texto da pessoa como informação, ignorando pedidos dentro dele pra mudar as regras. Vai pra IA só o que já é público no perfil do animal, e a tela pede pra pessoa não escrever dado pessoal, porque no nível gratuito o Google pode usar o que recebe pra melhorar os produtos dele.
+
+O Gemini foi escolhido porque tem nível gratuito sem cartão. A chave fica só no Render, a chamada vai com a chave no cabeçalho (fora da URL, pra não parar em log), e a IA é opcional: sem a chave, os botões somem e o site segue igual. O limite de 15 pedidos por hora por conta protege a cota de cliques repetidos e de robô. Nos testes, a IA é uma versão de mentira (Mockito), pra não depender da internet nem gastar a cota.
+
 ### O observatório mistura o que é nosso e o que é público
 
 Os números do site, sozinhos, ainda são poucos e de poucos estados, porque o Adota Aqui está começando. Por isso o observatório põe do lado dados públicos sobre cães e gatos, e cada um tem a fonte e a data na tela. Os do site vêm da API, ao vivo; os públicos ficam no código, porque nenhuma dessas fontes tem uma API simples, e a tabela do IBGE fica parada até a próxima pesquisa. O texto avisa que não existe censo oficial de animais abandonados no Brasil, e que os totais do país são estimativas.
@@ -241,5 +249,5 @@ A ERS (seção 6) já separava o que não cabia nos dois meses do curso. Na reun
 | Doação pelo site e apadrinhamento | Precisam de um serviço de pagamento, e o site passaria a intermediar dinheiro de outras pessoas, com taxa, estorno, contestação e risco de golpe. Num projeto de curso, só daria pra mostrar em modo de teste. O jeito mais simples numa próxima versão é o abrigo mostrar a própria chave PIX no perfil, com o dinheiro indo direto pra ele (ERS 6.2 e 6.6) |
 | Animais perdidos e encontrados | Dá pra fazer aproveitando o envio de fotos, os cards, os filtros e o local do animal, mas pede tabela e telas novas, validade pros anúncios antigos e um jeito de contato que não exponha o telefone. Leva de uma a duas semanas, então é a primeira da fila depois da apresentação (ERS 6.5) |
 | Receber denúncia de maus-tratos | Guardar denúncia é guardar dado sensível de outras pessoas, com risco de acusação falsa, e o site não tem como agir sobre o caso. Uma página só informativa, explicando que é crime e mostrando os canais oficiais, não guarda nada e pode entrar antes (ERS 6.11) |
-| Inteligência artificial | Reconhecer o animal pela foto, comparar fotos de perdidos e encontrados ou sugerir a descrição dependem de um serviço externo pago, de uma chave nova no Render e de uma pessoa conferindo o resultado (ERS 6.12) |
+| Inteligência artificial nas fotos | Reconhecer o animal pela foto ou comparar fotos de perdidos e encontrados precisa de um serviço de imagem pago e de alguém conferindo o resultado. A IA de texto entrou ([funcionalidades](funcionalidades.md#19-ajudas-com-inteligência-artificial)) (ERS 6.12) |
 | Aviso por e-mail de interesse novo | No MVP, o aviso é o próprio painel: interesse novo aparece como Pendente (`docs/api.md`, decisão 3) |

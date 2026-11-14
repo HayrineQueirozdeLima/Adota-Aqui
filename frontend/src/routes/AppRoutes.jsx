@@ -23,6 +23,7 @@ import QuemSomos from "../pages/QuemSomos/QuemSomos";
 import Clinicas from "../pages/Clinicas/Clinicas";
 import Feiras from "../pages/Feiras/Feiras";
 import Observatorio from "../pages/Observatorio/Observatorio";
+import MeAjudaAEscolher from "../pages/MeAjudaAEscolher/MeAjudaAEscolher";
 import FormularioFeira from "../pages/FormularioFeira/FormularioFeira";
 import Artigo from "../pages/Artigo/Artigo";
 import FormularioArtigo from "../pages/FormularioArtigo/FormularioArtigo";
@@ -58,6 +59,7 @@ export default function AppRoutes() {
           <Route path="/clinicas" element={<Clinicas />} />
           <Route path="/feiras" element={<Feiras />} />
           <Route path="/observatorio" element={<Observatorio />} />
+          <Route path="/me-ajuda-a-escolher" element={<MeAjudaAEscolher />} />
 
           {/* Precisam de login: sem login, a RotaProtegida manda pro /login */}
           <Route element={<RotaProtegida />}>
