@@ -9,6 +9,7 @@ import {
 // Endereços do Google Maps da página de clínicas (/clinicas)
 
 const portoVelho = { cidade: " Porto Velho ", estado: "RO" };
+const centro = { cidade: "Porto Velho", estado: "RO", bairro: " Centro " };
 const aqui = { latitude: -8.761234, longitude: -63.903876 };
 
 describe("textoDaBusca", () => {
@@ -24,6 +25,22 @@ describe("textoDaBusca", () => {
   test("pela localização, com o ponto arredondado em uns 100 metros", () => {
     expect(textoDaBusca("todas", aqui)).toBe(
       "veterinário perto de -8.761,-63.904",
+    );
+  });
+
+  test("pet shop com veterinário, porque muito veterinário atende dentro de pet shop", () => {
+    expect(textoDaBusca("petshop", portoVelho)).toBe(
+      "pet shop com veterinário em Porto Velho RO",
+    );
+  });
+
+  test("com o bairro, procura só naquela região", () => {
+    expect(textoDaBusca("todas", centro)).toBe(
+      "veterinário em Centro, Porto Velho RO",
+    );
+    // bairro em branco é como se não tivesse
+    expect(textoDaBusca("todas", { ...portoVelho, bairro: "  " })).toBe(
+      "veterinário em Porto Velho RO",
     );
   });
 
@@ -46,6 +63,10 @@ describe("enderecos do Google Maps", () => {
 
     const pelaLocalizacao = new URL(enderecoDoMapa("todas", aqui));
     expect(pelaLocalizacao.searchParams.get("z")).toBe("14");
+
+    // O bairro é a área menor: abre mais perto ainda, pra aparecerem mais lugares dele
+    const peloBairro = new URL(enderecoDoMapa("todas", centro));
+    expect(peloBairro.searchParams.get("z")).toBe("15");
   });
 
   test("o botão usa o link oficial do Maps", () => {
@@ -62,6 +83,7 @@ describe("enderecos do Google Maps", () => {
 
 test("nomeDoLugar", () => {
   expect(nomeDoLugar(portoVelho)).toBe("Porto Velho/RO");
+  expect(nomeDoLugar(centro)).toBe("Centro, Porto Velho/RO");
   expect(nomeDoLugar(aqui)).toBe("você");
 });
 
