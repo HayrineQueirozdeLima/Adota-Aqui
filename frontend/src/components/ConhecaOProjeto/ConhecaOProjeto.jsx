@@ -7,7 +7,7 @@ export default function ConhecaOProjeto() {
       aria-labelledby="conheca-titulo"
       className="mx-auto w-full max-w-[1440px] px-5 py-12 md:px-14 md:py-16"
     >
-      <div className="flex flex-col gap-6 rounded-[20px] border border-borda-sutil bg-fundo-superficie p-6 md:flex-row md:items-center md:justify-between md:p-10">
+      <div className="revelar-ao-rolar flex flex-col gap-6 rounded-[20px] border border-borda-sutil bg-fundo-superficie p-6 md:flex-row md:items-center md:justify-between md:p-10">
         <div className="max-w-[640px]">
           <p className="font-titulo text-overline font-semibold uppercase text-texto-terciario">
             Quem somos

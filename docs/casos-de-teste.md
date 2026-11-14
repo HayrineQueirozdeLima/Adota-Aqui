@@ -2,8 +2,8 @@
 
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
-- **Versão:** 1.18 (novembro de 2026)
-- **Total:** 115 casos, 107 já automatizados e 8 manuais
+- **Versão:** 1.19 (novembro de 2026)
+- **Total:** 116 casos, 108 já automatizados e 8 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
 
@@ -39,6 +39,7 @@ A coluna **Automatizado em** mostra o arquivo de teste que já confere o caso. O
 | CT-NAV-11 | Patinhas | UI | Com mouse, o caminho dele deixa pegadas laranja alternando de lado, que somem sozinhas (no máximo 24 na tela). Toque na tela não deixa pegada. A faixa "Como funciona" e o painel do login têm a trilha de patas no fundo, escondida do leitor de tela. Quem pediu menos movimento não vê o rastro e vê a trilha parada | `RastroDePatas.test.jsx`, `TrilhaDePatas.test.jsx`, `curva.test.js` |
 | CT-NAV-12 | Topo fixo com as páginas do site | Funcional | O topo fica preso no alto ao rolar. Do computador grande (1280 px) pra cima mostra Animais, Me ajuda a escolher (só com a IA ligada), Feiras, Clínicas, Observatório e Blog, com a página atual marcada. Abaixo disso, o botão "Menu" abre a mesma lista, que fecha com Esc (o foco volta pro botão), com clique fora e ao trocar de página. O "Pular para o conteúdo" leva o foco pro começo da página | `Navbar.test.jsx` |
 | CT-NAV-13 | Recursos na página inicial | Funcional | Logo depois dos números do site, a faixa "Tudo pra uma adoção responsável" leva pra Me ajuda a escolher (só com a IA ligada), Feiras de adoção, Clínicas veterinárias e Observatório da adoção | `Home.test.jsx` |
+| CT-NAV-14 | Animações da Home e do Quem somos | UI | Na Home, o começo da página entra devagar e cada bloco sobe e aparece quando entra na tela, inclusive os que chegam depois da API. Os números do site e do observatório contam até o valor, e o leitor de tela ouve só o valor final. No Quem somos, a trilha da história fica laranja conforme a leitura e acende a pata de cada parte. Quem pediu menos movimento vê tudo pronto, sem nada escondido | `Animacoes.test.jsx` |
 
 ### Módulo 2: Cadastro, login e sessão
 
@@ -228,7 +229,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 
 | Módulo                                     | Casos  | Automatizados | Manuais |
 | ------------------------------------------ | ------ | ------------- | ------- |
-| 1. Navegação e página inicial              | 13     | 12            | 1       |
+| 1. Navegação e página inicial              | 14     | 13            | 1       |
 | 2. Cadastro, login e sessão                | 9      | 9             | 0       |
 | 3. Vitrine, busca e filtros                | 11     | 11            | 0       |
 | 4. Perfil do animal e interesse            | 9      | 8             | 1       |
@@ -245,7 +246,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | 15. Observatório da adoção                 | 4      | 4             | 0       |
 | 16. Ajudas com inteligência artificial     | 5      | 4             | 1       |
 | 17. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
-| **Total**                                  | **115** | **107**      | **8**   |
+| **Total**                                  | **116** | **108**      | **8**   |
 
 A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta tabela: ela é medida pelo JaCoCo e pelo Jest a cada push, como explica o [plano de testes](plano-de-testes.md). Esta tabela mostra outra coisa: quantos comportamentos importantes já têm teste automático e quantos ainda dependem de alguém testar à mão.
 

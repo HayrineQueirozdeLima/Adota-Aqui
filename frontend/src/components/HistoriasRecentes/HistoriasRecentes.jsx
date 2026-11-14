@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CardDepoimento from "../CardDepoimento/CardDepoimento";
+import Revelar from "../Revelar/Revelar";
 import { listarDepoimentos } from "../../services/depoimentos";
 
 // As 3 histórias de adoção mais novas, na Home, com o link pro mural.
@@ -42,12 +43,10 @@ export default function HistoriasRecentes() {
         </Link>
       </div>
       <div className="mt-5 grid gap-[22px] md:grid-cols-2 lg:grid-cols-3">
-        {historias.map((historia) => (
-          <CardDepoimento
-            key={historia.id}
-            depoimento={historia}
-            nivelDoTitulo={3}
-          />
+        {historias.map((historia, posicao) => (
+          <Revelar key={historia.id} ordem={posicao % 3}>
+            <CardDepoimento depoimento={historia} nivelDoTitulo={3} />
+          </Revelar>
         ))}
       </div>
     </section>

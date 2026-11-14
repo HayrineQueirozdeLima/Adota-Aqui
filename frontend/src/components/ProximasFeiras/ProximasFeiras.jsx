@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CardFeira from "../CardFeira/CardFeira";
+import Revelar from "../Revelar/Revelar";
 import { listarFeiras } from "../../services/feiras";
 
 // As 2 próximas feiras de adoção do Brasil, na Home, com o link pra página de feiras.
@@ -42,8 +43,10 @@ export default function ProximasFeiras() {
         </Link>
       </div>
       <div className="mt-5 grid gap-[22px] lg:grid-cols-2 lg:items-start">
-        {feiras.map((feira) => (
-          <CardFeira key={feira.id} feira={feira} nivelDoTitulo={3} />
+        {feiras.map((feira, posicao) => (
+          <Revelar key={feira.id} ordem={posicao}>
+            <CardFeira feira={feira} nivelDoTitulo={3} />
+          </Revelar>
         ))}
       </div>
     </section>

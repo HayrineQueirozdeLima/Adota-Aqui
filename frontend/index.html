@@ -46,6 +46,15 @@
           (!tema && window.matchMedia("(prefers-color-scheme: dark)").matches);
         if (escuro) document.documentElement.classList.add("tema-escuro");
       } catch (erro) {}
+      // Animações ao rolar (hooks/useRevelarAoRolar): só liga se o navegador sabe observar a rolagem
+      // e a pessoa não pediu menos movimento. Vem aqui, antes do site desenhar, pra nada piscar
+      try {
+        if (
+          "IntersectionObserver" in window &&
+          window.matchMedia("(prefers-reduced-motion: no-preference)").matches
+        )
+          document.documentElement.classList.add("animar");
+      } catch (erro) {}
     </script>
   </head>
   <body>

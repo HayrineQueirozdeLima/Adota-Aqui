@@ -55,7 +55,7 @@ export default function ComoFunciona() {
         </h2>
         <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {passos.map((passo, posicao) => (
-            <li key={passo.titulo} className="rounded-[16px] bg-fundo-superficie p-5">
+            <li key={passo.titulo} className="revelar-ao-rolar rounded-[16px] bg-fundo-superficie p-5" style={{ "--ordem": posicao }}>
               <Tag variante={passo.cor}>Passo {String(posicao + 1).padStart(2, "0")}</Tag>
               <h3 className="mt-4 font-titulo text-item font-semibold text-texto-principal">{passo.titulo}</h3>
               <p className="mt-2 text-compacto text-texto-secundario">{passo.texto}</p>

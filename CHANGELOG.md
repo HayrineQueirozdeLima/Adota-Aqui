@@ -17,6 +17,7 @@ O que foi feito depois da entrega, pra apresentação:
 - Topo fixo com as páginas do site, "Minha área" pra quem está logado, os recursos novos na Home e o mapa de clínicas buscando "veterinário" (#147)
 - Swagger com a documentação da API, Docker Compose pra rodar tudo com um comando e este histórico de versões (#149)
 - Foto de perfil pra pessoa e abrigo, no topo, nos cards dos animais e na página de abrigos e protetores (#151)
+- Animações na Home e no Quem somos: blocos que sobem ao rolar, números que contam até o valor e a trilha da história que fica laranja conforme a leitura (#155)
 
 ## 1.3.0 (12/11/2026)
 

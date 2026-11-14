@@ -4,7 +4,8 @@ import fotoLarga960 from "../../assets/fotos/apresentacao-larga-960.webp";
 import fotoLarga1600 from "../../assets/fotos/apresentacao-larga-1600.webp";
 
 // Topo da Home (Figma: Home, Desktop, Tablet e Celular) com a faixa da guarda responsável logo abaixo.
-// As cores que mudam com o tamanho da tela e com o tema estão no index.css (.apresentacao)
+// As cores que mudam com o tamanho da tela e com o tema estão no index.css (.apresentacao).
+// Quando a página abre, a foto assenta devagar e o texto sobe em seguida (.foto-assentar e .entrar, no index.css)
 export default function Apresentacao() {
   return (
     <>
@@ -22,7 +23,7 @@ export default function Apresentacao() {
           <img
             src={fotoCelular}
             alt=""
-            className="absolute inset-0 -z-20 size-full object-cover object-bottom md:object-left"
+            className="foto-assentar absolute inset-0 -z-20 size-full object-cover object-bottom md:object-left"
           />
         </picture>
         <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[var(--apresentacao-veu)]" />
@@ -31,15 +32,15 @@ export default function Apresentacao() {
           <div className="max-w-[560px]">
             <h1
               id="apresentacao-titulo"
-              className="font-titulo text-[34px] font-semibold leading-[1.1] tracking-[-0.02em] text-[var(--apresentacao-titulo)] md:text-[46px] lg:text-[54px]"
+              className="entrar font-titulo text-[34px] font-semibold leading-[1.1] tracking-[-0.02em] text-[var(--apresentacao-titulo)] md:text-[46px] lg:text-[54px]"
             >
               Todo animal <span className="text-[var(--apresentacao-destaque)]">merece</span> um lar de verdade.
             </h1>
-            <p className="mt-4 text-corpo text-[var(--apresentacao-texto)] md:text-[17px]">
+            <p className="entrar mt-4 text-corpo text-[var(--apresentacao-texto)] [--atraso:120ms] md:text-[17px]">
               Resgatou um animal, possui um abrigo, ou quer somar alegria em casa adotando um pet? Nós te ajudamos!
             </p>
             {/* O contorno do segundo botão é branco em cima da foto escura e roxo em cima da foto clara */}
-            <div className="mt-7 flex flex-col gap-3 [--texto-sobre-marca:var(--apresentacao-contorno)] md:flex-row md:justify-end">
+            <div className="entrar mt-7 flex flex-col gap-3 [--atraso:240ms] [--texto-sobre-marca:var(--apresentacao-contorno)] md:flex-row md:justify-end">
               <Botao para="/animais">Ver animais disponíveis</Botao>
               <Botao variante="contorno" para="/meus-animais/novo">
                 Resgatei um animal

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import NumeroQueSobe from "../NumeroQueSobe/NumeroQueSobe";
 import { buscarEstatisticas } from "../../services/estatisticas";
 
 // Os números do site, logo abaixo da apresentação da Home (ERS, escopo futuro 6.7).
-// Se a API falhar, a faixa some: ela é um extra, e a Home funciona sem ela
+// Se a API falhar, a faixa some: ela é um extra, e a Home funciona sem ela.
+// Os cartões aparecem um depois do outro e os números contam do zero quando entram na tela
 const formato = new Intl.NumberFormat("pt-BR");
 
 function itens({ adocoes, animaisDisponiveis, abrigos }) {
@@ -61,15 +63,16 @@ export default function Estatisticas() {
       </h2>
       {/* Enquanto carrega, os cartões já ocupam o lugar: assim a vitrine não pula pra baixo */}
       <ul className="mt-3 grid grid-cols-3 gap-2 sm:gap-3" aria-busy={!numeros}>
-        {(numeros ? itens(numeros) : itens({})).map((item) => (
+        {(numeros ? itens(numeros) : itens({})).map((item, posicao) => (
           <li
             key={item.chave}
-            className="rounded-[16px] border border-borda-sutil bg-fundo-superficie px-3 py-3 sm:px-5 sm:py-4"
+            className="revelar-ao-rolar rounded-[16px] border border-borda-sutil bg-fundo-superficie px-3 py-3 sm:px-5 sm:py-4"
+            style={{ "--ordem": posicao }}
           >
             {numeros ? (
               <>
                 <p className="font-titulo text-secao font-semibold text-marca-roxo sm:text-display">
-                  {formato.format(item.valor)}
+                  <NumeroQueSobe valor={item.valor} formatar={formato.format} />
                 </p>
                 <p className="mt-1 text-legenda text-texto-secundario sm:text-compacto">
                   {item.valor === 1 ? item.um : item.varios}
