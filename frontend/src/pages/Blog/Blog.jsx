@@ -101,7 +101,9 @@ export default function Blog() {
       .then((resultado) => {
         if (busca !== buscaAtual.current) return;
         const vistos = new Set(artigos.map((artigo) => artigo.id));
-        const novos = resultado.itens.filter((artigo) => !vistos.has(artigo.id));
+        const novos = resultado.itens.filter(
+          (artigo) => !vistos.has(artigo.id),
+        );
         setArtigos([...artigos, ...novos]);
         setTotal(resultado.totalItens);
         setPagina(proxima);
@@ -179,12 +181,13 @@ export default function Blog() {
           <p>
             A ideia é a comunidade se ajudar. Quem já resgatou, cuidou ou abriga
             animais aprendeu muita coisa na prática, e isso pode fazer diferença
-            pra quem está pensando em adotar ou acabou de levar um animal pra casa.
+            pra quem está pensando em adotar ou acabou de levar um animal pra
+            casa.
           </p>
           <p>
             Aqui os abrigos e os protetores contam o que sabem sobre adoção
             responsável, os primeiros dias em casa, saúde, comportamento e
-            alimentação. Qualquer pessoa lê, sem precisar de conta.
+            alimentação.
           </p>
           {convite() && <p>{convite()}</p>}
         </div>
@@ -204,7 +207,11 @@ export default function Blog() {
           Todos
         </Chip>
         {categoriasDeArtigo.map(({ valor, nome }) => (
-          <Chip key={valor} ativo={filtro === valor} onClick={() => escolher(valor)}>
+          <Chip
+            key={valor}
+            ativo={filtro === valor}
+            onClick={() => escolher(valor)}
+          >
             {nome}
           </Chip>
         ))}
@@ -253,7 +260,10 @@ export default function Blog() {
               )}
             </div>
           ) : (
-            <div ref={grade} className="grid gap-[22px] md:grid-cols-2 lg:grid-cols-3">
+            <div
+              ref={grade}
+              className="grid gap-[22px] md:grid-cols-2 lg:grid-cols-3"
+            >
               {lista.map((artigo) => (
                 <CardArtigo key={artigo.id} artigo={artigo} />
               ))}
@@ -265,11 +275,18 @@ export default function Blog() {
                 Mostrando {artigos.length} de {total} artigos
               </p>
               {erroMais && (
-                <p role="alert" className="text-center text-compacto text-status-erro-texto">
+                <p
+                  role="alert"
+                  className="text-center text-compacto text-status-erro-texto"
+                >
                   Não foi possível carregar mais artigos. Tente de novo.
                 </p>
               )}
-              <Botao variante="secundario" onClick={verMais} disabled={carregandoMais}>
+              <Botao
+                variante="secundario"
+                onClick={verMais}
+                disabled={carregandoMais}
+              >
                 {carregandoMais ? "Carregando..." : "Ver mais artigos"}
               </Botao>
             </div>

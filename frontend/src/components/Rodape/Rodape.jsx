@@ -10,6 +10,7 @@ const plataforma = [
   { texto: "Histórias de adoção", para: "/historias" },
   { texto: "Blog para tutores", para: "/blog" },
   { texto: "Abrigos e protetores independentes", para: "/protetores" },
+  { texto: "Clínicas veterinárias", para: "/clinicas" },
   { texto: "Cadastrar um animal", para: "/meus-animais/novo" },
 ];
 

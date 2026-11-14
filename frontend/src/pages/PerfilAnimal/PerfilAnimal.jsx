@@ -23,6 +23,7 @@ import {
   sexos,
   statusDoInteresse,
 } from "../../utils/rotulos";
+import { linkDasClinicas } from "../../utils/clinicas";
 import fotoNaoEncontrado from "../../assets/fotos/pagina-nao-encontrada.webp";
 import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
 
@@ -235,6 +236,17 @@ function Perfil({ animal, usuario, aoMudar }) {
           <p className="rounded-[16px] bg-status-atencao-fundo px-5 py-4 text-compacto text-status-atencao-texto">
             <strong>Guarda responsável é obrigatória.</strong> Maus-tratos e
             abandono são crimes no Brasil (Leis nº 9.605/1998 e nº 14.064/2020).
+          </p>
+          {/* Leva pro mapa já na cidade do animal */}
+          <p className="rounded-[16px] border border-borda-sutil bg-fundo-superficie px-5 py-4 text-compacto text-texto-secundario">
+            Vai adotar? Veja as{" "}
+            <Link
+              to={linkDasClinicas(animal)}
+              className="font-semibold text-marca-roxo underline"
+            >
+              clínicas veterinárias perto de {localDoAnimal(animal)}
+            </Link>
+            .
           </p>
         </aside>
       </div>

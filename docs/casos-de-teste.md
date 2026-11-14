@@ -2,8 +2,8 @@
 
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
-- **Versão:** 1.10 (novembro de 2026)
-- **Total:** 89 casos, 85 já automatizados e 4 manuais
+- **Versão:** 1.11 (novembro de 2026)
+- **Total:** 93 casos, 88 já automatizados e 5 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
 
@@ -11,7 +11,7 @@ Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o 
 
 Garantir que o Adota Aqui funciona do jeito que os requisitos pedem: cadastro e login seguros, vitrine com filtros, perfil do animal, demonstração de interesse com termo e triagem, cadastro de animais e o painel em que o protetor aprova a adoção. Também entram usabilidade, acessibilidade, segurança e desempenho.
 
-**Coberto:** página inicial e navegação, cadastro e login, vitrine, busca e filtros, perfil do animal, demonstração de interesse e desistência, cadastro de animal e Meus animais, painel de interesses recebidos, Minhas candidaturas, Meu perfil, histórias de adoção, blog, abrigos e protetores, Quem somos, acessibilidade, segurança e desempenho.
+**Coberto:** página inicial e navegação, cadastro e login, vitrine, busca e filtros, perfil do animal, demonstração de interesse e desistência, cadastro de animal e Meus animais, painel de interesses recebidos, Minhas candidaturas, Meu perfil, histórias de adoção, blog, abrigos e protetores, Quem somos, clínicas veterinárias, acessibilidade, segurança e desempenho.
 
 **Fora do escopo desta fase:**
 
@@ -31,7 +31,7 @@ A coluna **Automatizado em** mostra o arquivo de teste que já confere o caso. O
 | CT-NAV-03 | Menu conforme a conta   | Funcional      | Visitante vê "Cadastrar" e "Entrar". Logado vê "Explorar", "Meus animais" e "Interesses recebidos", e só pessoa física vê "Minhas candidaturas"                                                                                                                                        | `Navbar.test.jsx`                         |
 | CT-NAV-04 | Endereço que não existe | Funcional      | Aparece "Página não encontrada", com o menu e os botões "Ver animais disponíveis" e "Ir para a página inicial"                                                                                                                                                                         | `App.test.jsx`                            |
 | CT-NAV-05 | Trocar o tema           | UI             | O botão do topo troca entre claro e escuro, e a escolha continua depois de recarregar a página. Quem nunca escolheu vê o tema do sistema operacional                                                                                                                                   | `BotaoTema.test.jsx`                      |
-| CT-NAV-06 | Links do rodapé         | Funcional      | "Quem somos", "Explorar animais", "Como adotar", "Histórias de adoção", "Blog para tutores", "Abrigos e protetores independentes" (a página de abrigos e protetores, não mais o cadastro) e "Cadastrar um animal" levam pra tela certa | `Rodape.test.jsx`, `Home.test.jsx`        |
+| CT-NAV-06 | Links do rodapé         | Funcional      | "Quem somos", "Explorar animais", "Como adotar", "Histórias de adoção", "Blog para tutores", "Abrigos e protetores independentes" (a página de abrigos e protetores, não mais o cadastro), "Clínicas veterinárias" e "Cadastrar um animal" levam pra tela certa | `Rodape.test.jsx`, `Home.test.jsx`        |
 | CT-NAV-07 | Trocar de página        | UI             | A página nova abre no topo, mesmo vindo do fim da anterior (ex.: um link do rodapé). Voltar no navegador devolve a pessoa onde ela estava                                                                                                                                              | `RolarParaOTopo.test.jsx`                 |
 | CT-NAV-08 | Título da aba           | Acessibilidade | Cada página mostra o nome dela na aba do navegador (ex.: "Meus animais"), e o leitor de tela anuncia a página nova                                                                                                                                                                     | `App.test.jsx`, `EditarAnimal.test.jsx`   |
 | CT-NAV-09 | Números do site | Funcional | A página inicial mostra as adoções feitas, os animais esperando um lar e os abrigos cadastrados, com ponto no milhar e singular no 1. Se a API falhar, a faixa some e o resto da página funciona | `Estatisticas.test.jsx`, `Home.test.jsx`, `EstatisticasIntegrationTest.java` |
@@ -166,7 +166,16 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | CT-PRT-04 | Mais de uma página               | Funcional | Vem de 12 em 12. O "Ver mais" traz os próximos e leva o foco pro primeiro card novo                                                                                        | `ProtetorIntegrationTest.java`, `Protetores.test.jsx` |
 | CT-PRT-05 | Dados pessoais protegidos        | Segurança | A lista não mostra e-mail, telefone, CPF nem CNPJ. O contato continua aparecendo só depois que alguém demonstra interesse                                                   | `ProtetorIntegrationTest.java`                        |
 
-### Módulo 13: Desempenho, acessibilidade e segurança
+### Módulo 13: Clínicas veterinárias
+
+| ID        | Cenário                       | Tipo      | Resultado esperado | Automatizado em |
+| --------- | ----------------------------- | --------- | ------------------ | --------------- |
+| CT-CLI-01 | Procurar pela cidade          | Funcional | Com a cidade e o estado, aparece o mapa das clínicas daquele lugar, a cidade vai pro endereço da página e o foco vai pro título do mapa. Sem cidade ou sem estado, avisa o que falta e leva o foco pro campo. "Atendimento 24 horas" troca a busca do mapa | `Clinicas.test.jsx`, `clinicas.test.js` |
+| CT-CLI-02 | Usar a localização            | Funcional | Com a permissão, o mapa mostra as clínicas perto da pessoa, e o ponto (arredondado em uns 100 metros) não vai pro endereço da página. Sem a permissão, explica e deixa digitar a cidade. Navegador sem localização não mostra o botão | `Clinicas.test.jsx`, `clinicas.test.js` |
+| CT-CLI-03 | Abrir já num lugar            | Funcional | Quem está logado abre na cidade do perfil. O link do perfil do animal abre na cidade do animal, que vale mais que a do perfil | `Clinicas.test.jsx`, `PerfilAnimal.test.jsx`, `App.test.jsx` |
+| CT-CLI-04 | Mapa do Google no site        | Funcional | No site publicado, no computador e no celular, o mapa mostra clínicas de verdade da cidade escolhida, de uma cidade de cada região. "Abrir no Google Maps" abre o Maps em outra aba (no celular, o app) | Manual |
+
+### Módulo 14: Desempenho, acessibilidade e segurança
 
 | ID        | Cenário                            | Tipo           | Resultado esperado                                                                                                                                                                                                           | Automatizado em                                                                             |
 | --------- | ---------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
@@ -194,8 +203,9 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | 10. Histórias de adoção                    | 5      | 5             | 0       |
 | 11. Blog para tutores                          | 5      | 5             | 0       |
 | 12. Abrigos e protetores                   | 5      | 5             | 0       |
-| 13. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
-| **Total**                                  | **89** | **85**        | **4**   |
+| 13. Clínicas veterinárias                  | 4      | 3             | 1       |
+| 14. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
+| **Total**                                  | **93** | **88**        | **5**   |
 
 A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta tabela: ela é medida pelo JaCoCo e pelo Jest a cada push, como explica o [plano de testes](plano-de-testes.md). Esta tabela mostra outra coisa: quantos comportamentos importantes já têm teste automático e quantos ainda dependem de alguém testar à mão.
 
@@ -211,6 +221,6 @@ A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta ta
 
 **Registro da rodada manual:** antes de cada entrega, preencher:
 
-| Data | Quem testou | Navegador e tela | CT-NAV-02 | CT-NFR-01 | CT-NFR-06 |
-| ---- | ----------- | ---------------- | --------- | --------- | --------- |
-|      |             |                  |           |           |           |
+| Data | Quem testou | Navegador e tela | CT-NAV-02 | CT-CLI-04 | CT-NFR-01 | CT-NFR-06 |
+| ---- | ----------- | ---------------- | --------- | --------- | --------- | --------- |
+|      |             |                  |           |           |           |           |

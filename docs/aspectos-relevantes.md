@@ -134,6 +134,12 @@ No Figma, os botões de salvar ficam no topo, ao lado do título. No computador 
 
 Ficou assim, e não com dois pares de botões (um escondido em cada tamanho de tela), pra ter um botão só na página: o leitor de tela não acha dois "Salvar alterações", e os testes procuram o botão pelo nome sem ambiguidade. A ordem do teclado segue o HTML: a pessoa passa pelos campos e chega no salvar.
 
+### O mapa de clínicas é o do Google, embutido
+
+O mapa de clínicas veterinárias (`/clinicas`) precisava funcionar em qualquer cidade do Brasil. Os dados abertos do OpenStreetMap são gratuitos, mas o cadastro de clínicas é bem desigual entre as cidades, e o mapa ainda pediria uma biblioteca nova. A busca do Google Places tem os dados, mas é paga.
+
+Ficou o mapa do Google embutido na página (`output=embed`), já buscando "clínica veterinária" no lugar escolhido. Não precisa de chave, não custa nada e não passa pela nossa API: o site não guarda nem as clínicas nem onde a pessoa está, e a localização vai pro Google arredondada em uns 100 metros. O risco é que esse formato não é a API oficial. Se o Google parar de aceitar, a troca é pela Maps Embed API, que também é gratuita mas pede uma chave, e só muda o endereço montado em `utils/clinicas.js`.
+
 ### Tema claro e escuro, e acessibilidade
 
 As cores são variáveis CSS com os nomes do Figma, e o tema escuro troca só os valores. Assim nenhuma tela precisa de classe pra cada tema, e um componente novo já nasce funcionando nos dois. A escolha fica salva no navegador, e sem escolha vale a do sistema operacional.
@@ -215,14 +221,13 @@ Todas as telas usam rótulo em todo campo, foco visível pelo teclado, mensagem 
 
 ## O que ficou de fora
 
-A ERS (seção 6) já separava o que não cabia nos dois meses do curso. Na reunião de 04/11, o tutor sugeriu outras ideias pra evoluir o site, e a equipe avaliou cada uma. As que dão pra fazer, mas não cabem antes da apresentação final, entraram na mesma seção da ERS (de 6.10 a 6.12, e as avaliações em 6.2, 6.5 e 6.8) e nesta tabela. Ficaram pra uma próxima versão:
+A ERS (seção 6) já separava o que não cabia nos dois meses do curso. Na reunião de 04/11, o tutor sugeriu outras ideias pra evoluir o site, e a equipe avaliou cada uma. As que dão pra fazer, mas não cabiam antes da apresentação final, entraram na mesma seção da ERS (de 6.10 a 6.12, e as avaliações em 6.2, 6.5 e 6.8) e nesta tabela. Depois, o mapa de clínicas veterinárias (ERS 6.10) acabou entrando ([funcionalidades](funcionalidades.md#16-clínicas-veterinárias-perto-de-você)). Ficaram pra uma próxima versão:
 
 | O quê | Por quê ficou de fora |
 | --- | --- |
 | Formulário completo de candidatura | Coletaria dados de outras pessoas da casa, o que pede um cuidado com a LGPD maior que o aviso do RF13. No lugar, entrou a triagem curta do RF15, com a opção de responder direto ao protetor |
 | Doação pelo site e apadrinhamento | Precisam de um serviço de pagamento, e o site passaria a intermediar dinheiro de outras pessoas, com taxa, estorno, contestação e risco de golpe. Num projeto de curso, só daria pra mostrar em modo de teste. O jeito mais simples numa próxima versão é o abrigo mostrar a própria chave PIX no perfil, com o dinheiro indo direto pra ele (ERS 6.2 e 6.6) |
 | Animais perdidos e encontrados | Dá pra fazer aproveitando o envio de fotos, os cards, os filtros e o local do animal, mas pede tabela e telas novas, validade pros anúncios antigos e um jeito de contato que não exponha o telefone. Leva de uma a duas semanas, então é a primeira da fila depois da apresentação (ERS 6.5) |
-| Mapa de clínicas veterinárias | Dá pra fazer só no front, sem custo, com os dados abertos do OpenStreetMap, mas o cadastro de clínicas no Brasil é incompleto e faltaria clínica em várias cidades. O Google Places tem dados melhores, mas é pago (ERS 6.10) |
 | Receber denúncia de maus-tratos | Guardar denúncia é guardar dado sensível de outras pessoas, com risco de acusação falsa, e o site não tem como agir sobre o caso. Uma página só informativa, explicando que é crime e mostrando os canais oficiais, não guarda nada e pode entrar antes (ERS 6.11) |
 | Dados e mapas pra políticas públicas | Um painel de adoções e animais por estado dá pra tirar dos dados que já existem. O mapa por região precisa de uma biblioteca de mapas e de mais dados reais do que a versão de demonstração tem (ERS 6.8) |
 | Inteligência artificial | Reconhecer o animal pela foto, comparar fotos de perdidos e encontrados ou sugerir a descrição dependem de um serviço externo pago, de uma chave nova no Render e de uma pessoa conferindo o resultado (ERS 6.12) |

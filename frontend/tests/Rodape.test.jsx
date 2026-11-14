@@ -20,6 +20,7 @@ test("os links da plataforma levam pras telas do site", () => {
     "Histórias de adoção": "/historias",
     "Blog para tutores": "/blog",
     "Abrigos e protetores independentes": "/protetores",
+    "Clínicas veterinárias": "/clinicas",
     "Cadastrar um animal": "/meus-animais/novo",
   };
   for (const [nome, destino] of Object.entries(destinos)) {

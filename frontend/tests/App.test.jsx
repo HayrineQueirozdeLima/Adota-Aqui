@@ -130,3 +130,18 @@ test("o Quem somos abre no /quem-somos", () => {
   ).toBeInTheDocument();
   expect(document.title).toBe("Quem somos | Adota Aqui");
 });
+
+test("as clínicas veterinárias abrem no /clinicas, já na cidade do link", () => {
+  render(
+    <MemoryRouter initialEntries={["/clinicas?cidade=Recife&estado=PE"]}>
+      <App />
+    </MemoryRouter>,
+  );
+  expect(
+    screen.getByRole("heading", {
+      level: 2,
+      name: "Clínicas veterinárias perto de Recife/PE",
+    }),
+  ).toBeInTheDocument();
+  expect(document.title).toBe("Clínicas veterinárias | Adota Aqui");
+});
