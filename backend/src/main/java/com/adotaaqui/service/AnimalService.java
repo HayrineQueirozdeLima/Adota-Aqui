@@ -56,8 +56,10 @@ public class AnimalService {
     private final LimpezaDeFotos limpezaDeFotos;
     private final DepoimentoRepository depoimentos;
 
-    // A vitrine mostra os mais novos primeiro. O id desempata, pra ordem não mudar de uma página pra outra
+    // A vitrine mostra os mais novos primeiro, ou quem espera há mais tempo se a pessoa pedir.
+    // O id desempata, pra ordem não mudar de uma página pra outra
     private static final Sort MAIS_NOVOS_PRIMEIRO = Sort.by(Sort.Order.desc("cadastradoEm"), Sort.Order.asc("id"));
+    private static final Sort MAIS_ANTIGOS_PRIMEIRO = Sort.by(Sort.Order.asc("cadastradoEm"), Sort.Order.asc("id"));
 
     public AnimalService(AnimalRepository animais, UsuarioRepository usuarios, AbrigoRepository abrigos,
                          InteresseRepository interesses, LimpezaDeFotos limpezaDeFotos,
@@ -91,7 +93,8 @@ public class AnimalService {
     public PaginaResponse<AnimalListagemResponse> listar(AnimalFiltroRequest filtro, Authentication autenticacao) {
         Conta conta = conta(autenticacao, false);
         String estado = conta != null && conta.usuario() != null ? conta.usuario().getEndereco().getEstado() : null;
-        PageRequest pagina = PageRequest.of(filtro.paginaPedida(), filtro.tamanhoPedido(), MAIS_NOVOS_PRIMEIRO);
+        Sort ordem = filtro.maisAntigosPrimeiro() ? MAIS_ANTIGOS_PRIMEIRO : MAIS_NOVOS_PRIMEIRO;
+        PageRequest pagina = PageRequest.of(filtro.paginaPedida(), filtro.tamanhoPedido(), ordem);
         return PaginaResponse.de(animais.findAll(AnimalSpecifications.disponiveis(filtro, estado), pagina),
                 AnimalMapper::item);
     }

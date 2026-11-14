@@ -9,6 +9,7 @@ import {
   iniciais,
   corDaConvivencia,
   localDoAnimal,
+  tempoEsperando,
 } from "../../utils/rotulos";
 
 // card da listagem de animais (Home e /animais)
@@ -18,6 +19,8 @@ export default function CardAnimal({ animal, nivelDoTitulo = 3 }) {
   const Titulo = `h${nivelDoTitulo}`;
   const { id, nome, sexo, castrado, energia, convivencia, fotoCapa, protetor } =
     animal;
+  // "Esperando há 3 meses", pra quem está no site há pelo menos 1 mês
+  const esperando = tempoEsperando(animal.cadastradoEm);
 
   // "Cão, sem raça definida, porte médio, 14 kg"
   const descricao = resumoDoAnimal(animal);
@@ -39,7 +42,12 @@ export default function CardAnimal({ animal, nivelDoTitulo = 3 }) {
     <article className="flex flex-col overflow-hidden rounded-[16px] border border-borda-sutil bg-fundo-superficie">
       {/* Foto quadrada, pra não cortar o animal quando o card fica largo.
           Enquanto não tiver foto, fica o fundo roxo-suave com o aviso "Sem foto" */}
-      <div className="flex aspect-square items-center justify-center bg-marca-roxo-suave">
+      <div className="relative flex aspect-square items-center justify-center bg-marca-roxo-suave">
+        {esperando && (
+          <span className="absolute left-3 top-3 rounded-full bg-fundo-superficie px-3 py-1.5 font-titulo text-legenda font-semibold text-marca-roxo shadow-sm">
+            {esperando}
+          </span>
+        )}
         {fotoCapa ? (
           <img
             src={fotoCapa}

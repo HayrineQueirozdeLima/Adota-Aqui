@@ -2,8 +2,8 @@
 
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
-- **Versão:** 1.11 (novembro de 2026)
-- **Total:** 93 casos, 88 já automatizados e 5 manuais
+- **Versão:** 1.12 (novembro de 2026)
+- **Total:** 96 casos, 90 já automatizados e 6 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
 
@@ -65,6 +65,7 @@ A coluna **Automatizado em** mostra o arquivo de teste que já confere o caso. O
 | CT-FLT-08 | Ver mais animais | Funcional | Os animais vêm de 12 em 12, dos mais novos pros mais antigos. "Ver mais animais" traz a próxima página embaixo, sem repetir animal, e leva o foco pro primeiro animal novo. Mudar um filtro volta pra primeira página | `VitrineAnimais.test.jsx`, `AnimalIntegrationTest.java` |
 | CT-FLT-09 | Animal que está em outro estado que o protetor | Regra de negócio | A vitrine da pessoa física, o filtro de cidade e a demonstração de interesse usam o local do animal, e não o endereço de quem cadastrou (RF14). Um animal cadastrado em Rondônia que está no Maranhão aparece pra quem mora no Maranhão | `AnimalIntegrationTest.java`, `InteresseIntegrationTest.java` |
 | CT-FLT-10 | Opção de todos nas listas de filtro | UI | Porte, raça e energia começam em "Todos os portes", "Todas as raças" e "Qualquer energia", já marcados, e o nome do filtro não aparece como opção. Sem espécie, a raça fica travada mostrando "Raça". A raça "Outra" aparece como "Outras raças" e filtra pelo mesmo valor | `VitrineAnimais.test.jsx` |
+| CT-FLT-11 | Quem espera há mais tempo | Funcional | "Ordenar por: Esperando há mais tempo" mostra primeiro os animais que estão no site há mais tempo. A ordem não conta como filtro e continua depois do "Limpar filtros". Animal com 1 mês ou mais no site tem o selo "Esperando há 3 meses" no card e no perfil, e animal adotado não tem selo | `VitrineAnimais.test.jsx`, `CardAnimal.test.jsx`, `PerfilAnimal.test.jsx`, `rotulos.test.js`, `AnimalIntegrationTest.java` |
 
 ### Módulo 4: Perfil do animal e interesse
 
@@ -77,6 +78,8 @@ A coluna **Automatizado em** mostra o arquivo de teste que já confere o caso. O
 | CT-PET-05 | Enviar sem aceitar o termo ou sem responder a triagem | Validação        | Não envia, marca o que falta e leva o foco pro primeiro erro (RF13, RF15)                                     | `DemonstrarInteresse.test.jsx`, `InteresseIntegrationTest.java` |
 | CT-PET-06 | Interesse registrado                                  | Funcional        | Aparecem o WhatsApp e o e-mail do protetor, e o perfil passa a mostrar "Desistir da adoção"                   | `DemonstrarInteresse.test.jsx`, `PerfilAnimal.test.jsx`         |
 | CT-PET-07 | Desistir do interesse                                 | Funcional        | Pede confirmação, apaga o interesse e o perfil volta a oferecer "Quero conhecer"                              | `PerfilAnimal.test.jsx`, `InteresseIntegrationTest.java`        |
+| CT-PET-08 | Compartilhar o animal | Funcional | "Ajude a Mel a achar um lar" manda pelo WhatsApp um texto pronto com o link do perfil, copia o link (e avisa) e, no navegador que tem, abre o menu de compartilhar do sistema. Se não der pra copiar, o link aparece escrito. Animal adotado não tem o quadro | `CompartilharAnimal.test.jsx`, `PerfilAnimal.test.jsx` |
+| CT-PET-09 | Prévia do link no WhatsApp | UI | No celular, o link do site mandado no WhatsApp mostra a prévia com o nome, a frase e a imagem do Adota Aqui. Conferir no site publicado | Manual |
 
 ### Módulo 5: Formulários
 
@@ -193,8 +196,8 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | ------------------------------------------ | ------ | ------------- | ------- |
 | 1. Navegação e página inicial              | 10     | 9             | 1       |
 | 2. Cadastro, login e sessão                | 9      | 9             | 0       |
-| 3. Vitrine, busca e filtros                | 10     | 10            | 0       |
-| 4. Perfil do animal e interesse            | 7      | 7             | 0       |
+| 3. Vitrine, busca e filtros                | 11     | 11            | 0       |
+| 4. Perfil do animal e interesse            | 9      | 8             | 1       |
 | 5. Formulários                             | 6      | 5             | 1       |
 | 6. Cadastro de animal e Meus animais       | 9      | 9             | 0       |
 | 7. Interesses recebidos                    | 5      | 5             | 0       |
@@ -205,7 +208,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | 12. Abrigos e protetores                   | 5      | 5             | 0       |
 | 13. Clínicas veterinárias                  | 4      | 3             | 1       |
 | 14. Desempenho, acessibilidade e segurança | 7      | 5             | 2       |
-| **Total**                                  | **93** | **88**        | **5**   |
+| **Total**                                  | **96** | **90**        | **6**   |
 
 A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta tabela: ela é medida pelo JaCoCo e pelo Jest a cada push, como explica o [plano de testes](plano-de-testes.md). Esta tabela mostra outra coisa: quantos comportamentos importantes já têm teste automático e quantos ainda dependem de alguém testar à mão.
 
@@ -221,6 +224,6 @@ A porcentagem de cobertura do código (a meta de 70% do curso) não sai desta ta
 
 **Registro da rodada manual:** antes de cada entrega, preencher:
 
-| Data | Quem testou | Navegador e tela | CT-NAV-02 | CT-CLI-04 | CT-NFR-01 | CT-NFR-06 |
-| ---- | ----------- | ---------------- | --------- | --------- | --------- | --------- |
-|      |             |                  |           |           |           |           |
+| Data | Quem testou | Navegador e tela | CT-NAV-02 | CT-PET-09 | CT-CLI-04 | CT-NFR-01 | CT-NFR-06 |
+| ---- | ----------- | ---------------- | --------- | --------- | --------- | --------- | --------- |
+|      |             |                  |           |           |           |           |           |
