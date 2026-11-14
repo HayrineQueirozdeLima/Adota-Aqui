@@ -109,6 +109,8 @@ test("os números do Brasil têm fonte, e a tabela mostra os 27 estados", async 
   within(retrato)
     .getAllByRole("listitem")
     .forEach((item) => expect(within(item).getByRole("link")).toHaveAttribute("target", "_blank"));
+  // e a página avisa que esses números só mudam com pesquisa nova, ao contrário dos do site
+  expect(screen.getByText(/mudam só quando sai uma edição nova/)).toBeInTheDocument();
 
   const tabela = screen.getByRole("table", { name: "Números por estado: Adota Aqui e IBGE" });
   // 1 linha de cabeçalho + 27 estados
