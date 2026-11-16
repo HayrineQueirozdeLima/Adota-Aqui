@@ -719,7 +719,7 @@ Pra atualizar: os lares por estado ficam em `laresComPet` e `fonteDosLares`, no 
 - Vai pra IA só o que já é público no perfil do animal, e nada do protetor. Da pessoa, só o texto da rotina.
 - Sem a chave no servidor (`GEMINI_API_KEY`), os botões e a chamada da vitrine não aparecem, e a página do "Me ajuda a escolher" explica e leva pra vitrine.
 - Cada conta (ou endereço, pra visitante) pede até 15 vezes por hora, pra cota gratuita não acabar.
-- A chamada à IA fica fora de transação do banco, pra não segurar conexão enquanto ela escreve (até 30 segundos).
+- A chamada à IA fica fora de transação do banco, pra não segurar conexão enquanto ela escreve (até 20 segundos).
 
 **Onde está no código.**
 
