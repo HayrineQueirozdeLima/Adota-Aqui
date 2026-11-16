@@ -12,7 +12,6 @@ import com.adotaaqui.model.Animal;
 import com.adotaaqui.model.Depoimento;
 import com.adotaaqui.model.Interesse;
 import com.adotaaqui.model.Usuario;
-import com.adotaaqui.model.enums.StatusAdocao;
 import com.adotaaqui.model.enums.StatusInteresse;
 import com.adotaaqui.repository.AnimalRepository;
 import com.adotaaqui.repository.DepoimentoRepository;
@@ -27,8 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -154,27 +151,13 @@ public class DepoimentoService {
     // interesse dele foi aprovado depois. Depois de uma devolução e de uma nova adoção, o interesse
     // antigo continua Aprovado no histórico (RF06), mas a história agora é de outra pessoa
     private boolean adocaoAtual(Interesse interesse) {
-        Animal animal = interesse.getAnimal();
-        if (interesse.getStatusAndamento() != StatusInteresse.APROVADO
-                || animal.getStatusAdocao() != StatusAdocao.ADOTADO) {
-            return false;
-        }
-        return animal.getInteresses().stream()
-                .filter(outro -> outro.getStatusAndamento() == StatusInteresse.APROVADO)
-                .max(Comparator.comparing(DepoimentoService::quandoFoiAprovado)
-                        .thenComparing(outro -> outro.getId().toString()))
-                .map(maisRecente -> maisRecente.getId().equals(interesse.getId()))
-                .orElse(false);
+        return interesse.getStatusAndamento() == StatusInteresse.APROVADO && !interesse.foiDevolvido();
     }
 
     // Interesse aprovado antes de existir a data da aprovação fica sem prazo
     private static LocalDate prazo(Interesse interesse) {
         return interesse.getAprovadoEm() == null ? null
                 : interesse.getAprovadoEm().toLocalDate().plusDays(PRAZO_EM_DIAS);
-    }
-
-    private static LocalDateTime quandoFoiAprovado(Interesse interesse) {
-        return interesse.getAprovadoEm() != null ? interesse.getAprovadoEm() : interesse.getDataHora();
     }
 
     private DepoimentoResponse resposta(Depoimento depoimento) {

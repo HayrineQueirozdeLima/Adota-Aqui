@@ -55,8 +55,21 @@ export const statusDoInteresse = {
     PENDENTE: 'Aguardando o Protetor',
     EM_CONTATO: 'Em contato',
     APROVADO: 'Aprovado',
+    DEVOLVIDO: 'Devolvido',
     DESCONTINUADO: 'Descontinuado',
 };
+
+// Em que pé está o interesse, do jeito que as telas mostram. A devolução (UC05 FA04) não muda o status,
+// que continua APROVADO porque a adoção aconteceu (RF06): quem avisa é o "devolvido" da API.
+// Nas telas, a devolvida vira uma situação à parte, com etiqueta e filtro próprios
+export function situacaoDoInteresse(interesse) {
+    return interesse.devolvido ? 'DEVOLVIDO' : interesse.statusAndamento;
+}
+
+// "Devolvido em 15/11/2026", ou só "Devolvido" nas devoluções antigas, de antes da data existir
+export function quandoFoiDevolvido(devolvidoEm) {
+    return devolvidoEm ? `em ${formatarData(devolvidoEm.slice(0, 10))}` : '';
+}
 
 // "2026-03-12" (formato da API) vira "12/03/2026".
 // Separa o texto em vez de usar new Date(), que pode mudar o dia por causa do fuso horário

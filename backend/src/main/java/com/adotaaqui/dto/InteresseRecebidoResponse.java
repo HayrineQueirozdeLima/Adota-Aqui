@@ -12,7 +12,11 @@ public record InteresseRecebidoResponse(
         String motivoDescontinuacao,
         AnimalResumoResponse animal,
         TriagemDto triagem,
-        ContatoResponse candidato) {
+        ContatoResponse candidato,
+        // Adoção aprovada e depois devolvida (UC05 FA04). O status continua APROVADO, e a data pode vir
+        // vazia nas devoluções antigas
+        boolean devolvido,
+        LocalDateTime devolvidoEm) {
 }
 
 

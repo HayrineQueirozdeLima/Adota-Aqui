@@ -263,7 +263,7 @@ O quadro do lado:
 **Editar (update).** O mesmo formulário, já preenchido, manda tudo pro `PUT /api/animais/{id}`.
 
 - Animal disponível: dá pra mudar todos os dados. O status não muda por aqui: o animal só vira Adotado quando o protetor aprova um interesse.
-- Animal adotado: os dados ficam travados e só o status muda (RF06). Escolher "Disponível (devolução)" destrava os campos, pede confirmação ("Tornar {nome} disponível de novo?") e devolve o animal pra vitrine, já com os dados que a pessoa mudou nessa mesma tela. Continuando Adotado, qualquer dado alterado é recusado (`409`). O interesse aprovado continua no histórico.
+- Animal adotado: os dados ficam travados e só o status muda (RF06). Escolher "Disponível (devolução)" destrava os campos, pede confirmação ("Tornar {nome} disponível de novo?") e devolve o animal pra vitrine, já com os dados que a pessoa mudou nessa mesma tela. Continuando Adotado, qualquer dado alterado é recusado (`409`). O interesse aprovado continua no histórico, marcado como devolvido e com a data (`devolvidoEm`), e aparece como Devolvido no painel do protetor e nas candidaturas de quem adotou.
 
 **Remover (delete).** "Remover {nome}" pede confirmação ("Remover {nome} de vez?") e chama `DELETE /api/animais/{id}`. Saem junto as vacinas, as fotos e os interesses do animal. As fotos saem do banco e também do S3 (ver a regra abaixo).
 
@@ -342,13 +342,14 @@ Só quem demonstrou o interesse desiste dele, e só enquanto ele está Pendente 
 
 1. Os candidatos aparecem agrupados por animal. Cada cartão tem a foto, o nome e o status do animal, e um resumo ("2 interesses, 1 em contato" ou "Histórico encerrado"). Essa contagem só o protetor vê (RF12).
 2. Em cada candidato: nome, status, e-mail, WhatsApp, melhor horário e a triagem resumida numa frase.
-3. Filtros por status (Todos, Pendente, Em contato, Aprovado e Descontinuado, cada um com a quantidade) e por animal. O animal escolhido fica no endereço (`?animal=id`), por isso o "Ver interesses" de Meus animais já abre filtrado.
+3. Filtros por status (Todos, Pendente, Em contato, Aprovado e Descontinuado, cada um com a quantidade) e por animal. Quando tem alguma adoção devolvida, aparece também o filtro Devolvido. O animal escolhido fica no endereço (`?animal=id`), por isso o "Ver interesses" de Meus animais já abre filtrado.
 4. Ações:
    - Pendente: "Marcar em contato" ou "Descontinuar".
    - Em contato: "Aprovar" ou "Descontinuar".
-   - Aprovado e Descontinuado: só "Ver detalhes", com a triagem completa.
+   - Aprovado, Devolvido e Descontinuado: só "Ver detalhes", com a triagem completa.
 5. Descontinuar pede um motivo de até 255 caracteres, que o candidato vai ler. Aprovar pede confirmação.
 6. Os descontinuados ficam recolhidos no fim de cada cartão, com o botão "Mostrar".
+7. Adoção devolvida: quando o protetor volta o animal pra Disponível (UC05 FA04), o candidato que tinha sido aprovado aparece como Devolvido, com a frase "Adoção aprovada e depois devolvida em 15/11/2026. {nome} voltou pra adoção.", e sai do filtro Aprovado. O cartão do animal deixa de ficar como "Histórico encerrado", porque ele pode receber interesses de novo.
 
 **O que acontece ao aprovar (RF10).** Tudo numa transação só:
 
@@ -386,10 +387,11 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 2. Em cada cartão, o contato do protetor: nome, e-mail e WhatsApp.
 3. As em andamento (Em contato e Pendente) vêm primeiro, depois a Aprovada e as Descontinuadas.
 4. Filtros por status: Todas, Pendente, Em contato, Aprovado e Descontinuado, cada um com a quantidade.
-5. Aprovada mostra "Adoção aprovada. Combine os próximos passos com o protetor." e, até 30 dias depois da aprovação, o convite pra contar como foi a adoção (ver [Histórias de adoção](#12-histórias-de-adoção-depoimentos)). Descontinuada mostra o motivo que o protetor escreveu.
-6. "Ver ficha" só aparece com o animal disponível: animal adotado só abre pro protetor dele.
-7. "Desistir da adoção" só aparece nas candidaturas Pendente ou Em contato. Pede confirmação, apaga o interesse (o mesmo `DELETE` do perfil do animal) e o cartão some da lista, com um aviso no topo.
-8. Sem nenhuma candidatura, aparece um convite pra ver os animais disponíveis.
+5. Devolvida (o protetor voltou o animal pra Disponível) aparece como Devolvido, com a data da devolução, e tem filtro próprio, que só aparece quando tem alguma. A pessoa pode demonstrar interesse de novo pela ficha.
+6. Aprovada mostra "Adoção aprovada. Combine os próximos passos com o protetor." e, até 30 dias depois da aprovação, o convite pra contar como foi a adoção (ver [Histórias de adoção](#12-histórias-de-adoção-depoimentos)). Descontinuada mostra o motivo que o protetor escreveu.
+7. "Ver ficha" só aparece com o animal disponível: animal adotado só abre pro protetor dele.
+8. "Desistir da adoção" só aparece nas candidaturas Pendente ou Em contato. Pede confirmação, apaga o interesse (o mesmo `DELETE` do perfil do animal) e o cartão some da lista, com um aviso no topo.
+9. Sem nenhuma candidatura, aparece um convite pra ver os animais disponíveis.
 
 **Regras.**
 
@@ -678,6 +680,16 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 - Back: `EstatisticasController`, `EstatisticasService` (`porEstado`), `EstatisticasResponse.PorEstado`, `ContagemPorEstado` e as contagens em `AnimalRepository`, `InteresseRepository` e `AbrigoRepository`
 
 **Testes.** `EstatisticasIntegrationTest` (os 27 estados e as contas por estado), `Observatorio.test.jsx`, `observatorio.test.js`, `App.test.jsx` (a rota) e `Rodape.test.jsx`.
+
+**O que se atualiza sozinho e o que não.** Os números do Adota Aqui (animais esperando, adoções e abrigos) vêm do banco a cada visita. Os números públicos ficam fixos no código, com a fonte e o ano, porque são pesquisas que saem de tempos em tempos e nenhuma dessas fontes avisa quando sai uma edição nova. Nem a API do IBGE (SIDRA) resolveria sozinha: cada edição da pesquisa vira uma tabela nova. A página diz isso embaixo do "O retrato no Brasil".
+
+| Número | Fonte | Quando conferir de novo |
+| --- | --- | --- |
+| Lares com cachorro e com gato, no Brasil e por estado | IBGE, Pesquisa Nacional de Saúde 2019 | Quando o IBGE publicar a PNS 2026, que está em campo até 30/11/2026 e ainda não tem data de resultado |
+| Cães e gatos em situação de vulnerabilidade, e sob cuidado de ONGs e protetores | Instituto Pet Brasil, levantamento de 2024 | Quando o instituto publicar um levantamento novo |
+| Castrações gratuitas do ProPatinhas | Governo federal, divulgado em abril de 2026 | Uma vez por ano, quando o governo divulgar o balanço |
+
+Pra atualizar: os lares por estado ficam em `laresComPet` e `fonteDosLares`, no `utils/observatorio.js`. Os números do "O retrato no Brasil" ficam em `retrato`, no começo do `pages/Observatorio/Observatorio.jsx`. Troque o número, a fonte com o ano e o link, e rode os testes do front.
 
 ---
 

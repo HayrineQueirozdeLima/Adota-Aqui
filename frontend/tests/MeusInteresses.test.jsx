@@ -206,6 +206,45 @@ describe("lista", () => {
   });
 });
 
+describe("devolução", () => {
+  // O protetor registrou a devolução da Amora: o status continua APROVADO, com o devolvido
+  const devolvida = minhasCandidaturasExemplo.map((candidatura) =>
+    candidatura.animal.nome === "Amora"
+      ? {
+          ...candidatura,
+          devolvido: true,
+          devolvidoEm: "2026-11-15T22:10:00",
+          podeContarAdocao: false,
+          prazoDepoimento: null,
+          animal: { ...candidatura.animal, statusAdocao: "DISPONIVEL" },
+        }
+      : candidatura,
+  );
+
+  test("sem nenhuma adoção devolvida, o filtro Devolvido nem aparece", async () => {
+    simularCandidaturas();
+    abrir();
+    await esperarLista();
+    expect(screen.queryByRole("button", { name: /Devolvido/ })).toBeNull();
+  });
+
+  test("a adoção devolvida aparece como Devolvido, com a data, e sai do filtro Aprovado", async () => {
+    simularCandidaturas({ lista: devolvida });
+    abrir();
+    await esperarLista();
+
+    const amora = cartao("Amora");
+    expect(amora.getByText("Devolvido")).toBeInTheDocument();
+    expect(amora.getByText(/registrou a devolução em 15\/11\/2026/)).toBeInTheDocument();
+    expect(amora.queryByText(/Combine os próximos passos/)).toBeNull();
+    expect(amora.queryByRole("link", { name: /Contar como foi/ })).toBeNull();
+
+    expect(screen.getByRole("button", { name: "Aprovado 0" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Devolvido 1" }));
+    expect(nomesNaTela()).toEqual(["Amora"]);
+  });
+});
+
 describe("desistir", () => {
   test("pede confirmação, apaga o interesse e tira o cartão da lista", async () => {
     abrir();

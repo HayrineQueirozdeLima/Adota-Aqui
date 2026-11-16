@@ -7,6 +7,7 @@ import com.adotaaqui.model.enums.Raca;
 import com.adotaaqui.model.enums.SexoAnimal;
 import com.adotaaqui.model.enums.StatusAdocao;
 import com.adotaaqui.model.enums.StatusConvivencia;
+import com.adotaaqui.model.enums.StatusInteresse;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -32,7 +33,9 @@ import org.hibernate.annotations.ColumnDefault;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Entity
@@ -364,6 +367,17 @@ public class Animal {
 
     public List<Interesse> getInteresses() {
         return interesses;
+    }
+
+    // A adoção que vale agora: o interesse aprovado mais recente, se o animal está Adotado.
+    // Depois de uma devolução o animal volta pra Disponível e fica sem adoção atual. Se ele for
+    // adotado de novo, a atual é a do interesse aprovado por último
+    public Optional<Interesse> adocaoAtual() {
+        if (statusAdocao != StatusAdocao.ADOTADO) return Optional.empty();
+        return interesses.stream()
+                .filter(interesse -> interesse.getStatusAndamento() == StatusInteresse.APROVADO)
+                .max(Comparator.comparing(Interesse::quandoFoiAprovado)
+                        .thenComparing(interesse -> String.valueOf(interesse.getId())));
     }
 
     public LocalDateTime getCadastradoEm() {

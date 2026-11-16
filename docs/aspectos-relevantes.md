@@ -101,7 +101,7 @@ A lista junta duas tabelas (`abrigo` e `usuario`) numa ordem só, a alfabética.
 
 ### Animal adotado fica travado
 
-Com o animal Adotado, os dados ficam como estão: o formulário só deixa mudar o status (RF06). Pra editar, o protetor volta o status pra Disponível, o que é uma devolução (UC05 FA04), e aí os campos abrem na mesma tela. O interesse aprovado continua no histórico.
+Com o animal Adotado, os dados ficam como estão: o formulário só deixa mudar o status (RF06). Pra editar, o protetor volta o status pra Disponível, o que é uma devolução (UC05 FA04), e aí os campos abrem na mesma tela. O interesse aprovado continua no histórico, com o status Aprovado (a adoção aconteceu), e ganha a data da devolução. Nas telas ele aparece como Devolvido, com filtro próprio: antes, o animal voltava pra vitrine e o painel continuava mostrando a adoção como aprovada e o cartão como encerrado. A devolução virou uma coluna (`devolvido_em`, que o Hibernate cria sozinho) e não um status novo, porque um status novo pediria mexer na constraint do banco que confere os valores do enum, e o `ddl-auto=update` não faz isso.
 
 A adoção também só acontece pela aprovação de um interesse. Marcar Adotado direto no formulário é recusado, porque aí o animal ficaria adotado sem adotante.
 
@@ -168,7 +168,7 @@ O Gemini foi escolhido porque tem nível gratuito sem cartão. A chave fica só 
 
 ### O observatório mistura o que é nosso e o que é público
 
-Os números do site, sozinhos, ainda são poucos e de poucos estados, porque o Adota Aqui está começando. Por isso o observatório põe do lado dados públicos sobre cães e gatos, e cada um tem a fonte e a data na tela. Os do site vêm da API, ao vivo; os públicos ficam no código, porque nenhuma dessas fontes tem uma API simples, e a tabela do IBGE fica parada até a próxima pesquisa. O texto avisa que não existe censo oficial de animais abandonados no Brasil, e que os totais do país são estimativas.
+Os números do site, sozinhos, ainda são poucos e de poucos estados, porque o Adota Aqui está começando. Por isso o observatório põe do lado dados públicos sobre cães e gatos, e cada um tem a fonte e a data na tela. Os do site vêm da API, ao vivo; os públicos ficam no código, porque nenhuma dessas fontes tem uma API simples, e a tabela do IBGE fica parada até a próxima pesquisa (a PNS 2026, em campo até novembro). A página avisa a diferença embaixo do retrato, e o [funcionalidades](funcionalidades.md#18-observatório-da-adoção) diz quando conferir cada número e onde trocar. O texto também avisa que não existe censo oficial de animais abandonados no Brasil, e que os totais do país são estimativas.
 
 O mapa é um mosaico, um quadrado por estado, em vez do desenho das fronteiras: não precisa de biblioteca nova, os estados pequenos não somem, e cada quadrado é um botão que o leitor de tela lê com o nome e o número. As cores seguem um roxo só, do claro ao escuro, com o texto de cada tom passando no contraste, e a tabela com os 27 estados fica embaixo pra quem não quer ler pelo mapa.
 
