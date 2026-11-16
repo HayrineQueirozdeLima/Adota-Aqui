@@ -4,7 +4,11 @@ Cada vez que a `dev` entra na `main` (o que está no ar), sai uma versão nova, 
 
 Cada item tem o número do PR. É por ele que dá pra chegar na issue, nos commits e na discussão de cada mudança.
 
-## 1.5.0 (a publicar, antes da apresentação de 16/11/2026)
+## 1.5.1 (a publicar, antes da apresentação de 16/11/2026)
+
+- O Observatório avisa quais números se atualizam sozinhos (os do site) e quais só mudam com pesquisa nova (os públicos), e os docs dizem quando conferir cada um (#166)
+
+## 1.5.0 (14/11/2026)
 
 - A IA responde rápido de novo: modelo Flash-Lite, que pensa pouco, com um modelo reserva e o motivo do erro no log (#159)
 - Mais clínicas no mapa: busca por bairro, a opção "Pet shops com veterinário" e um aviso de que o mapa não mostra todos os lugares (#161)

@@ -679,6 +679,16 @@ Se qualquer parte falhar, nada é salvo. O animal fica travado no banco durante 
 
 **Testes.** `EstatisticasIntegrationTest` (os 27 estados e as contas por estado), `Observatorio.test.jsx`, `observatorio.test.js`, `App.test.jsx` (a rota) e `Rodape.test.jsx`.
 
+**O que se atualiza sozinho e o que não.** Os números do Adota Aqui (animais esperando, adoções e abrigos) vêm do banco a cada visita. Os números públicos ficam fixos no código, com a fonte e o ano, porque são pesquisas que saem de tempos em tempos e nenhuma dessas fontes avisa quando sai uma edição nova. Nem a API do IBGE (SIDRA) resolveria sozinha: cada edição da pesquisa vira uma tabela nova. A página diz isso embaixo do "O retrato no Brasil".
+
+| Número | Fonte | Quando conferir de novo |
+| --- | --- | --- |
+| Lares com cachorro e com gato, no Brasil e por estado | IBGE, Pesquisa Nacional de Saúde 2019 | Quando o IBGE publicar a PNS 2026, que está em campo até 30/11/2026 e ainda não tem data de resultado |
+| Cães e gatos em situação de vulnerabilidade, e sob cuidado de ONGs e protetores | Instituto Pet Brasil, levantamento de 2024 | Quando o instituto publicar um levantamento novo |
+| Castrações gratuitas do ProPatinhas | Governo federal, divulgado em abril de 2026 | Uma vez por ano, quando o governo divulgar o balanço |
+
+Pra atualizar: os lares por estado ficam em `laresComPet` e `fonteDosLares`, no `utils/observatorio.js`. Os números do "O retrato no Brasil" ficam em `retrato`, no começo do `pages/Observatorio/Observatorio.jsx`. Troque o número, a fonte com o ano e o link, e rode os testes do front.
+
 ---
 
 ## 19. Ajudas com inteligência artificial
