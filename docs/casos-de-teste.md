@@ -2,7 +2,7 @@
 
 Plano de casos de teste da plataforma Adota Aqui, escrito pelo Cristian (squad de Testes) e revisado pela equipe pra bater com o que o sistema faz hoje.
 
-- **Versão:** 1.21 (novembro de 2026)
+- **Versão:** 1.22 (novembro de 2026)
 - **Total:** 116 casos, 108 já automatizados e 8 manuais
 
 Este documento diz **o que** precisa funcionar, do ponto de vista de quem usa o site. O [plano de testes](plano-de-testes.md) diz **como** a equipe testa (ferramentas, cobertura, quem faz o quê).
@@ -107,7 +107,7 @@ Vale pro cadastro de conta, pro cadastro de animal e pra demonstração de inter
 | CT-CAD-03 | Cadastrar animal                           | Funcional        | O animal aparece em Meus animais e na vitrine como Disponível                                                             | `CadastroAnimal.test.jsx`, `AnimalIntegrationTest.java` |
 | CT-CAD-04 | Editar animal                              | Funcional        | As mudanças são salvas, inclusive fotos e vacinas                                                                         | `EditarAnimal.test.jsx`, `AnimalIntegrationTest.java`   |
 | CT-CAD-05 | Remover animal                             | Funcional        | Pede confirmação. Depois, o animal some junto com as vacinas e os interesses                                              | `EditarAnimal.test.jsx`, `AnimalIntegrationTest.java`   |
-| CT-CAD-06 | Editar animal adotado                      | Regra de negócio | Continuando Adotado, só o status pode mudar (RF06). Na devolução pra Disponível, os dados mudam no mesmo salvamento       | `EditarAnimal.test.jsx`, `AnimalIntegrationTest.java`   |
+| CT-CAD-06 | Editar animal adotado                      | Regra de negócio | Continuando Adotado, só o status pode mudar (RF06). Na devolução pra Disponível, os dados mudam no mesmo salvamento, e o interesse aprovado aparece como Devolvido, com a data, no painel do protetor e nas candidaturas de quem adotou | `EditarAnimal.test.jsx`, `AnimalIntegrationTest.java`, `DevolucaoIntegrationTest.java`, `InteressesRecebidos.test.jsx`, `MeusInteresses.test.jsx` |
 | CT-CAD-07 | Outra conta tenta editar ou remover        | Segurança        | A tela não mostra o formulário e a API recusa                                                                             | `EditarAnimal.test.jsx`, `AnimalIntegrationTest.java`   |
 | CT-CAD-08 | Foto que sai do animal | Funcional | A foto tirada na edição, ou as fotos de um animal removido, somem também do S3. Foto que outro animal usa continua lá | `AnimalIntegrationTest.java`, `FotoIntegrationTest.java` |
 | CT-CAD-09 | Onde o animal está | Funcional | No cadastro, cidade e estado já vêm com o endereço da conta e dá pra trocar. Na edição, o protetor muda o local. O card, o perfil do animal e Meus animais mostram o local do animal, e o perfil mostra à parte a cidade do protetor | `CadastroAnimal.test.jsx`, `EditarAnimal.test.jsx`, `CardAnimal.test.jsx`, `PerfilAnimal.test.jsx`, `AnimalIntegrationTest.java` |

@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -132,9 +133,10 @@ public class AnimalService {
                 }
             } else {
                 // Devolução (UC05 FA04): volta pra Disponível e os dados podem mudar no mesmo salvamento.
-                // O interesse aprovado da adoção anterior continua no histórico
+                // O interesse aprovado da adoção anterior continua no histórico, agora com a data da devolução
                 validarRaca(request);
                 atualizarDados(animal, request);
+                animal.adocaoAtual().ifPresent(adocao -> adocao.setDevolvidoEm(LocalDateTime.now()));
                 animal.setStatusAdocao(StatusAdocao.DISPONIVEL);
             }
         } else {

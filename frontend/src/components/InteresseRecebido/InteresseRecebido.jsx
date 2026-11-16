@@ -4,7 +4,7 @@ import Tag from "../Tag/Tag";
 import { useAuth } from "../../contexts/AuthContext";
 import { atualizarStatusInteresse } from "../../services/interesses";
 import { mascaraTelefone } from "../../utils/mascaras";
-import { formatarData, haQuantoTempo } from "../../utils/rotulos";
+import { formatarData, haQuantoTempo, quandoFoiDevolvido, situacaoDoInteresse } from "../../utils/rotulos";
 import { respostasDaTriagem, resumoDaTriagem } from "../../utils/triagem";
 
 const LIMITE_DO_MOTIVO = 255;
@@ -14,6 +14,7 @@ const status = {
   PENDENTE: { texto: "Pendente", variante: "destaqueRoxo" },
   EM_CONTATO: { texto: "Em contato", variante: "atencao" },
   APROVADO: { texto: "Aprovado", variante: "disponivel" },
+  DEVOLVIDO: { texto: "Devolvido", variante: "atencao" },
   DESCONTINUADO: { texto: "Descontinuado", variante: "neutro" },
 };
 
@@ -24,11 +25,12 @@ const estiloDoLink =
 // Um candidato no painel do protetor (UC08): contatos, resumo da triagem e as ações que o status permite.
 //   Pendente: marcar em contato ou descontinuar
 //   Em contato: aprovar ou descontinuar
-//   Aprovado e Descontinuado: só ver os detalhes
+//   Aprovado, Devolvido e Descontinuado: só ver os detalhes
 // Depois de qualquer mudança, avisa a página pelo aoMudar, e ela busca a lista de novo:
 // aprovar um interesse também muda os outros do mesmo animal.
 export default function InteresseRecebido({ interesse, aoMudar }) {
-  const { id, dataHora, statusAndamento, motivoDescontinuacao, animal, triagem, candidato } = interesse;
+  const { id, dataHora, statusAndamento, motivoDescontinuacao, animal, triagem, candidato, devolvidoEm } = interesse;
+  const situacao = situacaoDoInteresse(interesse);
   const { token, sair } = useAuth();
   // null | "aprovar" | "descontinuar": qual confirmação está aberta
   const [confirmando, setConfirmando] = useState(null);
@@ -84,7 +86,7 @@ export default function InteresseRecebido({ interesse, aoMudar }) {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-[10px]">
             <h3 className="font-titulo text-item font-semibold text-texto-principal">{candidato.nome}</h3>
-            <Tag variante={status[statusAndamento].variante}>{status[statusAndamento].texto}</Tag>
+            <Tag variante={status[situacao].variante}>{status[situacao].texto}</Tag>
           </div>
 
           <p className="mt-[5px] flex flex-wrap gap-x-4 gap-y-1 text-compacto text-texto-secundario">
@@ -106,6 +108,14 @@ export default function InteresseRecebido({ interesse, aoMudar }) {
           <p className="mt-[5px] text-legenda text-texto-terciario">
             Recebido {haQuantoTempo(dataHora)}. Triagem: {resumoDaTriagem(triagem)}
           </p>
+
+          {/* A devolução fica no histórico do protetor: quem adotou e quando o animal voltou */}
+          {situacao === "DEVOLVIDO" && (
+            <p className="mt-[5px] text-legenda text-texto-secundario">
+              Adoção aprovada e depois devolvida{devolvidoEm ? ` ${quandoFoiDevolvido(devolvidoEm)}` : ""}.{" "}
+              {animal.nome} voltou pra adoção.
+            </p>
+          )}
 
           {statusAndamento === "DESCONTINUADO" && motivoDescontinuacao && (
             <p className="mt-[5px] text-legenda text-texto-secundario">

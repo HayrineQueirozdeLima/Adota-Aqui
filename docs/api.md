@@ -832,7 +832,7 @@ Atualiza um animal. Como é `PUT`, o corpo leva **todos** os campos, inclusive o
 | `DISPONIVEL` | Alterar qualquer campo. O status continua `DISPONIVEL`: a passagem para `ADOTADO` acontece **só** pela aprovação de um interesse (RF10)                            |
 | `ADOTADO`    | Enviar `statusAdocao: "ADOTADO"` sem mudar mais nada, **ou** enviar `statusAdocao: "DISPONIVEL"` (devolução), podendo alterar os demais campos na mesma requisição |
 
-Na devolução (de `ADOTADO` para `DISPONIVEL`), o interesse que resultou na adoção continua `APROVADO` no histórico (RF06). A confirmação "isso torna o animal disponível novamente" é exibida pelo front antes de enviar.
+Na devolução (de `ADOTADO` para `DISPONIVEL`), o interesse que resultou na adoção continua `APROVADO` no histórico (RF06), e ganha a data da devolução (`devolvidoEm`) e o `devolvido: true` nas respostas de interesse. A confirmação "isso torna o animal disponível novamente" é exibida pelo front antes de enviar.
 
 **Saída (`200 OK`):** o [formato completo do animal](#formato-do-animal-resposta-completa).
 
@@ -929,7 +929,9 @@ Envia uma imagem para o armazenamento em nuvem e devolve a URL dela.
   },
   "depoimentoId": null,
   "podeContarAdocao": false,
-  "prazoDepoimento": null
+  "prazoDepoimento": null,
+  "devolvido": false,
+  "devolvidoEm": null
 }
 ```
 
@@ -937,6 +939,7 @@ Envia uma imagem para o armazenamento em nuvem e devolve a URL dela.
 - Nas respostas para o **candidato**, o interesse traz `contatoProtetor` (RF09).
 - Nas respostas para o **protetor**, o interesse traz `candidato` no lugar de `contatoProtetor`, com `nome`, `telefone` e `email` do Usuario interessado.
 - Assim, a partir do registro do interesse, cada lado tem o contato do outro, e qualquer um pode iniciar a conversa (UC07, passo 8).
+- `devolvido` e `devolvidoEm` vêm nas duas visões. `devolvido` é `true` no interesse que foi aprovado e depois deixou de ser a adoção atual: o protetor voltou o animal pra `DISPONIVEL` (devolução, UC05 FA04) ou outro interesse dele foi aprovado depois. O `statusAndamento` continua `APROVADO`, porque a adoção aconteceu (RF06). `devolvidoEm` é a data da devolução, e vem `null` nas devoluções feitas antes de 16/11/2026, quando a data passou a ser guardada. O filtro `status=APROVADO` do `GET /api/interesses/recebidos` traz as devolvidas também: o front separa pelo `devolvido`.
 - `depoimentoId`, `podeContarAdocao` e `prazoDepoimento` dizem, pro candidato, se a história da adoção já foi contada, se ainda dá pra contar e até quando ([Histórias de adoção](#11-histórias-de-adoção)). Fora do `GET /api/interesses/meus`, vêm vazios.
 
 **Estados do interesse** (máquina de estados do Interesse)

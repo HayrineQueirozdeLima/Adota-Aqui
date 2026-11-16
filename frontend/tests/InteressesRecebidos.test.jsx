@@ -30,12 +30,12 @@ function entrarComoAbrigo() {
   );
 }
 
-// "recusarStatus" permite simular uma recusa da API no PATCH
-function simularPainel({ lista = interessesRecebidosExemplo, recusarStatus } = {}) {
+// "recusarStatus" permite simular uma recusa da API no PATCH. "statusDoTobias" muda pra simular a devolução
+function simularPainel({ lista = interessesRecebidosExemplo, recusarStatus, statusDoTobias = "ADOTADO" } = {}) {
   let interesses = lista.map((interesse) => ({ ...interesse }));
   let animais = [
     { ...animaisExemplo[0] },
-    { ...animaisExemplo[1], statusAdocao: "ADOTADO" },
+    { ...animaisExemplo[1], statusAdocao: statusDoTobias },
   ];
 
   simularApi({
@@ -285,6 +285,46 @@ describe("filtros", () => {
     expect(await screen.findByText("Esse animal ainda não recebeu interesses.")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Ver todos os interesses" }));
     expect(screen.getByRole("heading", { name: "Ana Souza" })).toBeInTheDocument();
+  });
+});
+
+describe("devolução", () => {
+  // O protetor voltou o Tobias pra Disponível: o interesse da Carla continua APROVADO na API, com o devolvido
+  const devolvida = interessesRecebidosExemplo.map((interesse) =>
+    interesse.id === carla.id
+      ? { ...interesse, devolvido: true, devolvidoEm: "2026-11-15T22:10:00", animal: { ...interesse.animal, statusAdocao: "DISPONIVEL" } }
+      : interesse,
+  );
+
+  test("sem nenhuma adoção devolvida, o filtro Devolvido nem aparece", async () => {
+    abrir();
+    await esperarLista();
+    expect(screen.queryByRole("button", { name: /Devolvido/ })).toBeNull();
+  });
+
+  test("a adoção devolvida sai de Aprovado, ganha filtro próprio e mostra a data no histórico", async () => {
+    simularPainel({ lista: devolvida, statusDoTobias: "DISPONIVEL" });
+    abrir();
+    await esperarLista();
+
+    expect(screen.getByRole("button", { name: "Aprovado 0" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Devolvido 1" }));
+
+    expect(screen.queryByRole("heading", { name: "Ana Souza" })).toBeNull();
+    expect(linha("Carla Dias").getByText("Devolvido")).toBeInTheDocument();
+    expect(
+      linha("Carla Dias").getByText("Adoção aprovada e depois devolvida em 15/11/2026. Tobias voltou pra adoção."),
+    ).toBeInTheDocument();
+  });
+
+  test("o animal devolvido voltou pra adoção: o cartão dele não fica como encerrado", async () => {
+    simularPainel({ lista: devolvida, statusDoTobias: "DISPONIVEL" });
+    abrir();
+    await esperarLista();
+
+    const tobias = cartaoDoAnimal("Tobias");
+    expect(tobias.queryByText("Histórico encerrado")).toBeNull();
+    expect(tobias.getByText("Disponível")).toBeInTheDocument();
   });
 });
 

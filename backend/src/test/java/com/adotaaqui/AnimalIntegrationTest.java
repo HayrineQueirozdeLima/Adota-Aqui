@@ -463,9 +463,10 @@ class AnimalIntegrationTest {
                 .andExpect(jsonPath("$.vacinas.length()").value(0))
                 .andExpect(jsonPath("$.convivencia.cao").value("CONVIVE_BEM"));
 
-        // Volta pra vitrine, e a adoção anterior continua no histórico
+        // Volta pra vitrine, e a adoção anterior continua no histórico, com a data da devolução
         mvc.perform(get("/api/animais/" + id)).andExpect(status().isOk());
         assertThat(interesses.findById(interesse).orElseThrow().getStatusAndamento()).isEqualTo(StatusInteresse.APROVADO);
+        assertThat(interesses.findById(interesse).orElseThrow().getDevolvidoEm()).isNotNull();
     }
 
     @Test

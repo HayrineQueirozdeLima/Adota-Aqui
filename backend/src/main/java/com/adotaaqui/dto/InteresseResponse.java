@@ -18,7 +18,11 @@ public record InteresseResponse(
         // Depoimento (RF11): o que já foi escrito, se ainda dá pra escrever e até quando
         UUID depoimentoId,
         boolean podeContarAdocao,
-        LocalDate prazoDepoimento) {
+        LocalDate prazoDepoimento,
+        // Adoção aprovada e depois devolvida (UC05 FA04). O status continua APROVADO, e a data pode vir
+        // vazia nas devoluções antigas
+        boolean devolvido,
+        LocalDateTime devolvidoEm) {
 }
 
 

@@ -3,16 +3,17 @@ import { Link } from "react-router-dom";
 import InteresseRecebido from "../InteresseRecebido/InteresseRecebido";
 import Tag from "../Tag/Tag";
 import { MOTIVO_PADRAO } from "../../services/interesses";
-import { artigoDefinido, localDoAnimal, resumoDoAnimal } from "../../utils/rotulos";
+import { artigoDefinido, localDoAnimal, resumoDoAnimal, situacaoDoInteresse } from "../../utils/rotulos";
 
 // Em contato primeiro (é com quem o protetor já está conversando), depois os pendentes,
-// o aprovado e os descontinuados. No mesmo status, quem chegou antes vem antes
-const ordemDoStatus = { EM_CONTATO: 0, PENDENTE: 1, APROVADO: 2, DESCONTINUADO: 3 };
+// o aprovado, as adoções devolvidas e os descontinuados. No mesmo status, quem chegou antes vem antes
+const ordemDoStatus = { EM_CONTATO: 0, PENDENTE: 1, APROVADO: 2, DEVOLVIDO: 3, DESCONTINUADO: 4 };
 
 function emOrdem(lista) {
   return [...lista].sort(
     (a, b) =>
-      ordemDoStatus[a.statusAndamento] - ordemDoStatus[b.statusAndamento] || a.dataHora.localeCompare(b.dataHora),
+      ordemDoStatus[situacaoDoInteresse(a)] - ordemDoStatus[situacaoDoInteresse(b)] ||
+      a.dataHora.localeCompare(b.dataHora),
   );
 }
 
@@ -35,8 +36,9 @@ export default function InteressesDoAnimal({ animal, interesses, status, aoMudar
   const [mostrarDescontinuados, setMostrarDescontinuados] = useState(false);
   const { id, nome, fotoCapa, statusAdocao, sexo, protetor } = animal;
 
+  // A adoção devolvida não encerra: o animal voltou pra adoção e pode receber interesses de novo
   const encerrado =
-    statusAdocao === "ADOTADO" || interesses.some((interesse) => interesse.statusAndamento === "APROVADO");
+    statusAdocao === "ADOTADO" || interesses.some((interesse) => situacaoDoInteresse(interesse) === "APROVADO");
   const emAndamento = interesses.some((interesse) =>
     ["PENDENTE", "EM_CONTATO"].includes(interesse.statusAndamento),
   );
@@ -44,7 +46,7 @@ export default function InteressesDoAnimal({ animal, interesses, status, aoMudar
   const recolherDescontinuados = status === "" && descontinuados.length > 0;
 
   let linhas;
-  if (status) linhas = interesses.filter((interesse) => interesse.statusAndamento === status);
+  if (status) linhas = interesses.filter((interesse) => situacaoDoInteresse(interesse) === status);
   else if (mostrarDescontinuados) linhas = interesses;
   else linhas = interesses.filter((interesse) => interesse.statusAndamento !== "DESCONTINUADO");
   linhas = emOrdem(linhas);
@@ -103,7 +105,7 @@ export default function InteressesDoAnimal({ animal, interesses, status, aoMudar
         </ul>
       )}
 
-      {!encerrado && emAndamento && status !== "APROVADO" && status !== "DESCONTINUADO" && (
+      {!encerrado && emAndamento && ["", "PENDENTE", "EM_CONTATO"].includes(status) && (
         <p className="text-legenda text-texto-terciario">
           Ao aprovar um candidato, {nomeComArtigo} passa para Adotado e os demais interesses são descontinuados
           automaticamente, com motivo padrão.

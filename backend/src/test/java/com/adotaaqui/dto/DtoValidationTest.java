@@ -189,9 +189,9 @@ class DtoValidationTest {
     void respostasDeInteresseSeparamContatoDoCandidatoEProtetor() {
         ContatoResponse contato = new ContatoResponse("Nome", "69999998888", "contato@example.com");
         var candidato = new InteresseResponse(UUID.randomUUID(), LocalDateTime.now(),
-                StatusInteresse.PENDENTE, null, null, null, contato, null, false, null);
+                StatusInteresse.PENDENTE, null, null, null, contato, null, false, null, false, null);
         var protetor = new InteresseRecebidoResponse(UUID.randomUUID(), LocalDateTime.now(),
-                StatusInteresse.PENDENTE, null, null, null, contato);
+                StatusInteresse.PENDENTE, null, null, null, contato, false, null);
         assertThat(MAPPER.valueToTree(candidato).has("contatoProtetor")).isTrue();
         assertThat(MAPPER.valueToTree(candidato).has("candidato")).isFalse();
         assertThat(MAPPER.valueToTree(protetor).has("candidato")).isTrue();
