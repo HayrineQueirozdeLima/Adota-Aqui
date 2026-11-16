@@ -4,7 +4,7 @@ Cada vez que a `dev` entra na `main` (o que está no ar), sai uma versão nova, 
 
 Cada item tem o número do PR. É por ele que dá pra chegar na issue, nos commits e na discussão de cada mudança.
 
-## 1.5.1 (a publicar, antes da apresentação de 16/11/2026)
+## 1.5.1 (16/11/2026): versão da apresentação
 
 - O Observatório avisa quais números se atualizam sozinhos (os do site) e quais só mudam com pesquisa nova (os públicos), e os docs dizem quando conferir cada um (#166)
 - Devolução no histórico: o interesse da adoção devolvida aparece como Devolvido, com a data, no painel do protetor e em Minhas candidaturas, sai do filtro Aprovado e o animal deixa de aparecer como encerrado (#168)
