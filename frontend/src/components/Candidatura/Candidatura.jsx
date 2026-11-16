@@ -6,13 +6,20 @@ import { useAuth } from "../../contexts/AuthContext";
 import { apagarDepoimento } from "../../services/depoimentos";
 import { desistirDoInteresse } from "../../services/interesses";
 import { mascaraTelefone } from "../../utils/mascaras";
-import { formatarData, haQuantoTempo, resumoDoAnimal } from "../../utils/rotulos";
+import {
+  formatarData,
+  haQuantoTempo,
+  quandoFoiDevolvido,
+  resumoDoAnimal,
+  situacaoDoInteresse,
+} from "../../utils/rotulos";
 
 // As mesmas cores do painel do protetor (Figma: Minhas candidaturas)
 const status = {
   PENDENTE: { texto: "Pendente", variante: "destaqueRoxo" },
   EM_CONTATO: { texto: "Em contato", variante: "atencao" },
   APROVADO: { texto: "Aprovado", variante: "disponivel" },
+  DEVOLVIDO: { texto: "Devolvido", variante: "atencao" },
   DESCONTINUADO: { texto: "Descontinuado", variante: "neutro" },
 };
 
@@ -36,7 +43,9 @@ export default function Candidatura({ candidatura, aoDesistir, aoApagarHistoria 
     depoimentoId,
     podeContarAdocao,
     prazoDepoimento,
+    devolvidoEm,
   } = candidatura;
+  const situacao = situacaoDoInteresse(candidatura);
   const { token, sair } = useAuth();
   const [confirmando, setConfirmando] = useState(false);
   const [enviando, setEnviando] = useState(false);
@@ -126,17 +135,24 @@ export default function Candidatura({ candidatura, aoDesistir, aoApagarHistoria 
               <h2 className="font-titulo text-subtitulo font-semibold text-texto-principal">
                 {animal.nome}
               </h2>
-              <Tag variante={status[statusAndamento].variante}>
-                {status[statusAndamento].texto}
+              <Tag variante={status[situacao].variante}>
+                {status[situacao].texto}
               </Tag>
             </div>
             <p className="mt-[6px] text-compacto text-texto-secundario">
               {descricao && `${descricao}. `}Interesse enviado{" "}
               {haQuantoTempo(dataHora)}
             </p>
-            {statusAndamento === "APROVADO" && (
+            {situacao === "APROVADO" && (
               <p className="mt-[6px] text-compacto text-status-disponivel-texto">
                 Adoção aprovada. Combine os próximos passos com o protetor.
+              </p>
+            )}
+            {situacao === "DEVOLVIDO" && (
+              <p className="mt-[6px] text-compacto text-texto-secundario">
+                A adoção foi aprovada e depois o protetor registrou a devolução
+                {devolvidoEm ? ` ${quandoFoiDevolvido(devolvidoEm)}` : ""}.{" "}
+                {animal.nome} voltou pra adoção.
               </p>
             )}
             {podeContarAdocao && (

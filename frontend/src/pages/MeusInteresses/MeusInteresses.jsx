@@ -7,12 +7,15 @@ import Chip from "../../components/Chip/Chip";
 import { useAuth } from "../../contexts/AuthContext";
 import { listarMeusInteresses } from "../../services/interesses";
 import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
+import { situacaoDoInteresse } from "../../utils/rotulos";
 
 const filtrosDeStatus = [
   { valor: "", nome: "Todas" },
   { valor: "PENDENTE", nome: "Pendente" },
   { valor: "EM_CONTATO", nome: "Em contato" },
   { valor: "APROVADO", nome: "Aprovado" },
+  // Só aparece quando tem alguma adoção devolvida
+  { valor: "DEVOLVIDO", nome: "Devolvido" },
   { valor: "DESCONTINUADO", nome: "Descontinuado" },
 ];
 
@@ -21,7 +24,8 @@ const ordemDoStatus = {
   EM_CONTATO: 0,
   PENDENTE: 1,
   APROVADO: 2,
-  DESCONTINUADO: 3,
+  DEVOLVIDO: 3,
+  DESCONTINUADO: 4,
 };
 
 // Minhas candidaturas (UC07, RF09, Figma: Minhas candidaturas), em /meus-interesses. Só pessoa física chega aqui.
@@ -94,22 +98,25 @@ export default function MeusInteresses() {
     setVersao((atual) => atual + 1);
   }
 
+  // O filtro olha a situação, e não só o status: a adoção devolvida sai de Aprovado e vai pra Devolvido
   function contar(valor) {
     return valor
       ? candidaturas.filter(
-          (candidatura) => candidatura.statusAndamento === valor,
+          (candidatura) => situacaoDoInteresse(candidatura) === valor,
         ).length
       : candidaturas.length;
   }
 
+  const temDevolvido = candidaturas.some((candidatura) => candidatura.devolvido);
+
   const visiveis = candidaturas
     .filter(
       (candidatura) =>
-        !statusEscolhido || candidatura.statusAndamento === statusEscolhido,
+        !statusEscolhido || situacaoDoInteresse(candidatura) === statusEscolhido,
     )
     .sort(
       (a, b) =>
-        ordemDoStatus[a.statusAndamento] - ordemDoStatus[b.statusAndamento],
+        ordemDoStatus[situacaoDoInteresse(a)] - ordemDoStatus[situacaoDoInteresse(b)],
     );
 
   return (
@@ -166,15 +173,17 @@ export default function MeusInteresses() {
       {situacao === "pronto" && candidaturas.length > 0 && (
         <>
           <div className="flex flex-wrap gap-2">
-            {filtrosDeStatus.map(({ valor, nome }) => (
-              <Chip
-                key={nome}
-                ativo={statusEscolhido === valor}
-                onClick={() => setStatusEscolhido(valor)}
-              >
-                {nome} {contar(valor)}
-              </Chip>
-            ))}
+            {filtrosDeStatus
+              .filter(({ valor }) => valor !== "DEVOLVIDO" || temDevolvido)
+              .map(({ valor, nome }) => (
+                <Chip
+                  key={nome}
+                  ativo={statusEscolhido === valor}
+                  onClick={() => setStatusEscolhido(valor)}
+                >
+                  {nome} {contar(valor)}
+                </Chip>
+              ))}
           </div>
 
           {visiveis.length === 0 ? (

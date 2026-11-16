@@ -9,12 +9,15 @@ import { useAuth } from "../../contexts/AuthContext";
 import { listarMeusAnimais } from "../../services/animais";
 import { listarInteressesRecebidos } from "../../services/interesses";
 import { useTituloDaPagina } from "../../hooks/useTituloDaPagina";
+import { situacaoDoInteresse } from "../../utils/rotulos";
 
 const filtrosDeStatus = [
   { valor: "", nome: "Todos" },
   { valor: "PENDENTE", nome: "Pendente" },
   { valor: "EM_CONTATO", nome: "Em contato" },
   { valor: "APROVADO", nome: "Aprovado" },
+  // Só aparece quando tem alguma adoção devolvida
+  { valor: "DEVOLVIDO", nome: "Devolvido" },
   { valor: "DESCONTINUADO", nome: "Descontinuado" },
 ];
 
@@ -89,18 +92,21 @@ export default function InteressesRecebidos() {
     doAnimal = interesses.filter(
       (interesse) => interesse.animal.id === animalEscolhido,
     );
+  // O filtro olha a situação, e não só o status: a adoção devolvida sai de Aprovado e vai pra Devolvido
   const visiveis = statusEscolhido
     ? doAnimal.filter(
-        (interesse) => interesse.statusAndamento === statusEscolhido,
+        (interesse) => situacaoDoInteresse(interesse) === statusEscolhido,
       )
     : doAnimal;
 
   function contar(valor) {
     return valor
-      ? doAnimal.filter((interesse) => interesse.statusAndamento === valor)
+      ? doAnimal.filter((interesse) => situacaoDoInteresse(interesse) === valor)
           .length
       : doAnimal.length;
   }
+
+  const temDevolvido = interesses.some((interesse) => interesse.devolvido);
 
   function escolherAnimal(id) {
     setParametros(id ? { animal: id } : {}, { replace: true });
@@ -125,9 +131,10 @@ export default function InteressesRecebidos() {
       const doGrupo = interesses.filter(
         (interesse) => interesse.animal.id === animal.id,
       );
+      // Animal devolvido voltou pra adoção: o cartão dele não fica mais como encerrado
       const encerrado =
         dados.statusAdocao === "ADOTADO" ||
-        doGrupo.some((interesse) => interesse.statusAndamento === "APROVADO");
+        doGrupo.some((interesse) => situacaoDoInteresse(interesse) === "APROVADO");
       return { animal: dados, interesses: doGrupo, encerrado };
     })
     .sort((a, b) => Number(a.encerrado) - Number(b.encerrado));
@@ -185,15 +192,17 @@ export default function InteressesRecebidos() {
         <>
           <div className="flex flex-wrap items-end gap-4">
             <div className="flex flex-wrap gap-2">
-              {filtrosDeStatus.map(({ valor, nome }) => (
-                <Chip
-                  key={nome}
-                  ativo={statusEscolhido === valor}
-                  onClick={() => setStatusEscolhido(valor)}
-                >
-                  {nome} {contar(valor)}
-                </Chip>
-              ))}
+              {filtrosDeStatus
+                .filter(({ valor }) => valor !== "DEVOLVIDO" || temDevolvido)
+                .map(({ valor, nome }) => (
+                  <Chip
+                    key={nome}
+                    ativo={statusEscolhido === valor}
+                    onClick={() => setStatusEscolhido(valor)}
+                  >
+                    {nome} {contar(valor)}
+                  </Chip>
+                ))}
             </div>
             {animais.length > 1 && (
               <CampoSelecao

@@ -24,7 +24,8 @@ final class InteresseMapper {
         Animal animal = interesse.getAnimal();
         return new InteresseResponse(interesse.getId(), interesse.getDataHora(), interesse.getStatusAndamento(),
                 interesse.getMotivoDescontinuacao(), resumo(animal), triagem(interesse), contatoDoProtetor(animal),
-                depoimento.depoimentoId(), depoimento.podeContar(), depoimento.prazo());
+                depoimento.depoimentoId(), depoimento.podeContar(), depoimento.prazo(),
+                interesse.foiDevolvido(), interesse.getDevolvidoEm());
     }
 
     // Visão do protetor: vem com o contato do candidato (o inverso do paraCandidato, que traz o do protetor)
@@ -33,7 +34,8 @@ final class InteresseMapper {
         return new InteresseRecebidoResponse(interesse.getId(), interesse.getDataHora(),
                 interesse.getStatusAndamento(), interesse.getMotivoDescontinuacao(),
                 resumo(interesse.getAnimal()), triagem(interesse),
-                new ContatoResponse(candidato.getNome(), candidato.getTelefone(), candidato.getEmail()));
+                new ContatoResponse(candidato.getNome(), candidato.getTelefone(), candidato.getEmail()),
+                interesse.foiDevolvido(), interesse.getDevolvidoEm());
     }
 
     static AnimalResumoResponse resumo(Animal animal) {

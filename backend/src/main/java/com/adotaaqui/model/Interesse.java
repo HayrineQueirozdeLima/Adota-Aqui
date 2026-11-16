@@ -59,6 +59,12 @@ public class Interesse {
     @Column(name = "aprovado_em")
     private LocalDateTime aprovadoEm;
 
+    // Quando o protetor registrou a devolução do animal (UC05 FA04). O status continua Aprovado,
+    // porque a adoção aconteceu (RF06); é esta data que mostra no histórico que ele voltou.
+    // Fica vazio nas devoluções feitas antes de a coluna existir: aí vale o foiDevolvido(), lá embaixo
+    @Column(name = "devolvido_em")
+    private LocalDateTime devolvidoEm;
+
     // ----- Triagem (RF15) -----
     // Todas são obrigatórias. Em quase todas a pessoa pode marcar
     // "prefiro responder diretamente ao protetor", menos no momento de contato.
@@ -112,6 +118,20 @@ public class Interesse {
     @PreUpdate
     private void aoAtualizar() {
         validarMotivo();
+    }
+
+    // Aprovado, mas não é mais a adoção atual do animal: ele voltou pra Disponível ou foi adotado
+    // por outra pessoa depois. Funciona também pras devoluções sem data, de antes da coluna devolvido_em
+    public boolean foiDevolvido() {
+        if (statusAndamento != StatusInteresse.APROVADO) return false;
+        return animal.adocaoAtual()
+                .map(atual -> atual != this && (id == null || !id.equals(atual.getId())))
+                .orElse(true);
+    }
+
+    // Quando foi aprovado. Nos aprovados antes de existir a data da aprovação, vale a data do interesse
+    public LocalDateTime quandoFoiAprovado() {
+        return aprovadoEm != null ? aprovadoEm : dataHora;
     }
 
     private void validarMotivo() {
@@ -207,6 +227,14 @@ public class Interesse {
 
     public void setAnimal(Animal animal) {
         this.animal = animal;
+    }
+
+    public LocalDateTime getDevolvidoEm() {
+        return devolvidoEm;
+    }
+
+    public void setDevolvidoEm(LocalDateTime devolvidoEm) {
+        this.devolvidoEm = devolvidoEm;
     }
 
     public LocalDateTime getAprovadoEm() {
